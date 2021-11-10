@@ -20,7 +20,6 @@ import org.argeo.api.security.NodeSecurityUtils;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
-import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -28,7 +27,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
-/** Centrlaises security related registrations. */
+/** Centralises security related registrations. */
 class CmsAuthUtils {
 	// Standard
 	final static String SHARED_STATE_NAME = AuthenticatingUser.SHARED_STATE_NAME;
@@ -52,9 +51,7 @@ class CmsAuthUtils {
 		// required for display name:
 		subject.getPrivateCredentials().add(authorization);
 
-		if (Activator.isSingleUser()) {
-			subject.getPrincipals().add(new DataAdminPrincipal());
-		}
+		boolean singleUser = authorization instanceof SingleUserAuthorization;
 
 		Set<Principal> principals = subject.getPrincipals();
 		try {
@@ -73,8 +70,9 @@ class CmsAuthUtils {
 				userPrincipal = new X500Principal(name.toString());
 				principals.add(userPrincipal);
 
-				if (Activator.isSingleUser()) {
+				if (singleUser) {
 					principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_ADMIN_NAME, userPrincipal));
+					principals.add(new DataAdminPrincipal());
 				}
 			}
 
@@ -123,6 +121,7 @@ class CmsAuthUtils {
 		// subject.getPrincipals().removeAll(subject.getPrincipals(AnonymousPrincipal.class));
 	}
 
+	@SuppressWarnings("unused")
 	synchronized static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
 			Authorization authorization, Locale locale) {
 		// synchronized in order to avoid multiple registrations
@@ -131,49 +130,59 @@ class CmsAuthUtils {
 			HttpSession httpSession = request.getSession(false);
 			assert httpSession != null;
 			String httpSessId = httpSession.getId();
-			String remoteUser = authorization.getName() != null ? authorization.getName()
-					: NodeConstants.ROLE_ANONYMOUS;
+			boolean anonymous = authorization.getName() == null;
+			String remoteUser = !anonymous ? authorization.getName() : NodeConstants.ROLE_ANONYMOUS;
 			request.setAttribute(HttpContext.REMOTE_USER, remoteUser);
 			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 
-			CmsSessionImpl cmsSession = CmsSessionImpl.getByLocalId(httpSessId);
-			if (cmsSession != null) {
-				if (authorization.getName() != null) {
-					if (cmsSession.getAuthorization().getName() == null) {
-						cmsSession.close();
-						cmsSession = null;
-					} else if (!authorization.getName().equals(cmsSession.getAuthorization().getName())) {
+			CmsSessionImpl cmsSession;
+			CmsSessionImpl currentLocalSession = CmsSessionImpl.getByLocalId(httpSessId);
+			if (currentLocalSession != null) {
+				boolean currentLocalSessionAnonymous = currentLocalSession.getAuthorization().getName() == null;
+				if (!anonymous) {
+					if (currentLocalSessionAnonymous) {
+						currentLocalSession.close();
+						// new CMS session
+						cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
+					} else if (!authorization.getName().equals(currentLocalSession.getAuthorization().getName())) {
 						throw new IllegalStateException("Inconsistent user " + authorization.getName()
-								+ " for existing CMS session " + cmsSession);
-					}
-					// keyring
-					if (cmsSession != null)
+								+ " for existing CMS session " + currentLocalSession);
+					} else {
+						// keep current session
+						cmsSession = currentLocalSession;
+						// keyring
 						subject.getPrivateCredentials().addAll(cmsSession.getSecretKeys());
-				} else {// anonymous
-					if (cmsSession.getAuthorization().getName() != null) {
-						cmsSession.close();
-						// TODO rather throw an exception ? log a warning ?
-						cmsSession = null;
 					}
+				} else {// anonymous
+					if (!currentLocalSessionAnonymous) {
+						currentLocalSession.close();
+						throw new IllegalStateException(
+								"Existing CMS session " + currentLocalSession + " was not logged out properly.");
+					}
+					// keep current session
+					cmsSession = currentLocalSession;
 				}
-			} else if (cmsSession == null) {
+			} else {
+				// new CMS session
 				cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
 			}
-			// request.setAttribute(CmsSession.class.getName(), cmsSession);
-			if (cmsSession != null) {
-				CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
-				if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0)
-					subject.getPrivateCredentials().add(nodeSessionId);
-				else {
-					UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next()
-							.getUuid();
-					// if (storedSessionId.equals(httpSessionId.getValue()))
-					throw new IllegalStateException(
-							"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
-				}
+
+			if (cmsSession == null)// should be dead code (cf. SuppressWarning of the method)
+				throw new IllegalStateException("CMS session cannot be null");
+
+			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
+			if (subject.getPrivateCredentials(CmsSessionId.class).size() == 0) {
+				subject.getPrivateCredentials().add(nodeSessionId);
+			} else {
+				UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
+				// if (storedSessionId.equals(httpSessionId.getValue()))
+				throw new IllegalStateException(
+						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
 		} else {
-			// TODO desktop, CLI
+			CmsSessionImpl cmsSession = new CmsSessionImpl(subject, authorization, locale, "desktop");
+			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
+			subject.getPrivateCredentials().add(nodeSessionId);
 		}
 	}
 

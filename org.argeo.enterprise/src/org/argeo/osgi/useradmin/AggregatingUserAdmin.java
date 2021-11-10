@@ -74,9 +74,9 @@ public class AggregatingUserAdmin implements UserAdmin {
 	public User getUser(String key, String value) {
 		List<User> res = new ArrayList<User>();
 		for (UserAdmin userAdmin : businessRoles.values()) {
-			User u = userAdmin.getUser(key, value);
-			if (u != null)
-				res.add(u);
+				User u = userAdmin.getUser(key, value);
+				if (u != null)
+					res.add(u);
 		}
 		// Note: node roles cannot contain users, so it is not searched
 		return res.size() == 1 ? res.get(0) : null;
@@ -87,11 +87,12 @@ public class AggregatingUserAdmin implements UserAdmin {
 		if (user == null) {// anonymous
 			return systemRoles.getAuthorization(null);
 		}
-		UserAdmin userAdmin = findUserAdmin(user.getName());
-		Authorization rawAuthorization = userAdmin.getAuthorization(user);
+		AbstractUserDirectory userReferentialOfThisUser = findUserAdmin(user.getName());
+		Authorization rawAuthorization = userReferentialOfThisUser.getAuthorization(user);
 		String usernameToUse;
 		String displayNameToUse;
 		if (user instanceof Group) {
+			// TODO check whether this is still working
 			String ownerDn = TokenUtils.userDn((Group) user);
 			if (ownerDn != null) {// tokens
 				UserAdmin ownerUserAdmin = findUserAdmin(ownerDn);
@@ -106,21 +107,38 @@ public class AggregatingUserAdmin implements UserAdmin {
 			usernameToUse = rawAuthorization.getName();
 			displayNameToUse = rawAuthorization.toString();
 		}
-		// gather system roles
-		Set<String> sysRoles = new HashSet<String>();
-		for (String role : rawAuthorization.getRoles()) {
-			Authorization auth = systemRoles.getAuthorization((User) userAdmin.getRole(role));
-			systemRoles: for (String systemRole : auth.getRoles()) {
-				if (role.equals(systemRole))
-					continue systemRoles;
-				sysRoles.add(systemRole);
-			}
-//			sysRoles.addAll(Arrays.asList(auth.getRoles()));
+
+		// gather roles from other referentials
+		final AbstractUserDirectory userAdminToUse;// possibly scoped when authenticating
+		if (user instanceof DirectoryUser) {
+			userAdminToUse = userReferentialOfThisUser;
+		} else if (user instanceof AuthenticatingUser) {
+			userAdminToUse = userReferentialOfThisUser.scope(user);
+		} else {
+			throw new IllegalArgumentException("Unsupported user type " + user.getClass());
 		}
-		addAbstractSystemRoles(rawAuthorization, sysRoles);
-		Authorization authorization = new AggregatingAuthorization(usernameToUse, displayNameToUse, sysRoles,
-				rawAuthorization.getRoles());
-		return authorization;
+
+		try {
+			Set<String> sysRoles = new HashSet<String>();
+			for (String role : rawAuthorization.getRoles()) {
+				User userOrGroup = (User) userAdminToUse.getRole(role);
+				Authorization auth = systemRoles.getAuthorization(userOrGroup);
+				systemRoles: for (String systemRole : auth.getRoles()) {
+					if (role.equals(systemRole))
+						continue systemRoles;
+					sysRoles.add(systemRole);
+				}
+//			sysRoles.addAll(Arrays.asList(auth.getRoles()));
+			}
+			addAbstractSystemRoles(rawAuthorization, sysRoles);
+			Authorization authorization = new AggregatingAuthorization(usernameToUse, displayNameToUse, sysRoles,
+					rawAuthorization.getRoles());
+			return authorization;
+		} finally {
+			if (userAdminToUse != null && userAdminToUse.isScoped()) {
+				userAdminToUse.destroy();
+			}
+		}
 	}
 
 	/**
@@ -155,16 +173,26 @@ public class AggregatingUserAdmin implements UserAdmin {
 	protected void postAdd(AbstractUserDirectory userDirectory) {
 	}
 
-	private UserAdmin findUserAdmin(String name) {
+//	private UserAdmin findUserAdmin(User user) {
+//		if (user == null)
+//			throw new IllegalArgumentException("User should not be null");
+//		AbstractUserDirectory userAdmin = findUserAdmin(user.getName());
+//		if (user instanceof DirectoryUser) {
+//			return userAdmin;
+//		} else {
+//			return userAdmin.scope(user);
+//		}
+//	}
+
+	private AbstractUserDirectory findUserAdmin(String name) {
 		try {
-			UserAdmin userAdmin = findUserAdmin(new LdapName(name));
-			return userAdmin;
+			return findUserAdmin(new LdapName(name));
 		} catch (InvalidNameException e) {
 			throw new UserDirectoryException("Badly formatted name " + name, e);
 		}
 	}
 
-	private UserAdmin findUserAdmin(LdapName name) {
+	private AbstractUserDirectory findUserAdmin(LdapName name) {
 		if (name.startsWith(systemRolesBaseDn))
 			return systemRoles;
 		if (tokensBaseDn != null && name.startsWith(tokensBaseDn))

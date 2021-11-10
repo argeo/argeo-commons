@@ -21,7 +21,7 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	private final LdifUser osUser;
 
 	public OsUserDirectory(URI uriArg, Dictionary<String, ?> props) {
-		super(uriArg, props);
+		super(uriArg, props, false);
 		try {
 			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + getUserBase() + "," + getBaseDn());
 			Attributes attributes = new BasicAttributes();
@@ -53,7 +53,7 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	@Override
 	protected List<DirectoryUser> doGetRoles(Filter f) {
 		List<DirectoryUser> res = new ArrayList<>();
-		if (f==null || f.match(osUser.getProperties()))
+		if (f == null || f.match(osUser.getProperties()))
 			res.add(osUser);
 		return res;
 	}

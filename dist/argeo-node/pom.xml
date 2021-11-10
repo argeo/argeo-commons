@@ -30,11 +30,6 @@
 				</dependency>
 				<dependency>
 					<groupId>org.argeo.commons</groupId>
-					<artifactId>org.argeo.dep.cms.sdk</artifactId>
-					<version>2.3.1-SNAPSHOT</version>
-				</dependency>
-				<dependency>
-					<groupId>org.argeo.commons</groupId>
 					<artifactId>osgi-boot</artifactId>
 					<type>zip</type>
 					<version>2.3.1-SNAPSHOT</version>

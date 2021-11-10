@@ -14,20 +14,24 @@
 	</DataSources>
 
 	<!-- File system and datastore -->
-	<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+	<FileSystem
+		class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 		<param name="dataSourceName" value="dataSource" />
 		<param name="schema" value="postgresql" />
 		<param name="schemaObjectPrefix" value="fs_" />
 	</FileSystem>
-	<DataStore class="org.apache.jackrabbit.core.data.FileDataStore">
+	<DataStore
+		class="org.argeo.cms.internal.jcr.LocalFsDataStore">
 		<param name="path" value="${rep.home}/../datastore" />
+		<param name="redundantPath" value="${rep.home}/../datastorer" />
 	</DataStore>
 
 	<!-- Workspace templates -->
 	<Workspaces rootPath="${rep.home}/workspaces"
 		defaultWorkspace="${defaultWorkspace}" />
 	<Workspace name="${wsp.name}">
-		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+		<FileSystem
+			class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schema" value="postgresql" />
 			<param name="schemaObjectPrefix" value="${wsp.name}_fs_" />
@@ -38,11 +42,14 @@
 			<param name="schemaObjectPrefix" value="${wsp.name}_pm_" />
 			<param name="bundleCacheSize" value="${bundleCacheMB}" />
 		</PersistenceManager>
-		<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
-			<param name="path" value="${indexesBase}/${cn}/${wsp.name}/index" />
+		<SearchIndex
+			class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+			<param name="path"
+				value="${indexesBase}/${cn}/${wsp.name}/index" />
 			<param name="extractorPoolSize" value="${extractorPoolSize}" />
 			<param name="cacheSize" value="${searchCacheSize}" />
-			<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />
+			<param name="maxVolatileIndexSize"
+				value="${maxVolatileIndexSize}" />
 		</SearchIndex>
 		<WorkspaceSecurity>
 			<AccessControlProvider
@@ -52,7 +59,8 @@
 
 	<!-- Versioning -->
 	<Versioning rootPath="${rep.home}/version">
-		<FileSystem class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
+		<FileSystem
+			class="org.apache.jackrabbit.core.fs.db.DbFileSystem">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schema" value="postgresql" />
 			<param name="schemaObjectPrefix" value="fs_ver_" />
@@ -66,23 +74,28 @@
 	</Versioning>
 
 	<!-- Indexing -->
-	<SearchIndex class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
+	<SearchIndex
+		class="org.apache.jackrabbit.core.query.lucene.SearchIndex">
 		<param name="path" value="${indexesBase}/${cn}/index" />
 		<param name="extractorPoolSize" value="${extractorPoolSize}" />
 		<param name="cacheSize" value="${searchCacheSize}" />
-		<param name="maxVolatileIndexSize" value="${maxVolatileIndexSize}" />
+		<param name="maxVolatileIndexSize"
+			value="${maxVolatileIndexSize}" />
 	</SearchIndex>
 
 	<!-- Security -->
 	<Security appName="Jackrabbit">
-		<SecurityManager class="org.argeo.security.jackrabbit.ArgeoSecurityManager"
+		<SecurityManager
+			class="org.argeo.security.jackrabbit.ArgeoSecurityManager"
 			workspaceName="security" />
-		<AccessManager class="org.argeo.security.jackrabbit.ArgeoAccessManager" />
+		<AccessManager
+			class="org.argeo.security.jackrabbit.ArgeoAccessManager" />
 	</Security>
 
 	<!-- Clustering -->
-	<Cluster id="${clusterId}">
-		<Journal class="org.apache.jackrabbit.core.journal.DatabaseJournal">
+	<Cluster id="${clusterId}" syncDelay="100">
+		<Journal
+			class="org.apache.jackrabbit.core.journal.DatabaseJournal">
 			<param name="dataSourceName" value="dataSource" />
 			<param name="schemaObjectPrefix" value="journal_" />
 		</Journal>

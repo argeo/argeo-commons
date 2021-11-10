@@ -902,6 +902,8 @@ public class Jcr {
 	// QUERY
 	/** Creates a JCR-SQL2 query using {@link MessageFormat}. */
 	public static Query createQuery(QueryManager qm, String sql, Object... args) {
+		// fix single quotes
+		sql = sql.replaceAll("'", "''");
 		String query = MessageFormat.format(sql, args);
 		try {
 			return qm.createQuery(query, Query.JCR_SQL2);

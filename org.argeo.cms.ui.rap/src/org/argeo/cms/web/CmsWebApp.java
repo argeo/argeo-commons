@@ -3,6 +3,7 @@ package org.argeo.cms.web;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,12 +14,13 @@ import org.argeo.cms.ui.CmsView;
 import org.argeo.util.LangUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
+import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.ExceptionHandler;
-import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
@@ -28,6 +30,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	private BundleContext bundleContext;
 	private CmsApp cmsApp;
+	private String cmsAppId;
 	private EventAdmin eventAdmin;
 
 	private ServiceRegistration<ApplicationConfiguration> rwtAppReg;
@@ -35,16 +38,22 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 	private final static String CONTEXT_NAME = "contextName";
 	private String contextName;
 
+	private final static String FAVICON_PNG = "favicon.png";
+
 	public void init(BundleContext bundleContext, Map<String, String> properties) {
 		this.bundleContext = bundleContext;
 		contextName = properties.get(CONTEXT_NAME);
-		if (cmsApp != null)
-			themingUpdated();
+		if (cmsApp != null) {
+			if (cmsApp.allThemesAvailable())
+				publishWebApp();
+		}
 	}
 
 	public void destroy(BundleContext bundleContext, Map<String, String> properties) {
-		if (cmsApp != null)
+		if (cmsApp != null) {
 			cmsApp.removeCmsAppListener(this);
+			cmsApp = null;
+		}
 	}
 
 	@Override
@@ -84,6 +93,11 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 			if (theme != null) {
 				properties.put(WebClient.THEME_ID, theme.getThemeId());
 				properties.put(WebClient.HEAD_HTML, theme.getHtmlHeaders());
+				properties.put(WebClient.BODY_HTML, theme.getBodyHtml());
+				Set<String> imagePaths = theme.getImagesPaths();
+				if (imagePaths.contains(FAVICON_PNG)) {
+					properties.put(WebClient.FAVICON, FAVICON_PNG);
+				}
 			} else {
 				properties.put(WebClient.THEME_ID, RWT.DEFAULT_THEME_ID);
 			}
@@ -96,8 +110,8 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 			if (log.isDebugEnabled())
 				log.info("Added web entry point " + (contextName != null ? "/" + contextName : "") + entryPointName);
 		}
-		if (log.isDebugEnabled())
-			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
+//		if (log.isDebugEnabled())
+//			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
 	}
 
 	CmsApp getCmsApp() {
@@ -110,10 +124,17 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	public void setCmsApp(CmsApp cmsApp, Map<String, String> properties) {
 		this.cmsApp = cmsApp;
+		this.cmsAppId = properties.get(Constants.SERVICE_PID);
 		this.cmsApp.addCmsAppListener(this);
 	}
 
 	public void unsetCmsApp(CmsApp cmsApp, Map<String, String> properties) {
+		String cmsAppId = properties.get(Constants.SERVICE_PID);
+		if (!cmsAppId.equals(this.cmsAppId))
+			return;
+		if (this.cmsApp != null) {
+			this.cmsApp.removeCmsAppListener(this);
+		}
 		if (rwtAppReg != null)
 			rwtAppReg.unregister();
 		this.cmsApp = null;
@@ -121,6 +142,11 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	@Override
 	public void themingUpdated() {
+		if (cmsApp != null && cmsApp.allThemesAvailable())
+			publishWebApp();
+	}
+
+	protected void publishWebApp() {
 		Dictionary<String, Object> regProps = LangUtils.dict(CONTEXT_NAME, contextName);
 		if (rwtAppReg != null)
 			rwtAppReg.unregister();

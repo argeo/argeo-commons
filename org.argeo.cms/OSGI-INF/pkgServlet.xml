@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.argeo.cms.pkgServlet">
+   <implementation class="org.argeo.cms.internal.http.PkgServlet"/>
+   <service>
+      <provide interface="javax.servlet.Servlet"/>
+   </service>
+   <property name="osgi.http.whiteboard.servlet.pattern" type="String" value="/*"/>
+   <property name="osgi.http.whiteboard.context.select" type="String" value="(osgi.http.whiteboard.context.name=pkgServletContext)"/>
+</scr:component>

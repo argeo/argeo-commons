@@ -25,10 +25,13 @@ public abstract class AbstractCmsApp implements CmsApp {
 		String themeId = getThemeId(uiName);
 		if (themeId == null)
 			return null;
+		if (!themes.containsKey(themeId))
+			throw new IllegalArgumentException("Theme " + themeId + " not found.");
 		return themes.get(themeId);
 	}
 
-	protected boolean allThemesAvailable() {
+	@Override
+	public boolean allThemesAvailable() {
 		boolean themeMissing = false;
 		uiNames: for (String uiName : getUiNames()) {
 			String themeId = getThemeId(uiName);

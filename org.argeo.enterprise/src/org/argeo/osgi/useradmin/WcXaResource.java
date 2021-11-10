@@ -62,6 +62,7 @@ class WcXaResource implements XAResource {
 		try {
 			userDirectory.prepare(wc);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new XAException(XAException.XAER_RMERR);
 		}
 		return XA_OK;
@@ -78,6 +79,7 @@ class WcXaResource implements XAResource {
 				userDirectory.prepare(wc);
 			userDirectory.commit(wc);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new XAException(XAException.XAER_RMERR);
 		} finally {
 			cleanUp(xid);
@@ -90,6 +92,7 @@ class WcXaResource implements XAResource {
 			checkXid(xid);
 			userDirectory.rollback(wc(xid));
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new XAException(XAException.XAER_RMERR);
 		} finally {
 			cleanUp(xid);

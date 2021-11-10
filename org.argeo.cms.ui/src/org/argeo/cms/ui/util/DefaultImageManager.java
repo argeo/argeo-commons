@@ -9,6 +9,8 @@ import static org.argeo.cms.ui.CmsConstants.NO_IMAGE_SIZE;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -150,7 +152,7 @@ public class DefaultImageManager implements CmsImageManager {
 	/** @return null if not available */
 	@Override
 	public String getImageUrl(Node node) throws RepositoryException {
-		return CmsUiUtils.getDataPath(node);
+		return CmsUiUtils.getDataPathForUrl(node);
 	}
 
 	protected String getResourceName(Node node) throws RepositoryException {

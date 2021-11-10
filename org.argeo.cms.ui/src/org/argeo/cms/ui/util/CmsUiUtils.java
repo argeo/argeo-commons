@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -17,6 +20,7 @@ import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.Selected;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -30,6 +34,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -113,6 +118,25 @@ public class CmsUiUtils implements CmsConstants {
 		return NodeUtils.getDataPath(cn, node);
 	}
 
+	/** Clean reserved URL characters for use in HTTP links. */
+	public static String getDataPathForUrl(Node node) throws RepositoryException {
+		return cleanPathForUrl(getDataPath(node));
+	}
+
+	/** Clean reserved URL characters for use in HTTP links. */
+	public static String cleanPathForUrl(String path) throws RepositoryException {
+		StringTokenizer st = new StringTokenizer(path, "/");
+		StringBuilder sb = new StringBuilder();
+		while (st.hasMoreElements()) {
+			sb.append('/');
+			String encoded = URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8);
+			encoded = encoded.replace("+", "%20");
+			sb.append(encoded);
+
+		}
+		return sb.toString();
+	}
+
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */
 	@Deprecated
 	public static RowData ROW_DATA_16px = new RowData(16, 16);
@@ -128,6 +152,7 @@ public class CmsUiUtils implements CmsConstants {
 		return noSpaceGridLayout(new GridLayout(columns, false));
 	}
 
+	/** @return the same layout, with spaces removed. */
 	public static GridLayout noSpaceGridLayout(GridLayout layout) {
 		layout.horizontalSpacing = 0;
 		layout.verticalSpacing = 0;
@@ -159,6 +184,19 @@ public class CmsUiUtils implements CmsConstants {
 	/*
 	 * ROW LAYOUT
 	 */
+	/** @return the same layout, with margins removed. */
+	public static RowLayout noMarginsRowLayout(RowLayout rowLayout) {
+		rowLayout.marginTop = 0;
+		rowLayout.marginBottom = 0;
+		rowLayout.marginLeft = 0;
+		rowLayout.marginRight = 0;
+		return rowLayout;
+	}
+
+	public static RowLayout noMarginsRowLayout(int type) {
+		return noMarginsRowLayout(new RowLayout(type));
+	}
+
 	public static RowData rowData16px() {
 		return new RowData(16, 16);
 	}
@@ -186,7 +224,9 @@ public class CmsUiUtils implements CmsConstants {
 			return widget;// does nothing
 		EclipseUiSpecificUtils.setStyleData(widget, style);
 		if (widget instanceof Control) {
-			CmsView.getCmsView((Control) widget).applyStyles(widget);
+			CmsView cmsView = CmsView.getCmsView((Control) widget);
+			if (cmsView != null)
+				cmsView.applyStyles(widget);
 		}
 		return widget;
 	}
@@ -199,6 +239,12 @@ public class CmsUiUtils implements CmsConstants {
 	/** Enable markups on widget */
 	public static <T extends Widget> T markup(T widget) {
 		EclipseUiSpecificUtils.setMarkupData(widget);
+		return widget;
+	}
+
+	/** Disable markup validation. */
+	public static <T extends Widget> T disableMarkupValidation(T widget) {
+		EclipseUiSpecificUtils.setMarkupValidationDisabledData(widget);
 		return widget;
 	}
 
@@ -245,6 +291,8 @@ public class CmsUiUtils implements CmsConstants {
 
 	/** Dispose all children of a Composite */
 	public static void clear(Composite composite) {
+		if (composite.isDisposed())
+			return;
 		for (Control child : composite.getChildren())
 			child.dispose();
 	}
@@ -285,7 +333,13 @@ public class CmsUiUtils implements CmsConstants {
 	}
 
 	public static String img(String serverBase, Node fileNode, String width, String height) {
-		String src = (serverBase != null ? serverBase : "") + NodeUtils.getDataPath(fileNode);
+//		String src = (serverBase != null ? serverBase : "") + NodeUtils.getDataPath(fileNode);
+		String src;
+		try {
+			src = (serverBase != null ? serverBase : "") + getDataPathForUrl(fileNode);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get URL data path for " + fileNode, e);
+		}
 		return imgBuilder(src, width, height).append("/>").toString();
 	}
 
@@ -345,4 +399,5 @@ public class CmsUiUtils implements CmsConstants {
 	/** Singleton. */
 	private CmsUiUtils() {
 	}
+
 }

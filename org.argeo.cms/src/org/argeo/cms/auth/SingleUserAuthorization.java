@@ -8,10 +8,15 @@ import org.osgi.service.useradmin.Authorization;
  * @see SingleUserLoginModule
  */
 public class SingleUserAuthorization implements Authorization {
+	private String name;
+
+	public SingleUserAuthorization(String name) {
+		this.name = name;
+	}
 
 	@Override
 	public String getName() {
-		return System.getProperty("user.name");
+		return name;
 	}
 
 	@Override

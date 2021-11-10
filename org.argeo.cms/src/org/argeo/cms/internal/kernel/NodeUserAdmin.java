@@ -96,20 +96,25 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	@Override
 	public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
 		String uri = (String) properties.get(UserAdminConf.uri.name());
+		Object realm = properties.get(UserAdminConf.realm.name());
 		URI u;
 		try {
 			if (uri == null) {
 				String baseDn = (String) properties.get(UserAdminConf.baseDn.name());
 				u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + baseDn + ".ldif");
-			} else
+			} else if (realm != null) {
+				u = null;
+			} else {
 				u = new URI(uri);
+			}
 		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException("Badly formatted URI " + uri, e);
 		}
 
 		// Create
 		AbstractUserDirectory userDirectory;
-		if (UserAdminConf.SCHEME_LDAP.equals(u.getScheme())) {
+		if (realm != null || UserAdminConf.SCHEME_LDAP.equals(u.getScheme())
+				|| UserAdminConf.SCHEME_LDAPS.equals(u.getScheme())) {
 			userDirectory = new LdapUserAdmin(properties);
 		} else if (UserAdminConf.SCHEME_FILE.equals(u.getScheme())) {
 			userDirectory = new LdifUserAdmin(u, properties);
@@ -119,7 +124,6 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		} else {
 			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
 		}
-		Object realm = userDirectory.getProperties().get(UserAdminConf.realm.name());
 		addUserDirectory(userDirectory);
 
 		// OSGi
@@ -135,9 +139,10 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		pidToBaseDn.put(pid, baseDn);
 		// pidToServiceRegs.put(pid, reg);
 
-		if (log.isDebugEnabled())
-			log.debug("User directory " + userDirectory.getBaseDn() + " [" + u.getScheme() + "] enabled."
-					+ (realm != null ? " " + realm + " realm." : ""));
+		if (log.isDebugEnabled()) {
+			log.debug("User directory " + userDirectory.getBaseDn() + (u != null ? " [" + u.getScheme() + "]" : "")
+					+ " enabled." + (realm != null ? " " + realm + " realm." : ""));
+		}
 
 		if (isSystemRolesBaseDn(baseDn)) {
 			// publishes only when system roles are available

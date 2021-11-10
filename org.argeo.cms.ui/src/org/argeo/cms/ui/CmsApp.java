@@ -25,6 +25,8 @@ public interface CmsApp {
 
 	CmsTheme getTheme(String uiName);
 
+	boolean allThemesAvailable();
+
 	void addCmsAppListener(CmsAppListener listener);
 
 	void removeCmsAppListener(CmsAppListener listener);

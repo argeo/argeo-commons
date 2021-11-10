@@ -30,22 +30,33 @@ public class JcrxApi {
 	 * XML
 	 */
 	/**
-	 * Set as a subnode which will be exported as an XML element.
+	 * Get the XML text of this child node.
 	 */
 	public static String getXmlValue(Node node, String name) {
 		try {
 			if (!node.hasNode(name))
 				return null;
 			Node child = node.getNode(name);
-			if (!child.hasNode(Jcr.JCR_XMLTEXT))
+			return getXmlValue(child);
+		} catch (RepositoryException e) {
+			throw new IllegalStateException("Cannot get " + name + " as XML text", e);
+		}
+	}
+
+	/**
+	 * Get the XML text of this node.
+	 */
+	public static String getXmlValue(Node node) {
+		try {
+			if (!node.hasNode(Jcr.JCR_XMLTEXT))
 				return null;
-			Node xmlText = child.getNode(Jcr.JCR_XMLTEXT);
+			Node xmlText = node.getNode(Jcr.JCR_XMLTEXT);
 			if (!xmlText.hasProperty(Jcr.JCR_XMLCHARACTERS))
 				throw new IllegalArgumentException(
 						"Node " + xmlText + " has no " + Jcr.JCR_XMLCHARACTERS + " property");
 			return xmlText.getProperty(Jcr.JCR_XMLCHARACTERS).getString();
 		} catch (RepositoryException e) {
-			throw new IllegalStateException("Cannot get " + name + " as XML text", e);
+			throw new IllegalStateException("Cannot get " + node + " as XML text", e);
 		}
 	}
 

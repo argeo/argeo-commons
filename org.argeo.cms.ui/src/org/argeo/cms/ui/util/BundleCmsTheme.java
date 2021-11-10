@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -33,6 +35,10 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 	public final static String CMS_THEME_PROPERTY = "argeo.cms.theme";
 	public final static String CMS_THEME_BUNDLE_PROPERTY = "argeo.cms.theme.bundle";
 
+	private final static String HEADER_CSS = "header.css";
+	private final static String FONTS_TXT = "fonts.txt";
+	private final static String BODY_HTML = "body.html";
+
 //	private final static Log log = LogFactory.getLog(BundleCmsTheme.class);
 
 	private String themeId;
@@ -44,6 +50,8 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 
 	private String headerCss;
 	private List<String> fonts = new ArrayList<>();
+
+	private String bodyHtml="<body></body>";
 
 	private String basePath;
 	private String styleCssPath;
@@ -103,21 +111,30 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 		addFonts("*.woff2");
 
 		// fonts
-		URL fontsUrl = themeBundle.getEntry(basePath + "fonts.txt");
+		URL fontsUrl = themeBundle.getEntry(basePath + FONTS_TXT);
 		if (fontsUrl != null) {
 			loadFontsUrl(fontsUrl);
 		}
 
 		// common CSS header (plain CSS)
-		URL headerCssUrl = themeBundle.getEntry(basePath + "header.css");
+		URL headerCssUrl = themeBundle.getEntry(basePath + HEADER_CSS);
 		if (headerCssUrl != null) {
+			// added to plain Web CSS
+			webCssPaths.add(basePath + HEADER_CSS);
+			// and it will also be used by RAP:
 			try (BufferedReader buffer = new BufferedReader(new InputStreamReader(headerCssUrl.openStream(), UTF_8))) {
 				headerCss = buffer.lines().collect(Collectors.joining("\n"));
 			} catch (IOException e) {
 				throw new IllegalArgumentException("Cannot read " + headerCssUrl, e);
 			}
 		}
-	}
+
+		// body
+		URL bodyUrl = themeBundle.getEntry(basePath + BODY_HTML);
+		if (bodyUrl != null) {
+			loadBodyHtml(bodyUrl);
+		}
+}
 
 	public String getHtmlHeaders() {
 		StringBuilder sb = new StringBuilder();
@@ -135,6 +152,13 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 			return null;
 		else
 			return sb.toString();
+	}
+	
+	
+
+	@Override
+	public String getBodyHtml() {
+		return bodyHtml;
 	}
 
 	Set<String> addCss(Bundle themeBundle, String path) {
@@ -177,6 +201,14 @@ public class BundleCmsTheme extends AbstractCmsTheme {
 					fonts.add(line);
 				}
 			}
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot load URL " + url, e);
+		}
+	}
+
+	void loadBodyHtml(URL url) {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), UTF_8))) {
+		bodyHtml=	IOUtils.toString(url,StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot load URL " + url, e);
 		}

@@ -1,6 +1,5 @@
 package org.argeo.osgi.useradmin;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,10 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.naming.DnsBrowser;
 import org.argeo.naming.NamingUtils;
 
 /** Properties used to configure user admins. */
@@ -49,6 +46,7 @@ public enum UserAdminConf {
 	public final static String FACTORY_PID = "org.argeo.osgi.useradmin.config";
 
 	public final static String SCHEME_LDAP = "ldap";
+	public final static String SCHEME_LDAPS = "ldaps";
 	public final static String SCHEME_FILE = "file";
 	public final static String SCHEME_OS = "os";
 	public final static String SCHEME_IPA = "ipa";
@@ -147,8 +145,8 @@ public enum UserAdminConf {
 			URI u = new URI(uriStr);
 			String scheme = u.getScheme();
 			if (scheme != null && scheme.equals(SCHEME_IPA)) {
-				u = convertIpaConfig(u);
-				scheme = u.getScheme();
+				return IpaUtils.convertIpaUri(u);
+//				scheme = u.getScheme();
 			}
 			String path = u.getPath();
 			// base DN
@@ -166,7 +164,7 @@ public enum UserAdminConf {
 			String principal = null;
 			String credentials = null;
 			if (scheme != null)
-				if (scheme.equals(SCHEME_LDAP) || scheme.equals("ldaps")) {
+				if (scheme.equals(SCHEME_LDAP) || scheme.equals(SCHEME_LDAPS)) {
 					// TODO additional checks
 					if (u.getUserInfo() != null) {
 						String[] userInfo = u.getUserInfo().split(":");
@@ -208,49 +206,6 @@ public enum UserAdminConf {
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot convert " + uri + " to properties", e);
 		}
-	}
-
-	private static URI convertIpaConfig(URI uri) {
-		String path = uri.getPath();
-		String kerberosRealm;
-		if (path == null || path.length() <= 1) {
-			kerberosRealm = kerberosDomainFromDns();
-		} else {
-			kerberosRealm = path.substring(1);
-		}
-
-		if (kerberosRealm == null)
-			throw new UserDirectoryException("No Kerberos domain available for " + uri);
-		try (DnsBrowser dnsBrowser = new DnsBrowser()) {
-			String ldapHostsStr = uri.getHost();
-			if (ldapHostsStr == null || ldapHostsStr.trim().equals("")) {
-				List<String> ldapHosts = dnsBrowser.getSrvRecordsAsHosts("_ldap._tcp." + kerberosRealm.toLowerCase());
-				if (ldapHosts == null || ldapHosts.size() == 0) {
-					throw new UserDirectoryException("Cannot configure LDAP for IPA " + uri);
-				} else {
-					ldapHostsStr = ldapHosts.get(0);
-				}
-			}
-			URI convertedUri = new URI(
-					SCHEME_LDAP + "://" + ldapHostsStr + "/" + IpaUtils.domainToUserDirectoryConfigPath(kerberosRealm));
-			return convertedUri;
-		} catch (NamingException | IOException | URISyntaxException e) {
-			throw new UserDirectoryException("cannot convert IPA uri " + uri, e);
-		}
-	}
-
-	private static String kerberosDomainFromDns() {
-		String kerberosDomain;
-		try (DnsBrowser dnsBrowser = new DnsBrowser()) {
-			InetAddress localhost = InetAddress.getLocalHost();
-			String hostname = localhost.getHostName();
-			String dnsZone = hostname.substring(hostname.indexOf('.') + 1);
-			kerberosDomain = dnsBrowser.getRecord("_kerberos." + dnsZone, "TXT");
-			return kerberosDomain;
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot determine Kerberos domain from DNS", e);
-		}
-
 	}
 
 	private static String getBaseDnFromHostname() {

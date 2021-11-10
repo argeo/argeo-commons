@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -40,15 +41,19 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	private SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<LdapName, DirectoryGroup>();
 
 	public LdifUserAdmin(String uri, String baseDn) {
-		this(fromUri(uri, baseDn));
+		this(fromUri(uri, baseDn), false);
 	}
 
 	public LdifUserAdmin(Dictionary<String, ?> properties) {
-		super(null, properties);
+		this(properties, false);
+	}
+
+	protected LdifUserAdmin(Dictionary<String, ?> properties, boolean scoped) {
+		super(null, properties, scoped);
 	}
 
 	public LdifUserAdmin(URI uri, Dictionary<String, ?> properties) {
-		super(uri, properties);
+		super(uri, properties, false);
 	}
 
 	@Override
@@ -69,7 +74,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		}
 		Dictionary<String, Object> properties = cloneProperties();
 		properties.put(UserAdminConf.readOnly.name(), "true");
-		LdifUserAdmin scopedUserAdmin = new LdifUserAdmin(properties);
+		LdifUserAdmin scopedUserAdmin = new LdifUserAdmin(properties, true);
 		scopedUserAdmin.groups = Collections.unmodifiableSortedMap(groups);
 		scopedUserAdmin.users = Collections.unmodifiableSortedMap(users);
 		return scopedUserAdmin;
@@ -83,13 +88,15 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	public void init() {
+
 		try {
-			if (getUri().getScheme().equals("file")) {
-				File file = new File(getUri());
+			URI u = new URI(getUri());
+			if (u.getScheme().equals("file")) {
+				File file = new File(u);
 				if (!file.exists())
 					return;
 			}
-			load(getUri().toURL().openStream());
+			load(u.toURL().openStream());
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot open URL " + getUri(), e);
 		}
@@ -100,9 +107,9 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			throw new UserDirectoryException("Cannot save LDIF user admin: no URI is set");
 		if (isReadOnly())
 			throw new UserDirectoryException("Cannot save LDIF user admin: " + getUri() + " is read-only");
-		try (FileOutputStream out = new FileOutputStream(new File(getUri()))) {
+		try (FileOutputStream out = new FileOutputStream(new File(new URI(getUri())))) {
 			save(out);
-		} catch (IOException e) {
+		} catch (IOException | URISyntaxException e) {
 			throw new UserDirectoryException("Cannot save user admin to " + getUri(), e);
 		}
 	}

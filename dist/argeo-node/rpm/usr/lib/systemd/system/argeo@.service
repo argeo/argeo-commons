@@ -21,10 +21,10 @@ ExecStart=/usr/lib/jvm/jre-11/bin/java \
 -Dosgi.noShutdown=true \
 -Dorg.eclipse.equinox.http.jetty.autostart=false \
 -Dosgi.bundles=org.argeo.osgi.boot@start \
-@/usr/share/osgi/boot/framework.args \
 @/usr/share/argeo/jvm.args \
 @/etc/argeo.d/jvm.args \
 @/etc/argeo.d/%I/jvm.args \
+@/usr/share/osgi/boot/framework.args \
 -configuration /var/lib/argeo.d/%I/state \
 -data /var/lib/argeo.d/%I/data
 # Exit codes of the JVM when SIGTERM or SIGINT have been caught:

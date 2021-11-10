@@ -164,7 +164,8 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 					mouseListener = null;
 				refresh(getControl());
 				// layout(getControl());
-				layoutPage();
+				if (!getControl().isDisposed())
+					layoutPage();
 			} catch (RepositoryException e) {
 				throw new JcrException("Cannot refresh", e);
 			}

@@ -20,10 +20,10 @@ class SrvRecord implements Comparable<SrvRecord> {
 			return priority - other.priority;
 		if (weight != other.weight)
 			return other.weight - other.weight;
-		String host = toHost();
-		String otherHost = other.toHost();
+		String host = toHost(false);
+		String otherHost = other.toHost(false);
 		if (host.length() == otherHost.length())
-			return toHost().compareTo(other.toHost());
+			return host.compareTo(otherHost);
 		else
 			return host.length() - otherHost.length();
 	}
@@ -43,10 +43,10 @@ class SrvRecord implements Comparable<SrvRecord> {
 		return priority + " " + weight;
 	}
 
-	public String toHost() {
+	public String toHost(boolean withPort) {
 		String hostStr = hostname;
 		if (hostname.charAt(hostname.length() - 1) == '.')
 			hostStr = hostname.substring(0, hostname.length() - 1);
-		return hostStr + ":" + port;
+		return hostStr + (withPort ? ":" + port : "");
 	}
 }

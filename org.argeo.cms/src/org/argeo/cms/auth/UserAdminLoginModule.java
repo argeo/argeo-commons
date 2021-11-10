@@ -33,7 +33,6 @@ import org.argeo.cms.internal.kernel.Activator;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
-import org.argeo.osgi.useradmin.OsUserUtils;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -64,7 +63,7 @@ public class UserAdminLoginModule implements LoginModule {
 
 	private Authorization bindAuthorization = null;
 
-	private boolean singleUser = Activator.isSingleUser();
+//	private boolean singleUser = Activator.isSingleUser();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -113,11 +112,11 @@ public class UserAdminLoginModule implements LoginModule {
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			password = null;
 			preauth = true;
-		} else if (singleUser) {
-			username = OsUserUtils.getOsUsername();
-			password = null;
-			// TODO retrieve from http session
-			locale = Locale.getDefault();
+//		} else if (singleUser) {
+//			username = OsUserUtils.getOsUsername();
+//			password = null;
+//			// TODO retrieve from http session
+//			locale = Locale.getDefault();
 		} else {
 
 			// ask for username and password
@@ -194,8 +193,8 @@ public class UserAdminLoginModule implements LoginModule {
 			// TODO check CRLs/OSCP validity?
 			// NB: authorization in commit() will work only if an LDAP connection password
 			// is provided
-		} else if (singleUser) {
-			// TODO verify IP address?
+//		} else if (singleUser) {
+//			// TODO verify IP address?
 		} else if (preauth) {
 			// ident
 		} else {
@@ -211,9 +210,9 @@ public class UserAdminLoginModule implements LoginModule {
 		if (locale != null)
 			subject.getPublicCredentials().add(locale);
 
-		if (singleUser) {
-			OsUserUtils.loginAsSystemUser(subject);
-		}
+//		if (singleUser) {
+//			OsUserUtils.loginAsSystemUser(subject);
+//		}
 		UserAdmin userAdmin = Activator.getUserAdmin();
 		Authorization authorization;
 		if (callbackHandler == null) {// anonymous
@@ -308,6 +307,7 @@ public class UserAdminLoginModule implements LoginModule {
 			Set<User> collectedUsers = new HashSet<>();
 			// try dn
 			User user = null;
+			user = null;
 			// try all indexes
 			for (String attr : indexedUserProperties) {
 				user = userAdmin.getUser(attr, providedUsername);

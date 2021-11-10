@@ -114,8 +114,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 						Locale rwtLocale = RWT.getUISession().getLocale();
 						LocaleUtils.setThreadLocale(rwtLocale);
 					}
+					parent.setData(CmsApp.UI_NAME_PROPERTY, uiName);
 					ui = cmsWebApp.getCmsApp().initUi(parent);
-					ui.setData(CmsApp.UI_NAME_PROPERTY, uiName);
 					ui.setLayoutData(CmsUiUtils.fillAll());
 					// we need ui to be set before refresh so that CmsView can store UI context data
 					// in it.

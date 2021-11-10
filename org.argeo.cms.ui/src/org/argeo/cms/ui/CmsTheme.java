@@ -37,6 +37,9 @@ public interface CmsTheme {
 	/** Tags to be added to the header section of the HTML page. */
 	String getHtmlHeaders();
 
+	/** The HTML body to use. */
+	String getBodyHtml();
+
 	/** The image registered at this path, or <code>null</code> if not found. */
 	Image getImage(String path);
 

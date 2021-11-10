@@ -1,5 +1,6 @@
 package org.argeo.cms.internal.auth;
 
+import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -10,7 +11,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -40,15 +40,16 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.Authorization;
 
 /** Default CMS session implementation. */
-public class CmsSessionImpl implements CmsSession {
+public class CmsSessionImpl implements CmsSession, Serializable {
+	private static final long serialVersionUID = 1867719354246307225L;
 	private final static BundleContext bc = FrameworkUtil.getBundle(CmsSessionImpl.class).getBundleContext();
 	private final static Log log = LogFactory.getLog(CmsSessionImpl.class);
 
 	// private final Subject initialSubject;
-	private final AccessControlContext initialContext;
+	private transient AccessControlContext accessControlContext;
 	private final UUID uuid;
 	private final String localSessionId;
-	private final Authorization authorization;
+	private Authorization authorization;
 	private final LdapName userDn;
 	private final boolean anonymous;
 
@@ -60,14 +61,14 @@ public class CmsSessionImpl implements CmsSession {
 
 	private Map<String, Session> dataSessions = new HashMap<>();
 	private Set<String> dataSessionsInUse = new HashSet<>();
-	private LinkedHashSet<Session> additionalDataSessions = new LinkedHashSet<>();
+	private Set<Session> additionalDataSessions = new HashSet<>();
 
 	private Map<String, Object> views = new HashMap<>();
 
 	public CmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale, String localSessionId) {
 		this.creationTime = ZonedDateTime.now();
 		this.locale = locale;
-		this.initialContext = Subject.doAs(initialSubject, new PrivilegedAction<AccessControlContext>() {
+		this.accessControlContext = Subject.doAs(initialSubject, new PrivilegedAction<AccessControlContext>() {
 
 			@Override
 			public AccessControlContext run() {
@@ -120,23 +121,28 @@ public class CmsSessionImpl implements CmsSession {
 			lc.logout();
 		} catch (LoginException e) {
 			log.warn("Could not logout " + getSubject() + ": " + e);
+		} finally {
+			accessControlContext = null;
 		}
 		log.debug("Closed " + this);
 	}
 
 	private Subject getSubject() {
-		return Subject.getSubject(initialContext);
+		return Subject.getSubject(accessControlContext);
 	}
 
 	public Set<SecretKey> getSecretKeys() {
+		checkValid();
 		return getSubject().getPrivateCredentials(SecretKey.class);
 	}
 
 	public Session newDataSession(String cn, String workspace, Repository repository) {
+		checkValid();
 		return login(repository, workspace);
 	}
 
 	public synchronized Session getDataSession(String cn, String workspace, Repository repository) {
+		checkValid();
 		// FIXME make it more robust
 		if (workspace == null)
 			workspace = NodeConstants.SYS_WORKSPACE;
@@ -207,12 +213,18 @@ public class CmsSessionImpl implements CmsSession {
 		return !isClosed();
 	}
 
-	protected boolean isClosed() {
+	private void checkValid() {
+		if (!isValid())
+			throw new IllegalStateException("CMS session " + uuid + " is not valid since " + end);
+	}
+
+	final protected boolean isClosed() {
 		return getEnd() != null;
 	}
 
 	@Override
 	public Authorization getAuthorization() {
+		checkValid();
 		return authorization;
 	}
 
@@ -258,6 +270,7 @@ public class CmsSessionImpl implements CmsSession {
 
 	@Override
 	public void registerView(String uid, Object view) {
+		checkValid();
 		if (views.containsKey(uid))
 			throw new IllegalArgumentException("View " + uid + " is already registered.");
 		views.put(uid, view);

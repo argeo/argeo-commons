@@ -7,12 +7,15 @@ org.apache.jackrabbit.webdav.server,\
 org.apache.jackrabbit.webdav.jcr,\
 org.apache.commons.httpclient.cookie;resolution:=optional,\
 !com.sun.security.jgss,\
+org.osgi.framework.namespace;version=0.0.0,\
 org.osgi.*;version=0.0.0,\
 org.osgi.service.http.whiteboard,\
 *
 
 Service-Component:\
 OSGI-INF/cmsUserManager.xml,\
+OSGI-INF/pkgServletContext.xml,\
+OSGI-INF/pkgServlet.xml,\
 OSGI-INF/jcrServletContext.xml,\
 OSGI-INF/dataServletContext.xml,\
 OSGI-INF/filesServletContext.xml,\
