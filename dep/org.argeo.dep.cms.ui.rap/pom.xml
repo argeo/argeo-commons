@@ -120,7 +120,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-ui-rap</name>
+									<name>argeo-cms-ui-rap-unstable</name>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>
@@ -181,7 +181,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-ui-rap-tp</name>
+									<name>argeo-cms-ui-rap-tp-unstable</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${maven.build.timestamp}</release>
 									<mappings>
@@ -202,7 +202,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-node-tp</require>
+										<require>argeo-cms-node-tp-unstable</require>
 									</requires>
 								</configuration>
 							</execution>

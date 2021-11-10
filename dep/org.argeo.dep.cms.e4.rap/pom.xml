@@ -296,7 +296,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-e4-rap</name>
+									<name>argeo-cms-e4-rap-unstable</name>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>
@@ -315,8 +315,8 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-ui-rap</require>
-										<require>argeo-cms-e4-rap-tp</require>
+										<require>argeo-cms-ui-rap-unstable</require>
+										<require>argeo-cms-e4-rap-tp-unstable</require>
 									</requires>
 								</configuration>
 							</execution>
@@ -357,7 +357,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-e4-rap-tp</name>
+									<name>argeo-cms-e4-rap-tp-unstable</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${maven.build.timestamp}</release>
 									<mappings>
@@ -378,7 +378,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-ui-rap-tp</require>
+										<require>argeo-cms-ui-rap-tp-unstable</require>
 									</requires>
 								</configuration>
 							</execution>
