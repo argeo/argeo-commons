@@ -1,18 +1,18 @@
-category: org.argeo.commons
-version: 2.1.104
-buildId: S
-#buildId: r${tstamp}
-
-Bundle-Version: 2.1.104.S
+SLC-Category: org.argeo.commons
+version.next=2.3.1
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 
-Private-Package: org.argeo.*.internal.*
-Export-Package: !org.argeo.*.internal.*; org.argeo.*
-SLC-Category: ${category}
-#SLC-Build-Timestamp: ${tstamp}
+# Common
+buildId=D${tstamp}
+# for release:
+#buildId: R${tstamp}
+Bundle-Version: ${version.next}.${buildId}
+Private-Package: *.internal.*
+Export-Package: !*.internal.*; *
 -savemanifest = META-INF/MANIFEST.MF
+-compression STORE
+-source true
 -removeheaders = Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By
--groupId = ${category}
 Automatic-Module-Name: ${bsn}
 
 
