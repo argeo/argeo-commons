@@ -1,19 +1,4 @@
+-include: ${workspace}/cnf/argeo.bnd,${workspace}/cnf/unstable.bnd,-~${workspace}/cnf/release.bnd
+
 SLC-Category: org.argeo.commons
-version.next=2.3.1
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-
-# Common
-buildId=D${tstamp}
-# for release:
-#buildId: R${tstamp}
-Bundle-Version: ${version.next}.${buildId}
-Private-Package: *.internal.*
-Export-Package: !*.internal.*; *
--savemanifest : META-INF/MANIFEST.MF
--includeresource.default : OSGI-INF/=-OSGI-INF/,e4xmi/=-e4xmi/,icons/=-icons/,img/=-img/
--compression STORE
--source true
--removeheaders = Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By
-Automatic-Module-Name: ${bsn}
-
-
