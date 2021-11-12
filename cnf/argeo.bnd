@@ -1,8 +1,8 @@
 # Common
-buildId=next
-# for release:
-#buildId: R${tstamp}
-Bundle-Version: ${version.next}.${buildId}
+qualifier=.next
+-include: -${workspace}/cnf/release.bnd
+
+Bundle-Version: ${version.released}${qualifier}
 Private-Package: *.internal.*
 Export-Package: !*.internal.*; *
 -savemanifest : META-INF/MANIFEST.MF
