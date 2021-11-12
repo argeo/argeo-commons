@@ -9,7 +9,8 @@ buildId=D${tstamp}
 Bundle-Version: ${version.next}.${buildId}
 Private-Package: *.internal.*
 Export-Package: !*.internal.*; *
--savemanifest = META-INF/MANIFEST.MF
+-savemanifest : META-INF/MANIFEST.MF
+-includeresource.default : OSGI-INF/=-OSGI-INF/,e4xmi/=-e4xmi/,icons/=-icons/,img/=-img/
 -compression STORE
 -source true
 -removeheaders = Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By
