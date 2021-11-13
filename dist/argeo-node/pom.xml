@@ -75,7 +75,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-node-unstable</name>
+									<name>argeo-node${argeo.rpm.suffix}</name>
 									<mappings>
 										<mapping>
 											<directory>/etc/argeo</directory>
@@ -182,8 +182,8 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-node-unstable</require>
-										<require>argeo-osgi-boot-unstable</require>
+										<require>argeo-cms-node${argeo.rpm.suffix}</require>
+										<require>argeo-osgi-boot${argeo.rpm.suffix}</require>
 										<!-- do not explicitely require java -->
 									</requires>
 								</configuration>

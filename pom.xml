@@ -14,7 +14,6 @@
 	<url>http://www.argeo.org/</url>
 	<properties>
 		<version.argeo-tp>2.1.27</version.argeo-tp>
-		<!-- RPM -->
 		<project.scm.id>code.argeo.org</project.scm.id>
 	</properties>
 	<modules>

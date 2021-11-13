@@ -67,7 +67,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cli-unstable</name>
+									<name>argeo-cli${argeo.rpm.suffix}</name>
 									<mappings>
 										<mapping>
 											<directory>/etc/argeo-cli</directory>

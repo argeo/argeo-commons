@@ -69,7 +69,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-osgi-boot-unstable</name>
+									<name>argeo-osgi-boot${argeo.rpm.suffix}</name>
 									<mappings>
 										<mapping>
 											<directory>/usr/bin</directory>
@@ -117,7 +117,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-osgi-boot-equinox-unstable</require>
+										<require>argeo-osgi-boot-equinox${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
 							</execution>
@@ -141,7 +141,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-osgi-boot-equinox-unstable</name>
+									<name>argeo-osgi-boot-equinox${argeo.rpm.suffix}</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${maven.build.timestamp}</release>
 									<mappings>

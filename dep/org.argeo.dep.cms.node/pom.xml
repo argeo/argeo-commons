@@ -240,7 +240,9 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-node-unstable</name>
+									<name>argeo-cms-node${argeo.rpm.suffix}</name>
+									<projversion>${version.released}</projversion>
+									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>
@@ -259,8 +261,8 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-client-unstable</require>
-										<require>argeo-cms-node-tp-unstable</require>
+										<require>argeo-cms-client${argeo.rpm.suffix}</require>
+										<require>argeo-cms-node-tp${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
 							</execution>
@@ -322,7 +324,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-client-tp-unstable</require>
+										<require>argeo-cms-client-tp${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
 							</execution>
