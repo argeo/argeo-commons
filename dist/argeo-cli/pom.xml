@@ -68,6 +68,8 @@
 								</goals>
 								<configuration>
 									<name>argeo-cli${argeo.rpm.suffix}</name>
+									<projversion>${version.released}</projversion>
+									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/etc/argeo-cli</directory>

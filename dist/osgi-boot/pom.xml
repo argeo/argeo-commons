@@ -70,6 +70,8 @@
 								</goals>
 								<configuration>
 									<name>argeo-osgi-boot${argeo.rpm.suffix}</name>
+									<projversion>${version.released}</projversion>
+									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/bin</directory>
