@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>2.1.104-SNAPSHOT</version>
+		<version>2.1-SNAPSHOT</version>
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -15,17 +15,17 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.enterprise</artifactId>
-			<version>2.1.104-SNAPSHOT</version>
+			<version>2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.jcr</artifactId>
-			<version>2.1.104-SNAPSHOT</version>
+			<version>2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.core</artifactId>
-			<version>2.1.104-SNAPSHOT</version>
+			<version>2.1-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Third Parties -->
@@ -234,7 +234,7 @@
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>2.1.104-SNAPSHOT</version>
+			<version>2.1-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -272,7 +272,9 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-client</name>
+									<name>argeo-cms-client${argeo.rpm.suffix}</name>
+									<projversion>${version.released}</projversion>
+									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>
@@ -291,8 +293,8 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-client-tp</require>
-										<require>argeo-osgi-boot</require>
+										<require>argeo-cms-client-tp${argeo.rpm.suffix}</require>
+										<require>argeo-osgi-boot${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
 							</execution>
@@ -333,7 +335,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-client-tp</name>
+									<name>argeo-cms-client-tp${argeo.rpm.suffix}</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${maven.build.timestamp}</release>
 									<mappings>

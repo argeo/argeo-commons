@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<version>2.1.104-SNAPSHOT</version>
+		<version>2.1-SNAPSHOT</version>
 		<artifactId>dist</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
@@ -16,23 +16,23 @@
 				<dependency>
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.dep.cms.client</artifactId>
-					<version>2.1.104-SNAPSHOT</version>
+					<version>2.1-SNAPSHOT</version>
 				</dependency>
 				<dependency>
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.dep.cms.node</artifactId>
-					<version>2.1.104-SNAPSHOT</version>
+					<version>2.1-SNAPSHOT</version>
 				</dependency>
 				<dependency>
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>org.argeo.dep.cms.e4.rap</artifactId>
-					<version>2.1.104-SNAPSHOT</version>
+					<version>2.1-SNAPSHOT</version>
 				</dependency>
 				<dependency>
 					<groupId>org.argeo.commons</groupId>
 					<artifactId>osgi-boot</artifactId>
 					<type>zip</type>
-					<version>2.1.104-SNAPSHOT</version>
+					<version>2.1-SNAPSHOT</version>
 				</dependency>
 			</dependencies>
 			<build>
@@ -41,7 +41,7 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<configuration>
-							<finalName>argeo-node-${project.version}</finalName>
+							<finalName>argeo-node-${version.released}${buildId}</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
 							<descriptors>
 								<descriptor>assembly/cms-e4-rap.xml</descriptor>
@@ -75,7 +75,9 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-node</name>
+									<name>argeo-node${argeo.rpm.suffix}</name>
+									<projversion>${version.released}</projversion>
+									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/etc/argeo</directory>
@@ -182,8 +184,8 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-node</require>
-										<require>argeo-osgi-boot</require>
+										<require>argeo-cms-node${argeo.rpm.suffix}</require>
+										<require>argeo-osgi-boot${argeo.rpm.suffix}</require>
 										<!-- do not explicitely require java -->
 									</requires>
 								</configuration>

@@ -1,18 +1,4 @@
-category: org.argeo.commons
-version: 2.1.104
-buildId: S
-#buildId: r${tstamp}
-
-Bundle-Version: 2.1.104.S
-Bundle-RequiredExecutionEnvironment: JavaSE-11
-
-Private-Package: org.argeo.*.internal.*
-Export-Package: !org.argeo.*.internal.*; org.argeo.*
-SLC-Category: ${category}
-#SLC-Build-Timestamp: ${tstamp}
--savemanifest = META-INF/MANIFEST.MF
--removeheaders = Bnd-LastModified,Build-Jdk,Built-By,Tool,Created-By
--groupId = ${category}
-Automatic-Module-Name: ${bsn}
-
-
+-include: \
+${workspace}/cnf/testing.bnd, \
+${workspace}/cnf/argeo.bnd, \
+-${workspace}/cnf/release.bnd
