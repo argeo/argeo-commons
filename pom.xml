@@ -15,7 +15,6 @@
 	<properties>
 		<version.argeo-tp>2.1.27</version.argeo-tp>
 		<!-- RPM -->
-		<argeo.rpm.stagingRepository>/srv/rpmfactory/unstable/argeo-osgi-2/argeo</argeo.rpm.stagingRepository>
 		<project.scm.id>code.argeo.org</project.scm.id>
 	</properties>
 	<modules>

@@ -1,0 +1,3 @@
+-include: \
+../cnf/unstable.bnd, \
+../cnf/argeo.bnd

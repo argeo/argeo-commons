@@ -22,6 +22,16 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+				<configuration>
+					<quiet>true</quiet>
+					<files>
+						<file>../../cnf/unstable.bnd</file>
+					</files>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
