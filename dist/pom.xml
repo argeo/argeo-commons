@@ -26,7 +26,7 @@
 				<configuration>
 					<quiet>true</quiet>
 					<files>
-						<file>../../cnf/unstable.bnd</file>
+						<file>../../cnf/${version.context}.bnd</file>
 					</files>
 				</configuration>
 			</plugin>

@@ -13,6 +13,7 @@
 	<packaging>pom</packaging>
 	<url>http://www.argeo.org/</url>
 	<properties>
+		<version.context>unstable</version.context>
 		<version.argeo-tp>2.1.27</version.argeo-tp>
 		<project.scm.id>code.argeo.org</project.scm.id>
 	</properties>
