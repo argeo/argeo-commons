@@ -40,6 +40,7 @@
 		<module>dep</module>
 		<module>demo</module>
 		<module>dist</module>
+		<module>sdk</module>
 	</modules>
 	<scm>
 		<connection>scm:git:http://git.argeo.org/lgpl/argeo-commons.git</connection>
