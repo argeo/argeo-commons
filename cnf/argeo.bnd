@@ -3,7 +3,8 @@ qualifier=.next
 
 Bundle-Version: ${version.released}${qualifier}
 Private-Package: *.internal.*
-Export-Package: !*.internal.*; *
+Export-Package: !*.internal.*, *
+-consumer-policy : ${range;[==,=+)}
 -savemanifest : META-INF/MANIFEST.MF
 -includeresource.default : OSGI-INF/=-OSGI-INF/,e4xmi/=-e4xmi/,icons/=-icons/,img/=-img/
 -compression STORE
