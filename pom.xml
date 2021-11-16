@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.argeo.maven</groupId>
 		<artifactId>argeo-osgi-parent</artifactId>
-		<version>2.1.4-SNAPSHOT</version>
+		<version>2.1.4</version>
 	</parent>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -119,30 +119,18 @@
 	<distributionManagement>
 		<repository>
 			<id>staging</id>
-			<url>dav:https://forge.argeo.org/data/java/argeo-2.3</url>
+			<url>dav:https://forge.argeo.org/data/java/argeo-2.1</url>
 			<uniqueVersion>false</uniqueVersion>
 		</repository>
 		<site>
 			<id>staging</id>
-			<url>file:///srv/docfactory/argeo-2.3/site/argeo-commons/</url>
+			<url>file:///srv/docfactory/argeo-2.1/site/argeo-commons/</url>
 		</site>
 	</distributionManagement>
 	<repositories>
 		<repository>
 			<id>argeo</id>
 			<url>http://forge.argeo.org/data/java/argeo-2.1/</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>argeo-unstable</id>
-			<url>http://forge.argeo.org/data/java/argeo-2.3/</url>
 			<releases>
 				<enabled>true</enabled>
 				<updatePolicy>never</updatePolicy>
@@ -237,7 +225,7 @@
 			<repositories>
 				<repository>
 					<id>argeo</id>
-					<url>http://localhost:7080/data/java/argeo-2.3</url>
+					<url>http://localhost:7080/data/java/argeo-2.1</url>
 					<releases>
 						<enabled>true</enabled>
 						<updatePolicy>daily</updatePolicy>
@@ -248,7 +236,7 @@
 			<distributionManagement>
 				<repository>
 					<id>staging</id>
-					<url>dav:http://localhost:7080/data/java/argeo-2.3/</url>
+					<url>dav:http://localhost:7080/data/java/argeo-2.1/</url>
 					<uniqueVersion>false</uniqueVersion>
 				</repository>
 			</distributionManagement>
