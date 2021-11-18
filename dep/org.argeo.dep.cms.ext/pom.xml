@@ -114,7 +114,7 @@
 								<configuration>
 									<name>argeo-cms-ext-tp${argeo.rpm.suffix}</name>
 									<projversion>${version.argeo-tp}</projversion>
-									<release>${maven.build.timestamp}</release>
+									<release>${argeo.rpm.release.tp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>

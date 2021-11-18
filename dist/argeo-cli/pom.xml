@@ -33,7 +33,7 @@
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<configuration>
-							<finalName>argeo-cli-${project.version}</finalName>
+							<finalName>argeo-cli-${version.released}</finalName>
 							<appendAssemblyId>false</appendAssemblyId>
 							<descriptors>
 								<descriptor>assembly/argeo-cli.xml</descriptor>
@@ -68,8 +68,6 @@
 								</goals>
 								<configuration>
 									<name>argeo-cli${argeo.rpm.suffix}</name>
-									<projversion>${version.released}</projversion>
-									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/etc/argeo-cli</directory>

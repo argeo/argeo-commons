@@ -241,8 +241,6 @@
 								</goals>
 								<configuration>
 									<name>argeo-cms-node${argeo.rpm.suffix}</name>
-									<projversion>${version.released}</projversion>
-									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>
@@ -305,7 +303,7 @@
 								<configuration>
 									<name>argeo-cms-node-tp</name>
 									<projversion>${version.argeo-tp}</projversion>
-									<release>${maven.build.timestamp}</release>
+									<release>${argeo.rpm.release.tp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>

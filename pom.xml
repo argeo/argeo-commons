@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.maven</groupId>
 		<artifactId>argeo-osgi-parent</artifactId>
-		<version>2.1.4</version>
+		<version>2.1.5-SNAPSHOT</version>
 	</parent>
 	<groupId>org.argeo.commons</groupId>
 	<artifactId>argeo-commons</artifactId>
@@ -15,7 +17,6 @@
 	<properties>
 		<version.context>unstable</version.context>
 		<version.argeo-tp>2.1.27</version.argeo-tp>
-		<project.scm.id>code.argeo.org</project.scm.id>
 	</properties>
 	<modules>
 		<!-- Base -->
@@ -231,27 +232,4 @@
 			</plugin>
 		</plugins>
 	</reporting>
-	<profiles>
-		<profile>
-			<id>localrepo</id>
-			<repositories>
-				<repository>
-					<id>argeo</id>
-					<url>http://localhost:7080/data/java/argeo-2.3</url>
-					<releases>
-						<enabled>true</enabled>
-						<updatePolicy>daily</updatePolicy>
-						<checksumPolicy>warn</checksumPolicy>
-					</releases>
-				</repository>
-			</repositories>
-			<distributionManagement>
-				<repository>
-					<id>staging</id>
-					<url>dav:http://localhost:7080/data/java/argeo-2.3/</url>
-					<uniqueVersion>false</uniqueVersion>
-				</repository>
-			</distributionManagement>
-		</profile>
-	</profiles>
 </project>
