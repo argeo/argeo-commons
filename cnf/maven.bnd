@@ -1,3 +1,4 @@
 -include: \
 ../cnf/unstable.bnd, \
-../cnf/argeo.bnd
+../cnf/argeo.bnd, \
+-../cnf/release.bnd
