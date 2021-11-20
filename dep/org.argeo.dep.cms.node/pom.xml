@@ -301,7 +301,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-node-tp</name>
+									<name>argeo-cms-node-tp${argeo.rpm.suffix}</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${argeo.rpm.release.tp}</release>
 									<mappings>
