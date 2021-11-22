@@ -14,7 +14,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>osgi-boot</module>
-		<module>argeo-cli</module>
+		<!-- <module>argeo-cli</module> -->
 		<module>argeo-node</module>
 		<module>containers</module>
 	</modules>
