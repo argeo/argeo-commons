@@ -1,5 +1,5 @@
 category=org.argeo.commons
-version.released=2.3.1
+version.released=2.3.2
 Bundle-RequiredExecutionEnvironment=JavaSE-11
 
 argeo.rpm.stagingRepository=/srv/rpmfactory/unstable/argeo-osgi-2/argeo
