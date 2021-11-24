@@ -1,5 +1,7 @@
-category=org.argeo.commons
 version.released=2.1.103
+qualifier=.next
+
+category=org.argeo.commons
 Bundle-RequiredExecutionEnvironment=JavaSE-11
 
 argeo.rpm.stagingRepository=/srv/rpmfactory/testing/argeo-osgi-2/argeo

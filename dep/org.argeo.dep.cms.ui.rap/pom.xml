@@ -121,8 +121,6 @@
 								</goals>
 								<configuration>
 									<name>argeo-cms-ui-rap${argeo.rpm.suffix}</name>
-									<projversion>${version.released}</projversion>
-									<release>${maven.build.timestamp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>
@@ -141,8 +139,8 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-node</require>
-										<require>argeo-cms-ui-rap-tp</require>
+										<require>argeo-cms-node${argeo.rpm.suffix}</require>
+										<require>argeo-cms-ui-rap-tp${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
 							</execution>
@@ -185,7 +183,7 @@
 								<configuration>
 									<name>argeo-cms-ui-rap-tp${argeo.rpm.suffix}</name>
 									<projversion>${version.argeo-tp}</projversion>
-									<release>${maven.build.timestamp}</release>
+									<release>${argeo.rpm.release.tp}</release>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>

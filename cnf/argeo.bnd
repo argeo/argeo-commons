@@ -1,6 +1,4 @@
 # Common
-qualifier=.next
-
 Bundle-Version: ${version.released}${qualifier}
 Private-Package: *.internal.*
 Export-Package: !*.internal.*, *
