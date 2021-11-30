@@ -24,7 +24,6 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
-import javax.transaction.TransactionManager;
 
 import org.argeo.naming.LdifParser;
 import org.argeo.naming.LdifWriter;
@@ -32,10 +31,7 @@ import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-/**
- * A user admin based on a LDIF files. Requires a {@link TransactionManager} and
- * an open transaction for write access.
- */
+/** A user admin based on a LDIF files. */
 public class LdifUserAdmin extends AbstractUserDirectory {
 	private SortedMap<LdapName, DirectoryUser> users = new TreeMap<LdapName, DirectoryUser>();
 	private SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<LdapName, DirectoryGroup>();

@@ -18,16 +18,12 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
-import javax.transaction.TransactionManager;
 
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-/**
- * A user admin based on a LDAP server. Requires a {@link TransactionManager}
- * and an open transaction for write access.
- */
+/** A user admin based on a LDAP server. */
 public class LdapUserAdmin extends AbstractUserDirectory {
 	private LdapConnection ldapConnection;
 
