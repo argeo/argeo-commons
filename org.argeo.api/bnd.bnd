@@ -1,1 +1,0 @@
-Provide-Capability: cms.datamodel;name=ldap;cnd=/org/argeo/api/ldap.cnd;abstract=true

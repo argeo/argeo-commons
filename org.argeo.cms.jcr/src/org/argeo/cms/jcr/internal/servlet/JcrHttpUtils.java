@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.http;
+package org.argeo.cms.jcr.internal.servlet;
 
 import java.util.Enumeration;
 
@@ -7,9 +7,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 
-public class HttpUtils {
+public class JcrHttpUtils {
 	public final static String HEADER_AUTHORIZATION = "Authorization";
 	public final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+
+	public final static String DEFAULT_PROTECTED_HANDLERS = "/org/argeo/cms/jcr/internal/servlet/protectedHandlers.xml";
+	public final static String WEBDAV_CONFIG = "/org/argeo/cms/jcr/internal/servlet/webdav-config.xml";
 
 	static boolean isBrowser(String userAgent) {
 		return userAgent.contains("webkit") || userAgent.contains("gecko") || userAgent.contains("firefox")
@@ -64,7 +67,7 @@ public class HttpUtils {
 		log.debug("\n" + buf);
 	}
 
-	private HttpUtils() {
+	private JcrHttpUtils() {
 
 	}
 }

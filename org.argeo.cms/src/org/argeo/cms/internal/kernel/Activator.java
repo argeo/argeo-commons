@@ -167,7 +167,7 @@ public class Activator implements BundleActivator {
 
 		// Node deployment
 		nodeDeployment = new CmsDeployment();
-		registerService(NodeDeployment.class, nodeDeployment, null);
+//		registerService(NodeDeployment.class, nodeDeployment, null);
 
 		// Node instance
 		nodeInstance = new CmsInstance();

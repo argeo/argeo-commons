@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.jcr.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.PrivilegedAction;
 import java.security.URIParameter;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -15,8 +16,17 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.apache.commons.logging.Log;
 import org.argeo.api.DataModelNamespace;
+import org.argeo.api.NodeConstants;
+import org.argeo.cms.jcr.internal.osgi.CmsJcrActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -92,7 +102,7 @@ class KernelUtils implements KernelConstants {
 	}
 
 	static String getFrameworkProp(String key, String def) {
-		BundleContext bundleContext = Activator.getBundleContext();
+		BundleContext bundleContext = CmsJcrActivator.getBundleContext();
 		String value;
 		if (bundleContext != null)
 			value = bundleContext.getProperty(key);
@@ -144,67 +154,67 @@ class KernelUtils implements KernelConstants {
 			out.println(key + "=" + display.get(key));
 	}
 
-//	static Session openAdminSession(Repository repository) {
-//		return openAdminSession(repository, null);
-//	}
-//
-//	static Session openAdminSession(final Repository repository, final String workspaceName) {
-//		LoginContext loginContext = loginAsDataAdmin();
-//		return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
-//
-//			@Override
-//			public Session run() {
-//				try {
-//					return repository.login(workspaceName);
-//				} catch (RepositoryException e) {
-//					throw new IllegalStateException("Cannot open admin session", e);
-//				} finally {
-//					try {
-//						loginContext.logout();
-//					} catch (LoginException e) {
-//						throw new IllegalStateException(e);
-//					}
-//				}
-//			}
-//
-//		});
-//	}
-//
-//	static LoginContext loginAsDataAdmin() {
-//		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
-//		Thread.currentThread().setContextClassLoader(KernelUtils.class.getClassLoader());
-//		LoginContext loginContext;
-//		try {
-//			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
-//			loginContext.login();
-//		} catch (LoginException e1) {
-//			throw new IllegalStateException("Could not login as data admin", e1);
-//		} finally {
-//			Thread.currentThread().setContextClassLoader(currentCl);
-//		}
-//		return loginContext;
-//	}
+	static Session openAdminSession(Repository repository) {
+		return openAdminSession(repository, null);
+	}
 
-//	static void doAsDataAdmin(Runnable action) {
-//		LoginContext loginContext = loginAsDataAdmin();
-//		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
-//
-//			@Override
-//			public Void run() {
-//				try {
-//					action.run();
-//					return null;
-//				} finally {
-//					try {
-//						loginContext.logout();
-//					} catch (LoginException e) {
-//						throw new IllegalStateException(e);
-//					}
-//				}
-//			}
-//
-//		});
-//	}
+	static Session openAdminSession(final Repository repository, final String workspaceName) {
+		LoginContext loginContext = loginAsDataAdmin();
+		return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
+
+			@Override
+			public Session run() {
+				try {
+					return repository.login(workspaceName);
+				} catch (RepositoryException e) {
+					throw new IllegalStateException("Cannot open admin session", e);
+				} finally {
+					try {
+						loginContext.logout();
+					} catch (LoginException e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+
+		});
+	}
+
+	static LoginContext loginAsDataAdmin() {
+		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(KernelUtils.class.getClassLoader());
+		LoginContext loginContext;
+		try {
+			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
+			loginContext.login();
+		} catch (LoginException e1) {
+			throw new IllegalStateException("Could not login as data admin", e1);
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentCl);
+		}
+		return loginContext;
+	}
+
+	static void doAsDataAdmin(Runnable action) {
+		LoginContext loginContext = loginAsDataAdmin();
+		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
+
+			@Override
+			public Void run() {
+				try {
+					action.run();
+					return null;
+				} finally {
+					try {
+						loginContext.logout();
+					} catch (LoginException e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+
+		});
+	}
 
 	static void asyncOpen(ServiceTracker<?, ?> st) {
 		Runnable run = new Runnable() {
@@ -214,12 +224,12 @@ class KernelUtils implements KernelConstants {
 				st.open();
 			}
 		};
-		Activator.getInternalExecutorService().execute(run);
-//		new Thread(run, "Open service tracker " + st).start();
+//		Activator.getInternalExecutorService().execute(run);
+		new Thread(run, "Open service tracker " + st).start();
 	}
 
 	static BundleContext getBundleContext() {
-		return Activator.getBundleContext();
+		return CmsJcrActivator.getBundleContext();
 	}
 
 	static boolean asBoolean(String value) {

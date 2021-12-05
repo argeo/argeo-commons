@@ -40,7 +40,7 @@ class DeployConfig implements ConfigurationListener {
 
 	private static Path deployConfigPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
 	private SortedMap<LdapName, Attributes> deployConfigs = new TreeMap<>();
-	private final DataModels dataModels;
+//	private final DataModels dataModels;
 
 	private boolean isFirstInit = false;
 
@@ -48,8 +48,8 @@ class DeployConfig implements ConfigurationListener {
 	
 	private ConfigurationAdmin configurationAdmin;
 
-	public DeployConfig(ConfigurationAdmin configurationAdmin, DataModels dataModels, boolean isClean) {
-		this.dataModels = dataModels;
+	public DeployConfig(ConfigurationAdmin configurationAdmin, boolean isClean) {
+//		this.dataModels = dataModels;
 		// ConfigurationAdmin configurationAdmin =
 		// bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
 		try {
@@ -325,10 +325,6 @@ class DeployConfig implements ConfigurationListener {
 			// throw new CmsException("Cannot save deploy configs", e);
 			log.error("Cannot save deploy configs", e);
 		}
-	}
-
-	boolean isStandalone(String dataModelName) {
-		return getProps(NodeConstants.NODE_REPOS_FACTORY_PID, dataModelName) != null;
 	}
 
 	/*

@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,14 +15,9 @@ import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.RepositoryFactory;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.io.FileUtils;
@@ -31,13 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.internal.http.InternalHttpConstants;
-import org.argeo.cms.internal.jcr.RepoConf;
-import org.argeo.jackrabbit.client.ClientDavexRepositoryFactory;
-import org.argeo.jcr.JcrException;
-import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.useradmin.UserAdminConf;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 
 /**
  * Interprets framework properties in order to generate the initial deploy

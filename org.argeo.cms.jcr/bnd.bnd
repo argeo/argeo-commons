@@ -1,7 +1,22 @@
+Bundle-Activator: org.argeo.cms.jcr.internal.osgi.CmsJcrActivator
+
 Provide-Capability:\
-cms.datamodel; name=jcrx; cnd=/org/argeo/jcr/jcrx.cnd; abstract=true
+cms.datamodel; name=jcrx; cnd=/org/argeo/jcr/jcrx.cnd; abstract=true,\
+cms.datamodel; name=argeo; cnd=/org/argeo/cms/jcr/argeo.cnd; abstract=true,\
+cms.datamodel;name=ldap; cnd=/org/argeo/cms/jcr/ldap.cnd; abstract=true,\
+osgi.service;objectClass="javax.jcr.Repository"
 
 Import-Package:\
+org.argeo.cms.servlet,\
+javax.jcr.security,\
+org.h2;resolution:=optional,\
+org.postgresql;resolution:=optional,\
+org.apache.jackrabbit.webdav.server,\
+org.apache.jackrabbit.webdav.jcr,\
+org.apache.commons.httpclient.cookie;resolution:=optional,\
+org.osgi.framework.namespace;version=0.0.0,\
+org.osgi.*;version=0.0.0,\
+org.osgi.service.http.whiteboard,\
 org.apache.jackrabbit.api,\
 org.apache.jackrabbit.commons,\
 org.apache.jackrabbit.spi,\
@@ -10,3 +25,10 @@ org.apache.jackrabbit.spi2davex,\
 org.apache.jackrabbit.webdav,\
 junit.*;resolution:=optional,\
 *
+
+Service-Component:\
+OSGI-INF/jcrDeployment.xml,\
+OSGI-INF/jcrServletContext.xml,\
+OSGI-INF/dataServletContext.xml,\
+OSGI-INF/filesServletContext.xml,\
+OSGI-INF/filesServlet.xml

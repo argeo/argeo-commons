@@ -4,12 +4,10 @@ import static java.util.Locale.ENGLISH;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.jcr.RepositoryFactory;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
@@ -38,7 +36,6 @@ public class CmsState implements NodeState {
 	private List<Locale> locales = null;
 
 	private ThreadGroup threadGroup = new ThreadGroup("CMS");
-	private KernelThread kernelThread;
 	private List<Runnable> stopHooks = new ArrayList<>();
 
 	private final String stateUuid;
@@ -64,10 +61,6 @@ public class CmsState implements NodeState {
 		initI18n();
 		initServices();
 
-		// kernel thread
-		kernelThread = new KernelThread(threadGroup, "Kernel Thread");
-		kernelThread.setContextClassLoader(getClass().getClassLoader());
-		kernelThread.start();
 	}
 
 	private void initI18n() {
@@ -105,14 +98,14 @@ public class CmsState implements NodeState {
 //		ocrParser.setLanguage("ara");
 //		bc.registerService(Parser.class, ocrParser, new Hashtable());
 
-		// JCR
-		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
-		stopHooks.add(() -> repositoryServiceFactory.shutdown());
-		Activator.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
-				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
-
-		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
-		Activator.registerService(RepositoryFactory.class, repositoryFactory, null);
+//		// JCR
+//		RepositoryServiceFactory repositoryServiceFactory = new RepositoryServiceFactory();
+//		stopHooks.add(() -> repositoryServiceFactory.shutdown());
+//		Activator.registerService(ManagedServiceFactory.class, repositoryServiceFactory,
+//				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
+//
+//		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
+//		Activator.registerService(RepositoryFactory.class, repositoryFactory, null);
 
 		// Security
 		NodeUserAdmin userAdmin = new NodeUserAdmin(NodeConstants.ROLES_BASEDN, NodeConstants.TOKENS_BASEDN);
@@ -120,20 +113,6 @@ public class CmsState implements NodeState {
 		Activator.registerService(ManagedServiceFactory.class, userAdmin,
 				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_USER_ADMIN_PID));
 
-		// File System
-		CmsFsProvider cmsFsProvider = new CmsFsProvider();
-//		ServiceLoader<FileSystemProvider> fspSl = ServiceLoader.load(FileSystemProvider.class);
-//		for (FileSystemProvider fsp : fspSl) {
-//			log.debug("FileSystemProvider " + fsp);
-//			if (fsp instanceof CmsFsProvider) {
-//				cmsFsProvider = (CmsFsProvider) fsp;
-//			}
-//		}
-//		for (FileSystemProvider fsp : FileSystemProvider.installedProviders()) {
-//			log.debug("Installed FileSystemProvider " + fsp);
-//		}
-		Activator.registerService(FileSystemProvider.class, cmsFsProvider,
-				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_FS_PROVIDER_PID));
 	}
 
 	private void initSimpleTransactionManager() {
@@ -180,8 +159,6 @@ public class CmsState implements NodeState {
 		if (log.isDebugEnabled())
 			log.debug("CMS stopping...  (" + this.stateUuid + ")");
 
-		if (kernelThread != null)
-			kernelThread.destroyAndJoin();
 		// In a different thread in order to avoid interruptions
 		Thread stopHookThread = new Thread(() -> applyStopHooks(), "Apply Argeo Stop Hooks");
 		stopHookThread.start();

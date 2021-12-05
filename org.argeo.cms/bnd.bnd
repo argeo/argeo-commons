@@ -1,25 +1,14 @@
 Bundle-Activator: org.argeo.cms.internal.kernel.Activator
 
-Import-Package: javax.jcr.security,\
-org.h2;resolution:=optional,\
-org.postgresql;resolution:=optional,\
-org.apache.jackrabbit.webdav.server,\
-org.apache.jackrabbit.webdav.jcr,\
-org.apache.commons.httpclient.cookie;resolution:=optional,\
+Import-Package: org.apache.commons.httpclient.cookie;resolution:=optional,\
 !com.sun.security.jgss,\
-org.osgi.framework.namespace;version=0.0.0,\
 org.osgi.*;version=0.0.0,\
-org.osgi.service.http.whiteboard,\
+org.osgi.service.http.whiteboard;version=0.0.0,\
+org.osgi.framework.namespace;version=0.0.0,\
 *
 
 Service-Component:\
 OSGI-INF/cmsUserManager.xml,\
 OSGI-INF/pkgServletContext.xml,\
-OSGI-INF/pkgServlet.xml,\
-OSGI-INF/jcrServletContext.xml,\
-OSGI-INF/dataServletContext.xml,\
-OSGI-INF/filesServletContext.xml,\
-OSGI-INF/filesServlet.xml
+OSGI-INF/pkgServlet.xml
 
-Provide-Capability: cms.datamodel;name=argeo;cnd=/org/argeo/cms/argeo.cnd;abstract=true,\
-osgi.service;objectClass="javax.jcr.Repository"
