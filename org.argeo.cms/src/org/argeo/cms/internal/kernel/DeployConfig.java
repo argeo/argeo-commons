@@ -45,6 +45,8 @@ class DeployConfig implements ConfigurationListener {
 	private boolean isFirstInit = false;
 
 	private final static String ROLES = "roles";
+	
+	private ConfigurationAdmin configurationAdmin;
 
 	public DeployConfig(ConfigurationAdmin configurationAdmin, DataModels dataModels, boolean isClean) {
 		this.dataModels = dataModels;
@@ -55,6 +57,7 @@ class DeployConfig implements ConfigurationListener {
 				isFirstInit = true;
 				firstInit();
 			}
+			this.configurationAdmin = configurationAdmin;
 			init(configurationAdmin, isClean, isFirstInit);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not init deploy configs", e);
@@ -80,21 +83,6 @@ class DeployConfig implements ConfigurationListener {
 	}
 
 	private void setFromFrameworkProperties(boolean isFirstInit) {
-		// node repository
-		Dictionary<String, Object> nodeConfig = InitUtils
-				.getNodeRepositoryConfig(getProps(NodeConstants.NODE_REPOS_FACTORY_PID, NodeConstants.NODE));
-		// node repository is mandatory
-		putFactoryDeployConfig(NodeConstants.NODE_REPOS_FACTORY_PID, nodeConfig);
-
-		// additional repositories
-		dataModels: for (DataModels.DataModel dataModel : dataModels.getNonAbstractDataModels()) {
-			if (NodeConstants.NODE_REPOSITORY.equals(dataModel.getName()))
-				continue dataModels;
-			Dictionary<String, Object> config = InitUtils.getRepositoryConfig(dataModel.getName(),
-					getProps(NodeConstants.NODE_REPOS_FACTORY_PID, dataModel.getName()));
-			if (config.size() != 0)
-				putFactoryDeployConfig(NodeConstants.NODE_REPOS_FACTORY_PID, config);
-		}
 
 		// user admin
 		List<Dictionary<String, Object>> userDirectoryConfigs = InitUtils.getUserDirectoryConfigs();
@@ -197,54 +185,58 @@ class DeployConfig implements ConfigurationListener {
 			if (log.isDebugEnabled())
 				log.debug("Clean state, loading from framework properties...");
 			setFromFrameworkProperties(isFirstInit);
-
-			// FIXME make it more robust
-			Configuration systemRolesConf = null;
-			LdapName systemRolesDn;
-			try {
-				// FIXME make it more robust
-				systemRolesDn = new LdapName("cn=roles,ou=org.argeo.api.userAdmin,ou=deploy,ou=node");
-			} catch (InvalidNameException e) {
-				throw new IllegalArgumentException(e);
-			}
-			deployConfigs: for (LdapName dn : deployConfigs.keySet()) {
-				Rdn lastRdn = dn.getRdn(dn.size() - 1);
-				LdapName prefix = (LdapName) dn.getPrefix(dn.size() - 1);
-				if (prefix.toString().equals(NodeConstants.DEPLOY_BASEDN)) {
-					if (lastRdn.getType().equals(NodeConstants.CN)) {
-						// service
-						String pid = lastRdn.getValue().toString();
-						Configuration conf = configurationAdmin.getConfiguration(pid);
-						AttributesDictionary dico = new AttributesDictionary(deployConfigs.get(dn));
-						conf.update(dico);
-					} else {
-						// service factory definition
-					}
-				} else {
-					Attributes config = deployConfigs.get(dn);
-					Attribute disabled = config.get(UserAdminConf.disabled.name());
-					if (disabled != null)
-						continue deployConfigs;
-					// service factory service
-					Rdn beforeLastRdn = dn.getRdn(dn.size() - 2);
-					assert beforeLastRdn.getType().equals(NodeConstants.OU);
-					String factoryPid = beforeLastRdn.getValue().toString();
-					Configuration conf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
-					if (systemRolesDn.equals(dn)) {
-						systemRolesConf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
-					} else {
-						AttributesDictionary dico = new AttributesDictionary(config);
-						conf.update(dico);
-					}
-				}
-			}
-
-			// system roles must be last since it triggers node user admin publication
-			if (systemRolesConf == null)
-				throw new IllegalStateException("System roles are not configured.");
-			systemRolesConf.update(new AttributesDictionary(deployConfigs.get(systemRolesDn)));
+			loadConfigs();
 		}
 		// TODO check consistency if not clean
+	}
+	
+	public void loadConfigs() throws IOException {
+		// FIXME make it more robust
+		Configuration systemRolesConf = null;
+		LdapName systemRolesDn;
+		try {
+			// FIXME make it more robust
+			systemRolesDn = new LdapName("cn=roles,ou=org.argeo.api.userAdmin,ou=deploy,ou=node");
+		} catch (InvalidNameException e) {
+			throw new IllegalArgumentException(e);
+		}
+		deployConfigs: for (LdapName dn : deployConfigs.keySet()) {
+			Rdn lastRdn = dn.getRdn(dn.size() - 1);
+			LdapName prefix = (LdapName) dn.getPrefix(dn.size() - 1);
+			if (prefix.toString().equals(NodeConstants.DEPLOY_BASEDN)) {
+				if (lastRdn.getType().equals(NodeConstants.CN)) {
+					// service
+					String pid = lastRdn.getValue().toString();
+					Configuration conf = configurationAdmin.getConfiguration(pid);
+					AttributesDictionary dico = new AttributesDictionary(deployConfigs.get(dn));
+					conf.update(dico);
+				} else {
+					// service factory definition
+				}
+			} else {
+				Attributes config = deployConfigs.get(dn);
+				Attribute disabled = config.get(UserAdminConf.disabled.name());
+				if (disabled != null)
+					continue deployConfigs;
+				// service factory service
+				Rdn beforeLastRdn = dn.getRdn(dn.size() - 2);
+				assert beforeLastRdn.getType().equals(NodeConstants.OU);
+				String factoryPid = beforeLastRdn.getValue().toString();
+				Configuration conf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
+				if (systemRolesDn.equals(dn)) {
+					systemRolesConf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
+				} else {
+					AttributesDictionary dico = new AttributesDictionary(config);
+					conf.update(dico);
+				}
+			}
+		}
+
+		// system roles must be last since it triggers node user admin publication
+		if (systemRolesConf == null)
+			throw new IllegalStateException("System roles are not configured.");
+		systemRolesConf.update(new AttributesDictionary(deployConfigs.get(systemRolesDn)));
+		
 	}
 
 	@Override
@@ -366,7 +358,7 @@ class DeployConfig implements ConfigurationListener {
 		}
 	}
 
-	Dictionary<String, Object> getProps(String factoryPid, String cn) {
+public	Dictionary<String, Object> getProps(String factoryPid, String cn) {
 		Attributes attrs = deployConfigs.get(serviceDn(factoryPid, cn));
 		if (attrs != null)
 			return new AttributesDictionary(attrs);

@@ -4,7 +4,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
-import javax.jcr.Node;
 import javax.security.auth.Subject;
 import javax.transaction.UserTransaction;
 
@@ -80,7 +79,7 @@ public interface CmsUserManager {
 
 	void expireAuthTokens(Subject subject);
 
-	User createUserFromPerson(Node person);
+//	User createUserFromPerson(Node person);
 
 	@Deprecated
 	public UserAdmin getUserAdmin();

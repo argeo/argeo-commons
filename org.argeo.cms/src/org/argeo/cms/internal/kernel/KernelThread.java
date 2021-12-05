@@ -1,6 +1,5 @@
 package org.argeo.cms.internal.kernel;
 
-import java.awt.image.Kernel;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 
@@ -11,7 +10,7 @@ import org.apache.jackrabbit.stats.RepositoryStatisticsImpl;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 
 /**
- * Background thread started by the {@link Kernel}, which gather statistics and
+ * Background thread started by the kernel, which gather statistics and
  * monitor/control other processes.
  */
 class KernelThread extends Thread {

@@ -46,38 +46,6 @@ import org.osgi.framework.Constants;
 class InitUtils {
 	private final static Log log = LogFactory.getLog(InitUtils.class);
 
-	/** Override the provided config with the framework properties */
-	static Dictionary<String, Object> getNodeRepositoryConfig(Dictionary<String, Object> provided) {
-		Dictionary<String, Object> props = provided != null ? provided : new Hashtable<String, Object>();
-		for (RepoConf repoConf : RepoConf.values()) {
-			Object value = getFrameworkProp(NodeConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
-			if (value != null) {
-				props.put(repoConf.name(), value);
-				if (log.isDebugEnabled())
-					log.debug("Set node repo configuration " + repoConf.name() + " to " + value);
-			}
-		}
-		props.put(NodeConstants.CN, NodeConstants.NODE_REPOSITORY);
-		return props;
-	}
-
-	static Dictionary<String, Object> getRepositoryConfig(String dataModelName, Dictionary<String, Object> provided) {
-		if (dataModelName.equals(NodeConstants.NODE_REPOSITORY) || dataModelName.equals(NodeConstants.EGO_REPOSITORY))
-			throw new IllegalArgumentException("Data model '" + dataModelName + "' is reserved.");
-		Dictionary<String, Object> props = provided != null ? provided : new Hashtable<String, Object>();
-		for (RepoConf repoConf : RepoConf.values()) {
-			Object value = getFrameworkProp(
-					NodeConstants.NODE_REPOS_PROP_PREFIX + dataModelName + '.' + repoConf.name());
-			if (value != null) {
-				props.put(repoConf.name(), value);
-				if (log.isDebugEnabled())
-					log.debug("Set " + dataModelName + " repo configuration " + repoConf.name() + " to " + value);
-			}
-		}
-		if (props.size() != 0)
-			props.put(NodeConstants.CN, dataModelName);
-		return props;
-	}
 
 	/** Override the provided config with the framework properties */
 	static Dictionary<String, Object> getHttpServerConfig(Dictionary<String, Object> provided) {
@@ -271,7 +239,8 @@ class InitUtils {
 		for (String nodeInit : nodeInits.split(",")) {
 
 			if (nodeInit.startsWith("http")) {
-				registerRemoteInit(nodeInit);
+				// TODO reconnect it
+				//registerRemoteInit(nodeInit);
 			} else {
 
 				// TODO use java.nio.file
@@ -298,31 +267,6 @@ class InitUtils {
 					}
 			}
 		}
-	}
-
-	private static void registerRemoteInit(String uri) {
-		try {
-			BundleContext bundleContext = KernelUtils.getBundleContext();
-			Repository repository = createRemoteRepository(new URI(uri));
-			Hashtable<String, Object> properties = new Hashtable<>();
-			properties.put(NodeConstants.CN, NodeConstants.NODE_INIT);
-			properties.put(LdapAttrs.labeledURI.name(), uri);
-			properties.put(Constants.SERVICE_RANKING, -1000);
-			bundleContext.registerService(Repository.class, repository, properties);
-		} catch (RepositoryException e) {
-			throw new JcrException(e);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
-
-	private static Repository createRemoteRepository(URI uri) throws RepositoryException {
-		RepositoryFactory repositoryFactory = new ClientDavexRepositoryFactory();
-		Map<String, String> params = new HashMap<String, String>();
-		params.put(ClientDavexRepositoryFactory.JACKRABBIT_DAVEX_URI, uri.toString());
-		// TODO make it configurable
-		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, NodeConstants.SYS_WORKSPACE);
-		return repositoryFactory.getRepository(params);
 	}
 
 	private static void createSelfSignedKeyStore(Path keyStorePath, char[] keyStorePassword, String keyStoreType) {

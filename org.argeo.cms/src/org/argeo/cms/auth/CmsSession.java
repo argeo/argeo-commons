@@ -29,6 +29,8 @@ public interface CmsSession {
 	String getLocalId();
 
 	Authorization getAuthorization();
+	
+	Subject getSubject();
 
 	boolean isAnonymous();
 

@@ -4,12 +4,9 @@ import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
@@ -17,8 +14,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.crypto.SecretKey;
-import javax.jcr.Repository;
-import javax.jcr.Session;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
@@ -31,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.security.NodeSecurityUtils;
 import org.argeo.cms.auth.CmsSession;
-import org.argeo.jcr.JcrUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -58,10 +52,6 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 	private final Locale locale;
 
 	private ServiceRegistration<CmsSession> serviceRegistration;
-
-	private Map<String, Session> dataSessions = new HashMap<>();
-	private Set<String> dataSessionsInUse = new HashSet<>();
-	private Set<Session> additionalDataSessions = new HashSet<>();
 
 	private Map<String, Object> views = new HashMap<>();
 
@@ -103,13 +93,6 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		end = ZonedDateTime.now();
 		serviceRegistration.unregister();
 
-		synchronized (this) {
-			// TODO check data session in use ?
-			for (String path : dataSessions.keySet())
-				JcrUtils.logoutQuietly(dataSessions.get(path));
-			for (Session session : additionalDataSessions)
-				JcrUtils.logoutQuietly(session);
-		}
 
 		try {
 			LoginContext lc;
@@ -127,85 +110,13 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		log.debug("Closed " + this);
 	}
 
-	private Subject getSubject() {
+	public Subject getSubject() {
 		return Subject.getSubject(accessControlContext);
 	}
 
 	public Set<SecretKey> getSecretKeys() {
 		checkValid();
 		return getSubject().getPrivateCredentials(SecretKey.class);
-	}
-
-	public Session newDataSession(String cn, String workspace, Repository repository) {
-		checkValid();
-		return login(repository, workspace);
-	}
-
-	public synchronized Session getDataSession(String cn, String workspace, Repository repository) {
-		checkValid();
-		// FIXME make it more robust
-		if (workspace == null)
-			workspace = NodeConstants.SYS_WORKSPACE;
-		String path = cn + '/' + workspace;
-		if (dataSessionsInUse.contains(path)) {
-			try {
-				wait(1000);
-				if (dataSessionsInUse.contains(path)) {
-					Session session = login(repository, workspace);
-					additionalDataSessions.add(session);
-					if (log.isTraceEnabled())
-						log.trace("Additional data session " + path + " for " + userDn);
-					return session;
-				}
-			} catch (InterruptedException e) {
-				// silent
-			}
-		}
-
-		Session session = null;
-		if (dataSessions.containsKey(path)) {
-			session = dataSessions.get(path);
-		} else {
-			session = login(repository, workspace);
-			dataSessions.put(path, session);
-			if (log.isTraceEnabled())
-				log.trace("New data session " + path + " for " + userDn);
-		}
-		dataSessionsInUse.add(path);
-		return session;
-	}
-
-	private Session login(Repository repository, String workspace) {
-		try {
-			return Subject.doAs(getSubject(), new PrivilegedExceptionAction<Session>() {
-				@Override
-				public Session run() throws Exception {
-					return repository.login(workspace);
-				}
-			});
-		} catch (PrivilegedActionException e) {
-			throw new IllegalStateException("Cannot log in " + userDn + " to JCR", e);
-		}
-	}
-
-	public synchronized void releaseDataSession(String cn, Session session) {
-		if (additionalDataSessions.contains(session)) {
-			JcrUtils.logoutQuietly(session);
-			additionalDataSessions.remove(session);
-			if (log.isTraceEnabled())
-				log.trace("Remove additional data session " + session);
-			return;
-		}
-		String path = cn + '/' + session.getWorkspace().getName();
-		if (!dataSessionsInUse.contains(path))
-			log.warn("Data session " + path + " was not in use for " + userDn);
-		dataSessionsInUse.remove(path);
-		Session registeredSession = dataSessions.get(path);
-		if (session != registeredSession)
-			log.warn("Data session " + path + " not consistent for " + userDn);
-		if (log.isTraceEnabled())
-			log.trace("Released data session " + session + " for " + path);
-		notifyAll();
 	}
 
 	@Override

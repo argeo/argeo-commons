@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.jcr.Node;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
@@ -32,7 +31,6 @@ import org.argeo.api.NodeConstants;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
-import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.naming.NamingUtils;
 import org.argeo.naming.SharedSecret;
@@ -435,36 +433,36 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		}
 	}
 
-	public User createUserFromPerson(Node person) {
-		String email = JcrUtils.get(person, LdapAttrs.mail.property());
-		String dn = buildDefaultDN(email, Role.USER);
-		User user;
-		try {
-			userTransaction.begin();
-			user = (User) userAdmin.createRole(dn, Role.USER);
-			Dictionary<String, Object> userProperties = user.getProperties();
-			String name = JcrUtils.get(person, LdapAttrs.displayName.property());
-			userProperties.put(LdapAttrs.cn.name(), name);
-			userProperties.put(LdapAttrs.displayName.name(), name);
-			String givenName = JcrUtils.get(person, LdapAttrs.givenName.property());
-			String surname = JcrUtils.get(person, LdapAttrs.sn.property());
-			userProperties.put(LdapAttrs.givenName.name(), givenName);
-			userProperties.put(LdapAttrs.sn.name(), surname);
-			userProperties.put(LdapAttrs.mail.name(), email.toLowerCase());
-			userTransaction.commit();
-		} catch (Exception e) {
-			try {
-				userTransaction.rollback();
-			} catch (Exception e1) {
-				log.error("Could not roll back", e1);
-			}
-			if (e instanceof RuntimeException)
-				throw (RuntimeException) e;
-			else
-				throw new RuntimeException("Cannot create user", e);
-		}
-		return user;
-	}
+//	public User createUserFromPerson(Node person) {
+//		String email = JcrUtils.get(person, LdapAttrs.mail.property());
+//		String dn = buildDefaultDN(email, Role.USER);
+//		User user;
+//		try {
+//			userTransaction.begin();
+//			user = (User) userAdmin.createRole(dn, Role.USER);
+//			Dictionary<String, Object> userProperties = user.getProperties();
+//			String name = JcrUtils.get(person, LdapAttrs.displayName.property());
+//			userProperties.put(LdapAttrs.cn.name(), name);
+//			userProperties.put(LdapAttrs.displayName.name(), name);
+//			String givenName = JcrUtils.get(person, LdapAttrs.givenName.property());
+//			String surname = JcrUtils.get(person, LdapAttrs.sn.property());
+//			userProperties.put(LdapAttrs.givenName.name(), givenName);
+//			userProperties.put(LdapAttrs.sn.name(), surname);
+//			userProperties.put(LdapAttrs.mail.name(), email.toLowerCase());
+//			userTransaction.commit();
+//		} catch (Exception e) {
+//			try {
+//				userTransaction.rollback();
+//			} catch (Exception e1) {
+//				log.error("Could not roll back", e1);
+//			}
+//			if (e instanceof RuntimeException)
+//				throw (RuntimeException) e;
+//			else
+//				throw new RuntimeException("Cannot create user", e);
+//		}
+//		return user;
+//	}
 
 	public UserAdmin getUserAdmin() {
 		return userAdmin;

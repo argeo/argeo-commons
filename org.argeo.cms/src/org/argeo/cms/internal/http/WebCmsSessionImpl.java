@@ -11,9 +11,7 @@ import org.osgi.service.useradmin.Authorization;
 
 /** CMS session implementation in a web context. */
 public class WebCmsSessionImpl extends CmsSessionImpl {
-	// private final static Log log =
-	// LogFactory.getLog(WebCmsSessionImpl.class);
-
+	private static final long serialVersionUID = -5178883380637048025L;
 	private HttpSession httpSession;
 
 	public WebCmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale,

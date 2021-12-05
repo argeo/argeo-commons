@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -45,6 +46,7 @@ import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.internal.http.CmsRemotingServlet;
 import org.argeo.cms.internal.http.CmsWebDavServlet;
 import org.argeo.cms.internal.http.HttpUtils;
+import org.argeo.cms.internal.jcr.JcrInitUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
@@ -155,6 +157,7 @@ public class CmsDeployment implements NodeDeployment {
 					throw new IllegalStateException("Cannot analyse clean state", e);
 				}
 				deployConfig = new DeployConfig(configurationAdmin, dataModels, isClean);
+				JcrInitUtils.addToDeployment(CmsDeployment.this);
 				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
 				try {
 					Configuration[] configs = configurationAdmin
@@ -179,6 +182,20 @@ public class CmsDeployment implements NodeDeployment {
 		};
 		// confAdminSt.open();
 		KernelUtils.asyncOpen(confAdminSt);
+	}
+
+	public void addFactoryDeployConfig(String factoryPid, Dictionary<String, Object> props) {
+		deployConfig.putFactoryDeployConfig(factoryPid, props);
+		deployConfig.save();
+		try {
+			deployConfig.loadConfigs();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	public Dictionary<String, Object> getProps(String factoryPid, String cn) {
+		return deployConfig.getProps(factoryPid, cn);
 	}
 
 	private String httpPortsMsg(Object httpPort, Object httpsPort) {
