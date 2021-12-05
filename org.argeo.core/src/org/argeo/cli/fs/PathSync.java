@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.concurrent.Callable;
 
-import org.argeo.jackrabbit.fs.DavexFsProvider;
 import org.argeo.sync.SyncResult;
 
 /** Synchronises two paths. */
@@ -49,8 +48,9 @@ public class PathSync implements Callable<SyncResult<Path>> {
 			FileSystemProvider fsProvider = FileSystems.getDefault().provider();
 			path = fsProvider.getPath(uri);
 		} else if (uri.getScheme().equals("davex")) {
-			FileSystemProvider fsProvider = new DavexFsProvider();
-			path = fsProvider.getPath(uri);
+			throw new UnsupportedOperationException();
+//			FileSystemProvider fsProvider = new DavexFsProvider();
+//			path = fsProvider.getPath(uri);
 //		} else if (uri.getScheme().equals("sftp")) {
 //			Sftp sftp = new Sftp(uri);
 //			path = sftp.getBasePath();

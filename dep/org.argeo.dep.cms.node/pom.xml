@@ -9,6 +9,7 @@
 	</parent>
 	<artifactId>org.argeo.dep.cms.node</artifactId>
 	<name>CMS Node</name>
+	
 	<dependencies>
 
 		<!-- Parent dependencies -->
@@ -26,15 +27,21 @@
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+		
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.maintenance</artifactId>
+			<artifactId>org.argeo.cms.jcr</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.commons</groupId> -->
+<!-- 			<artifactId>org.argeo.maintenance</artifactId> -->
+<!-- 			<version>2.3-SNAPSHOT</version> -->
+<!-- 		</dependency> -->
 
 		<!-- CMS Dependencies -->
 		<!-- <dependency> -->

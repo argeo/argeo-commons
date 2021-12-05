@@ -1,9 +1,0 @@
-Import-Package:\
-org.apache.jackrabbit.api,\
-org.apache.jackrabbit.commons,\
-org.apache.jackrabbit.spi,\
-org.apache.jackrabbit.spi2dav,\
-org.apache.jackrabbit.spi2davex,\
-org.apache.jackrabbit.webdav,\
-junit.*;resolution:=optional,\
-*
