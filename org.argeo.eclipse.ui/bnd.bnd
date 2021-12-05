@@ -1,5 +1,4 @@
-Import-Package: javax.jcr.nodetype,\
-				org.eclipse.swt,\
+Import-Package: org.eclipse.swt,\
 				org.eclipse.jface.window,\
 				org.eclipse.core.commands.common,\
 				*
