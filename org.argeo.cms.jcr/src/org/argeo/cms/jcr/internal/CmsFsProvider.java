@@ -19,8 +19,8 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
 import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeUtils;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
 import org.argeo.jcr.fs.JcrFileSystem;
 import org.argeo.jcr.fs.JcrFileSystemProvider;
@@ -54,7 +54,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 			if (host != null && !host.trim().equals("")) {
 				URI repoUri = new URI("http", uri.getUserInfo(), uri.getHost(), uri.getPort(), "/jcr/node", null, null);
 				RepositoryFactory repositoryFactory = bc.getService(bc.getServiceReference(RepositoryFactory.class));
-				Repository repository = NodeUtils.getRepositoryByUri(repositoryFactory, repoUri.toString());
+				Repository repository = CmsJcrUtils.getRepositoryByUri(repositoryFactory, repoUri.toString());
 				CmsFileSystem fileSystem = new CmsFileSystem(this, repository);
 				fileSystems.put(username, fileSystem);
 				return fileSystem;
@@ -98,7 +98,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 	public Node getUserHome(Repository repository) {
 		try {
 			Session session = repository.login(NodeConstants.HOME_WORKSPACE);
-			return NodeUtils.getUserHome(session);
+			return CmsJcrUtils.getUserHome(session);
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot get user home", e);
 		}

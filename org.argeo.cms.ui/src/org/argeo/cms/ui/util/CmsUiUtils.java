@@ -15,7 +15,7 @@ import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeUtils;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsView;
 import org.argeo.eclipse.ui.Selected;
@@ -115,7 +115,7 @@ public class CmsUiUtils implements CmsConstants {
 	}
 
 	public static String getDataPath(String cn, Node node) throws RepositoryException {
-		return NodeUtils.getDataPath(cn, node);
+		return CmsJcrUtils.getDataPath(cn, node);
 	}
 
 	/** Clean reserved URL characters for use in HTTP links. */

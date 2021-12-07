@@ -23,8 +23,8 @@ import javax.jcr.version.VersionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.ui.CmsConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.LifeCycleUiProvider;
@@ -174,7 +174,7 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 	public void init() throws RepositoryException {
 		Session session = null;
 		try {
-			session = NodeUtils.openDataAdminSession(repository, workspace);
+			session = CmsJcrUtils.openDataAdminSession(repository, workspace);
 			// session = JcrUtils.loginOrCreateWorkspace(repository, workspace);
 			VersionManager vm = session.getWorkspace().getVersionManager();
 			JcrUtils.mkdirs(session, jcrBasePath);

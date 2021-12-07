@@ -12,7 +12,7 @@ import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeUtils;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.Distinguished;
@@ -47,10 +47,10 @@ public abstract class AbstractMaintenanceService {
 	protected void configureJcr(Repository repository, String workspaceName) {
 		Session adminSession;
 		try {
-			adminSession = NodeUtils.openDataAdminSession(repository, workspaceName);
+			adminSession = CmsJcrUtils.openDataAdminSession(repository, workspaceName);
 		} catch (RuntimeException e1) {
 			if (e1.getCause() != null && e1.getCause() instanceof NoSuchWorkspaceException) {
-				Session defaultAdminSession = NodeUtils.openDataAdminSession(repository, null);
+				Session defaultAdminSession = CmsJcrUtils.openDataAdminSession(repository, null);
 				try {
 					defaultAdminSession.getWorkspace().createWorkspace(workspaceName);
 					log.info("Created JCR workspace " + workspaceName);
@@ -59,7 +59,7 @@ public abstract class AbstractMaintenanceService {
 				} finally {
 					Jcr.logout(defaultAdminSession);
 				}
-				adminSession = NodeUtils.openDataAdminSession(repository, workspaceName);
+				adminSession = CmsJcrUtils.openDataAdminSession(repository, workspaceName);
 			} else
 				throw e1;
 		}

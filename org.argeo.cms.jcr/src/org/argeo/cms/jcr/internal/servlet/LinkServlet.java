@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -196,7 +196,7 @@ public class LinkServlet extends HttpServlet {
 	private String getDataUrl(Node node, HttpServletRequest request) throws RepositoryException {
 		try {
 			StringBuilder buf = getServerBaseUrl(request);
-			buf.append(NodeUtils.getDataPath(NodeConstants.EGO_REPOSITORY, node));
+			buf.append(CmsJcrUtils.getDataPath(NodeConstants.EGO_REPOSITORY, node));
 			return new URL(buf.toString()).toString();
 		} catch (MalformedURLException e) {
 			throw new CmsException("Cannot build data URL for " + node, e);

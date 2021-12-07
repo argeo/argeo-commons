@@ -20,13 +20,13 @@ import javax.naming.ldap.LdapName;
 
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeInstance;
-import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.MailLP;
 import org.argeo.cms.e4.users.providers.RoleIconLP;
 import org.argeo.cms.e4.users.providers.UserFilter;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.argeo.cms.ui.util.CmsUiUtils;
@@ -197,7 +197,7 @@ public class GroupEditor extends AbstractRoleEditor {
 				// dnTxt.setText(group.getName());
 				// cnTxt.setText(UserAdminUtils.getProperty(group, LdapAttrs.cn.name()));
 				descTxt.setText(UserAdminUtils.getProperty(group, LdapAttrs.description.name()));
-				Node workgroupHome = NodeUtils.getGroupHome(groupsSession, cn);
+				Node workgroupHome = CmsJcrUtils.getGroupHome(groupsSession, cn);
 				if (workgroupHome == null)
 					markAsWorkgroupLk.setText("<a>Mark as workgroup</a>");
 				else
@@ -216,7 +216,7 @@ public class GroupEditor extends AbstractRoleEditor {
 				boolean confirmed = MessageDialog.openConfirm(parent.getShell(), "Mark as workgroup",
 						"Are you sure you want to mark " + cn + " as being a workgroup? ");
 				if (confirmed) {
-					Node workgroupHome = NodeUtils.getGroupHome(groupsSession, cn);
+					Node workgroupHome = CmsJcrUtils.getGroupHome(groupsSession, cn);
 					if (workgroupHome != null)
 						return; // already marked as workgroup, do nothing
 					else

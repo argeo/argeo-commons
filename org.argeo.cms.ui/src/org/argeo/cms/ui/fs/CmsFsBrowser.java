@@ -18,9 +18,9 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.Session;
 
-import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -98,7 +98,7 @@ public class CmsFsBrowser extends Composite {
 		try {
 			Repository repo = currentBaseContext.getSession().getRepository();
 			session = CurrentUser.tryAs(() -> repo.login());
-			String homepath = NodeUtils.getUserHome(session).getPath();
+			String homepath = CmsJcrUtils.getUserHome(session).getPath();
 			return homepath;
 		} catch (Exception e) {
 			throw new CmsException("Cannot retrieve Current User Home Path", e);

@@ -29,10 +29,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeUtils;
 import org.argeo.api.security.PBEKeySpecCallback;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.ArgeoTypes;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.security.AbstractKeyring;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
@@ -110,7 +110,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 			// return true;
 			session = session();
 			session.refresh(true);
-			Node userHome = NodeUtils.getUserHome(session);
+			Node userHome = CmsJcrUtils.getUserHome(session);
 			return userHome.hasNode(ARGEO_KEYRING);
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot check whether keyring is setup", e);
@@ -125,7 +125,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		// InputStream in = null;
 		try {
 			session().refresh(true);
-			Node userHome = NodeUtils.getUserHome(session());
+			Node userHome = CmsJcrUtils.getUserHome(session());
 			Node keyring;
 			if (userHome.hasNode(ARGEO_KEYRING)) {
 				throw new IllegalArgumentException("Keyring already set up");
@@ -187,7 +187,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 		try {
 			session = session();
 			session.refresh(true);
-			Node userHome = NodeUtils.getUserHome(session);
+			Node userHome = CmsJcrUtils.getUserHome(session);
 			Node keyring;
 			if (userHome.hasNode(ARGEO_KEYRING))
 				keyring = userHome.getNode(ARGEO_KEYRING);
@@ -326,7 +326,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 	protected Cipher createCipher() {
 		try {
-			Node userHome = NodeUtils.getUserHome(session());
+			Node userHome = CmsJcrUtils.getUserHome(session());
 			if (!userHome.hasNode(ARGEO_KEYRING))
 				throw new IllegalArgumentException("Keyring not setup");
 			Node keyring = userHome.getNode(ARGEO_KEYRING);

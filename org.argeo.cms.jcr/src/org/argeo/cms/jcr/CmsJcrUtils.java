@@ -1,4 +1,4 @@
-package org.argeo.api;
+package org.argeo.cms.jcr;
 
 import java.security.PrivilegedAction;
 import java.util.HashMap;
@@ -18,8 +18,10 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.argeo.api.NodeConstants;
+
 /** Utilities related to Argeo model in JCR */
-public class NodeUtils {
+public class CmsJcrUtils {
 	/**
 	 * Wraps the call to the repository factory based on parameter
 	 * {@link NodeConstants#CN} in order to simplify it and protect against future
@@ -267,7 +269,7 @@ public class NodeUtils {
 	}
 
 	/** Singleton. */
-	private NodeUtils() {
+	private CmsJcrUtils() {
 	}
 
 }

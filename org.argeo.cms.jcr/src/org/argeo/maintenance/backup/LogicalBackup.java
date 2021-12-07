@@ -46,7 +46,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitSession;
 import org.apache.jackrabbit.api.JackrabbitValue;
 import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeUtils;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jackrabbit.client.ClientDavexRepositoryFactory;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
@@ -333,7 +333,7 @@ public class LogicalBackup implements Runnable {
 
 	protected Session login(String workspaceName) {
 		if (bundleContext != null) {// local
-			return NodeUtils.openDataAdminSession(repository, workspaceName);
+			return CmsJcrUtils.openDataAdminSession(repository, workspaceName);
 		} else {// remote
 			try {
 				return repository.login(workspaceName);

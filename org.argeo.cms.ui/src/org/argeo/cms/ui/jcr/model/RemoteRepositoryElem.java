@@ -9,9 +9,9 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.argeo.api.NodeUtils;
 import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 
@@ -59,7 +59,7 @@ public class RemoteRepositoryElem extends RepositoryElem {
 	@Override
 	public Repository getRepository() {
 		if (repository == null)
-			repository = NodeUtils.getRepositoryByUri(repositoryFactory, uri);
+			repository = CmsJcrUtils.getRepositoryByUri(repositoryFactory, uri);
 		return super.getRepository();
 	}
 

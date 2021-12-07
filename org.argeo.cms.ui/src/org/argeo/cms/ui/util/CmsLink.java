@@ -10,8 +10,8 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeUtils;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.jcr.JcrException;
 import org.eclipse.rap.rwt.RWT;
@@ -113,7 +113,7 @@ public class CmsLink implements CmsUiProvider {
 			labelText.append("<a style='color:inherit;text-decoration:inherit;' href=\"");
 			if (loggedInTarget.equals("")) {
 				try {
-					Node homeNode = NodeUtils.getUserHome(context.getSession());
+					Node homeNode = CmsJcrUtils.getUserHome(context.getSession());
 					String homePath = homeNode.getPath();
 					labelText.append("/#" + homePath);
 				} catch (RepositoryException e) {

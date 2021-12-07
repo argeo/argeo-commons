@@ -12,11 +12,11 @@ import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
 import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeUtils;
 import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.ArgeoTypes;
 import org.argeo.cms.e4.jcr.JcrBrowserView;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.JcrUtils;
@@ -156,7 +156,7 @@ public class AddRemoteRepository {
 			Session nodeSession = null;
 			try {
 				nodeSession = nodeRepository.login();
-				Node home = NodeUtils.getUserHome(nodeSession);
+				Node home = CmsJcrUtils.getUserHome(nodeSession);
 
 				Node remote = home.hasNode(ArgeoNames.ARGEO_REMOTE) ? home.getNode(ArgeoNames.ARGEO_REMOTE)
 						: home.addNode(ArgeoNames.ARGEO_REMOTE);

@@ -34,11 +34,11 @@ import org.apache.jackrabbit.core.RepositoryImpl;
 import org.argeo.api.DataModelNamespace;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeDeployment;
-import org.argeo.api.NodeUtils;
 import org.argeo.api.security.CryptoKeyring;
 import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.internal.jcr.JcrInitUtils;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.jcr.internal.servlet.CmsRemotingServlet;
 import org.argeo.cms.jcr.internal.servlet.CmsWebDavServlet;
 import org.argeo.cms.jcr.internal.servlet.JcrHttpUtils;
@@ -193,15 +193,15 @@ public class JcrDeployment {
 				Session sourceSession = null;
 				try {
 					try {
-						targetSession = NodeUtils.openDataAdminSession(deployedNodeRepository, workspaceName);
+						targetSession = CmsJcrUtils.openDataAdminSession(deployedNodeRepository, workspaceName);
 					} catch (IllegalArgumentException e) {// no such workspace
-						Session adminSession = NodeUtils.openDataAdminSession(deployedNodeRepository, null);
+						Session adminSession = CmsJcrUtils.openDataAdminSession(deployedNodeRepository, null);
 						try {
 							adminSession.getWorkspace().createWorkspace(workspaceName);
 						} finally {
 							Jcr.logout(adminSession);
 						}
-						targetSession = NodeUtils.openDataAdminSession(deployedNodeRepository, workspaceName);
+						targetSession = CmsJcrUtils.openDataAdminSession(deployedNodeRepository, workspaceName);
 					}
 					sourceSession = initRepository.login(workspaceName);
 //					JcrUtils.copyWorkspaceXml(sourceSession, targetSession);

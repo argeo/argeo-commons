@@ -8,7 +8,6 @@ import java.util.PropertyPermission;
 
 import javax.security.auth.AuthPermission;
 
-import org.argeo.api.NodeUtils;
 import org.osgi.framework.AdminPermission;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -30,13 +29,13 @@ public interface SecurityProfile {
 	default void applySystemPermissions(ConditionalPermissionAdmin permissionAdmin) {
 		ConditionalPermissionUpdate update = permissionAdmin.newConditionalPermissionUpdate();
 		// Self
-		String nodeAPiBundleLocation = locate(NodeUtils.class);
-		update.getConditionalPermissionInfos()
-				.add(permissionAdmin.newConditionalPermissionInfo(null,
-						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-								new String[] { nodeAPiBundleLocation }) },
-						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
-						ConditionalPermissionInfo.ALLOW));
+//		String nodeAPiBundleLocation = locate(NodeUtils.class);
+//		update.getConditionalPermissionInfos()
+//				.add(permissionAdmin.newConditionalPermissionInfo(null,
+//						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+//								new String[] { nodeAPiBundleLocation }) },
+//						new PermissionInfo[] { new PermissionInfo(AllPermission.class.getName(), null, null) },
+//						ConditionalPermissionInfo.ALLOW));
 		String cmsBundleLocation = locate(SecurityProfile.class);
 		update.getConditionalPermissionInfos()
 				.add(permissionAdmin.newConditionalPermissionInfo(null,

@@ -18,8 +18,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeUtils;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrRepositoryWrapper;
 import org.argeo.jcr.JcrUtils;
@@ -159,7 +159,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 			return;
 
 		try {
-			Node userHome = NodeUtils.getUserHome(adminSession, username);
+			Node userHome = CmsJcrUtils.getUserHome(adminSession, username);
 			if (userHome == null) {
 //				String homePath = generateUserPath(username);
 				String userId = extractUserId(username);
@@ -229,7 +229,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 		String groupsWorkspace = getGroupsWorkspace();
 		Session adminSession = KernelUtils.openAdminSession(getRepository(groupsWorkspace), groupsWorkspace);
 		String cn = dn.getRdn(dn.size() - 1).getValue().toString();
-		Node newWorkgroup = NodeUtils.getGroupHome(adminSession, cn);
+		Node newWorkgroup = CmsJcrUtils.getGroupHome(adminSession, cn);
 		if (newWorkgroup != null) {
 			JcrUtils.logoutQuietly(adminSession);
 			throw new CmsException("Workgroup " + newWorkgroup + " already exists for " + dn);
