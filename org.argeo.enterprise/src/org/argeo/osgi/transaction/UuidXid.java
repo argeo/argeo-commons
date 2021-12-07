@@ -1,4 +1,4 @@
-package org.argeo.transaction.simple;
+package org.argeo.osgi.transaction;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;

@@ -17,7 +17,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
-import javax.transaction.UserTransaction;
 
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeInstance;
@@ -36,6 +35,7 @@ import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.LdapAttrs;
+import org.argeo.osgi.transaction.WorkTransaction;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -514,7 +514,7 @@ public class GroupEditor extends AbstractRoleEditor {
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, myGroup));
 			} else if (role.getType() == Role.USER) {
 				// TODO check if the group is already member of this group
-				UserTransaction transaction = userAdminWrapper.beginTransactionIfNeeded();
+				WorkTransaction transaction = userAdminWrapper.beginTransactionIfNeeded();
 				User user = (User) role;
 				myGroup.addMember(user);
 				if (UserAdminWrapper.COMMIT_ON_SAVE)

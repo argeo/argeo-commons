@@ -16,10 +16,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.transaction.TransactionManager;
-
 import org.argeo.naming.LdapAttrs;
-import org.argeo.transaction.simple.SimpleTransactionManager;
+import org.argeo.osgi.transaction.SimpleTransactionManager;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
@@ -36,7 +34,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 	final static int TM_BITRONIX = 1;
 
 	private int tmType = TM_SIMPLE;
-	private TransactionManager tm;
+	private SimpleTransactionManager tm;
 	private URI uri;
 	private AbstractUserDirectory userAdmin;
 	private Path tempDir;
@@ -171,7 +169,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		}
 	}
 
-	private AbstractUserDirectory initUserAdmin(URI uri, TransactionManager tm) {
+	private AbstractUserDirectory initUserAdmin(URI uri, SimpleTransactionManager tm) {
 		Dictionary<String, Object> props = new Hashtable<>();
 		props.put(UserAdminConf.uri.name(), uri.toString());
 		props.put(UserAdminConf.baseDn.name(), BASE_DN);
@@ -186,7 +184,7 @@ public class LdifUserAdminTest extends TestCase implements BasicTestConstants {
 		// JTA
 //		if (TM_BITRONIX == tmType)
 //			EhCacheXAResourceProducer.registerXAResource(UserDirectory.class.getName(), userAdmin.getXaResource());
-		userAdmin.setTransactionManager(tm);
+		userAdmin.setTransactionControl(tm);
 		return userAdmin;
 	}
 

@@ -25,7 +25,6 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.transaction.TransactionManager;
 
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.CredentialsProvider;
@@ -38,6 +37,7 @@ import org.argeo.api.NodeConstants;
 import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
 import org.argeo.naming.DnsBrowser;
+import org.argeo.osgi.transaction.WorkControl;
 import org.argeo.osgi.useradmin.AbstractUserDirectory;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
@@ -72,7 +72,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 //	private ServiceRegistration<UserAdmin> userAdminReg;
 
 	// JTA
-	private final ServiceTracker<TransactionManager, TransactionManager> tmTracker;
+	private final ServiceTracker<WorkControl, WorkControl> tmTracker;
 	// private final String cacheName = UserDirectory.class.getName();
 
 	// GSS API
@@ -86,7 +86,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		super(systemRolesBaseDn, tokensBaseDn);
 		BundleContext bc = Activator.getBundleContext();
 		if (bc != null) {
-			tmTracker = new ServiceTracker<>(bc, TransactionManager.class, null);
+			tmTracker = new ServiceTracker<>(bc, WorkControl.class, null);
 			tmTracker.open();
 		} else {
 			tmTracker = null;
@@ -194,10 +194,10 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 
 	protected void postAdd(AbstractUserDirectory userDirectory) {
 		// JTA
-		TransactionManager tm = tmTracker != null ? tmTracker.getService() : null;
+		WorkControl tm = tmTracker != null ? tmTracker.getService() : null;
 		if (tm == null)
 			throw new IllegalStateException("A JTA transaction manager must be available.");
-		userDirectory.setTransactionManager(tm);
+		userDirectory.setTransactionControl(tm);
 //		if (tmTracker.getService() instanceof BitronixTransactionManager)
 //			EhCacheXAResourceProducer.registerXAResource(cacheName, userDirectory.getXaResource());
 

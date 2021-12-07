@@ -1,77 +1,77 @@
-package org.argeo.transaction.simple;
+package org.argeo.osgi.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-/** Simple implementation of an XA {@link Transaction}. */
-class SimpleTransaction implements Transaction, Status {
+/** Simple implementation of an XA transaction. */
+class SimpleTransaction<T>
+//implements Transaction, Status 
+{
 	private final Xid xid;
-	private int status = Status.STATUS_ACTIVE;
+	private T status;
 	private final List<XAResource> xaResources = new ArrayList<XAResource>();
 
 	private final SimpleTransactionManager transactionManager;
+	private TransactionStatusAdapter<T> tsa;
 
-	public SimpleTransaction(SimpleTransactionManager transactionManager) {
+	public SimpleTransaction(SimpleTransactionManager transactionManager, TransactionStatusAdapter<T> tsa) {
+		this.tsa = tsa;
+		this.status = tsa.getActiveStatus();
 		this.xid = new UuidXid();
 		this.transactionManager = transactionManager;
 	}
 
-	@Override
-	public synchronized void commit() throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
-			SecurityException, IllegalStateException, SystemException {
-		status = STATUS_PREPARING;
+	public synchronized void commit()
+//			throws RollbackException, HeuristicMixedException, HeuristicRollbackException,
+//			SecurityException, IllegalStateException, SystemException 
+	{
+		status = tsa.getPreparingStatus();
 		for (XAResource xaRes : xaResources) {
-			if (status == STATUS_MARKED_ROLLBACK)
+			if (status.equals(tsa.getMarkedRollbackStatus()))
 				break;
 			try {
 				xaRes.prepare(xid);
 			} catch (XAException e) {
-				status = STATUS_MARKED_ROLLBACK;
+				status = tsa.getMarkedRollbackStatus();
 				error("Cannot prepare " + xaRes + " for " + xid, e);
 			}
 		}
-		if (status == STATUS_MARKED_ROLLBACK) {
+		if (status.equals(tsa.getMarkedRollbackStatus())) {
 			rollback();
-			throw new RollbackException();
+			throw new SimpleRollbackException();
 		}
-		status = STATUS_PREPARED;
+		status = tsa.getPreparedStatus();
 
-		status = STATUS_COMMITTING;
+		status = tsa.getCommittingStatus();
 		for (XAResource xaRes : xaResources) {
-			if (status == STATUS_MARKED_ROLLBACK)
+			if (status.equals(tsa.getMarkedRollbackStatus()))
 				break;
 			try {
 				xaRes.commit(xid, false);
 			} catch (XAException e) {
-				status = STATUS_MARKED_ROLLBACK;
+				status = tsa.getMarkedRollbackStatus();
 				error("Cannot prepare " + xaRes + " for " + xid, e);
 			}
 		}
-		if (status == STATUS_MARKED_ROLLBACK) {
+		if (status.equals(tsa.getMarkedRollbackStatus())) {
 			rollback();
-			throw new RollbackException();
+			throw new SimpleRollbackException();
 		}
 
 		// complete
-		status = STATUS_COMMITTED;
+		status = tsa.getCommittedStatus();
 		clearResources(XAResource.TMSUCCESS);
 		transactionManager.unregister(xid);
 	}
 
-	@Override
-	public synchronized void rollback() throws IllegalStateException, SystemException {
-		status = STATUS_ROLLING_BACK;
+	public synchronized void rollback()
+//			throws IllegalStateException, SystemException 
+	{
+		status = tsa.getRollingBackStatus();
 		for (XAResource xaRes : xaResources) {
 			try {
 				xaRes.rollback(xid);
@@ -81,14 +81,14 @@ class SimpleTransaction implements Transaction, Status {
 		}
 
 		// complete
-		status = STATUS_ROLLEDBACK;
+		status = tsa.getRolledBackStatus();
 		clearResources(XAResource.TMFAIL);
 		transactionManager.unregister(xid);
 	}
 
-	@Override
 	public synchronized boolean enlistResource(XAResource xaRes)
-			throws RollbackException, IllegalStateException, SystemException {
+//			throws RollbackException, IllegalStateException, SystemException 
+	{
 		if (xaResources.add(xaRes)) {
 			try {
 				xaRes.start(getXid(), XAResource.TMNOFLAGS);
@@ -101,9 +101,9 @@ class SimpleTransaction implements Transaction, Status {
 			return false;
 	}
 
-	@Override
 	public synchronized boolean delistResource(XAResource xaRes, int flag)
-			throws IllegalStateException, SystemException {
+//			throws IllegalStateException, SystemException 
+	{
 		if (xaResources.remove(xaRes)) {
 			try {
 				xaRes.end(getXid(), flag);
@@ -131,20 +131,21 @@ class SimpleTransaction implements Transaction, Status {
 		e.printStackTrace();
 	}
 
-	@Override
-	public synchronized int getStatus() throws SystemException {
+	public synchronized T getStatus()
+//			throws SystemException 
+	{
 		return status;
 	}
 
-	@Override
-	public void registerSynchronization(Synchronization sync)
-			throws RollbackException, IllegalStateException, SystemException {
-		throw new UnsupportedOperationException();
-	}
+//	public void registerSynchronization(Synchronization sync)
+//			throws RollbackException, IllegalStateException, SystemException {
+//		throw new UnsupportedOperationException();
+//	}
 
-	@Override
-	public void setRollbackOnly() throws IllegalStateException, SystemException {
-		status = STATUS_MARKED_ROLLBACK;
+	public void setRollbackOnly()
+//			throws IllegalStateException, SystemException 
+	{
+		status = tsa.getMarkedRollbackStatus();
 	}
 
 	@Override

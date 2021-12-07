@@ -27,11 +27,9 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
 
 import org.argeo.naming.LdapAttrs;
+import org.argeo.osgi.transaction.WorkControl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -64,8 +62,9 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private List<String> credentialAttributeIds = Arrays
 			.asList(new String[] { LdapAttrs.userPassword.name(), LdapAttrs.authPassword.name() });
 
-	// JTA
-	private TransactionManager transactionManager;
+	// Transaction
+//	private TransactionManager transactionManager;
+	private WorkControl transactionControl;
 	private WcXaResource xaResource = new WcXaResource(this);
 
 	AbstractUserDirectory(URI uriArg, Dictionary<String, ?> props, boolean scoped) {
@@ -142,17 +141,18 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	}
 
 	protected void checkEdit() {
-		Transaction transaction;
-		try {
-			transaction = transactionManager.getTransaction();
-		} catch (SystemException e) {
-			throw new UserDirectoryException("Cannot get transaction", e);
-		}
-		if (transaction == null)
-			throw new UserDirectoryException("A transaction needs to be active in order to edit");
+//		Transaction transaction;
+//		try {
+//			transaction = transactionManager.getTransaction();
+//		} catch (SystemException e) {
+//			throw new UserDirectoryException("Cannot get transaction", e);
+//		}
+//		if (transaction == null)
+//			throw new UserDirectoryException("A transaction needs to be active in order to edit");
 		if (xaResource.wc() == null) {
 			try {
-				transaction.enlistResource(xaResource);
+//				transaction.enlistResource(xaResource);
+				transactionControl.getWorkContext().registerXAResource(xaResource, null);
 			} catch (Exception e) {
 				throw new UserDirectoryException("Cannot enlist " + xaResource, e);
 			}
@@ -490,8 +490,12 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		this.externalRoles = externalRoles;
 	}
 
-	public void setTransactionManager(TransactionManager transactionManager) {
-		this.transactionManager = transactionManager;
+//	public void setTransactionManager(TransactionManager transactionManager) {
+//		this.transactionManager = transactionManager;
+//	}
+
+	public void setTransactionControl(WorkControl transactionControl) {
+		this.transactionControl = transactionControl;
 	}
 
 	public WcXaResource getXaResource() {

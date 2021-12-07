@@ -5,13 +5,12 @@ import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.Dictionary;
 
-import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeDeployment;
 import org.argeo.api.NodeState;
+import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.framework.BundleContext;
@@ -33,7 +32,6 @@ public class CmsDeployment implements NodeDeployment {
 	private DeployConfig deployConfig;
 
 	private Long availableSince;
-
 
 	// Readiness
 	private boolean nodeAvailable = false;
@@ -69,7 +67,6 @@ public class CmsDeployment implements NodeDeployment {
 		// httpSt.open();
 		KernelUtils.asyncOpen(httpSt);
 
-
 		ServiceTracker<?, ?> userAdminSt = new ServiceTracker<UserAdmin, UserAdmin>(bc, UserAdmin.class, null) {
 			@Override
 			public UserAdmin addingService(ServiceReference<UserAdmin> reference) {
@@ -96,7 +93,7 @@ public class CmsDeployment implements NodeDeployment {
 				} catch (Exception e) {
 					throw new IllegalStateException("Cannot analyse clean state", e);
 				}
-				deployConfig = new DeployConfig(configurationAdmin,  isClean);
+				deployConfig = new DeployConfig(configurationAdmin, isClean);
 				Activator.registerService(NodeDeployment.class, CmsDeployment.this, null);
 //				JcrInitUtils.addToDeployment(CmsDeployment.this);
 				httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
@@ -145,7 +142,7 @@ public class CmsDeployment implements NodeDeployment {
 
 	private void addStandardSystemRoles(UserAdmin userAdmin) {
 		// we assume UserTransaction is already available (TODO make it more robust)
-		UserTransaction userTransaction = bc.getService(bc.getServiceReference(UserTransaction.class));
+		WorkTransaction userTransaction = bc.getService(bc.getServiceReference(WorkTransaction.class));
 		try {
 			userTransaction.begin();
 			Role adminRole = userAdmin.getRole(NodeConstants.ROLE_ADMIN);
@@ -179,7 +176,6 @@ public class CmsDeployment implements NodeDeployment {
 	public void shutdown() {
 //		if (nodeHttp != null)
 //			nodeHttp.destroy();
-
 
 		try {
 			JettyConfigurator.stopServer(KernelConstants.DEFAULT_JETTY_SERVER);
@@ -236,7 +232,6 @@ public class CmsDeployment implements NodeDeployment {
 		}
 	}
 
-
 	@Override
 	public synchronized Long getAvailableSince() {
 		return availableSince;
@@ -245,6 +240,5 @@ public class CmsDeployment implements NodeDeployment {
 	public synchronized boolean isAvailable() {
 		return availableSince != null;
 	}
-
 
 }

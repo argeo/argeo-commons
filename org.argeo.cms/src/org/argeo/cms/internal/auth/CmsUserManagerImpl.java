@@ -22,8 +22,6 @@ import java.util.UUID;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
-import javax.transaction.Status;
-import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +32,7 @@ import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.naming.LdapAttrs;
 import org.argeo.naming.NamingUtils;
 import org.argeo.naming.SharedSecret;
+import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
@@ -61,7 +60,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	private UserAdmin userAdmin;
 //	private Map<String, String> serviceProperties;
-	private UserTransaction userTransaction;
+	private WorkTransaction userTransaction;
 
 	private Map<UserDirectory, Hashtable<String, String>> userDirectories = Collections
 			.synchronizedMap(new LinkedHashMap<>());
@@ -351,7 +350,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 			return tokenStr;
 		} catch (Exception e1) {
 			try {
-				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
+				if (!userTransaction.isNoTransactionStatus())
 					userTransaction.rollback();
 			} catch (Exception e2) {
 				if (log.isTraceEnabled())
@@ -374,7 +373,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 				log.debug("Token " + token + " expired.");
 		} catch (Exception e1) {
 			try {
-				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
+				if (!userTransaction.isNoTransactionStatus())
 					userTransaction.rollback();
 			} catch (Exception e2) {
 				if (log.isTraceEnabled())
@@ -423,7 +422,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 			userTransaction.commit();
 		} catch (Exception e1) {
 			try {
-				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
+				if (!userTransaction.isNoTransactionStatus())
 					userTransaction.rollback();
 			} catch (Exception e2) {
 				if (log.isTraceEnabled())
@@ -468,9 +467,9 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		return userAdmin;
 	}
 
-	public UserTransaction getUserTransaction() {
-		return userTransaction;
-	}
+//	public UserTransaction getUserTransaction() {
+//		return userTransaction;
+//	}
 
 	/* DEPENDENCY INJECTION */
 	public void setUserAdmin(UserAdmin userAdmin) {
@@ -478,10 +477,10 @@ public class CmsUserManagerImpl implements CmsUserManager {
 //		this.serviceProperties = serviceProperties;
 	}
 
-	public void setUserTransaction(UserTransaction userTransaction) {
+	public void setUserTransaction(WorkTransaction userTransaction) {
 		this.userTransaction = userTransaction;
 	}
-	
+
 	public void addUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
 		userDirectories.put(userDirectory, new Hashtable<>(properties));
 	}

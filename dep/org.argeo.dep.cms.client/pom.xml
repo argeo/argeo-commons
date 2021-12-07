@@ -45,6 +45,8 @@
 			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.enterprise.cdi-api</artifactId>
 		</dependency>
+		
+		<!-- JTA is still indirectly required by Jackrabbit -->
 		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.transaction-api</artifactId>

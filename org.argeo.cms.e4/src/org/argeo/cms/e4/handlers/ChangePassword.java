@@ -11,13 +11,13 @@ import java.util.Arrays;
 import javax.inject.Inject;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
-import javax.transaction.UserTransaction;
 
 import org.argeo.api.security.CryptoKeyring;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.ui.dialogs.CmsMessageDialog;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
+import org.argeo.osgi.transaction.WorkTransaction;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.jface.dialogs.Dialog;
@@ -38,7 +38,7 @@ public class ChangePassword {
 	@Inject
 	private UserAdmin userAdmin;
 	@Inject
-	private UserTransaction userTransaction;
+	private WorkTransaction userTransaction;
 	@Inject
 	@Optional
 	private CryptoKeyring keyring = null;

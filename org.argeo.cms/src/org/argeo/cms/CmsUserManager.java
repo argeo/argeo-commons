@@ -5,12 +5,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.security.auth.Subject;
-import javax.transaction.UserTransaction;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
-import org.osgi.service.useradmin.UserAdmin;
 
 /**
  * Provide method interfaces to manage user concepts without accessing directly
@@ -81,9 +79,9 @@ public interface CmsUserManager {
 
 //	User createUserFromPerson(Node person);
 
-	@Deprecated
-	public UserAdmin getUserAdmin();
-
-	@Deprecated
-	public UserTransaction getUserTransaction();
+//	@Deprecated
+//	public UserAdmin getUserAdmin();
+//
+//	@Deprecated
+//	public UserTransaction getUserTransaction();
 }

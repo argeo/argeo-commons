@@ -1,6 +1,6 @@
 package org.argeo.cms.e4.users;
 
-import javax.transaction.UserTransaction;
+import org.argeo.osgi.transaction.WorkTransaction;
 
 /** First effort to centralize back end methods used by the user admin UI */
 public class UiAdminUtils {
@@ -10,7 +10,7 @@ public class UiAdminUtils {
 	 */
 	/** Easily notify the ActiveWindow that the transaction had a state change */
 	public final static void notifyTransactionStateChange(
-			UserTransaction userTransaction) {
+			WorkTransaction userTransaction) {
 //		try {
 //			IWorkbenchWindow aww = PlatformUI.getWorkbench()
 //					.getActiveWorkbenchWindow();

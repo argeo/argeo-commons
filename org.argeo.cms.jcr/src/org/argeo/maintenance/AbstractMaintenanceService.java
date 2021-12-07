@@ -9,7 +9,6 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.transaction.UserTransaction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +16,7 @@ import org.argeo.api.NodeUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.Distinguished;
+import org.argeo.osgi.transaction.WorkTransaction;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
@@ -28,7 +28,7 @@ public abstract class AbstractMaintenanceService {
 	private Repository repository;
 //	private UserAdminService userAdminService;
 	private UserAdmin userAdmin;
-	private UserTransaction userTransaction;
+	private WorkTransaction userTransaction;
 
 	public void init() {
 		makeSureRolesExists(getRequiredRoles());
@@ -202,7 +202,7 @@ public abstract class AbstractMaintenanceService {
 //		this.userAdminService = userAdminService;
 //	}
 
-	protected UserTransaction getUserTransaction() {
+	protected WorkTransaction getUserTransaction() {
 		return userTransaction;
 	}
 
@@ -214,7 +214,7 @@ public abstract class AbstractMaintenanceService {
 		this.userAdmin = userAdmin;
 	}
 
-	public void setUserTransaction(UserTransaction userTransaction) {
+	public void setUserTransaction(WorkTransaction userTransaction) {
 		this.userTransaction = userTransaction;
 	}
 

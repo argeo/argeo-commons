@@ -8,15 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeState;
 import org.argeo.cms.LocaleUtils;
-import org.argeo.transaction.simple.SimpleTransactionManager;
+import org.argeo.osgi.transaction.SimpleTransactionManager;
+import org.argeo.osgi.transaction.WorkControl;
+import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.util.LangUtils;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedServiceFactory;
@@ -117,8 +116,10 @@ public class CmsState implements NodeState {
 
 	private void initSimpleTransactionManager() {
 		SimpleTransactionManager transactionManager = new SimpleTransactionManager();
-		Activator.registerService(TransactionManager.class, transactionManager, null);
-		Activator.registerService(UserTransaction.class, transactionManager, null);
+		Activator.registerService(WorkControl.class, transactionManager, null);
+		Activator.registerService(WorkTransaction.class, transactionManager, null);
+//		Activator.registerService(TransactionManager.class, transactionManager, null);
+//		Activator.registerService(UserTransaction.class, transactionManager, null);
 		// TODO TransactionSynchronizationRegistry
 	}
 

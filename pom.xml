@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.maven</groupId>
@@ -19,7 +21,7 @@
 	<modules>
 		<!-- Base -->
 		<module>org.argeo.enterprise</module>
-<!-- 		<module>org.argeo.jcr</module> -->
+		<!-- <module>org.argeo.jcr</module> -->
 		<module>org.argeo.osgi.boot</module>
 		<module>org.argeo.core</module>
 		<!-- Eclipse -->
@@ -27,7 +29,7 @@
 		<module>org.argeo.eclipse.ui.rap</module>
 		<!-- CMS -->
 		<module>org.argeo.api</module>
-<!-- 		<module>org.argeo.maintenance</module> -->
+		<!-- <module>org.argeo.maintenance</module> -->
 		<module>org.argeo.cms</module>
 		<module>org.argeo.cms.jcr</module>
 		<module>org.argeo.cms.ui.theme</module>
@@ -95,6 +97,11 @@
 				<exclusion>
 					<groupId>org.argeo.tp.misc</groupId>
 					<artifactId>slf4j.osgi</artifactId>
+				</exclusion>
+				<!-- Make sure JTA is not used anymore -->
+				<exclusion>
+					<groupId>org.argeo.tp.javax</groupId>
+					<artifactId>javax.transaction-api</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
