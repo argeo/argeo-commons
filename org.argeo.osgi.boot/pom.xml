@@ -9,7 +9,7 @@
 	</parent>
 	<artifactId>org.argeo.osgi.boot</artifactId>
 	<packaging>jar</packaging>
-	<name>Commons OSGi Boot</name>
+	<name>OSGi Boot</name>
 	<build>
 		<plugins>
 			<plugin>

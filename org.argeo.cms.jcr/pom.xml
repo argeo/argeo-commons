@@ -8,23 +8,8 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>org.argeo.cms.jcr</artifactId>
-	<name>Commons CMS JCR</name>
+	<name>CMS JCR</name>
 	<dependencies>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.api</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.enterprise</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.core</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms</artifactId>

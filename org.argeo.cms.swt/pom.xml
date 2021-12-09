@@ -3,25 +3,22 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
-		<artifactId>argeo-commons</artifactId>
 		<version>2.3-SNAPSHOT</version>
+		<artifactId>argeo-commons</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.cms.ui.rap</artifactId>
-	<name>CMS UI RAP</name>
-	<packaging>jar</packaging>
+	<artifactId>org.argeo.cms.swt</artifactId>
+	<name>CMS SWT</name>
 	<dependencies>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.commons</groupId> -->
+<!-- 			<artifactId>org.argeo.util</artifactId> -->
+<!-- 			<version>2.1.89-SNAPSHOT</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui</artifactId>
+			<artifactId>org.argeo.cms</artifactId>
 			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<!-- Specific -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.swt.specific.rap</artifactId>
-			<version>2.3-SNAPSHOT</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- UI -->
@@ -40,18 +37,5 @@
 			<artifactId>org.eclipse.rap.jface</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
-		<!-- TODO move it to specific -->
-		<dependency>
-			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>org.eclipse.rap.filedialog</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.rap.e4</groupId>
-			<artifactId>org.eclipse.rap.fileupload</artifactId>
-			<scope>provided</scope>
-		</dependency>
-
 	</dependencies>
 </project>

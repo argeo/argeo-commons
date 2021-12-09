@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.argeo.commons</groupId>
@@ -9,13 +11,13 @@
 	</parent>
 	<artifactId>org.argeo.dep.cms.node</artifactId>
 	<name>CMS Node</name>
-	
+
 	<dependencies>
 
 		<!-- Parent dependencies -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.cms.client</artifactId>
+			<artifactId>org.argeo.dep.cms.minimal</artifactId>
 			<version>2.3-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
@@ -23,25 +25,14 @@
 		<!-- Argeo Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.api</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-		
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.jcr</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.commons</groupId> -->
-<!-- 			<artifactId>org.argeo.maintenance</artifactId> -->
-<!-- 			<version>2.3-SNAPSHOT</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.commons</groupId> -->
+		<!-- <artifactId>org.argeo.maintenance</artifactId> -->
+		<!-- <version>2.3-SNAPSHOT</version> -->
+		<!-- </dependency> -->
 
 		<!-- CMS Dependencies -->
 		<!-- <dependency> -->
@@ -52,12 +43,6 @@
 		<!-- <groupId>org.argeo.tp.misc</groupId> -->
 		<!-- <artifactId>org.joda.time</artifactId> -->
 		<!-- </dependency> -->
-
-		<!-- Misc -->
-		<dependency>
-			<groupId>org.argeo.tp.bouncycastle</groupId>
-			<artifactId>bcprov</artifactId>
-		</dependency>
 
 		<!-- Apache Commons -->
 		<dependency>
@@ -72,11 +57,89 @@
 		<!-- Javax -->
 		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.jcr</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.el-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.enterprise.cdi-api</artifactId>
+		</dependency>
+		<!-- JTA is still indirectly required by Jackrabbit -->
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
+			<artifactId>javax.transaction-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.annotation</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.javax</groupId>
 			<artifactId>javax.inject</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.net</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.collections</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.compress</artifactId>
+		</dependency>
+
+		<!-- Jackrabbit Dependencies -->
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.httpcomponents.httpcore</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache</groupId>
+			<artifactId>org.apache.httpcomponents.httpclient</artifactId>
+		</dependency>
+
+		<!-- Jackrabbit client -->
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.jcr.commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.spi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.spi.commons</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.webdav</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.spi2dav</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.jcr2dav</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.jackrabbit</groupId>
+			<artifactId>org.apache.jackrabbit.jcr2spi</artifactId>
 		</dependency>
 
 		<!-- Jackrabbit Repository -->
@@ -128,10 +191,6 @@
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.h2</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.postgresql.jdbc42</artifactId>
-		</dependency>
 
 		<!-- Third Parties -->
 		<dependency>
@@ -148,69 +207,6 @@
 		<!-- <groupId>org.argeo.tp.apache</groupId> -->
 		<!-- <artifactId>org.apache.aries.spifly.dynamic.bundle</artifactId> -->
 		<!-- </dependency> -->
-
-		<!-- Servlet -->
-		<dependency>
-			<groupId>org.argeo.tp.javax</groupId>
-			<artifactId>javax.servlet</artifactId>
-		</dependency>
-
-		<!-- HTTP Server -->
-		<dependency>
-			<groupId>org.argeo.tp.equinox</groupId>
-			<artifactId>org.eclipse.equinox.http.servlet</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.equinox</groupId>
-			<artifactId>org.eclipse.equinox.http.jetty</artifactId>
-		</dependency>
-
-		<!-- Jetty -->
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.continuation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.http</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.io</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.jmx</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.server</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.servlet</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.servlets</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.jetty</groupId>
-			<artifactId>org.eclipse.jetty.xml</artifactId>
-		</dependency>
-
 
 	</dependencies>
 
@@ -266,7 +262,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-client${argeo.rpm.suffix}</require>
+										<require>argeo-cms-minimal{argeo.rpm.suffix}</require>
 										<require>argeo-cms-node-tp${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
@@ -329,7 +325,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-client-tp${argeo.rpm.suffix}</require>
+										<require>argeo-cms-minimal-tp${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
 							</execution>

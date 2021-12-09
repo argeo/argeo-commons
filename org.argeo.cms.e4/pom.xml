@@ -20,7 +20,7 @@
 		<!-- UI -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
+			<artifactId>org.argeo.swt.specific.rap</artifactId>
 			<version>2.3-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>

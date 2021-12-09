@@ -19,6 +19,34 @@
 			<type>pom</type>
 		</dependency>
 
+		<!-- Argeo Commons UI -->
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.commons</groupId> -->
+<!-- 			<artifactId>org.argeo.eclipse.ui</artifactId> -->
+<!-- 			<version>2.3-SNAPSHOT</version> -->
+<!-- 		</dependency> -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.swt.specific.rap</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.swt</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.ui</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.ui.rap</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
+
+
 		<!-- RWT -->
 		<dependency>
 			<groupId>org.argeo.tp.rap.e4</groupId>
@@ -43,33 +71,6 @@
 		<dependency>
 			<groupId>org.argeo.tp.rap.e4</groupId>
 			<artifactId>org.eclipse.rap.fileupload</artifactId>
-		</dependency>
-
-		<!-- Argeo Commons UI -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.ui</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.eclipse.ui.rap</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui.rap</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.ui.theme</artifactId>
-			<version>2.3-SNAPSHOT</version>
 		</dependency>
 
 		<!-- SDK -->

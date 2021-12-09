@@ -11,7 +11,7 @@
 	<name>Commons Modular Distributions</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>org.argeo.dep.cms.client</module>
+		<module>org.argeo.dep.cms.minimal</module>
 		<module>org.argeo.dep.cms.node</module>
 		<module>org.argeo.dep.cms.ui.rap</module>
 		<module>org.argeo.dep.cms.e4.rap</module>
