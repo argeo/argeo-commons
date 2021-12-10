@@ -3,7 +3,7 @@ package org.argeo.cms.ui.util;
 import javax.jcr.Node;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.ui.widgets.auth.CmsLoginShell;
+import org.argeo.cms.swt.auth.CmsLoginShell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;

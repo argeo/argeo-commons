@@ -7,7 +7,7 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.jcr.JcrException;
 import org.eclipse.swt.widgets.Composite;
 
@@ -57,7 +57,7 @@ public class JcrComposite extends Composite {
 				if (cacheImmediately)
 					this.cache = node;
 //				}
-				setLayout(CmsUiUtils.noSpaceGridLayout());
+				setLayout(CmsSwtUtils.noSpaceGridLayout());
 			} catch (RepositoryException e) {
 				throw new IllegalStateException("Cannot create composite from " + item, e);
 			}

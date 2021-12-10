@@ -9,8 +9,6 @@ import static org.argeo.cms.ui.CmsConstants.NO_IMAGE_SIZE;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -22,7 +20,9 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.ui.CmsImageManager;
+import org.argeo.api.cms.Cms2DSize;
+import org.argeo.api.cms.CmsImageManager;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -35,17 +35,17 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 
 /** Manages only public images so far. */
-public class DefaultImageManager implements CmsImageManager {
+public class DefaultImageManager implements CmsImageManager<Control, Node> {
 	private final static Log log = LogFactory.getLog(DefaultImageManager.class);
 //	private MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
-	public Boolean load(Node node, Control control, Point preferredSize) throws RepositoryException {
-		Point imageSize = getImageSize(node);
-		Point size;
+	public Boolean load(Node node, Control control, Cms2DSize preferredSize) {
+		Cms2DSize imageSize = getImageSize(node);
+		Cms2DSize size;
 		String imgTag = null;
-		if (preferredSize == null || imageSize.x == 0 || imageSize.y == 0
-				|| (preferredSize.x == 0 && preferredSize.y == 0)) {
-			if (imageSize.x != 0 && imageSize.y != 0) {
+		if (preferredSize == null || imageSize.getWidth() == 0 || imageSize.getHeight() == 0
+				|| (preferredSize.getWidth() == 0 && preferredSize.getHeight() == 0)) {
+			if (imageSize.getWidth() != 0 && imageSize.getHeight() != 0) {
 				// actual image size if completely known
 				size = imageSize;
 			} else {
@@ -54,15 +54,15 @@ public class DefaultImageManager implements CmsImageManager {
 				imgTag = CmsUiUtils.noImg(size);
 			}
 
-		} else if (preferredSize.x != 0 && preferredSize.y != 0) {
+		} else if (preferredSize.getWidth() != 0 && preferredSize.getHeight() != 0) {
 			// given size if completely provided
 			size = preferredSize;
 		} else {
 			// at this stage :
 			// image is completely known
-			assert imageSize.x != 0 && imageSize.y != 0;
+			assert imageSize.getWidth() != 0 && imageSize.getHeight() != 0;
 			// one and only one of the dimension as been specified
-			assert preferredSize.x == 0 || preferredSize.y == 0;
+			assert preferredSize.getWidth() == 0 || preferredSize.getHeight() == 0;
 			size = resizeTo(imageSize, preferredSize);
 		}
 
@@ -87,7 +87,7 @@ public class DefaultImageManager implements CmsImageManager {
 		} else if (control instanceof FileUpload) {
 			FileUpload lbl = (FileUpload) control;
 			lbl.setImage(CmsUiUtils.noImage(size));
-			lbl.setSize(size);
+			lbl.setSize(new Point(size.getWidth(), size.getHeight()));
 			return loaded;
 		} else
 			loaded = false;
@@ -95,15 +95,17 @@ public class DefaultImageManager implements CmsImageManager {
 		return loaded;
 	}
 
-	private Point resizeTo(Point orig, Point constraints) {
-		if (constraints.x != 0 && constraints.y != 0) {
+	private Cms2DSize resizeTo(Cms2DSize orig, Cms2DSize constraints) {
+		if (constraints.getWidth() != 0 && constraints.getHeight() != 0) {
 			return constraints;
-		} else if (constraints.x == 0 && constraints.y == 0) {
+		} else if (constraints.getWidth() == 0 && constraints.getHeight() == 0) {
 			return orig;
-		} else if (constraints.y == 0) {// force width
-			return new Point(constraints.x, scale(orig.y, orig.x, constraints.x));
-		} else if (constraints.x == 0) {// force height
-			return new Point(scale(orig.x, orig.y, constraints.y), constraints.y);
+		} else if (constraints.getHeight() == 0) {// force width
+			return new Cms2DSize(constraints.getWidth(),
+					scale(orig.getHeight(), orig.getWidth(), constraints.getWidth()));
+		} else if (constraints.getWidth() == 0) {// force height
+			return new Cms2DSize(scale(orig.getWidth(), orig.getHeight(), constraints.getHeight()),
+					constraints.getHeight());
 		}
 		throw new IllegalArgumentException("Cannot resize " + orig + " to " + constraints);
 	}
@@ -116,19 +118,19 @@ public class DefaultImageManager implements CmsImageManager {
 		return ((float) a) / ((float) b);
 	}
 
-	public Point getImageSize(Node node) throws RepositoryException {
+	public Cms2DSize getImageSize(Node node) {
 		// TODO optimise
 		Image image = getSwtImage(node);
-		return new Point(image.getBounds().width, image.getBounds().height);
+		return new Cms2DSize(image.getBounds().width, image.getBounds().height);
 	}
 
 	/** @return null if not available */
 	@Override
-	public String getImageTag(Node node) throws RepositoryException {
+	public String getImageTag(Node node) {
 		return getImageTag(node, getImageSize(node));
 	}
 
-	private String getImageTag(Node node, Point size) throws RepositoryException {
+	private String getImageTag(Node node, Cms2DSize size) {
 		StringBuilder buf = getImageTagBuilder(node, size);
 		if (buf == null)
 			return null;
@@ -137,12 +139,12 @@ public class DefaultImageManager implements CmsImageManager {
 
 	/** @return null if not available */
 	@Override
-	public StringBuilder getImageTagBuilder(Node node, Point size) throws RepositoryException {
-		return getImageTagBuilder(node, Integer.toString(size.x), Integer.toString(size.y));
+	public StringBuilder getImageTagBuilder(Node node, Cms2DSize size) {
+		return getImageTagBuilder(node, Integer.toString(size.getWidth()), Integer.toString(size.getHeight()));
 	}
 
 	/** @return null if not available */
-	private StringBuilder getImageTagBuilder(Node node, String width, String height) throws RepositoryException {
+	private StringBuilder getImageTagBuilder(Node node, String width, String height) {
 		String url = getImageUrl(node);
 		if (url == null)
 			return null;
@@ -151,27 +153,35 @@ public class DefaultImageManager implements CmsImageManager {
 
 	/** @return null if not available */
 	@Override
-	public String getImageUrl(Node node) throws RepositoryException {
+	public String getImageUrl(Node node) {
 		return CmsUiUtils.getDataPathForUrl(node);
 	}
 
-	protected String getResourceName(Node node) throws RepositoryException {
-		String workspace = node.getSession().getWorkspace().getName();
-		if (node.hasNode(JCR_CONTENT))
-			return workspace + '_' + node.getNode(JCR_CONTENT).getIdentifier();
-		else
-			return workspace + '_' + node.getIdentifier();
-	}
-
-	public Binary getImageBinary(Node node) throws RepositoryException {
-		if (node.isNodeType(NT_FILE)) {
-			return node.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary();
-		} else {
-			return null;
+	protected String getResourceName(Node node) {
+		try {
+			String workspace = node.getSession().getWorkspace().getName();
+			if (node.hasNode(JCR_CONTENT))
+				return workspace + '_' + node.getNode(JCR_CONTENT).getIdentifier();
+			else
+				return workspace + '_' + node.getIdentifier();
+		} catch (RepositoryException e) {
+			throw new JcrException(e);
 		}
 	}
 
-	public Image getSwtImage(Node node) throws RepositoryException {
+	public Binary getImageBinary(Node node) {
+		try {
+			if (node.isNodeType(NT_FILE)) {
+				return node.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary();
+			} else {
+				return null;
+			}
+		} catch (RepositoryException e) {
+			throw new JcrException(e);
+		}
+	}
+
+	public Image getSwtImage(Node node) {
 		InputStream inputStream = null;
 		Binary binary = getImageBinary(node);
 		if (binary == null)
@@ -179,6 +189,8 @@ public class DefaultImageManager implements CmsImageManager {
 		try {
 			inputStream = binary.getStream();
 			return new Image(Display.getCurrent(), inputStream);
+		} catch (RepositoryException e) {
+			throw new JcrException(e);
 		} finally {
 			IOUtils.closeQuietly(inputStream);
 			JcrUtils.closeQuietly(binary);
@@ -186,8 +198,7 @@ public class DefaultImageManager implements CmsImageManager {
 	}
 
 	@Override
-	public String uploadImage(Node context, Node parentNode, String fileName, InputStream in, String contentType)
-			throws RepositoryException {
+	public String uploadImage(Node context, Node parentNode, String fileName, InputStream in, String contentType) {
 		InputStream inputStream = null;
 		try {
 			String previousResourceName = null;
@@ -222,6 +233,8 @@ public class DefaultImageManager implements CmsImageManager {
 			return CmsUiUtils.getDataPath(fileNode);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot upload image " + fileName + " in " + parentNode, e);
+		} catch (RepositoryException e) {
+			throw new JcrException(e);
 		} finally {
 			IOUtils.closeQuietly(inputStream);
 		}

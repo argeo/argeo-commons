@@ -9,14 +9,14 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.UxContext;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.ui.CmsImageManager;
-import org.argeo.cms.ui.CmsStyles;
+import org.argeo.cms.swt.CmsStyles;
+import org.argeo.cms.swt.CmsSwtUtils;
+import org.argeo.cms.swt.SimpleSwtUxContext;
 import org.argeo.cms.ui.CmsUiProvider;
-import org.argeo.cms.ui.UxContext;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.util.DefaultImageManager;
-import org.argeo.cms.ui.util.SimpleUxContext;
 import org.argeo.cms.ui.util.SystemNotifications;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
@@ -62,9 +62,9 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	protected void initUi(Composite parent) {
 		uid = UUID.randomUUID().toString();
 		parent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		parent.setLayout(CmsUiUtils.noSpaceGridLayout(new GridLayout(3, false)));
+		parent.setLayout(CmsSwtUtils.noSpaceGridLayout(new GridLayout(3, false)));
 
-		uxContext = new SimpleUxContext();
+		uxContext = new SimpleSwtUxContext();
 		if (!getUxContext().isMasterData())
 			createAdminArea(parent);
 		headerArea = new Composite(parent, SWT.NONE);
@@ -76,17 +76,17 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		// TODO: bi-directional
 		leftArea = new Composite(parent, SWT.NONE);
 		leftArea.setLayoutData(new GridData(SWT.LEAD, SWT.TOP, false, false));
-		leftArea.setLayout(CmsUiUtils.noSpaceGridLayout());
+		leftArea.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		bodyArea = new Composite(parent, SWT.NONE);
 		bodyArea.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_BODY);
 		bodyArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		bodyArea.setLayout(CmsUiUtils.noSpaceGridLayout());
+		bodyArea.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		// TODO: bi-directional
 		rightArea = new Composite(parent, SWT.NONE);
 		rightArea.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
-		rightArea.setLayout(CmsUiUtils.noSpaceGridLayout());
+		rightArea.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		footerArea = new Composite(parent, SWT.NONE);
 		// footerArea.setLayout(new FillLayout());
@@ -141,7 +141,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 
 		for (Control child : area.getChildren())
 			child.dispose();
-		CmsUiUtils.style(area, style);
+		CmsSwtUtils.style(area, style);
 		try {
 			uiProvider.createUi(area, getNode());
 		} catch (RepositoryException e) {
@@ -164,7 +164,7 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		// clear
 		for (Control child : bodyArea.getChildren())
 			child.dispose();
-		bodyArea.setLayout(CmsUiUtils.noSpaceGridLayout());
+		bodyArea.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		try {
 			Node node = getNode();
@@ -188,7 +188,6 @@ public class SimpleErgonomics extends AbstractCmsEntryPoint {
 		return uid;
 	}
 
-	@Override
 	public CmsImageManager getImageManager() {
 		return imageManager;
 	}

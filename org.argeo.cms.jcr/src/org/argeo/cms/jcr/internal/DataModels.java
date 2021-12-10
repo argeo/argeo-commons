@@ -1,6 +1,6 @@
 package org.argeo.cms.jcr.internal;
 
-import static org.argeo.api.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
+import static org.argeo.cms.osgi.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,8 +10,8 @@ import java.util.TreeMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.api.DataModelNamespace;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.osgi.DataModelNamespace;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;

@@ -15,18 +15,20 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsUi;
+import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.UxContext;
 import org.argeo.cms.LocaleUtils;
-import org.argeo.cms.auth.CmsSession;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.ui.CmsApp;
-import org.argeo.cms.ui.CmsImageManager;
-import org.argeo.cms.ui.CmsView;
-import org.argeo.cms.ui.UxContext;
-import org.argeo.cms.ui.dialogs.CmsFeedback;
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.osgi.CmsOsgiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
+import org.argeo.cms.swt.SimpleSwtUxContext;
+import org.argeo.cms.swt.dialogs.CmsFeedback;
 import org.argeo.cms.ui.util.DefaultImageManager;
-import org.argeo.cms.ui.util.SimpleUxContext;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -59,7 +61,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	private UxContext uxContext;
 	private CmsImageManager imageManager;
 
-	private Composite ui;
+	private Display display;
+	private CmsUi ui;
 
 	private String uid;
 
@@ -104,7 +107,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 			@Override
 			public Void run() {
 				try {
-					uxContext = new SimpleUxContext();
+					uxContext = new SimpleSwtUxContext();
 					imageManager = new DefaultImageManager();
 					CmsSession cmsSession = getCmsSession();
 					if (cmsSession != null) {
@@ -115,8 +118,10 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 						LocaleUtils.setThreadLocale(rwtLocale);
 					}
 					parent.setData(CmsApp.UI_NAME_PROPERTY, uiName);
+					display = parent.getDisplay();
 					ui = cmsWebApp.getCmsApp().initUi(parent);
-					ui.setLayoutData(CmsUiUtils.fillAll());
+					if (ui instanceof Composite)
+						((Composite) ui).setLayoutData(CmsSwtUtils.fillAll());
 					// we need ui to be set before refresh so that CmsView can store UI context data
 					// in it.
 					cmsWebApp.getCmsApp().refreshUi(ui, null);
@@ -178,7 +183,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 			if (swtError.code == SWT.ERROR_FUNCTION_DISPOSED)
 				return;
 		}
-		ui.getDisplay().syncExec(() -> {
+		display.syncExec(() -> {
 //			CmsFeedback.show("Unexpected exception in CMS", e);
 			exception = e;
 //		log.error("Unexpected exception in CMS", e);
@@ -230,7 +235,6 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 			browserNavigation.pushState(state, title);
 	}
 
-	@Override
 	public CmsImageManager getImageManager() {
 		return imageManager;
 	}
@@ -259,7 +263,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 
 	@Override
 	public CmsSession getCmsSession() {
-		CmsSession cmsSession = CmsSession.getCmsSession(cmsWebApp.getBundleContext(), getSubject());
+		CmsSession cmsSession = CmsOsgiUtils.getCmsSession(cmsWebApp.getBundleContext(), getSubject());
 		return cmsSession;
 	}
 
@@ -289,8 +293,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	public int createUI() {
 		Display display = new Display();
 		Shell shell = createShell(display);
-		shell.setLayout(CmsUiUtils.noSpaceGridLayout());
-		CmsView.registerCmsView(shell, this);
+		shell.setLayout(CmsSwtUtils.noSpaceGridLayout());
+		CmsSwtUtils.registerCmsView(shell, this);
 		createContents(shell);
 		shell.layout();
 //		if (shell.getMaximized()) {

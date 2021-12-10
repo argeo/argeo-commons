@@ -1,6 +1,6 @@
 package org.argeo.cms.ui.widgets;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -24,7 +24,7 @@ public class ContextOverlay extends ScrolledPage {
 	public ContextOverlay(Control control, int style) {
 		super(createShell(control, style), SWT.NONE);
 		Shell shell = getShell();
-		setLayoutData(CmsUiUtils.fillAll());
+		setLayoutData(CmsSwtUtils.fillAll());
 		// TODO make autohide configurable?
 		//shell.addShellListener(new AutoHideShellListener());
 		this.control = control;
@@ -40,10 +40,10 @@ public class ContextOverlay extends ScrolledPage {
 		if (control.isDisposed())
 			throw new IllegalArgumentException("Control is disposed");
 		Shell shell = new Shell(control.getShell(), SWT.NO_TRIM);
-		shell.setLayout(CmsUiUtils.noSpaceGridLayout());
+		shell.setLayout(CmsSwtUtils.noSpaceGridLayout());
 		Composite placeholder = new Composite(shell, SWT.BORDER);
-		placeholder.setLayoutData(CmsUiUtils.fillAll());
-		placeholder.setLayout(CmsUiUtils.noSpaceGridLayout());
+		placeholder.setLayoutData(CmsSwtUtils.fillAll());
+		placeholder.setLayout(CmsSwtUtils.noSpaceGridLayout());
 		return placeholder;
 	}
 

@@ -6,7 +6,7 @@ import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -37,7 +37,7 @@ class LogDeploymentUi extends AbstractOsgiComposite implements LogListener {
 		this.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		logDisplay = new Text(this, SWT.WRAP | SWT.MULTI | SWT.READ_ONLY);
 		logDisplay.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		CmsUiUtils.markup(logDisplay);
+		CmsSwtUtils.markup(logDisplay);
 		Enumeration<LogEntry> logEntries = (Enumeration<LogEntry>) logReader.getLog();
 		while (logEntries.hasMoreElements())
 			logDisplay.append(printEntry(logEntries.nextElement()));

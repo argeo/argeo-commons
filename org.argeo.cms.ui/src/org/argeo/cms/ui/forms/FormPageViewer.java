@@ -16,10 +16,10 @@ import javax.jcr.ValueFormatException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.ui.CmsEditable;
-import org.argeo.cms.ui.CmsImageManager;
-import org.argeo.cms.ui.CmsView;
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.api.cms.Cms2DSize;
+import org.argeo.api.cms.CmsEditable;
+import org.argeo.api.cms.CmsImageManager;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.viewers.AbstractPageViewer;
 import org.argeo.cms.ui.viewers.EditablePart;
 import org.argeo.cms.ui.viewers.Section;
@@ -74,7 +74,7 @@ public class FormPageViewer extends AbstractPageViewer {
 	// Context cached in the viewer
 	// The reference to translate from text to calendar and reverse
 	private DateFormat dateFormat = new SimpleDateFormat(FormUtils.DEFAULT_SHORT_DATE_FORMAT);
-	private CmsImageManager imageManager;
+	private CmsImageManager<Control, Node> imageManager;
 	private FileUploadListener fileUploadListener;
 
 	public FormPageViewer(Section mainSection, int style, CmsEditable cmsEditable) throws RepositoryException {
@@ -304,9 +304,9 @@ public class FormPageViewer extends AbstractPageViewer {
 		return mainSection;
 	}
 
-	protected CmsImageManager imageManager() {
+	protected CmsImageManager<Control, Node> imageManager() {
 		if (imageManager == null)
-			imageManager = CmsView.getCmsView(mainSection).getImageManager();
+			imageManager = (CmsImageManager<Control, Node>) CmsSwtUtils.getCmsView(mainSection).getImageManager();
 		return imageManager;
 	}
 
@@ -315,8 +315,8 @@ public class FormPageViewer extends AbstractPageViewer {
 		Section section = null;
 		if (node != null) {
 			section = new Section(body, SWT.NO_FOCUS, node);
-			section.setLayoutData(CmsUiUtils.fillWidth());
-			section.setLayout(CmsUiUtils.noSpaceGridLayout());
+			section.setLayoutData(CmsSwtUtils.fillWidth());
+			section.setLayout(CmsSwtUtils.noSpaceGridLayout());
 		}
 		return section;
 	}
@@ -328,7 +328,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			EditablePropertyString eps = new EditablePropertyString(bodyRow, SWT.WRAP | SWT.LEFT, node, propName, msg);
 			eps.setMouseListener(getMouseListener());
 			eps.setFocusListener(getFocusListener());
-			eps.setLayoutData(CmsUiUtils.fillWidth());
+			eps.setLayoutData(CmsSwtUtils.fillWidth());
 		}
 	}
 
@@ -353,7 +353,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			addListeners(emsp);
 			// emsp.setMouseListener(getMouseListener());
 			emsp.setStyle(FormStyle.propertyMessage.style());
-			emsp.setLayoutData(CmsUiUtils.fillWidth());
+			emsp.setLayoutData(CmsSwtUtils.fillWidth());
 		}
 	}
 
@@ -365,7 +365,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		// boolean isSmall = CmsView.getCmsView(parent).getUxContext().isSmall();
 		Label label = new Label(parent, SWT.LEAD | SWT.WRAP);
 		label.setText(value + " ");
-		CmsUiUtils.style(label, FormStyle.propertyLabel.style());
+		CmsSwtUtils.style(label, FormStyle.propertyLabel.style());
 		GridData gd = new GridData(SWT.LEAD, vAlign, false, false);
 		if (labelColWidth != null)
 			gd.widthHint = labelColWidth;
@@ -376,13 +376,13 @@ public class FormPageViewer extends AbstractPageViewer {
 	protected Label newStyledLabel(Composite parent, String style, String value) {
 		Label label = new Label(parent, SWT.NONE);
 		label.setText(value);
-		CmsUiUtils.style(label, style);
+		CmsSwtUtils.style(label, style);
 		return label;
 	}
 
 	protected Composite createRowLayoutComposite(Composite parent) throws RepositoryException {
 		Composite bodyRow = new Composite(parent, SWT.NO_FOCUS);
-		bodyRow.setLayoutData(CmsUiUtils.fillWidth());
+		bodyRow.setLayoutData(CmsSwtUtils.fillWidth());
 		RowLayout rl = new RowLayout(SWT.WRAP);
 		rl.type = SWT.HORIZONTAL;
 		rl.spacing = rowLayoutHSpacing;
@@ -448,24 +448,20 @@ public class FormPageViewer extends AbstractPageViewer {
 			// for a while
 			cleanedName = System.currentTimeMillis() % 100000 + "_" + cleanedName;
 
-			try {
-				imageManager().uploadImage(context, context, cleanedName, stream, details.getContentType());
-				// TODO clean refresh strategy
-				section.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							FormPageViewer.this.refresh(section);
-							section.layout();
-							section.getParent().layout();
-						} catch (RepositoryException re) {
-							throw new JcrException("Unable to refresh " + "image section for " + context, re);
-						}
+			imageManager().uploadImage(context, context, cleanedName, stream, details.getContentType());
+			// TODO clean refresh strategy
+			section.getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						FormPageViewer.this.refresh(section);
+						section.layout();
+						section.getParent().layout();
+					} catch (RepositoryException re) {
+						throw new JcrException("Unable to refresh " + "image section for " + context, re);
 					}
-				});
-			} catch (RepositoryException re) {
-				throw new JcrException("unable to upload image " + name + " at " + context, re);
-			}
+				}
+			});
 		}
 	}
 
@@ -475,20 +471,20 @@ public class FormPageViewer extends AbstractPageViewer {
 	}
 
 	protected Img createImgComposite(Composite parent, Node node, Point preferredSize) throws RepositoryException {
-		Img img = new Img(parent, SWT.NONE, node, preferredSize) {
+		Img img = new Img(parent, SWT.NONE, node, new Cms2DSize(preferredSize.x, preferredSize.y)) {
 			private static final long serialVersionUID = 1297900641952417540L;
 
 			@Override
 			protected void setContainerLayoutData(Composite composite) {
-				composite.setLayoutData(CmsUiUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
+				composite.setLayoutData(CmsSwtUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
 			}
 
 			@Override
 			protected void setControlLayoutData(Control control) {
-				control.setLayoutData(CmsUiUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
+				control.setLayoutData(CmsSwtUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
 			}
 		};
-		img.setLayoutData(CmsUiUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
+		img.setLayoutData(CmsSwtUtils.grabWidth(SWT.CENTER, SWT.DEFAULT));
 		updateContent(img);
 		addListeners(img);
 		return img;
@@ -497,7 +493,7 @@ public class FormPageViewer extends AbstractPageViewer {
 	protected Composite addDeleteAbility(final Section section, final Node sessionNode, int topWeight,
 			int rightWeight) {
 		Composite comp = new Composite(section, SWT.NONE);
-		comp.setLayoutData(CmsUiUtils.fillAll());
+		comp.setLayoutData(CmsSwtUtils.fillAll());
 		comp.setLayout(new FormLayout());
 
 		// The body to be populated
@@ -507,7 +503,7 @@ public class FormPageViewer extends AbstractPageViewer {
 		if (getCmsEditable().canEdit()) {
 			// the delete button
 			Button deleteBtn = new Button(comp, SWT.FLAT);
-			CmsUiUtils.style(deleteBtn, FormStyle.deleteOverlay.style());
+			CmsSwtUtils.style(deleteBtn, FormStyle.deleteOverlay.style());
 			FormData formData = new FormData();
 			formData.right = new FormAttachment(rightWeight, 0);
 			formData.top = new FormAttachment(topWeight, 0);

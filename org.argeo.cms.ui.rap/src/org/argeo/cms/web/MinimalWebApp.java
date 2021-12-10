@@ -1,11 +1,11 @@
 package org.argeo.cms.web;
 
-import static org.argeo.cms.ui.util.BundleCmsTheme.CMS_THEME_BUNDLE_PROPERTY;
+import static org.argeo.cms.osgi.BundleCmsTheme.CMS_THEME_BUNDLE_PROPERTY;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.argeo.cms.ui.util.BundleCmsTheme;
+import org.argeo.cms.osgi.BundleCmsTheme;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;

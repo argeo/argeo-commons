@@ -11,7 +11,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.io.FilenameUtils;
-import org.argeo.cms.ui.CmsImageManager;
+import org.argeo.api.cms.CmsImageManager;
 import org.argeo.cms.ui.widgets.Img;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;

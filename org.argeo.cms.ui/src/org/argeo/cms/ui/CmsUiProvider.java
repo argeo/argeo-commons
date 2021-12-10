@@ -3,6 +3,7 @@ package org.argeo.cms.ui;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.argeo.api.cms.MvcProvider;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 

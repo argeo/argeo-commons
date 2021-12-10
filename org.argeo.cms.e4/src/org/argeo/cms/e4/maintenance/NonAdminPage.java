@@ -3,8 +3,8 @@ package org.argeo.cms.e4.maintenance;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsUiProvider;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -18,7 +18,7 @@ public class NonAdminPage implements CmsUiProvider{
 	public Control createUi(Composite parent, Node context)
 			throws RepositoryException {
 		Composite body = new Composite(parent, SWT.NO_FOCUS);
-		body.setLayoutData(CmsUiUtils.fillAll());
+		body.setLayoutData(CmsSwtUtils.fillAll());
 		body.setLayout(new GridLayout());
 		Label label = new Label(body, SWT.NONE);
 		label.setText("You should be an admin to perform maintenance operations. "

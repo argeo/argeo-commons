@@ -10,11 +10,11 @@ import javax.script.Invocable;
 import javax.script.ScriptException;
 
 import org.argeo.api.NodeConstants;
+import org.argeo.cms.swt.CmsSwtUtils;
+import org.argeo.cms.swt.Selected;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.CmsPane;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.web.SimpleErgonomics;
-import org.argeo.eclipse.ui.Selected;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -124,9 +124,9 @@ public class AppUi implements CmsUiProvider, Branding {
 
 		if (false) {
 			// QA
-			CmsUiUtils.style(cmsPane.getQaArea(), "qa");
+			CmsSwtUtils.style(cmsPane.getQaArea(), "qa");
 			Button reload = new Button(cmsPane.getQaArea(), SWT.FLAT);
-			CmsUiUtils.style(reload, "qa");
+			CmsSwtUtils.style(reload, "qa");
 			reload.setText("Reload");
 			reload.addSelectionListener(new Selected() {
 				private static final long serialVersionUID = 1L;
@@ -145,9 +145,9 @@ public class AppUi implements CmsUiProvider, Branding {
 			});
 
 			// Support
-			CmsUiUtils.style(cmsPane.getSupportArea(), "support");
+			CmsSwtUtils.style(cmsPane.getSupportArea(), "support");
 			Label msg = new Label(cmsPane.getSupportArea(), SWT.NONE);
-			CmsUiUtils.style(msg, "support");
+			CmsSwtUtils.style(msg, "support");
 			msg.setText("UNSUPPORTED DEVELOPMENT VERSION");
 		}
 

@@ -7,7 +7,8 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.CmsException;
-import org.argeo.cms.ui.CmsStyles;
+import org.argeo.cms.swt.CmsStyles;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
@@ -29,7 +30,7 @@ public class SimpleCmsHeader implements CmsUiProvider {
 		Composite header = new Composite(parent, SWT.NONE);
 		header.setData(RWT.CUSTOM_VARIANT, CmsStyles.CMS_HEADER);
 		header.setBackgroundMode(SWT.INHERIT_DEFAULT);
-		header.setLayout(CmsUiUtils.noSpaceGridLayout(new GridLayout(3, false)));
+		header.setLayout(CmsSwtUtils.noSpaceGridLayout(new GridLayout(3, false)));
 
 		configurePart(context, header, lead);
 		configurePart(context, header, center);
@@ -58,7 +59,7 @@ public class SimpleCmsHeader implements CmsUiProvider {
 		part.setData(RWT.CUSTOM_VARIANT, custom);
 		GridData gridData = new GridData(style, SWT.FILL, true, true);
 		part.setLayoutData(gridData);
-		part.setLayout(CmsUiUtils.noSpaceGridLayout(new GridLayout(partProviders.size(), subPartsSameWidth)));
+		part.setLayout(CmsSwtUtils.noSpaceGridLayout(new GridLayout(partProviders.size(), subPartsSameWidth)));
 		for (CmsUiProvider uiProvider : partProviders) {
 			Control subPart = uiProvider.createUi(part, context);
 			subPart.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

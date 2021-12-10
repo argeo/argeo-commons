@@ -3,10 +3,10 @@ package org.argeo.cms.ui.widgets;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.CmsImageManager;
-import org.argeo.cms.ui.CmsView;
+import org.argeo.api.cms.Cms2DSize;
+import org.argeo.api.cms.CmsImageManager;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.internal.JcrFileUploadReceiver;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.viewers.NodePart;
 import org.argeo.cms.ui.viewers.Section;
 import org.argeo.cms.ui.viewers.SectionPart;
@@ -20,7 +20,6 @@ import org.eclipse.rap.rwt.widgets.FileUpload;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
@@ -30,11 +29,11 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 
 	private final Section section;
 
-	private final CmsImageManager imageManager;
+	private final CmsImageManager<Control, Node> imageManager;
 	private FileUploadHandler currentUploadHandler = null;
 	private FileUploadListener fileUploadListener;
 
-	public Img(Composite parent, int swtStyle, Node imgNode, Point preferredImageSize) throws RepositoryException {
+	public Img(Composite parent, int swtStyle, Node imgNode, Cms2DSize preferredImageSize) throws RepositoryException {
 		this(Section.findSection(parent), parent, swtStyle, imgNode, preferredImageSize, null);
 		setStyle(TextStyles.TEXT_IMAGE);
 	}
@@ -44,17 +43,19 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 		setStyle(TextStyles.TEXT_IMAGE);
 	}
 
-	public Img(Composite parent, int swtStyle, Node imgNode, CmsImageManager imageManager) throws RepositoryException {
+	public Img(Composite parent, int swtStyle, Node imgNode, CmsImageManager<Control, Node> imageManager)
+			throws RepositoryException {
 		this(Section.findSection(parent), parent, swtStyle, imgNode, null, imageManager);
 		setStyle(TextStyles.TEXT_IMAGE);
 	}
 
-	Img(Section section, Composite parent, int swtStyle, Node imgNode, Point preferredImageSize,
-			CmsImageManager imageManager) throws RepositoryException {
+	Img(Section section, Composite parent, int swtStyle, Node imgNode, Cms2DSize preferredImageSize,
+			CmsImageManager<Control, Node> imageManager) throws RepositoryException {
 		super(parent, swtStyle, imgNode, false, preferredImageSize);
 		this.section = section;
-		this.imageManager = imageManager != null ? imageManager : CmsView.getCmsView(section).getImageManager();
-		CmsUiUtils.style(this, TextStyles.TEXT_IMG);
+		this.imageManager = imageManager != null ? imageManager
+				: (CmsImageManager<Control, Node>) CmsSwtUtils.getCmsView(section).getImageManager();
+		CmsSwtUtils.style(this, TextStyles.TEXT_IMG);
 	}
 
 	@Override
@@ -78,14 +79,10 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 
 	@Override
 	protected synchronized Boolean load(Control lbl) {
-		try {
-			Node imgNode = getNode();
-			boolean loaded = imageManager.load(imgNode, lbl, getPreferredImageSize());
-			// getParent().layout();
-			return loaded;
-		} catch (RepositoryException e) {
-			throw new JcrException("Cannot load " + getNodeId() + " from image manager", e);
-		}
+		Node imgNode = getNode();
+		boolean loaded = imageManager.load(imgNode, lbl, getPreferredImageSize());
+		// getParent().layout();
+		return loaded;
 	}
 
 	protected Node getUploadFolder() {
@@ -97,7 +94,7 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 		return Jcr.getName(node) + '[' + Jcr.getIndex(node) + ']';
 	}
 
-	protected CmsImageManager getImageManager() {
+	protected CmsImageManager<Control, Node> getImageManager() {
 		return imageManager;
 	}
 
@@ -109,7 +106,7 @@ public class Img extends EditableImage implements SectionPart, NodePart {
 		currentUploadHandler = prepareUpload(receiver);
 		final ServerPushSession pushSession = new ServerPushSession();
 		final FileUpload fileUpload = new FileUpload(box, SWT.NONE);
-		CmsUiUtils.style(fileUpload, style);
+		CmsSwtUtils.style(fileUpload, style);
 		fileUpload.addSelectionListener(new SelectionAdapter() {
 			private static final long serialVersionUID = -9158471843941668562L;
 

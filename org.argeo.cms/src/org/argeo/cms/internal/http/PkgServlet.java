@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.api.PublishNamespace;
+import org.argeo.cms.osgi.PublishNamespace;
 import org.argeo.osgi.util.FilterRequirement;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

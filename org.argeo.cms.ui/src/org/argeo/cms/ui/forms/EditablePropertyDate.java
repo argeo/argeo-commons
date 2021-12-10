@@ -7,7 +7,7 @@ import java.util.GregorianCalendar;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.viewers.EditablePart;
 import org.argeo.cms.ui.widgets.StyledControl;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -91,17 +91,17 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 
 	public synchronized void startEditing() {
 		// if (dateTxt != null && !dateTxt.isDisposed())
-		CmsUiUtils.style(getControl(), FormStyle.propertyText);
+		CmsSwtUtils.style(getControl(), FormStyle.propertyText);
 //		getControl().setData(STYLE, FormStyle.propertyText.style());
 		super.startEditing();
 	}
 
 	public synchronized void stopEditing() {
 		if (EclipseUiUtils.isEmpty(dateTxt.getText()))
-			CmsUiUtils.style(getControl(), FormStyle.propertyMessage);
+			CmsSwtUtils.style(getControl(), FormStyle.propertyMessage);
 //			getControl().setData(STYLE, FormStyle.propertyMessage.style());
 		else
-			CmsUiUtils.style(getControl(), FormStyle.propertyText);
+			CmsSwtUtils.style(getControl(), FormStyle.propertyText);
 //		getControl().setData(STYLE, FormStyle.propertyText.style());
 		super.stopEditing();
 	}
@@ -120,27 +120,27 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 
 	protected Label createLabel(Composite box, String style) {
 		Label lbl = new Label(box, getStyle() | SWT.WRAP);
-		lbl.setLayoutData(CmsUiUtils.fillWidth());
-		CmsUiUtils.style(lbl, style);
-		CmsUiUtils.markup(lbl);
+		lbl.setLayoutData(CmsSwtUtils.fillWidth());
+		CmsSwtUtils.style(lbl, style);
+		CmsSwtUtils.markup(lbl);
 		if (mouseListener != null)
 			lbl.addMouseListener(mouseListener);
 		return lbl;
 	}
 
 	private Control createCustomEditableControl(Composite box, String style) {
-		box.setLayoutData(CmsUiUtils.fillWidth());
+		box.setLayoutData(CmsSwtUtils.fillWidth());
 		Composite dateComposite = new Composite(box, SWT.NONE);
 		GridLayout gl = EclipseUiUtils.noSpaceGridLayout(new GridLayout(2, false));
 		gl.horizontalSpacing = fieldBtnSpacing;
 		dateComposite.setLayout(gl);
 		dateTxt = new Text(dateComposite, SWT.BORDER);
-		CmsUiUtils.style(dateTxt, style);
+		CmsSwtUtils.style(dateTxt, style);
 		dateTxt.setLayoutData(new GridData(120, SWT.DEFAULT));
 		dateTxt.setToolTipText(
 				"Enter a date with form \"" + FormUtils.DEFAULT_SHORT_DATE_FORMAT + "\" or use the calendar");
 		openCalBtn = new Button(dateComposite, SWT.FLAT);
-		CmsUiUtils.style(openCalBtn, FormStyle.calendar.style() + FormStyle.BUTTON_SUFFIX);
+		CmsSwtUtils.style(openCalBtn, FormStyle.calendar.style() + FormStyle.BUTTON_SUFFIX);
 		GridData gd = new GridData(SWT.CENTER, SWT.CENTER, false, false);
 		gd.heightHint = 17;
 		openCalBtn.setLayoutData(gd);
@@ -224,8 +224,8 @@ public class EditablePropertyDate extends StyledControl implements EditablePart 
 			super(source.getDisplay(), SWT.NO_TRIM | SWT.BORDER | SWT.ON_TOP);
 			populate();
 			// Add border and shadow style
-			CmsUiUtils.markup(CalendarPopup.this);
-			CmsUiUtils.style(CalendarPopup.this, FormStyle.popupCalendar.style());
+			CmsSwtUtils.markup(CalendarPopup.this);
+			CmsSwtUtils.style(CalendarPopup.this, FormStyle.popupCalendar.style());
 			pack();
 			layout();
 			setLocation(source.toDisplay((source.getLocation().x - 2), (source.getSize().y) + 3));

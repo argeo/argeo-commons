@@ -27,9 +27,9 @@ import org.argeo.cms.e4.users.providers.MailLP;
 import org.argeo.cms.e4.users.providers.RoleIconLP;
 import org.argeo.cms.e4.users.providers.UserFilter;
 import org.argeo.cms.jcr.CmsJcrUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
@@ -146,7 +146,7 @@ public class GroupEditor extends AbstractRoleEditor {
 		// GridLayout layout = new GridLayout(5, false);
 		GridLayout layout = new GridLayout(2, false);
 		body.setLayout(layout);
-		body.setLayoutData(CmsUiUtils.fillWidth());
+		body.setLayoutData(CmsSwtUtils.fillWidth());
 
 		String cn = UserAdminUtils.getProperty(group, LdapAttrs.cn.name());
 		createReadOnlyLT(body, "Name", cn);
@@ -287,7 +287,7 @@ public class GroupEditor extends AbstractRoleEditor {
 
 		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
 		ToolBar toolBar = toolBarManager.createControl(body);
-		toolBar.setLayoutData(CmsUiUtils.fillWidth());
+		toolBar.setLayoutData(CmsSwtUtils.fillWidth());
 
 		toolBarManager.add(action);
 		toolBarManager.update(true);

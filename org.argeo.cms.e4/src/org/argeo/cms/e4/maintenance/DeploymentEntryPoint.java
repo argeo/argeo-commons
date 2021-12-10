@@ -6,7 +6,7 @@ import java.util.TimeZone;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeDeployment;
 import org.argeo.api.NodeState;
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -68,7 +68,7 @@ class DeploymentEntryPoint {
 		NodeState nodeState = bc.getService(nodeStateRef);
 		ServiceReference<NodeDeployment> nodeDeploymentRef = bc.getServiceReference(NodeDeployment.class);
 		Label label = new Label(composite, SWT.WRAP);
-		CmsUiUtils.markup(label);
+		CmsSwtUtils.markup(label);
 		if (nodeDeploymentRef == null) {
 			label.setText("Not yet deployed on <br>" + nodeState.getHostname() + "</br>, please configure below.");
 		} else {
@@ -85,7 +85,7 @@ class DeploymentEntryPoint {
 	private static Group createHighLevelGroup(Composite parent, String text) {
 		Group group = new Group(parent, SWT.NONE);
 		group.setText(text);
-		CmsUiUtils.markup(group);
+		CmsSwtUtils.markup(group);
 		return group;
 	}
 

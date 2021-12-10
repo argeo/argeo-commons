@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -20,8 +20,8 @@ abstract class AbstractOsgiComposite extends Composite {
 
 	public AbstractOsgiComposite(Composite parent, int style) {
 		super(parent, style);
-		parent.setLayout(CmsUiUtils.noSpaceGridLayout());
-		setLayout(CmsUiUtils.noSpaceGridLayout());
+		parent.setLayout(CmsSwtUtils.noSpaceGridLayout());
+		setLayout(CmsSwtUtils.noSpaceGridLayout());
 		setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
 		initUi(style);
 	}

@@ -1,5 +1,6 @@
 package org.argeo.cms.ui.util;
 
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -14,7 +15,7 @@ public class CmsPane {
 	private Composite supportArea;
 
 	public CmsPane(Composite parent, int style) {
-		parent.setLayout(CmsUiUtils.noSpaceGridLayout());
+		parent.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 //		qaArea = new Composite(parent, SWT.NONE);
 //		qaArea.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));

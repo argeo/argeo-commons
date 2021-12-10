@@ -10,7 +10,7 @@ import java.util.Collection;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -106,7 +106,7 @@ class DataDeploymentUi extends AbstractOsgiComposite {
 		}
 		Label label = new Label(parent, SWT.NONE);
 		label.setData(new GridData(SWT.FILL, SWT.FILL, false, false));
-		CmsUiUtils.markup(label);
+		CmsSwtUtils.markup(label);
 		label.setText("<span style=''>" + text.toString() + "</span>");
 	}
 

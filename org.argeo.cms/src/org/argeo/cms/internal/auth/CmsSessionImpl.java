@@ -24,8 +24,8 @@ import javax.security.auth.x500.X500Principal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.api.security.NodeSecurityUtils;
-import org.argeo.cms.auth.CmsSession;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -93,7 +93,6 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		end = ZonedDateTime.now();
 		serviceRegistration.unregister();
 
-
 		try {
 			LoginContext lc;
 			if (isAnonymous()) {
@@ -133,10 +132,14 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		return getEnd() != null;
 	}
 
-	@Override
 	public Authorization getAuthorization() {
 		checkValid();
 		return authorization;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return authorization.toString();
 	}
 
 	@Override

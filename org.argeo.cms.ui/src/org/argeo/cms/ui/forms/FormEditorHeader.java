@@ -5,8 +5,8 @@ import java.util.Observer;
 
 import javax.jcr.Node;
 
-import org.argeo.cms.ui.CmsEditable;
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.api.cms.CmsEditable;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -57,10 +57,10 @@ public class FormEditorHeader implements SelectionListener, Observer {
 		display = new Composite(parent, SWT.NONE);
 		display.setLayoutData(layoutData);
 
-		CmsUiUtils.style(display, FormStyle.header.style());
+		CmsSwtUtils.style(display, FormStyle.header.style());
 		display.setBackgroundMode(SWT.INHERIT_FORCE);
 
-		display.setLayout(CmsUiUtils.noSpaceGridLayout());
+		display.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		publishBtn = createSimpleBtn(display, getPublishButtonLabel());
 		display.moveAbove(null);
@@ -70,7 +70,7 @@ public class FormEditorHeader implements SelectionListener, Observer {
 	private Button createSimpleBtn(Composite parent, String label) {
 		Button button = new Button(parent, SWT.FLAT | SWT.PUSH);
 		button.setText(label);
-		CmsUiUtils.style(button, FormStyle.header.style());
+		CmsSwtUtils.style(button, FormStyle.header.style());
 		button.addSelectionListener(this);
 		return button;
 	}

@@ -19,6 +19,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.kernel.Activator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -73,7 +74,7 @@ public class HttpSessionLoginModule implements LoginModule {
 			String httpSessionId = httpSession.getId();
 			if (log.isTraceEnabled())
 				log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
-			CmsSession cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
+			CmsSessionImpl cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
 			if (cmsSession != null) {
 				authorization = cmsSession.getAuthorization();
 				locale = cmsSession.getLocale();
@@ -93,7 +94,7 @@ public class HttpSessionLoginModule implements LoginModule {
 				String httpSessionId = httpSession.getId();
 				if (log.isTraceEnabled())
 					log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
-				CmsSession cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
+				CmsSessionImpl cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
 				if (cmsSession != null) {
 					authorization = cmsSession.getAuthorization();
 					locale = cmsSession.getLocale();

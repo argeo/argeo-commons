@@ -10,14 +10,15 @@ import javax.security.auth.login.LoginException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.UxContext;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.ui.CmsImageManager;
-import org.argeo.cms.ui.CmsView;
-import org.argeo.cms.ui.UxContext;
-import org.argeo.cms.ui.dialogs.CmsFeedback;
+import org.argeo.cms.swt.CmsSwtUtils;
+import org.argeo.cms.swt.SimpleSwtUxContext;
+import org.argeo.cms.swt.auth.CmsLoginShell;
+import org.argeo.cms.swt.dialogs.CmsFeedback;
 import org.argeo.cms.ui.util.SimpleImageManager;
-import org.argeo.cms.ui.util.SimpleUxContext;
-import org.argeo.cms.ui.widgets.auth.CmsLoginShell;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
@@ -63,7 +64,7 @@ public class CmsLoginLifecycle implements CmsView {
 		Display display = Display.getCurrent();
 //		UiContext.setData(CmsView.KEY, this);
 		CmsLoginShell loginShell = new CmsLoginShell(this);
-		CmsView.registerCmsView(loginShell.getShell(), this);
+		CmsSwtUtils.registerCmsView(loginShell.getShell(), this);
 		loginShell.setSubject(subject);
 		try {
 			// try pre-auth
@@ -80,7 +81,7 @@ public class CmsLoginLifecycle implements CmsView {
 		}
 		if (CurrentUser.getUsername(getSubject()) == null)
 			return false;
-		uxContext = new SimpleUxContext();
+		uxContext = new SimpleSwtUxContext();
 		imageManager = new SimpleImageManager();
 
 		eventBroker.subscribe(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE, new EventHandler() {

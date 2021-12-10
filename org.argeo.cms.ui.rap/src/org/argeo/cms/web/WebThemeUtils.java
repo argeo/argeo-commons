@@ -2,7 +2,7 @@ package org.argeo.cms.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.ui.CmsTheme;
+import org.argeo.api.cms.CmsTheme;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 

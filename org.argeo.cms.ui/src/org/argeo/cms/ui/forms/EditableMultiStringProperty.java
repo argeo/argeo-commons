@@ -5,7 +5,7 @@ import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.viewers.EditablePart;
 import org.argeo.cms.ui.widgets.StyledControl;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -70,7 +70,7 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 
 	/** To be overridden */
 	protected void setContainerLayoutData(Composite composite) {
-		composite.setLayoutData(CmsUiUtils.fillWidth());
+		composite.setLayoutData(CmsSwtUtils.fillWidth());
 	}
 
 	@Override
@@ -115,8 +115,8 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 	protected Label createValueLabel(Composite parent, int style, String value) {
 		Label label = new Label(parent, style);
 		label.setText("#" + value);
-		CmsUiUtils.markup(label);
-		CmsUiUtils.style(label, FormStyle.propertyText.style());
+		CmsSwtUtils.markup(label);
+		CmsSwtUtils.style(label, FormStyle.propertyText.style());
 		return label;
 	}
 
@@ -131,7 +131,7 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 		Button deleteBtn = new Button(valCmp, SWT.FLAT);
 		deleteBtn.setData(FormConstants.LINKED_VALUE, value);
 		deleteBtn.addSelectionListener(removeValueSL);
-		CmsUiUtils.style(deleteBtn, FormStyle.delete.style() + FormStyle.BUTTON_SUFFIX);
+		CmsSwtUtils.style(deleteBtn, FormStyle.delete.style() + FormStyle.BUTTON_SUFFIX);
 		GridData gd = new GridData();
 		gd.heightHint = btnHeight;
 		gd.widthHint = btnWidth;
@@ -146,7 +146,7 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 		// The "add new value" text is not meant to change, so we can set it on
 		// creation
 		text.setMessage(message);
-		CmsUiUtils.style(text, style);
+		CmsSwtUtils.style(text, style);
 		text.setFocus();
 
 		text.addTraverseListener(new TraverseListener() {
@@ -211,8 +211,8 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 		if (canEdit) {
 			Label lbl = new Label(box, getStyle());
 			lbl.setText(message);
-			CmsUiUtils.style(lbl, style);
-			CmsUiUtils.markup(lbl);
+			CmsSwtUtils.style(lbl, style);
+			CmsSwtUtils.markup(lbl);
 			if (mouseListener != null)
 				lbl.addMouseListener(mouseListener);
 			return lbl;
@@ -244,13 +244,13 @@ public class EditableMultiStringProperty extends StyledControl implements Editab
 	}
 
 	public synchronized void startEditing() {
-		CmsUiUtils.style(getControl(), FormStyle.propertyText.style());
+		CmsSwtUtils.style(getControl(), FormStyle.propertyText.style());
 //		getControl().setData(STYLE, FormStyle.propertyText.style());
 		super.startEditing();
 	}
 
 	public synchronized void stopEditing() {
-		CmsUiUtils.style(getControl(), FormStyle.propertyMessage.style());
+		CmsSwtUtils.style(getControl(), FormStyle.propertyMessage.style());
 //		getControl().setData(STYLE, FormStyle.propertyMessage.style());
 		super.stopEditing();
 	}

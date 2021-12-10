@@ -9,7 +9,8 @@ import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.ui.CmsStyles;
+import org.argeo.cms.swt.CmsStyles;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -89,7 +90,7 @@ public class SystemNotifications extends Shell implements CmsStyles,
 					.append(e.getMessage());
 		}
 		Label mailTo = new Label(pane, SWT.NONE);
-		CmsUiUtils.markup(mailTo);
+		CmsSwtUtils.markup(mailTo);
 		mailTo.setText("<a href=\"" + mailToUrl + "\">Send details</a>");
 		mailTo.setLayoutData(new GridData(SWT.END, SWT.FILL, true, false));
 

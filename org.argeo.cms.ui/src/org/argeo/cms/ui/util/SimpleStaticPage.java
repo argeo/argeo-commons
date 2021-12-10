@@ -3,7 +3,7 @@ package org.argeo.cms.ui.util;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.CmsStyles;
+import org.argeo.cms.swt.CmsStyles;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;

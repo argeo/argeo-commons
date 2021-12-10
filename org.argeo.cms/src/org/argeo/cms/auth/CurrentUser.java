@@ -14,6 +14,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsSessionId;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.kernel.Activator;

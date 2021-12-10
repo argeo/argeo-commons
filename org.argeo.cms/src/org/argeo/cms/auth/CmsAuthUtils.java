@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsSessionId;
 import org.argeo.api.security.AnonymousPrincipal;
 import org.argeo.api.security.DataAdminPrincipal;
 import org.argeo.api.security.NodeSecurityUtils;
@@ -186,7 +188,7 @@ class CmsAuthUtils {
 		}
 	}
 
-	public static CmsSession cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
+	public static CmsSessionImpl cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
 		Authorization authorization = null;
 		Collection<ServiceReference<CmsSession>> sr;
 		try {
@@ -195,9 +197,9 @@ class CmsAuthUtils {
 		} catch (InvalidSyntaxException e) {
 			throw new IllegalArgumentException("Cannot get CMS session for id " + httpSessionId, e);
 		}
-		CmsSession cmsSession;
+		CmsSessionImpl cmsSession;
 		if (sr.size() == 1) {
-			cmsSession = bc.getService(sr.iterator().next());
+			cmsSession = (CmsSessionImpl) bc.getService(sr.iterator().next());
 //			locale = cmsSession.getLocale();
 			authorization = cmsSession.getAuthorization();
 			if (authorization.getName() == null)

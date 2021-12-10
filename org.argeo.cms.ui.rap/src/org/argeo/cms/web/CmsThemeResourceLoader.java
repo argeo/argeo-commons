@@ -3,7 +3,7 @@ package org.argeo.cms.web;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.argeo.cms.ui.CmsTheme;
+import org.argeo.api.cms.CmsTheme;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 
 /** A RAP {@link ResourceLoader} based on a {@link CmsTheme}. */

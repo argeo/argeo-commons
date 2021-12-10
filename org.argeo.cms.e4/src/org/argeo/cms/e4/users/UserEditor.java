@@ -20,10 +20,10 @@ import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.DomainNameLP;
 import org.argeo.cms.e4.users.providers.RoleIconLP;
 import org.argeo.cms.e4.users.providers.UserFilter;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 //import org.argeo.cms.ui.eclipse.forms.FormToolkit;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
@@ -278,7 +278,7 @@ public class UserEditor extends AbstractRoleEditor {
 		// Composite body= parent;
 		Composite body = new Composite(parent, SWT.BORDER);
 		body.setLayout(new GridLayout());
-		body.setLayoutData(CmsUiUtils.fillAll());
+		body.setLayoutData(CmsSwtUtils.fillAll());
 
 		// boolean isAdmin = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
 
@@ -346,7 +346,7 @@ public class UserEditor extends AbstractRoleEditor {
 		Action action = new RemoveMembershipAction(userViewer, user, tooltip, SecurityAdminImages.ICON_REMOVE_DESC);
 		ToolBarManager toolBarManager = new ToolBarManager(SWT.FLAT);
 		ToolBar toolBar = toolBarManager.createControl(body);
-		toolBar.setLayoutData(CmsUiUtils.fillWidth());
+		toolBar.setLayoutData(CmsSwtUtils.fillWidth());
 		toolBarManager.add(action);
 		toolBarManager.update(true);
 		return userViewerCmp;

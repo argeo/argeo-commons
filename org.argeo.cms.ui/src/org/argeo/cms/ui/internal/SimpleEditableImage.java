@@ -2,9 +2,10 @@ package org.argeo.cms.ui.internal;
 
 import javax.jcr.RepositoryException;
 
+import org.argeo.api.cms.Cms2DSize;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.widgets.EditableImage;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
@@ -14,7 +15,7 @@ public class SimpleEditableImage extends EditableImage {
 	private static final long serialVersionUID = -5689145523114022890L;
 
 	private String src;
-	private Point imageSize;
+	private Cms2DSize imageSize;
 
 	public SimpleEditableImage(Composite parent, int swtStyle) {
 		super(parent, swtStyle);
@@ -22,8 +23,7 @@ public class SimpleEditableImage extends EditableImage {
 		getParent().layout();
 	}
 
-	public SimpleEditableImage(Composite parent, int swtStyle, String src,
-			Point imageSize) {
+	public SimpleEditableImage(Composite parent, int swtStyle, String src, Cms2DSize imageSize) {
 		super(parent, swtStyle);
 		this.src = src;
 		this.imageSize = imageSize;
@@ -43,14 +43,13 @@ public class SimpleEditableImage extends EditableImage {
 		if (src != null)
 			imgTag = CmsUiUtils.img(src, imageSize);
 		else
-			imgTag = CmsUiUtils.noImg(imageSize != null ? imageSize
-					: NO_IMAGE_SIZE);
+			imgTag = CmsUiUtils.noImg(imageSize != null ? imageSize : NO_IMAGE_SIZE);
 		return imgTag;
 	}
 
 	protected Text createText(Composite box, String style) {
 		Text text = new Text(box, getStyle());
-		CmsUiUtils.style(text, style);
+		CmsSwtUtils.style(text, style);
 		return text;
 	}
 
@@ -62,11 +61,11 @@ public class SimpleEditableImage extends EditableImage {
 		this.src = src;
 	}
 
-	public Point getImageSize() {
+	public Cms2DSize getImageSize() {
 		return imageSize;
 	}
 
-	public void setImageSize(Point imageSize) {
+	public void setImageSize(Cms2DSize imageSize) {
 		this.imageSize = imageSize;
 	}
 

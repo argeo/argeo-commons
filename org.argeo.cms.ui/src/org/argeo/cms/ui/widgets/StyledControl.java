@@ -2,8 +2,8 @@ package org.argeo.cms.ui.widgets;
 
 import javax.jcr.Item;
 
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsConstants;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
@@ -28,7 +28,7 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 
 	public StyledControl(Composite parent, int swtStyle) {
 		super(parent, swtStyle);
-		setLayout(CmsUiUtils.noSpaceGridLayout());
+		setLayout(CmsSwtUtils.noSpaceGridLayout());
 	}
 
 	public StyledControl(Composite parent, int style, Item item) {
@@ -44,14 +44,14 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 	protected Composite createBox() {
 		Composite box = new Composite(container, SWT.INHERIT_DEFAULT);
 		setContainerLayoutData(box);
-		box.setLayout(CmsUiUtils.noSpaceGridLayout(3));
+		box.setLayout(CmsSwtUtils.noSpaceGridLayout(3));
 		return box;
 	}
 
 	protected Composite createContainer() {
 		Composite container = new Composite(this, SWT.INHERIT_DEFAULT);
 		setContainerLayoutData(container);
-		container.setLayout(CmsUiUtils.noSpaceGridLayout());
+		container.setLayout(CmsSwtUtils.noSpaceGridLayout());
 		return container;
 	}
 
@@ -104,19 +104,19 @@ public abstract class StyledControl extends JcrComposite implements CmsConstants
 		refreshControl(style);
 
 		if (style != null) {
-			CmsUiUtils.style(box, style + "_box");
-			CmsUiUtils.style(container, style + "_container");
+			CmsSwtUtils.style(box, style + "_box");
+			CmsSwtUtils.style(container, style + "_container");
 		}
 	}
 
 	/** To be overridden */
 	protected void setControlLayoutData(Control control) {
-		control.setLayoutData(CmsUiUtils.fillWidth());
+		control.setLayoutData(CmsSwtUtils.fillWidth());
 	}
 
 	/** To be overridden */
 	protected void setContainerLayoutData(Composite composite) {
-		composite.setLayoutData(CmsUiUtils.fillWidth());
+		composite.setLayoutData(CmsSwtUtils.fillWidth());
 	}
 
 	protected void clear(boolean deep) {

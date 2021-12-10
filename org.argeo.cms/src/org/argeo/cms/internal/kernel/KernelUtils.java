@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
-import org.argeo.api.DataModelNamespace;
+import org.argeo.cms.osgi.DataModelNamespace;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 

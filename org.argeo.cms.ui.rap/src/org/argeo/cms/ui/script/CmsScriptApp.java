@@ -22,9 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsTheme;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsConstants;
-import org.argeo.cms.ui.CmsTheme;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.web.BundleResourceLoader;

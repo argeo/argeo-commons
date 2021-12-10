@@ -1,6 +1,6 @@
 package org.argeo.cms.jcr.internal;
 
-import static org.argeo.api.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
+import static org.argeo.cms.osgi.DataModelNamespace.CMS_DATA_MODEL_NAMESPACE;
 import static org.osgi.service.http.whiteboard.HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX;
 
 import java.io.File;
@@ -31,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
-import org.argeo.api.DataModelNamespace;
 import org.argeo.api.NodeConstants;
 import org.argeo.api.NodeDeployment;
 import org.argeo.api.security.CryptoKeyring;
@@ -42,6 +41,7 @@ import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.jcr.internal.servlet.CmsRemotingServlet;
 import org.argeo.cms.jcr.internal.servlet.CmsWebDavServlet;
 import org.argeo.cms.jcr.internal.servlet.JcrHttpUtils;
+import org.argeo.cms.osgi.DataModelNamespace;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;

@@ -3,7 +3,7 @@ package org.argeo.cms.e4.rap;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.argeo.cms.ui.dialogs.CmsFeedback;
+import org.argeo.cms.swt.dialogs.CmsFeedback;
 import org.eclipse.rap.e4.E4ApplicationConfig;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;

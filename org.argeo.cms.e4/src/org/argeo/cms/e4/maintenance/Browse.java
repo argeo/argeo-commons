@@ -15,10 +15,11 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import org.argeo.api.cms.Cms2DSize;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.CmsLink;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.widgets.EditableImage;
 import org.argeo.cms.ui.widgets.Img;
 import org.argeo.jcr.JcrUtils;
@@ -75,13 +76,13 @@ public class Browse implements CmsUiProvider {
 		if (context == null)
 			// return null;
 			throw new CmsException("Context cannot be null");
-		GridLayout layout = CmsUiUtils.noSpaceGridLayout();
+		GridLayout layout = CmsSwtUtils.noSpaceGridLayout();
 		layout.numColumns = 2;
 		parent.setLayout(layout);
 
 		// Left
 		Composite leftCmp = new Composite(parent, SWT.NO_FOCUS);
-		leftCmp.setLayoutData(CmsUiUtils.fillAll());
+		leftCmp.setLayoutData(CmsSwtUtils.fillAll());
 		createBrowserPart(leftCmp, context);
 
 		// Right
@@ -102,17 +103,17 @@ public class Browse implements CmsUiProvider {
 	}
 
 	private void createBrowserPart(Composite parent, Node context) throws RepositoryException {
-		GridLayout layout = CmsUiUtils.noSpaceGridLayout();
+		GridLayout layout = CmsSwtUtils.noSpaceGridLayout();
 		parent.setLayout(layout);
 		Composite filterCmp = new Composite(parent, SWT.NO_FOCUS);
-		filterCmp.setLayoutData(CmsUiUtils.fillWidth());
+		filterCmp.setLayoutData(CmsSwtUtils.fillWidth());
 
 		// top filter
 		addFilterPanel(filterCmp);
 
 		// scrolled composite
 		scrolledCmp = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.BORDER | SWT.NO_FOCUS);
-		scrolledCmp.setLayoutData(CmsUiUtils.fillAll());
+		scrolledCmp.setLayoutData(CmsSwtUtils.fillAll());
 		scrolledCmp.setExpandVertical(true);
 		scrolledCmp.setExpandHorizontal(true);
 		scrolledCmp.setShowFocusedControl(true);
@@ -132,7 +133,7 @@ public class Browse implements CmsUiProvider {
 	}
 
 	private Control initExplorer(Composite parent, Node context) throws RepositoryException {
-		parent.setLayout(CmsUiUtils.noSpaceGridLayout());
+		parent.setLayout(CmsSwtUtils.noSpaceGridLayout());
 		createBrowserColumn(parent, context);
 		return null;
 	}
@@ -149,14 +150,14 @@ public class Browse implements CmsUiProvider {
 
 	public void addFilterPanel(Composite parent) {
 
-		parent.setLayout(CmsUiUtils.noSpaceGridLayout(new GridLayout(2, false)));
+		parent.setLayout(CmsSwtUtils.noSpaceGridLayout(new GridLayout(2, false)));
 
 		// Text Area for the filter
 		parentPathTxt = new Text(parent, SWT.NO_FOCUS);
 		parentPathTxt.setEditable(false);
 		filterTxt = new Text(parent, SWT.SEARCH | SWT.ICON_CANCEL);
 		filterTxt.setMessage("Filter current list");
-		filterTxt.setLayoutData(CmsUiUtils.fillWidth());
+		filterTxt.setLayoutData(CmsSwtUtils.fillWidth());
 		filterTxt.addModifyListener(new ModifyListener() {
 			private static final long serialVersionUID = 7709303319740056286L;
 
@@ -212,7 +213,7 @@ public class Browse implements CmsUiProvider {
 	private void setEdited(Node node) {
 		try {
 			currEdited = node;
-			CmsUiUtils.clear(nodeDisplayParent);
+			CmsSwtUtils.clear(nodeDisplayParent);
 			createNodeView(nodeDisplayParent, currEdited);
 			nodeDisplayParent.layout();
 			refreshFilters(node);
@@ -282,7 +283,7 @@ public class Browse implements CmsUiProvider {
 		if (!browserCols.containsKey(currNodePath))
 			createBrowserColumn(colViewer, node);
 
-		colViewer.setLayout(CmsUiUtils.noSpaceGridLayout(new GridLayout(browserCols.size(), false)));
+		colViewer.setLayout(CmsSwtUtils.noSpaceGridLayout(new GridLayout(browserCols.size(), false)));
 		// colViewer.pack();
 		colViewer.layout();
 		// also resize the scrolled composite
@@ -313,7 +314,7 @@ public class Browse implements CmsUiProvider {
 		}
 	}
 
-	private Point imageWidth = new Point(250, 0);
+	private Cms2DSize imageWidth = new Cms2DSize(250, 0);
 
 	/**
 	 * Recreates the content of the box that displays information about the current
@@ -330,7 +331,7 @@ public class Browse implements CmsUiProvider {
 
 		// Name and primary type
 		Label contextL = new Label(parent, SWT.NONE);
-		CmsUiUtils.markup(contextL);
+		CmsSwtUtils.markup(contextL);
 		contextL.setText("<b>" + context.getName() + "</b>");
 		new Label(parent, SWT.NONE).setText(context.getPrimaryNodeType().getName());
 
@@ -437,7 +438,7 @@ public class Browse implements CmsUiProvider {
 
 		protected void populate() {
 			Composite parent = this;
-			GridLayout layout = CmsUiUtils.noSpaceGridLayout();
+			GridLayout layout = CmsSwtUtils.noSpaceGridLayout();
 
 			this.setLayout(layout);
 			createTableViewer(parent);
@@ -452,17 +453,17 @@ public class Browse implements CmsUiProvider {
 			GridData gd = new GridData(SWT.LEFT, SWT.FILL, false, true);
 			gd.widthHint = COLUMN_WIDTH;
 			listCmp.setLayoutData(gd);
-			listCmp.setLayout(CmsUiUtils.noSpaceGridLayout());
+			listCmp.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 			entityViewer = new TableViewer(listCmp, SWT.VIRTUAL | SWT.SINGLE);
 			Table table = entityViewer.getTable();
 
-			table.setLayoutData(CmsUiUtils.fillAll());
+			table.setLayoutData(CmsSwtUtils.fillAll());
 			table.setLinesVisible(true);
 			table.setHeaderVisible(false);
-			CmsUiUtils.markup(table);
+			CmsSwtUtils.markup(table);
 
-			CmsUiUtils.style(table, MaintenanceStyles.BROWSER_COLUMN);
+			CmsSwtUtils.style(table, MaintenanceStyles.BROWSER_COLUMN);
 
 			// first column
 			TableViewerColumn column = new TableViewerColumn(entityViewer, SWT.NONE);

@@ -10,8 +10,10 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsStyle;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.jcr.CmsJcrUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.jcr.JcrException;
 import org.eclipse.rap.rwt.RWT;
@@ -90,10 +92,10 @@ public class CmsLink implements CmsUiProvider {
 //		}
 
 		Composite comp = new Composite(parent, SWT.NONE);
-		comp.setLayout(CmsUiUtils.noSpaceGridLayout());
+		comp.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		Label link = new Label(comp, SWT.NONE);
-		CmsUiUtils.markup(link);
+		CmsSwtUtils.markup(link);
 		GridData layoutData = new GridData(horizontalAlignment, verticalAlignment, false, false);
 		if (image != null) {
 			if (imageHeight != null)
@@ -104,8 +106,8 @@ public class CmsLink implements CmsUiProvider {
 		}
 
 		link.setLayoutData(layoutData);
-		CmsUiUtils.style(comp, style != null ? style : getDefaultStyle());
-		CmsUiUtils.style(link, style != null ? style : getDefaultStyle());
+		CmsSwtUtils.style(comp, style != null ? style : getDefaultStyle());
+		CmsSwtUtils.style(link, style != null ? style : getDefaultStyle());
 
 		// label
 		StringBuilder labelText = new StringBuilder();

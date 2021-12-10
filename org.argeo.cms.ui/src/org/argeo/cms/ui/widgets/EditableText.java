@@ -3,7 +3,7 @@ package org.argeo.cms.ui.widgets;
 import javax.jcr.Item;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
@@ -54,10 +54,10 @@ public class EditableText extends StyledControl {
 
 	protected Label createLabel(Composite box, String style) {
 		Label lbl = new Label(box, getStyle() | SWT.WRAP);
-		lbl.setLayoutData(CmsUiUtils.fillWidth());
+		lbl.setLayoutData(CmsSwtUtils.fillWidth());
 		if (style != null)
-			CmsUiUtils.style(lbl, style);
-		CmsUiUtils.markup(lbl);
+			CmsSwtUtils.style(lbl, style);
+		CmsSwtUtils.markup(lbl);
 		if (mouseListener != null)
 			lbl.addMouseListener(mouseListener);
 		return lbl;
@@ -66,10 +66,10 @@ public class EditableText extends StyledControl {
 	protected Text createTextLabel(Composite box, String style) {
 		Text lbl = new Text(box, getStyle() | SWT.MULTI);
 		lbl.setEditable(false);
-		lbl.setLayoutData(CmsUiUtils.fillWidth());
+		lbl.setLayoutData(CmsSwtUtils.fillWidth());
 		if (style != null)
-			CmsUiUtils.style(lbl, style);
-		CmsUiUtils.markup(lbl);
+			CmsSwtUtils.style(lbl, style);
+		CmsSwtUtils.markup(lbl);
 		if (mouseListener != null)
 			lbl.addMouseListener(mouseListener);
 		return lbl;
@@ -85,11 +85,11 @@ public class EditableText extends StyledControl {
 
 		final Text text = new Text(box, getStyle() | SWT.MULTI | SWT.WRAP);
 		text.setEditable(editable);
-		GridData textLayoutData = CmsUiUtils.fillWidth();
+		GridData textLayoutData = CmsSwtUtils.fillWidth();
 		// textLayoutData.heightHint = preferredHeight;
 		text.setLayoutData(textLayoutData);
 		if (style != null)
-			CmsUiUtils.style(text, style);
+			CmsSwtUtils.style(text, style);
 		text.setFocus();
 		return text;
 	}

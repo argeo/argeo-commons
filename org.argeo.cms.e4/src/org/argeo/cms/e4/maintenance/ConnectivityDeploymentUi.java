@@ -1,6 +1,6 @@
 package org.argeo.cms.e4.maintenance;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -38,7 +38,7 @@ class ConnectivityDeploymentUi extends AbstractOsgiComposite {
 
 		Label label = new Label(this, SWT.NONE);
 		label.setData(new GridData(SWT.FILL, SWT.FILL, false, false));
-		CmsUiUtils.markup(label);
+		CmsSwtUtils.markup(label);
 		label.setText(text.toString());
 	}
 

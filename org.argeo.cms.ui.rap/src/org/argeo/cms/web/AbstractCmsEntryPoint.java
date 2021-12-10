@@ -24,12 +24,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsView;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallback;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.ui.CmsStyles;
-import org.argeo.cms.ui.CmsView;
+import org.argeo.cms.swt.CmsStyles;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.naming.AuthPassword;
@@ -120,7 +121,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 	@Override
 	protected final void createContents(final Composite parent) {
 		// UiContext.setData(CmsView.KEY, this);
-		CmsView.registerCmsView(parent.getShell(), this);
+		CmsSwtUtils.registerCmsView(parent.getShell(), this);
 		Subject.doAs(getSubject(), new PrivilegedAction<Void>() {
 			@Override
 			public Void run() {

@@ -27,9 +27,10 @@ import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
 import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.api.security.AnonymousPrincipal;
 import org.argeo.api.security.DataAdminPrincipal;
-import org.argeo.cms.auth.CmsSession;
+import org.argeo.cms.osgi.CmsOsgiUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
@@ -84,7 +85,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		boolean isRegularUser = !userPrincipal.isEmpty();
 		CmsSession cmsSession = null;
 		if (cmsBundleContext != null) {
-			cmsSession = CmsSession.getCmsSession(cmsBundleContext, subject);
+			cmsSession = CmsOsgiUtils.getCmsSession(cmsBundleContext, subject);
 			if (log.isTraceEnabled())
 				log.trace("Opening JCR session for CMS session " + cmsSession);
 		}

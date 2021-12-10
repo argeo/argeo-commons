@@ -24,9 +24,9 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.logging.Log;
-import org.argeo.api.DataModelNamespace;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.jcr.internal.osgi.CmsJcrActivator;
+import org.argeo.cms.osgi.DataModelNamespace;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
 

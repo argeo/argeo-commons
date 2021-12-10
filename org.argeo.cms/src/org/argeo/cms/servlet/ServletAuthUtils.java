@@ -8,8 +8,9 @@ import java.util.function.Supplier;
 import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.argeo.cms.auth.CmsSession;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.osgi.CmsOsgiUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
@@ -59,7 +60,7 @@ public class ServletAuthUtils {
 	public static CmsSession getCmsSession(HttpServletRequest req) {
 		Subject subject = Subject
 				.getSubject((AccessControlContext) req.getAttribute(AccessControlContext.class.getName()));
-		CmsSession cmsSession = CmsSession.getCmsSession(bundleContext, subject);
+		CmsSession cmsSession = CmsOsgiUtils.getCmsSession(bundleContext, subject);
 		return cmsSession;
 	}
 }

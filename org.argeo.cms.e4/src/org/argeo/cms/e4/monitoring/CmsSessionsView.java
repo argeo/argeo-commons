@@ -10,8 +10,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.cms.CmsException;
-import org.argeo.cms.auth.CmsSession;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.eclipse.ui.ColumnViewerComparator;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.argeo.util.LangUtils;
@@ -55,7 +54,7 @@ public class CmsSessionsView {
 			private static final long serialVersionUID = -5234573509093747505L;
 
 			public String getText(Object element) {
-				return ((CmsSession) element).getAuthorization().toString();
+				return ((CmsSession) element).getDisplayName();
 			}
 
 			public String getToolTipText(Object element) {
@@ -154,7 +153,7 @@ public class CmsSessionsView {
 				try {
 					srs = bc.getServiceReferences(CmsSession.class, null);
 				} catch (InvalidSyntaxException e) {
-					throw new CmsException("Cannot retrieve CMS sessions", e);
+					throw new IllegalArgumentException("Cannot retrieve CMS sessions", e);
 				}
 				List<CmsSession> res = new ArrayList<>();
 				for (ServiceReference<CmsSession> sr : srs) {

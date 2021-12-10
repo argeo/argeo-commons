@@ -1,6 +1,6 @@
 package org.argeo.cms.ui.forms;
 
-import org.argeo.cms.ui.util.CmsStyle;
+import org.argeo.api.cms.CmsStyle;
 
 /** Syles used */
 public enum FormStyle implements CmsStyle {

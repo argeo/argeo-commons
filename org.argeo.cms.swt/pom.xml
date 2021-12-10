@@ -21,6 +21,13 @@
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
 
+		<!-- Specific -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.swt.specific.rap</artifactId>
+			<version>2.3-SNAPSHOT</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- UI -->
 		<dependency>
 			<groupId>org.argeo.tp.rap.e4</groupId>

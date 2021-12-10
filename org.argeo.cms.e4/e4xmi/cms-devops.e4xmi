@@ -5,16 +5,16 @@
     <tags>shellMaximized</tags>
     <tags>auth.cn=admin,ou=roles,ou=node</tags>
     <children xsi:type="advanced:PerspectiveStack" xmi:id="_jXVqsCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspectivestack.0" selectedElement="_xOVlsDvOEeiF1foPJZSZkw">
-      <children xsi:type="advanced:Perspective" xmi:id="_xOVlsDvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.perspective.users" label="Users" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png">
+      <children xsi:type="advanced:Perspective" xmi:id="_xOVlsDvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.perspective.users" label="Users" iconURI="platform:/plugin/org.argeo.cms.swt/icons/group.png">
         <tags>auth.cn=admin,ou=roles,ou=node</tags>
         <children xsi:type="basic:PartSashContainer" xmi:id="_1tQoEDvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partsashcontainer.2" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_vtbKkDvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partstack.4" containerData="4000" selectedElement="_9gukYDvOEeiF1foPJZSZkw">
-            <children xsi:type="basic:Part" xmi:id="_9gukYDvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.part.users" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.UsersView" label="Users" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/person.png">
+            <children xsi:type="basic:Part" xmi:id="_9gukYDvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.part.users" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.UsersView" label="Users" iconURI="platform:/plugin/org.argeo.cms.swt/icons/person.png">
               <handlers xmi:id="_0mN68DvjEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handler.4" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.handlers.NewUser" command="_uL5i4DvjEeiF1foPJZSZkw"/>
               <handlers xmi:id="_ODLdgDvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handler.5" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.handlers.DeleteUsers" command="_xkcMADvjEeiF1foPJZSZkw"/>
               <toolbar xmi:id="_jLWmkDvjEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.toolbar.1">
-                <children xsi:type="menu:HandledToolItem" xmi:id="_jy_OUDvjEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.new" label="New" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/add.png" command="_uL5i4DvjEeiF1foPJZSZkw"/>
-                <children xsi:type="menu:HandledToolItem" xmi:id="_9qszMDvjEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.delete" label="Delete" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/delete.png" command="_xkcMADvjEeiF1foPJZSZkw"/>
+                <children xsi:type="menu:HandledToolItem" xmi:id="_jy_OUDvjEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.new" label="New" iconURI="platform:/plugin/org.argeo.cms.swt/icons/add.png" command="_uL5i4DvjEeiF1foPJZSZkw"/>
+                <children xsi:type="menu:HandledToolItem" xmi:id="_9qszMDvjEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.delete" label="Delete" iconURI="platform:/plugin/org.argeo.cms.swt/icons/delete.png" command="_xkcMADvjEeiF1foPJZSZkw"/>
               </toolbar>
             </children>
           </children>
@@ -22,34 +22,34 @@
             <tags>usersEditorArea</tags>
           </children>
           <children xsi:type="basic:PartStack" xmi:id="_-mFn8DvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partstack.5" containerData="2000">
-            <children xsi:type="basic:Part" xmi:id="_6etk4DvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.part.groups" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.GroupsView" label="Groups" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png">
+            <children xsi:type="basic:Part" xmi:id="_6etk4DvOEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.part.groups" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.GroupsView" label="Groups" iconURI="platform:/plugin/org.argeo.cms.swt/icons/group.png">
               <handlers xmi:id="_cmShoDvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handler.6" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.handlers.NewGroup" command="_uL5i4DvjEeiF1foPJZSZkw"/>
               <handlers xmi:id="_fbYfcDvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handler.7" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.handlers.DeleteGroups" command="_xkcMADvjEeiF1foPJZSZkw"/>
               <toolbar xmi:id="_Us0rADvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.toolbar.2">
-                <children xsi:type="menu:HandledToolItem" xmi:id="_VQTLgDvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.new" label="New" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/add.png" command="_uL5i4DvjEeiF1foPJZSZkw"/>
-                <children xsi:type="menu:HandledToolItem" xmi:id="_XfME8DvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.delete" label="Delete" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/delete.png" command="_xkcMADvjEeiF1foPJZSZkw"/>
+                <children xsi:type="menu:HandledToolItem" xmi:id="_VQTLgDvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.new" label="New" iconURI="platform:/plugin/org.argeo.cms.swt/icons/add.png" command="_uL5i4DvjEeiF1foPJZSZkw"/>
+                <children xsi:type="menu:HandledToolItem" xmi:id="_XfME8DvkEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.delete" label="Delete" iconURI="platform:/plugin/org.argeo.cms.swt/icons/delete.png" command="_xkcMADvjEeiF1foPJZSZkw"/>
               </toolbar>
             </children>
           </children>
         </children>
       </children>
-      <children xsi:type="advanced:Perspective" xmi:id="_jvjWYCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspective.data" label="Data" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/nodes.gif">
+      <children xsi:type="advanced:Perspective" xmi:id="_jvjWYCk4Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.perspective.data" label="Data" iconURI="platform:/plugin/org.argeo.cms.swt/icons/nodes.gif">
         <children xsi:type="basic:PartSashContainer" xmi:id="_h3tvMCkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.partsashcontainer.0" selectedElement="_0B9SECkxEein5vuhpK-Dew" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_0B9SECkxEein5vuhpK-Dew" elementId="org.argeo.cms.e4.partstack.0" containerData="4000" selectedElement="_WAjPkCkTEein5vuhpK-Dew">
-            <children xsi:type="basic:Part" xmi:id="_WAjPkCkTEein5vuhpK-Dew" elementId="org.argeo.cms.e4.jcrbrowser" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/browser.gif">
+            <children xsi:type="basic:Part" xmi:id="_WAjPkCkTEein5vuhpK-Dew" elementId="org.argeo.cms.e4.jcrbrowser" containerData="" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR" iconURI="platform:/plugin/org.argeo.cms.swt/icons/browser.gif">
               <menus xsi:type="menu:PopupMenu" xmi:id="_eXiUECqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.popupmenu.nodeViewer">
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_GVeO8CqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.refresh" label="Refresh" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png" command="_TOKHsCqYEeidr6NYQH6GbQ"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_fU238CqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.addfoldernode" label="Add folder" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/addFolder.gif" command="_RgE5cCqREeidr6NYQH6GbQ"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_U4o9cCqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.rename" label="Rename" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/rename.gif" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_Ncxo0CqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.remove" label="Remove" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/remove.gif" command="_ChJ-4CqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_GVeO8CqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.refresh" label="Refresh" iconURI="platform:/plugin/org.argeo.cms.swt/icons/refresh.png" command="_TOKHsCqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_fU238CqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.addfoldernode" label="Add folder" iconURI="platform:/plugin/org.argeo.cms.swt/icons/addFolder.gif" command="_RgE5cCqREeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_U4o9cCqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.rename" label="Rename" iconURI="platform:/plugin/org.argeo.cms.swt/icons/rename.gif" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_Ncxo0CqhEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.remove" label="Remove" iconURI="platform:/plugin/org.argeo.cms.swt/icons/remove.gif" command="_ChJ-4CqYEeidr6NYQH6GbQ"/>
               </menus>
               <menus xmi:id="_oRg_ACqTEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.menu.0">
                 <tags>ViewMenu</tags>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_yJR8ECqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.refresh" label="Refresh" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/refresh.png" command="_TOKHsCqYEeidr6NYQH6GbQ"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_o6HQECqTEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.addfoldernode" label="Add folder" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/addFolder.gif" command="_RgE5cCqREeidr6NYQH6GbQ"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_5D7aACqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.rename" label="Rename" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/rename.gif" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_7rR2wCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.delete" label="Delete" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/remove.gif" command="_ChJ-4CqYEeidr6NYQH6GbQ"/>
-                <children xsi:type="menu:HandledMenuItem" xmi:id="_XsHLgFgQEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handledmenuitem.0" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/addRepo.gif" command="_ZWpasFgQEeiknZQLx-vtnA"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_yJR8ECqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.refresh" label="Refresh" iconURI="platform:/plugin/org.argeo.cms.swt/icons/refresh.png" command="_TOKHsCqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_o6HQECqTEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.addfoldernode" label="Add folder" iconURI="platform:/plugin/org.argeo.cms.swt/icons/addFolder.gif" command="_RgE5cCqREeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_5D7aACqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.rename" label="Rename" iconURI="platform:/plugin/org.argeo.cms.swt/icons/rename.gif" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_7rR2wCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handledmenuitem.delete" label="Delete" iconURI="platform:/plugin/org.argeo.cms.swt/icons/remove.gif" command="_ChJ-4CqYEeidr6NYQH6GbQ"/>
+                <children xsi:type="menu:HandledMenuItem" xmi:id="_XsHLgFgQEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handledmenuitem.0" iconURI="platform:/plugin/org.argeo.cms.swt/icons/addRepo.gif" command="_ZWpasFgQEeiknZQLx-vtnA"/>
               </menus>
             </children>
           </children>
@@ -58,18 +58,18 @@
           </children>
         </children>
       </children>
-      <children xsi:type="advanced:Perspective" xmi:id="_u5ZakFhJEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.perspective.monitoring" label="Monitoring" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/bundles.gif">
+      <children xsi:type="advanced:Perspective" xmi:id="_u5ZakFhJEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.perspective.monitoring" label="Monitoring" iconURI="platform:/plugin/org.argeo.cms.swt/icons/bundles.gif">
         <children xsi:type="basic:PartStack" xmi:id="_7i7t8FhJEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.partstack.6">
-          <children xsi:type="basic:Part" xmi:id="_Z-3cMFhbEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.osgiConfigurations" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.OsgiConfigurationsView" label="OSGi Configurations" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/node.gif"/>
-          <children xsi:type="basic:Part" xmi:id="_8dM90FhJEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.cmsSessions" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.CmsSessionsView" label="CMS Sessions" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/person-logged-in.png"/>
-          <children xsi:type="basic:Part" xmi:id="_KqRZIFhNEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.modules" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.ModulesView" label="Modules" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/bundles.gif"/>
-          <children xsi:type="basic:Part" xmi:id="_dXtIoFhNEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.bundles" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.BundlesView" label="Bundles" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/bundles.gif"/>
+          <children xsi:type="basic:Part" xmi:id="_Z-3cMFhbEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.osgiConfigurations" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.OsgiConfigurationsView" label="OSGi Configurations" iconURI="platform:/plugin/org.argeo.cms.swt/icons/node.gif"/>
+          <children xsi:type="basic:Part" xmi:id="_8dM90FhJEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.cmsSessions" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.CmsSessionsView" label="CMS Sessions" iconURI="platform:/plugin/org.argeo.cms.swt/icons/person-logged-in.png"/>
+          <children xsi:type="basic:Part" xmi:id="_KqRZIFhNEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.modules" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.ModulesView" label="Modules" iconURI="platform:/plugin/org.argeo.cms.swt/icons/bundles.gif"/>
+          <children xsi:type="basic:Part" xmi:id="_dXtIoFhNEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.bundles" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.BundlesView" label="Bundles" iconURI="platform:/plugin/org.argeo.cms.swt/icons/bundles.gif"/>
         </children>
       </children>
-      <children xsi:type="advanced:Perspective" xmi:id="_ABK2ADsNEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.perspective.files" label="Files" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/file.gif">
+      <children xsi:type="advanced:Perspective" xmi:id="_ABK2ADsNEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.perspective.files" label="Files" iconURI="platform:/plugin/org.argeo.cms.swt/icons/file.gif">
         <children xsi:type="basic:PartSashContainer" xmi:id="_FPimEDsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.partsashcontainer.1" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_H93NgDsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.partstack.2" containerData="4000">
-            <children xsi:type="basic:Part" xmi:id="_Izxh0DsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.part.files" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.files.NodeFsBrowserView" label="Files" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/file.gif"/>
+            <children xsi:type="basic:Part" xmi:id="_Izxh0DsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.part.files" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.files.NodeFsBrowserView" label="Files" iconURI="platform:/plugin/org.argeo.cms.swt/icons/file.gif"/>
           </children>
           <children xsi:type="basic:Part" xmi:id="_TMqBMDsSEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.part.0" containerData="6000"/>
         </children>
@@ -78,21 +78,21 @@
     <handlers xmi:id="_Vwax0DvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handler.8" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.handlers.OpenPerspective" command="_AF1UsDvrEeiF1foPJZSZkw"/>
     <trimBars xmi:id="_euVxMCk2Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.trimbar.0" side="Left">
       <children xsi:type="menu:ToolBar" xmi:id="_fotHsCk2Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.toolbar.0">
-        <children xsi:type="menu:HandledToolItem" xmi:id="_jCSQgDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.users" label="Users" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png" command="_AF1UsDvrEeiF1foPJZSZkw">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_jCSQgDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.users" label="Users" iconURI="platform:/plugin/org.argeo.cms.swt/icons/group.png" command="_AF1UsDvrEeiF1foPJZSZkw">
           <tags>auth.cn=admin,ou=roles,ou=node</tags>
           <parameters xmi:id="_lu_uYDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.parameter.2" name="perspectiveId" value="org.argeo.cms.e4.perspective.users"/>
         </children>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_jfUM4Ck2Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.handledtoolitem.test" label="Data" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/nodes.gif" command="_AF1UsDvrEeiF1foPJZSZkw">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_jfUM4Ck2Eein5vuhpK-Dew" elementId="org.argeo.cms.e4.handledtoolitem.test" label="Data" iconURI="platform:/plugin/org.argeo.cms.swt/icons/nodes.gif" command="_AF1UsDvrEeiF1foPJZSZkw">
           <parameters xmi:id="_KDlXQDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.parameter.0" name="perspectiveId" value="org.argeo.cms.e4.perspective.data"/>
         </children>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_dhv80FhKEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handledtoolitem.monitoring" label="Monitoring" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/bundles.gif" command="_AF1UsDvrEeiF1foPJZSZkw">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_dhv80FhKEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handledtoolitem.monitoring" label="Monitoring" iconURI="platform:/plugin/org.argeo.cms.swt/icons/bundles.gif" command="_AF1UsDvrEeiF1foPJZSZkw">
           <parameters xmi:id="_kjN0cFhKEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.parameter.3" name="perspectiveId" value="org.argeo.cms.e4.perspective.monitoring"/>
         </children>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_b0OHUDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.files" label="Files" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/file.gif" command="_AF1UsDvrEeiF1foPJZSZkw">
+        <children xsi:type="menu:HandledToolItem" xmi:id="_b0OHUDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.handledtoolitem.files" label="Files" iconURI="platform:/plugin/org.argeo.cms.swt/icons/file.gif" command="_AF1UsDvrEeiF1foPJZSZkw">
           <parameters xmi:id="_fXvRYDvrEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.parameter.1" name="perspectiveId" value="org.argeo.cms.e4.perspective.files"/>
         </children>
         <children xsi:type="menu:ToolBarSeparator" xmi:id="_wuoL8FhLEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.toolbarseparator.0"/>
-        <children xsi:type="menu:HandledToolItem" xmi:id="_2v8DkFhKEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handledtoolitem.logout" label="Log out" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/logout.png" command="_PsWd0FhLEeiknZQLx-vtnA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_2v8DkFhKEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handledtoolitem.logout" label="Log out" iconURI="platform:/plugin/org.argeo.cms.swt/icons/logout.png" command="_PsWd0FhLEeiknZQLx-vtnA"/>
       </children>
     </trimBars>
   </children>
@@ -102,9 +102,9 @@
   <handlers xmi:id="_omPfkCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.handler.3" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.handlers.RenameNode" command="_ZrcUMCqYEeidr6NYQH6GbQ"/>
   <handlers xmi:id="_dUg-cFgQEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handler.9" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.handlers.AddRemoteRepository" command="_ZWpasFgQEeiknZQLx-vtnA"/>
   <handlers xmi:id="_RQyFAFhLEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.handler.10" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.handlers.CloseWorkbench" command="_PsWd0FhLEeiknZQLx-vtnA"/>
-  <descriptors xmi:id="_XzfoMCqlEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.partdescriptor.nodeEditor" label="Node Editor" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/node.gif" allowMultiple="true" category="dataExplorer" closeable="true" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrNodeEditor"/>
-  <descriptors xmi:id="_sAdNwDvdEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partdescriptor.userEditor" label="User Editor" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/person.png" allowMultiple="true" category="usersEditorArea" closeable="true" dirtyable="true" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.UserEditor"/>
-  <descriptors xmi:id="_5nK7EDvdEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partdescriptor.groupEditor" label="Group Editor" iconURI="platform:/plugin/org.argeo.cms.ui.theme/icons/group.png" allowMultiple="true" category="usersEditorArea" closeable="true" dirtyable="true" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.GroupEditor"/>
+  <descriptors xmi:id="_XzfoMCqlEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.partdescriptor.nodeEditor" label="Node Editor" iconURI="platform:/plugin/org.argeo.cms.swt/icons/node.gif" allowMultiple="true" category="dataExplorer" closeable="true" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrNodeEditor"/>
+  <descriptors xmi:id="_sAdNwDvdEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partdescriptor.userEditor" label="User Editor" iconURI="platform:/plugin/org.argeo.cms.swt/icons/person.png" allowMultiple="true" category="usersEditorArea" closeable="true" dirtyable="true" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.UserEditor"/>
+  <descriptors xmi:id="_5nK7EDvdEeiF1foPJZSZkw" elementId="org.argeo.cms.e4.partdescriptor.groupEditor" label="Group Editor" iconURI="platform:/plugin/org.argeo.cms.swt/icons/group.png" allowMultiple="true" category="usersEditorArea" closeable="true" dirtyable="true" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.users.GroupEditor"/>
   <commands xmi:id="_RgE5cCqREeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.addFolderNode" commandName="Add folder node" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
   <commands xmi:id="_ChJ-4CqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.deleteNodes" commandName="Delete nodes" category="_MDkwUCqYEeidr6NYQH6GbQ"/>
   <commands xmi:id="_TOKHsCqYEeidr6NYQH6GbQ" elementId="org.argeo.cms.e4.command.refreshNodes" commandName="Refresh nodes" category="_MDkwUCqYEeidr6NYQH6GbQ"/>

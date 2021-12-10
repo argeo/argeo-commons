@@ -7,10 +7,11 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.ui.CmsApp;
-import org.argeo.cms.ui.CmsAppListener;
-import org.argeo.cms.ui.CmsTheme;
-import org.argeo.cms.ui.CmsView;
+import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsAppListener;
+import org.argeo.api.cms.CmsTheme;
+import org.argeo.api.cms.CmsView;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.util.LangUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
@@ -78,7 +79,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 	public void handleException(Throwable throwable) {
 		Display display = Display.getCurrent();
 		if (display != null && !display.isDisposed()) {
-			CmsView cmsView = CmsView.getCmsView(display.getActiveShell());
+			CmsView cmsView = CmsSwtUtils.getCmsView(display.getActiveShell());
 			cmsView.exception(throwable);
 		} else {
 			log.error("Unexpected exception outside an UI thread", throwable);

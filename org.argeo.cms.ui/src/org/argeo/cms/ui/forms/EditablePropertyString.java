@@ -6,7 +6,7 @@ import static org.argeo.cms.ui.forms.FormStyle.propertyText;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.viewers.EditablePart;
 import org.argeo.cms.ui.widgets.EditableText;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -62,15 +62,15 @@ public class EditablePropertyString extends EditableText implements EditablePart
 	}
 
 	public synchronized void startEditing() {
-		CmsUiUtils.style(getControl(), FormStyle.propertyText);
+		CmsSwtUtils.style(getControl(), FormStyle.propertyText);
 		super.startEditing();
 	}
 
 	public synchronized void stopEditing() {
 		if (EclipseUiUtils.isEmpty(((Text) getControl()).getText()))
-			CmsUiUtils.style(getControl(), FormStyle.propertyMessage);
+			CmsSwtUtils.style(getControl(), FormStyle.propertyMessage);
 		else
-			CmsUiUtils.style(getControl(), FormStyle.propertyText);
+			CmsSwtUtils.style(getControl(), FormStyle.propertyText);
 		super.stopEditing();
 	}
 

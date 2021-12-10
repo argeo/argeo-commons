@@ -20,13 +20,13 @@ import org.argeo.api.NodeConstants;
 import org.argeo.api.security.CryptoKeyring;
 import org.argeo.api.security.Keyring;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.jcr.JcrBrowserUtils;
 import org.argeo.cms.ui.jcr.NodeContentProvider;
 import org.argeo.cms.ui.jcr.NodeLabelProvider;
 import org.argeo.cms.ui.jcr.OsgiRepositoryRegister;
 import org.argeo.cms.ui.jcr.PropertiesContentProvider;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
-import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.jcr.AsyncUiEventListener;
@@ -97,7 +97,7 @@ public class JcrBrowserView {
 		// Create the tree on top of the view
 		Composite top = new Composite(sashForm, SWT.NONE);
 		// GridLayout gl = new GridLayout(1, false);
-		top.setLayout(CmsUiUtils.noSpaceGridLayout());
+		top.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		try {
 			this.userSession = this.nodeRepository.login(NodeConstants.HOME_WORKSPACE);
@@ -121,7 +121,7 @@ public class JcrBrowserView {
 
 		// Create the property viewer on the bottom
 		Composite bottom = new Composite(sashForm, SWT.NONE);
-		bottom.setLayout(CmsUiUtils.noSpaceGridLayout());
+		bottom.setLayout(CmsSwtUtils.noSpaceGridLayout());
 		propertiesViewer = createPropertiesViewer(bottom);
 
 		sashForm.setWeights(getWeights());

@@ -4,8 +4,8 @@ import javax.jcr.Node;
 
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.ui.CmsStyles;
-import org.argeo.cms.ui.widgets.auth.CmsLoginShell;
+import org.argeo.cms.swt.CmsStyles;
+import org.argeo.cms.swt.auth.CmsLoginShell;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;

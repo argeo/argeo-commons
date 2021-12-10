@@ -11,8 +11,8 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsView;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.ui.CmsView;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.jface.fieldassist.ControlDecoration;

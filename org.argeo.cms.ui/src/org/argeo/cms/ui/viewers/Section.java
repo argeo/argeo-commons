@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.ui.util.CmsUiUtils;
+import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.widgets.JcrComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -38,7 +38,7 @@ public class Section extends JcrComposite {
 			} else {
 				relativeDepth = 0;
 			}
-			setLayout(CmsUiUtils.noSpaceGridLayout());
+			setLayout(CmsSwtUtils.noSpaceGridLayout());
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot create section from " + node, e);
 		}
@@ -78,8 +78,8 @@ public class Section extends JcrComposite {
 			sectionHeader.dispose();
 
 		sectionHeader = new Composite(parent, SWT.NONE);
-		sectionHeader.setLayoutData(CmsUiUtils.fillWidth());
-		sectionHeader.setLayout(CmsUiUtils.noSpaceGridLayout());
+		sectionHeader.setLayoutData(CmsSwtUtils.fillWidth());
+		sectionHeader.setLayout(CmsSwtUtils.noSpaceGridLayout());
 		// sectionHeader.moveAbove(null);
 		// layout();
 		return sectionHeader;

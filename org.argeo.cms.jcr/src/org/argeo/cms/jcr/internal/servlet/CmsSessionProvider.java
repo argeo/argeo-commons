@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.SessionProvider;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.auth.CmsSession;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.jcr.JcrUtils;
 
 /**
