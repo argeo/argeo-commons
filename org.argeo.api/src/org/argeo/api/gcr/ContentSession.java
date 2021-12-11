@@ -1,5 +1,7 @@
 package org.argeo.api.gcr;
 
-public interface ContentSession {
+import java.util.function.Supplier;
+
+public interface ContentSession extends Supplier<Content> {
 
 }
