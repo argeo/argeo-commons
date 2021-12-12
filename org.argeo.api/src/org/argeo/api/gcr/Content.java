@@ -2,6 +2,9 @@ package org.argeo.api.gcr;
 
 import java.util.Map;
 
+/**
+ * A semi-structured content, with attributes, within a hierarchical structure.
+ */
 public interface Content extends Iterable<Content>, Map<String, Object> {
 
 	String getName();

@@ -20,7 +20,7 @@ public abstract class AbstractContent extends AbstractMap<String, Object> implem
 				@Override
 				public Object getValue() {
 					// TODO check type
-					return attr(key);
+					return get(key, Object.class);
 				}
 
 				@Override
