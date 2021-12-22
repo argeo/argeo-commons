@@ -6,10 +6,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.argeo.api.gcr.Content;
-import org.argeo.api.gcr.ContentSession;
-import org.argeo.api.gcr.Contents;
+import org.argeo.api.gcr.ContentSystemProvider;
+import org.argeo.api.gcr.ContentUtils;
 
-public class FsContentSession implements ContentSession {
+public class FsContentSession implements ContentSystemProvider {
 	private final Path rootPath;
 
 	public FsContentSession(Path rootPath) {
@@ -26,7 +26,7 @@ public class FsContentSession implements ContentSession {
 		Path path = Paths.get("/home/mbaudier/tmp");
 		System.out.println(FileSystems.getDefault().supportedFileAttributeViews());
 		FsContentSession contentSession = new FsContentSession(path);
-		Contents.traverse(contentSession.get(), (c, d) -> Contents.print(c, System.out, d, true));
+		ContentUtils.traverse(contentSession.get(), (c, d) -> ContentUtils.print(c, System.out, d, true));
 
 	}
 }

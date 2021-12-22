@@ -598,6 +598,16 @@ public class Jcr {
 			throw new JcrException("Cannot retrieve property " + property + " from " + node, e);
 		}
 	}
+	
+	public static <T> T getAs(Node node, String property, Class<T> clss) {
+		if(String.class.isAssignableFrom(clss)) {
+			return (T)get(node,property);
+		}	else	if(Long.class.isAssignableFrom(clss)) {
+			return (T)get(node,property);
+		}else {
+			throw new IllegalArgumentException("Unsupported format "+clss);
+		}
+	}
 
 	/**
 	 * Get a multiple property as a list, doing a best effort to cast it as the

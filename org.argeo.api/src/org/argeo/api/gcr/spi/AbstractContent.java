@@ -1,8 +1,10 @@
-package org.argeo.api.gcr;
+package org.argeo.api.gcr.spi;
 
 import java.util.AbstractMap;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.argeo.api.gcr.Content;
 
 public abstract class AbstractContent extends AbstractMap<String, Object> implements Content {
 
@@ -35,4 +37,12 @@ public abstract class AbstractContent extends AbstractMap<String, Object> implem
 	}
 
 	protected abstract Iterable<String> keys();
+	
+	/*
+	 * UTILITIES
+	 */
+	protected boolean isDefaultAttrTypeRequested(Class<?> clss) {
+		// check whether clss is Object.class 
+		return clss.isAssignableFrom(Object.class);
+	}
 }

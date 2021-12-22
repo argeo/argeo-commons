@@ -1,7 +1,11 @@
 package org.argeo.api.gcr;
 
-import java.util.function.Supplier;
+import java.util.Locale;
 
-public interface ContentSession extends Supplier<Content> {
+import javax.security.auth.Subject;
 
+public interface ContentSession {
+	Subject getSubject();
+
+	Locale getLocale();
 }

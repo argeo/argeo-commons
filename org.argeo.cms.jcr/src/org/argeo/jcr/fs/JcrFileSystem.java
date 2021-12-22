@@ -23,10 +23,12 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
+import org.argeo.api.gcr.fs.AbstractFsStore;
+import org.argeo.api.gcr.fs.AbstractFsSystem;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrUtils;
 
-public class JcrFileSystem extends FileSystem {
+public class JcrFileSystem extends AbstractFsSystem<WorkspaceFileStore> {
 	private final JcrFileSystemProvider provider;
 
 	private final Repository repository;

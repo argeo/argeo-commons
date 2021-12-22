@@ -4,9 +4,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.argeo.api.gcr.AbstractContent;
 import org.argeo.api.gcr.Content;
-import org.argeo.api.gcr.ContentSession;
+import org.argeo.api.gcr.ContentSystemProvider;
+import org.argeo.api.gcr.spi.AbstractContent;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -63,10 +63,6 @@ public class DomContent extends AbstractContent implements Content {
 			return null;
 	}
 
-	@Override
-	public ContentSession getSession() {
-		return contentSession;
-	}
 
 	@Override
 	public boolean hasText() {

@@ -11,11 +11,11 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.argeo.api.gcr.Content;
-import org.argeo.api.gcr.ContentSession;
-import org.argeo.api.gcr.Contents;
+import org.argeo.api.gcr.ContentSystemProvider;
+import org.argeo.api.gcr.ContentUtils;
 import org.w3c.dom.Document;
 
-public class DomContentSession implements ContentSession {
+public class DomContentSession implements ContentSystemProvider {
 	private Document document;
 
 	public DomContentSession(Document document) {
@@ -44,7 +44,7 @@ public class DomContentSession implements ContentSession {
 		Document doc = dBuilder.parse(Files.newInputStream(testFile));
 
 		DomContentSession contentSession = new DomContentSession(doc);
-		Contents.traverse(contentSession.get(), (c, d) -> Contents.print(c, System.out, d, true));
+		ContentUtils.traverse(contentSession.get(), (c, d) -> ContentUtils.print(c, System.out, d, true));
 
 	}
 }

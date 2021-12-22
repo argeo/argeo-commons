@@ -11,10 +11,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 
+import org.argeo.api.gcr.fs.AbstractFsStore;
 import org.argeo.jcr.JcrUtils;
 
 /** A {@link FileStore} implementation based on JCR {@link Workspace}. */
-public class WorkspaceFileStore extends FileStore {
+public class WorkspaceFileStore extends AbstractFsStore {
 	private final String mountPath;
 	private final Workspace workspace;
 	private final String workspaceName;

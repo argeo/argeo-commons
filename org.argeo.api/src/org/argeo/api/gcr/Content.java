@@ -13,7 +13,7 @@ public interface Content extends Iterable<Content>, Map<String, Object> {
 
 	<A> A get(String key, Class<A> clss);
 
-	ContentSession getSession();
+//	ContentSession getSession();
 
 	/*
 	 * DEFAULT METHODS
@@ -29,12 +29,12 @@ public interface Content extends Iterable<Content>, Map<String, Object> {
 		return get(key, String.class);
 	}
 
-	default String attr(Enum<?> key) {
-		return attr(key.name());
+	default String attr(Object key) {
+		return key != null ? attr(key.toString()) : attr(null);
 	}
 
-	default <A> A get(Enum<?> key, Class<A> clss) {
-		return get(key.name(), clss);
+	default <A> A get(Object key, Class<A> clss) {
+		return key != null ? get(key.toString(), clss) : get(null, clss);
 	}
 
 	/*
