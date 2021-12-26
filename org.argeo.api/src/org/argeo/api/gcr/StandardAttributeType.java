@@ -13,9 +13,11 @@ import java.util.UUID;
  */
 public enum StandardAttributeType {
 	BOOLEAN(Boolean.class, new BooleanFormatter()), //
-	// TODO Also support INTEGER ?
+	INTEGER(Integer.class, new IntegerFormatter()), //
 	LONG(Long.class, new LongFormatter()), //
 	DOUBLE(Double.class, new DoubleFormatter()), //
+	// we do not support short and float, like recent additions to Java
+	// (e.g. optional primitives)
 	INSTANT(Instant.class, new InstantFormatter()), //
 	UUID(UUID.class, new UuidFormatter()), //
 	URI(URI.class, new UriFormatter()), //
@@ -40,11 +42,16 @@ public enum StandardAttributeType {
 
 	public static Object parse(String str) {
 		if (str == null)
-			return null;
+			throw new IllegalArgumentException("String cannot be null");
 		// order IS important
 		try {
 			if (str.length() == 4 || str.length() == 5)
 				return BOOLEAN.getFormatter().parse(str);
+		} catch (IllegalArgumentException e) {
+			// silent
+		}
+		try {
+			return INTEGER.getFormatter().parse(str);
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
@@ -88,20 +95,6 @@ public enum StandardAttributeType {
 		return STRING.getFormatter().parse(str);
 	}
 
-	static class StringFormatter implements AttributeFormatter<String> {
-
-		@Override
-		public String parse(String str) {
-			return str;
-		}
-
-		@Override
-		public String format(String obj) {
-			return obj;
-		}
-
-	}
-
 	static class BooleanFormatter implements AttributeFormatter<Boolean> {
 
 		/**
@@ -115,6 +108,13 @@ public enum StandardAttributeType {
 			if ("false".equals(str))
 				return Boolean.FALSE;
 			throw new IllegalArgumentException("Argument is neither 'true' or 'false' : " + str);
+		}
+	}
+
+	static class IntegerFormatter implements AttributeFormatter<Integer> {
+		@Override
+		public Integer parse(String str) throws NumberFormatException {
+			return Integer.parseInt(str);
 		}
 	}
 
@@ -165,4 +165,19 @@ public enum StandardAttributeType {
 		}
 
 	}
+
+	static class StringFormatter implements AttributeFormatter<String> {
+
+		@Override
+		public String parse(String str) {
+			return str;
+		}
+
+		@Override
+		public String format(String obj) {
+			return obj;
+		}
+
+	}
+
 }
