@@ -11,15 +11,19 @@ public interface Content extends Iterable<Content>, Map<String, Object> {
 
 //	Iterable<String> keys();
 
-	<A> A get(String key, Class<A> clss);
+	<A> A get(String key, Class<A> clss) throws IllegalArgumentException;
 
 //	ContentSession getSession();
 
 	/*
 	 * DEFAULT METHODS
 	 */
-	default <A> A adapt(Class<A> clss) {
-		return null;
+	default <A> A adapt(Class<A> clss) throws IllegalArgumentException {
+		throw new IllegalArgumentException("Cannot adapt content " + this + " to " + clss.getName());
+	}
+
+	default <C extends AutoCloseable> C open(Class<C> clss) throws Exception, IllegalArgumentException {
+		throw new IllegalArgumentException("Cannot open content " + this + " as " + clss.getName());
 	}
 
 	/*
