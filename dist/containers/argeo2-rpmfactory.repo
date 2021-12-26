@@ -1,4 +1,0 @@
-[argeo2-rpmfactory]
-baseurl=file:///srv/rpmfactory/argeo-osgi-2/el7/
-gpgcheck=0
-enabled=1
