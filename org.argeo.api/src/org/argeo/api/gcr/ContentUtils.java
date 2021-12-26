@@ -59,7 +59,7 @@ public class ContentUtils {
 		if (!info.contains("base64"))
 			throw new IllegalArgumentException("URI must specify base64");
 
-		String base64Str = uri.toString().substring(commaIndex);
+		String base64Str = schemeSpecificPart.substring(commaIndex + 1);
 		return Base64.getDecoder().decode(base64Str);
 
 	}
