@@ -38,7 +38,7 @@ public enum StandardAttributeType {
 		return formatter;
 	}
 
-	static Object parse(String str) {
+	public static Object parse(String str) {
 		if (str == null)
 			return null;
 		// order IS important
