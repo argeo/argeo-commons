@@ -20,7 +20,7 @@
 	</properties>
 	<modules>
 		<!-- Base -->
-		<module>org.argeo.osgi.boot</module>
+		<module>org.argeo.init</module>
 		<module>org.argeo.enterprise</module>
 		<!-- <module>org.argeo.jcr</module> -->
 <!-- 		<module>org.argeo.core</module> -->
