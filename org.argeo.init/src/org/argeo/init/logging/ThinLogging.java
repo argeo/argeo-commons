@@ -41,7 +41,7 @@ class ThinLogging {
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> close(), "Log shutdown"));
 
-		setDefaultLevel(Level.DEBUG);
+		setDefaultLevel(Level.INFO);
 	}
 
 	protected void close() {
@@ -106,7 +106,7 @@ class ThinLogging {
 		public void log(Level level, ResourceBundle bundle, String format, Object... params) {
 			// measure timestamp first
 			Instant now = Instant.now();
-			String msg = MessageFormat.format(format, params);
+			String msg = params == null ? format : MessageFormat.format(format, params);
 			publisher.log(this, level, bundle, msg, null, now, findCallLocation());
 		}
 
@@ -122,9 +122,12 @@ class ThinLogging {
 					String className = stack[i].getClassName();
 					switch (className) {
 					case "java.lang.System$Logger":
+					case "java.util.logging.Logger":
 					case "org.apache.commons.logging.Log":
 					case "org.osgi.service.log.Logger":
 					case "org.argeo.cms.Log":
+					case "org.slf4j.impl.ArgeoLogger":
+					case "org.eclipse.jetty.util.log.Slf4jLog":
 						lowestLoggerInterface = i;
 						continue stack;
 					default:

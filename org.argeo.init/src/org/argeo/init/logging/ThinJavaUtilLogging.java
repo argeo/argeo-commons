@@ -13,6 +13,6 @@ class ThinJavaUtilLogging {
 		logManager.reset();
 		Logger rootLogger = logManager.getLogger("");
 		rootLogger.addHandler(new ThinHandler());
-		rootLogger.setLevel(java.util.logging.Level.FINE);
+		rootLogger.setLevel(java.util.logging.Level.INFO);
 	}
 }

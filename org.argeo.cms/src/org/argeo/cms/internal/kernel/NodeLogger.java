@@ -25,12 +25,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.spi.LoggingEvent;
 import org.argeo.api.ArgeoLogListener;
 import org.argeo.api.ArgeoLogger;
 import org.argeo.api.NodeConstants;
@@ -51,14 +45,11 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	/** Internal debug for development purposes. */
 	private static Boolean debug = false;
 
-	// private final static Log log = LogFactory.getLog(NodeLogger.class);
-
 	private Boolean disabled = false;
 
 	private String level = null;
 
-	private Level log4jLevel = null;
-	// private Layout layout;
+//	private Level log4jLevel = null;
 
 	private Properties configuration;
 
@@ -126,7 +117,7 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			// setLayout(new PatternLayout(pattern));
 			appender = new AppenderImpl();
 			reloadConfiguration();
-			Logger.getRootLogger().addAppender(appender);
+//			Logger.getRootLogger().addAppender(appender);
 
 			logDispatcherThread = new LogDispatcherThread();
 			logDispatcherThread.start();
@@ -136,7 +127,7 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	}
 
 	public void destroy() throws Exception {
-		Logger.getRootLogger().removeAppender(appender);
+//		Logger.getRootLogger().removeAppender(appender);
 		allUsersListeners.clear();
 		for (List<ArgeoLogListener> lst : userListeners.values())
 			lst.clear();
@@ -353,8 +344,8 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	 */
 	protected void reloadConfiguration() {
 		if (configuration != null) {
-			LogManager.resetConfiguration();
-			PropertyConfigurator.configure(configuration);
+//			LogManager.resetConfiguration();
+//			PropertyConfigurator.configure(configuration);
 		}
 	}
 
@@ -366,18 +357,18 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			return;
 
 		if (level != null && !level.trim().equals("")) {
-			if (log4jLevel == null || !log4jLevel.toString().equals(level))
-				try {
-					log4jLevel = Level.toLevel(level);
-				} catch (Exception e) {
-					System.err.println("Log4j level could not be set for level '" + level + "', resetting it to null.");
-					e.printStackTrace();
-					level = null;
-				}
-
-			if (log4jLevel != null && !event.getLoggingEvent().getLevel().isGreaterOrEqual(log4jLevel)) {
-				return;
-			}
+//			if (log4jLevel == null || !log4jLevel.toString().equals(level))
+//				try {
+//					log4jLevel = Level.toLevel(level);
+//				} catch (Exception e) {
+//					System.err.println("Log4j level could not be set for level '" + level + "', resetting it to null.");
+//					e.printStackTrace();
+//					level = null;
+//				}
+//
+//			if (log4jLevel != null && !event.getLoggingEvent().getLevel().isGreaterOrEqual(log4jLevel)) {
+//				return;
+//			}
 		}
 
 		try {
@@ -404,12 +395,12 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	}
 
 	protected void dispatchEvent(ArgeoLogListener logListener, LogEvent evt) {
-		LoggingEvent event = evt.getLoggingEvent();
-		logListener.appendLog(evt.getUsername(), event.getTimeStamp(), event.getLevel().toString(),
-				event.getLoggerName(), event.getThreadName(), event.getMessage(), event.getThrowableStrRep());
+//		LoggingEvent event = evt.getLoggingEvent();
+//		logListener.appendLog(evt.getUsername(), event.getTimeStamp(), event.getLevel().toString(),
+//				event.getLoggerName(), event.getThreadName(), event.getMessage(), event.getThrowableStrRep());
 	}
 
-	private class AppenderImpl extends AppenderSkeleton {
+	private class AppenderImpl { //extends AppenderSkeleton {
 		public boolean requiresLayout() {
 			return false;
 		}
@@ -417,17 +408,17 @@ class NodeLogger implements ArgeoLogger, LogListener {
 		public void close() {
 		}
 
-		@Override
-		protected void append(LoggingEvent event) {
-			if (events != null) {
-				try {
-					String username = CurrentUser.getUsername();
-					events.put(new LogEvent(username, event));
-				} catch (InterruptedException e) {
-					// silent
-				}
-			}
-		}
+//		@Override
+//		protected void append(LoggingEvent event) {
+//			if (events != null) {
+//				try {
+//					String username = CurrentUser.getUsername();
+//					events.put(new LogEvent(username, event));
+//				} catch (InterruptedException e) {
+//					// silent
+//				}
+//			}
+//		}
 
 	}
 
@@ -475,36 +466,36 @@ class NodeLogger implements ArgeoLogger, LogListener {
 
 	private class LogEvent {
 		private final String username;
-		private final LoggingEvent loggingEvent;
+//		private final LoggingEvent loggingEvent;
 
-		public LogEvent(String username, LoggingEvent loggingEvent) {
+		public LogEvent(String username) {
 			super();
 			this.username = username;
-			this.loggingEvent = loggingEvent;
+//			this.loggingEvent = loggingEvent;
 		}
 
-		@Override
-		public int hashCode() {
-			return loggingEvent.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return loggingEvent.equals(obj);
-		}
-
-		@Override
-		public String toString() {
-			return username + "@ " + loggingEvent.toString();
-		}
+//		@Override
+//		public int hashCode() {
+//			return loggingEvent.hashCode();
+//		}
+//
+//		@Override
+//		public boolean equals(Object obj) {
+//			return loggingEvent.equals(obj);
+//		}
+//
+//		@Override
+//		public String toString() {
+//			return username + "@ " + loggingEvent.toString();
+//		}
 
 		public String getUsername() {
 			return username;
 		}
 
-		public LoggingEvent getLoggingEvent() {
-			return loggingEvent;
-		}
+//		public LoggingEvent getLoggingEvent() {
+//			return loggingEvent;
+//		}
 
 	}
 
@@ -532,7 +523,7 @@ class NodeLogger implements ArgeoLogger, LogListener {
 						if (log4jConfigurationPath.equals(parentDir.resolve(changed))) {
 							if (isInternalDebugEnabled())
 								debug(log4jConfigurationPath + " has changed, reloading.");
-							PropertyConfigurator.configure(log4jConfigurationPath.toUri().toURL());
+//							PropertyConfigurator.configure(log4jConfigurationPath.toUri().toURL());
 						}
 					}
 					// reset the key

@@ -1,2 +1,5 @@
 Import-Package: javax.naming.*,\
 javax.security.*
+
+Export-Package: org.argeo.api.*,\
+org.apache.commons.logging;version=1.2.666

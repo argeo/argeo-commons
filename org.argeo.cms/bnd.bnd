@@ -5,6 +5,7 @@ Import-Package: org.apache.commons.httpclient.cookie;resolution:=optional,\
 org.osgi.*;version=0.0.0,\
 org.osgi.service.http.whiteboard;version=0.0.0,\
 org.osgi.framework.namespace;version=0.0.0,\
+org.apache.log4j.*;resolution:=optional,\
 *
 
 Service-Component:\

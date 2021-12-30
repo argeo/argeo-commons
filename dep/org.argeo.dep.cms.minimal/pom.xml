@@ -16,6 +16,11 @@
 		<!-- Argeo Commons -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.init</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.enterprise</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
@@ -37,28 +42,37 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.transition</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Third Parties -->
 
-		<dependency>
-			<groupId>org.argeo.tp.apache</groupId>
-			<artifactId>org.apache.log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.slf4j.log4j12</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.apache</groupId> -->
+		<!-- <artifactId>org.apache.log4j</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>org.slf4j.log4j12</artifactId> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.slf4j.api</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.argeo.tp.misc</groupId>
-			<artifactId>org.slf4j.commons.logging</artifactId>
-		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>slf4j.osgi</artifactId> -->
+		<!-- </dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.misc</groupId> -->
+		<!-- <artifactId>org.slf4j.commons.logging</artifactId> -->
+		<!-- </dependency> -->
 
 		<!-- OSGi annotations -->
 		<!-- <dependency> -->
@@ -83,10 +97,10 @@
 			<groupId>org.argeo.tp.bouncycastle</groupId>
 			<artifactId>bcpkix</artifactId>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.argeo.tp.bouncycastle</groupId> -->
-<!-- 			<artifactId>bcpg</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.argeo.tp.bouncycastle</groupId> -->
+		<!-- <artifactId>bcpg</artifactId> -->
+		<!-- </dependency> -->
 
 		<!-- Apache Commons -->
 		<dependency>
@@ -232,14 +246,6 @@
 		<dependency>
 			<groupId>org.argeo.tp.misc</groupId>
 			<artifactId>org.postgresql.jdbc42</artifactId>
-		</dependency>
-
-		<!-- Test only -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.osgi.boot</artifactId>
-			<version>2.3-SNAPSHOT</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

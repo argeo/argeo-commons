@@ -23,16 +23,17 @@
 		<module>org.argeo.init</module>
 		<module>org.argeo.enterprise</module>
 		<!-- <module>org.argeo.jcr</module> -->
-<!-- 		<module>org.argeo.core</module> -->
+		<!-- <module>org.argeo.core</module> -->
 		<!-- Eclipse -->
 		<module>org.argeo.swt.specific.rap</module>
 		<!-- CMS -->
 		<module>org.argeo.api</module>
+		<module>org.argeo.transition</module>
 		<!-- <module>org.argeo.maintenance</module> -->
 		<module>org.argeo.cms</module>
 		<module>org.argeo.cms.swt</module>
 		<module>org.argeo.cms.jcr</module>
-<!-- 		<module>org.argeo.cms.ui.theme</module> -->
+		<!-- <module>org.argeo.cms.ui.theme</module> -->
 		<module>org.argeo.cms.ui</module>
 		<module>org.argeo.cms.ui.rap</module>
 		<!-- CMS E4 -->

@@ -76,7 +76,7 @@ public class Activator implements BundleActivator {
 
 		try {
 			initSecurity();
-			initArgeoLogger();
+//			initArgeoLogger();
 			initNode();
 
 			if (log.isTraceEnabled())
