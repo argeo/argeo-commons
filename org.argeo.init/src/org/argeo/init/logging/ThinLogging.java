@@ -22,8 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 /** A thin logging system based on the {@link Logger} framework. */
 class ThinLogging {
-//	private static ThinLogging instance;
-
 	private SortedMap<String, ThinLogger> loggers = new TreeMap<>();
 	private NavigableMap<String, Level> levels = new TreeMap<>();
 
@@ -31,10 +29,6 @@ class ThinLogging {
 	private final LogEntryPublisher publisher;
 
 	ThinLogging() {
-//		if (instance != null)
-//			throw new IllegalStateException("Only one logger finder cann be instantiated");
-//		instance = this;
-
 		executor = Executors.newCachedThreadPool((r) -> {
 			Thread t = new Thread(r);
 			t.setDaemon(true);
@@ -46,6 +40,8 @@ class ThinLogging {
 		publisher.subscribe(subscriber);
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> close(), "Log shutdown"));
+
+		setDefaultLevel(Level.DEBUG);
 	}
 
 	protected void close() {

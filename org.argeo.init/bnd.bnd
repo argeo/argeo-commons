@@ -3,6 +3,8 @@ Class-Path: org.eclipse.osgi.jar
 
 Bundle-Activator: org.argeo.init.osgi.Activator
 
-Import-Package: org.osgi.*;version=0.0.0
+Import-Package: \
+org.osgi.*;version=0.0.0,\
+java.util.logging.*;resolution:=optional
 Private-Package: *
 Export-Package: !*

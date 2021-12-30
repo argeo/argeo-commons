@@ -1,9 +1,9 @@
 package org.argeo.init.osgi;
 
-import java.util.Enumeration;
-import java.util.ResourceBundle;
-import java.util.Vector;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
+import org.argeo.init.logging.ThinLoggerFinder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -13,9 +13,17 @@ import org.osgi.framework.BundleContext;
  * //wiki.eclipse.org/Configurator</a>
  */
 public class Activator implements BundleActivator {
+	static {
+		// must be called first
+		ThinLoggerFinder.lazyInit();
+	}
+	Logger logger = System.getLogger(Activator.class.getName());
+
 	private Long checkpoint = null;
 
 	public void start(final BundleContext bundleContext) throws Exception {
+		logger.log(Level.DEBUG, () -> "Argeo init via OSGi activator");
+
 		// admin thread
 		Thread adminThread = new AdminThread(bundleContext);
 		adminThread.start();
@@ -32,25 +40,5 @@ public class Activator implements BundleActivator {
 	}
 
 	public void stop(BundleContext context) throws Exception {
-	}
-
-	class JournaldResourceBundle extends ResourceBundle {
-
-		@Override
-		protected Object handleGetObject(String key) {
-			switch (key) {
-			case "ERROR":
-				return "<5>";
-			}
-			return null;
-		}
-
-		@Override
-		public Enumeration<String> getKeys() {
-			Vector<String> keys = new Vector<>();
-			keys.add("ERROR");
-			return keys.elements();
-		}
-
 	}
 }
