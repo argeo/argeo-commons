@@ -6,6 +6,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.launch.Framework;
 
 /** Monitors the runtime and can shut it down. */
+@Deprecated
 public class AdminThread extends Thread {
 	public final static String PROP_ARGEO_OSGI_SHUTDOWN_FILE = "argeo.osgi.shutdownFile";
 	private File shutdownFile;

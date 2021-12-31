@@ -2,6 +2,7 @@ package org.argeo.init.osgi;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.util.Objects;
 
 import org.argeo.init.logging.ThinLoggerFinder;
 import org.osgi.framework.BundleActivator;
@@ -17,28 +18,34 @@ public class Activator implements BundleActivator {
 		// must be called first
 		ThinLoggerFinder.lazyInit();
 	}
-	Logger logger = System.getLogger(Activator.class.getName());
+	private Logger logger = System.getLogger(Activator.class.getName());
 
 	private Long checkpoint = null;
+	private OsgiRuntimeContext runtimeContext;
 
 	public void start(final BundleContext bundleContext) throws Exception {
+		if (runtimeContext == null) {
+			runtimeContext = new OsgiRuntimeContext(bundleContext);
+		}
 		logger.log(Level.DEBUG, () -> "Argeo init via OSGi activator");
 
 		// admin thread
-		Thread adminThread = new AdminThread(bundleContext);
-		adminThread.start();
+//		Thread adminThread = new AdminThread(bundleContext);
+//		adminThread.start();
 
 		// bootstrap
-		OsgiBoot osgiBoot = new OsgiBoot(bundleContext);
+//		OsgiBoot osgiBoot = new OsgiBoot(bundleContext);
 		if (checkpoint == null) {
-			osgiBoot.bootstrap();
+//			osgiBoot.bootstrap();
 			checkpoint = System.currentTimeMillis();
 		} else {
-			osgiBoot.update();
+			runtimeContext.update();
 			checkpoint = System.currentTimeMillis();
 		}
 	}
 
 	public void stop(BundleContext context) throws Exception {
+		Objects.requireNonNull(runtimeContext);
+		runtimeContext.stop(context);
 	}
 }

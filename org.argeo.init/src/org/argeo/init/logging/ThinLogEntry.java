@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 /** A log entry with equals semantics based on an incremental long sequence. */
+@Deprecated
 class ThinLogEntry implements Serializable {
 	private static final long serialVersionUID = 5915553445193937270L;
 

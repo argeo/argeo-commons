@@ -1,10 +1,13 @@
 package org.argeo.init.logging;
 
+import java.io.Serializable;
 import java.lang.System.Logger;
 import java.lang.System.LoggerFinder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Flow;
+import java.util.function.Consumer;
 
 /**
  * Factory for Java system logging. As it has to be a public class in order to
@@ -29,7 +32,7 @@ public class ThinLoggerFinder extends LoggerFinder {
 	private static void init() {
 		logging = new ThinLogging();
 
-		Map<String, String> configuration = new HashMap<>();
+		Map<String, Object> configuration = new HashMap<>();
 		for (Object key : System.getProperties().keySet()) {
 			Objects.requireNonNull(key);
 			String property = key.toString();
@@ -37,11 +40,12 @@ public class ThinLoggerFinder extends LoggerFinder {
 					|| property.equals(ThinLogging.DEFAULT_LEVEL_PROPERTY))
 				configuration.put(property, System.getProperty(property));
 		}
-		logging.update(configuration);
+		logging.accept(configuration);
 	}
 
 	/**
-	 * Falls back to java.util.logging if thin logging was not already initialised.
+	 * Falls back to java.util.logging if thin logging was not already initialised
+	 * by the {@link LoggerFinder} mechanism.
 	 */
 	public static void lazyInit() {
 		if (logging != null)
@@ -53,10 +57,20 @@ public class ThinLoggerFinder extends LoggerFinder {
 		javaUtilLogging.readConfiguration(logging.getLevels());
 	}
 
-	public static void update(Map<String, String> configuration) {
+	public static Consumer<Map<String, Object>> getConfigurationConsumer() {
+		Objects.requireNonNull(logging);
+		return logging;
+	}
+
+	public static Flow.Publisher<Map<String, Serializable>> getLogEntryPublisher() {
+		Objects.requireNonNull(logging);
+		return logging.getLogEntryPublisher();
+	}
+
+	static void update(Map<String, Object> configuration) {
 		if (logging == null)
 			throw new IllegalStateException("Thin logging must be initialized first");
-		logging.update(configuration);
+		logging.accept(configuration);
 		if (javaUtilLogging != null)
 			javaUtilLogging.readConfiguration(logging.getLevels());
 	}
