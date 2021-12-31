@@ -5,6 +5,8 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
@@ -22,8 +24,17 @@ import java.util.concurrent.TimeUnit;
 
 /** A thin logging system based on the {@link Logger} framework. */
 class ThinLogging {
+	final static String DEFAULT_LEVEL_NAME = "";
+
+	final static String DEFAULT_LEVEL_PROPERTY = "log";
+	final static String LEVEL_PROPERTY_PREFIX = DEFAULT_LEVEL_PROPERTY + ".";
+
+	// we don't synchronize maps on purpose as it would be
+	// too expensive during normal operation
+	// updates to the config may be shortly inconsistent
 	private SortedMap<String, ThinLogger> loggers = new TreeMap<>();
 	private NavigableMap<String, Level> levels = new TreeMap<>();
+	private volatile boolean updatingConfiguration = false;
 
 	private final ExecutorService executor;
 	private final LogEntryPublisher publisher;
@@ -41,7 +52,8 @@ class ThinLogging {
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> close(), "Log shutdown"));
 
-		setDefaultLevel(Level.INFO);
+		// initial default level
+		levels.put("", Level.WARNING);
 	}
 
 	protected void close() {
@@ -55,13 +67,20 @@ class ThinLogging {
 		}
 	}
 
-	public void setDefaultLevel(Level level) {
-		levels.put("", level);
-	}
-
 	public boolean isLoggable(String name, Level level) {
 		Objects.requireNonNull(name);
 		Objects.requireNonNull(level);
+
+		if (updatingConfiguration) {
+			synchronized (levels) {
+				try {
+					levels.wait();
+					// TODO make exit more robust
+				} catch (InterruptedException e) {
+					throw new IllegalStateException(e);
+				}
+			}
+		}
 
 		Map.Entry<String, Level> entry = levels.ceilingEntry(name);
 		assert entry != null;
@@ -74,6 +93,56 @@ class ThinLogging {
 			loggers.put(name, logger);
 		}
 		return loggers.get(name);
+	}
+
+	void update(Map<String, String> configuration) {
+		synchronized (levels) {
+			updatingConfiguration = true;
+
+			Map<String, Level> backup = new TreeMap<>(levels);
+
+			boolean fullReset = configuration.containsKey(DEFAULT_LEVEL_PROPERTY);
+			try {
+				properties: for (String property : configuration.keySet()) {
+					if (!property.startsWith(LEVEL_PROPERTY_PREFIX))
+						continue properties;
+					String levelStr = configuration.get(property);
+					Level level = Level.valueOf(levelStr);
+					levels.put(property.substring(LEVEL_PROPERTY_PREFIX.length()), level);
+				}
+
+				if (fullReset) {
+					Iterator<Map.Entry<String, Level>> it = levels.entrySet().iterator();
+					while (it.hasNext()) {
+						Map.Entry<String, Level> entry = it.next();
+						String name = entry.getKey();
+						if (!configuration.containsKey(LEVEL_PROPERTY_PREFIX + name)) {
+							it.remove();
+						}
+					}
+//				for (String name : levels.keySet()) {
+//					if (!configuration.containsKey(LEVEL_PROPERTY_PREFIX + name)) {
+//						levels.remove(name);
+//					}
+//				}
+					Level newDefaultLevel = Level.valueOf(configuration.get(DEFAULT_LEVEL_PROPERTY));
+					levels.put(DEFAULT_LEVEL_NAME, newDefaultLevel);
+					// TODO notify everyone?
+				}
+				assert levels.containsKey(DEFAULT_LEVEL_NAME);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+				levels.clear();
+				levels.putAll(backup);
+			}
+			updatingConfiguration = false;
+			levels.notifyAll();
+		}
+
+	}
+
+	Map<String, Level> getLevels() {
+		return Collections.unmodifiableNavigableMap(levels);
 	}
 
 	class ThinLogger implements System.Logger {
@@ -92,6 +161,7 @@ class ThinLogging {
 
 		@Override
 		public boolean isLoggable(Level level) {
+			// TODO optimise by referencing the applicable level in this class?
 			return ThinLogging.this.isLoggable(name, level);
 		}
 
@@ -106,6 +176,9 @@ class ThinLogging {
 		public void log(Level level, ResourceBundle bundle, String format, Object... params) {
 			// measure timestamp first
 			Instant now = Instant.now();
+
+			// NOTE: this is the method called when logging a plain message without
+			// exception, so it should be considered as a format only when args are not null
 			String msg = params == null ? format : MessageFormat.format(format, params);
 			publisher.log(this, level, bundle, msg, null, now, findCallLocation());
 		}
@@ -113,14 +186,12 @@ class ThinLogging {
 		protected StackTraceElement findCallLocation() {
 			StackTraceElement callLocation = null;
 			if (callLocationEnabled) {
-//				Throwable locator = new Throwable();
-//				StackTraceElement[] stack = locator.getStackTrace();
 				StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-				// TODO make it smarter by finding the lowest logger interface in the stack
 				int lowestLoggerInterface = 0;
 				stack: for (int i = 2; i < stack.length; i++) {
 					String className = stack[i].getClassName();
 					switch (className) {
+					// TODO make it more configurable
 					case "java.lang.System$Logger":
 					case "java.util.logging.Logger":
 					case "org.apache.commons.logging.Log":
