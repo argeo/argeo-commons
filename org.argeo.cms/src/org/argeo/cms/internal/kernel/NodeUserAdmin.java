@@ -34,10 +34,13 @@ import org.apache.commons.httpclient.params.HttpParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
+import org.argeo.cms.CmsUserManager;
+import org.argeo.cms.internal.auth.CmsUserManagerImpl;
 import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
 import org.argeo.naming.DnsBrowser;
 import org.argeo.osgi.transaction.WorkControl;
+import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.AbstractUserDirectory;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
@@ -52,6 +55,7 @@ import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.useradmin.Authorization;
@@ -82,11 +86,25 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	private boolean singleUser = false;
 //	private boolean systemRolesAvailable = false;
 
+	CmsUserManagerImpl userManager;
+
 	public NodeUserAdmin(String systemRolesBaseDn, String tokensBaseDn) {
 		super(systemRolesBaseDn, tokensBaseDn);
 		BundleContext bc = Activator.getBundleContext();
 		if (bc != null) {
-			tmTracker = new ServiceTracker<>(bc, WorkControl.class, null);
+			tmTracker = new ServiceTracker<>(bc, WorkControl.class, null) {
+
+				@Override
+				public WorkControl addingService(ServiceReference<WorkControl> reference) {
+					WorkControl workControl = super.addingService(reference);
+					userManager = new CmsUserManagerImpl();
+					userManager.setUserAdmin(NodeUserAdmin.this);
+					// FIXME make it more robust
+					userManager.setUserTransaction((WorkTransaction) workControl);
+					bc.registerService(CmsUserManager.class, userManager, null);
+					return workControl;
+				}
+			};
 			tmTracker.open();
 		} else {
 			tmTracker = null;
@@ -128,7 +146,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 
 		// OSGi
 		LdapName baseDn = userDirectory.getBaseDn();
-		Dictionary<String, Object> regProps = new Hashtable<>();
+		Hashtable<String, Object> regProps = new Hashtable<>();
 		regProps.put(Constants.SERVICE_PID, pid);
 		if (isSystemRolesBaseDn(baseDn))
 			regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
@@ -136,6 +154,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		// ServiceRegistration<UserDirectory> reg =
 		// bc.registerService(UserDirectory.class, userDirectory, regProps);
 		Activator.registerService(UserDirectory.class, userDirectory, regProps);
+		userManager.addUserDirectory(userDirectory, regProps);
 		pidToBaseDn.put(pid, baseDn);
 		// pidToServiceRegs.put(pid, reg);
 

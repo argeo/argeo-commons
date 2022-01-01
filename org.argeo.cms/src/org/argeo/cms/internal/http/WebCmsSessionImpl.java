@@ -3,9 +3,9 @@ package org.argeo.cms.internal.http;
 import java.util.Locale;
 
 import javax.security.auth.Subject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
+import org.argeo.cms.auth.HttpRequest;
+import org.argeo.cms.auth.HttpSession;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.osgi.service.useradmin.Authorization;
 
@@ -15,24 +15,19 @@ public class WebCmsSessionImpl extends CmsSessionImpl {
 	private HttpSession httpSession;
 
 	public WebCmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale,
-			HttpServletRequest request) {
-		super(initialSubject, authorization, locale, request.getSession(false).getId());
-		httpSession = request.getSession(false);
+			HttpRequest request) {
+		super(initialSubject, authorization, locale, request.getSession().getId());
+		httpSession = request.getSession();
 	}
 
 	@Override
 	public boolean isValid() {
 		if (isClosed())
 			return false;
-		try {// test http session
-			httpSession.getCreationTime();
-			return true;
-		} catch (IllegalStateException ise) {
-			return false;
-		}
+		return httpSession.isValid();
 	}
 
-	public static CmsSessionImpl getCmsSession(HttpServletRequest request) {
-		return CmsSessionImpl.getByLocalId(request.getSession(false).getId());
+	public static CmsSessionImpl getCmsSession(HttpRequest request) {
+		return CmsSessionImpl.getByLocalId(request.getSession().getId());
 	}
 }

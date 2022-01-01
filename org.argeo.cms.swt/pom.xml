@@ -20,6 +20,11 @@
 			<artifactId>org.argeo.cms</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.servlet</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
 
 		<!-- Specific -->
 		<dependency>

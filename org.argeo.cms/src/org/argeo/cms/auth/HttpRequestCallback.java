@@ -1,29 +1,26 @@
 package org.argeo.cms.auth;
 
 import javax.security.auth.callback.Callback;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /** Retrieves credentials from an HTTP request. */
 public class HttpRequestCallback implements Callback {
-	private HttpServletRequest request;
-	private HttpServletResponse response;
+	private HttpRequest request;
+	private HttpResponse response;
 	private HttpSession httpSession;
 
-	public HttpServletRequest getRequest() {
+	public HttpRequest getRequest() {
 		return request;
 	}
 
-	public void setRequest(HttpServletRequest request) {
+	public void setRequest(HttpRequest request) {
 		this.request = request;
 	}
 
-	public HttpServletResponse getResponse() {
+	public HttpResponse getResponse() {
 		return response;
 	}
 
-	public void setResponse(HttpServletResponse response) {
+	public void setResponse(HttpResponse response) {
 		this.response = response;
 	}
 

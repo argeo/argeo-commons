@@ -3,13 +3,8 @@ Bundle-Activator: org.argeo.cms.internal.kernel.Activator
 Import-Package: org.apache.commons.httpclient.cookie;resolution:=optional,\
 !com.sun.security.jgss,\
 org.osgi.*;version=0.0.0,\
-org.osgi.service.http.whiteboard;version=0.0.0,\
-org.osgi.framework.namespace;version=0.0.0,\
-org.apache.log4j.*;resolution:=optional,\
 *
 
-Service-Component:\
-OSGI-INF/cmsUserManager.xml,\
-OSGI-INF/pkgServletContext.xml,\
-OSGI-INF/pkgServlet.xml
+#Service-Component:\
+#OSGI-INF/cmsUserManager.xml,\
 

@@ -16,7 +16,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
@@ -25,6 +25,8 @@ import org.argeo.api.cms.CmsView;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.HttpRequestCallback;
+import org.argeo.cms.servlet.ServletHttpRequest;
+import org.argeo.cms.servlet.ServletHttpResponse;
 import org.argeo.cms.swt.CmsStyles;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.eclipse.ui.specific.UiContext;
@@ -309,8 +311,8 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			else if (callback instanceof PasswordCallback && passwordT != null)
 				((PasswordCallback) callback).setPassword(passwordT.getTextChars());
 			else if (callback instanceof HttpRequestCallback) {
-				((HttpRequestCallback) callback).setRequest(UiContext.getHttpRequest());
-				((HttpRequestCallback) callback).setResponse(UiContext.getHttpResponse());
+				((HttpRequestCallback) callback).setRequest(new ServletHttpRequest(UiContext.getHttpRequest()));
+				((HttpRequestCallback) callback).setResponse(new ServletHttpResponse(UiContext.getHttpResponse()));
 			} else if (callback instanceof LanguageCallback) {
 				Locale toUse = null;
 				if (localeChoice != null)

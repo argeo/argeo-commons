@@ -25,6 +25,8 @@ import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
 import org.argeo.cms.osgi.CmsOsgiUtils;
+import org.argeo.cms.servlet.ServletHttpRequest;
+import org.argeo.cms.servlet.ServletHttpResponse;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.SimpleSwtUxContext;
 import org.argeo.cms.swt.dialogs.CmsFeedback;
@@ -84,7 +86,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		LoginContext lc;
 		try {
 			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
-					new HttpRequestCallbackHandler(UiContext.getHttpRequest(), UiContext.getHttpResponse()));
+					new HttpRequestCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
+							new ServletHttpResponse(UiContext.getHttpResponse())));
 			lc.login();
 		} catch (LoginException e) {
 			try {

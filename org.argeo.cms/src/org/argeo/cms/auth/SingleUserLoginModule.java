@@ -12,7 +12,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,7 +67,7 @@ public class SingleUserLoginModule implements LoginModule {
 			authorizationName = principal.getName();
 		}
 
-		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		HttpRequest request = (HttpRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		Locale locale = Locale.getDefault();
 		if (request != null)
 			locale = request.getLocale();

@@ -15,7 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
 import org.argeo.cms.auth.HttpRequestCallbackHandler;
-import org.argeo.cms.internal.http.HttpUtils;
+import org.argeo.cms.servlet.internal.HttpUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.context.ServletContextHelper;
@@ -43,7 +43,8 @@ public class CmsServletContext extends ServletContextHelper {
 			HttpUtils.logRequestHeaders(log, request);
 		LoginContext lc;
 		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, new HttpRequestCallbackHandler(request, response));
+			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+					new HttpRequestCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
 			lc.login();
 		} catch (LoginException e) {
 			lc = processUnauthorized(request, response);
@@ -52,9 +53,9 @@ public class CmsServletContext extends ServletContextHelper {
 			if (lc == null)
 				return false;
 		}
-		
+
 		Subject subject = lc.getSubject();
-		//log.debug("SERVLET CONTEXT: "+subject);
+		// log.debug("SERVLET CONTEXT: "+subject);
 		Subject.doAs(subject, new PrivilegedAction<Void>() {
 
 			@Override
@@ -77,7 +78,7 @@ public class CmsServletContext extends ServletContextHelper {
 		// anonymous
 		try {
 			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS,
-					new HttpRequestCallbackHandler(request, response));
+					new HttpRequestCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
 			lc.login();
 			return lc;
 		} catch (LoginException e1) {

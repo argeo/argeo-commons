@@ -132,4 +132,8 @@ public class SpnegoLoginModule implements LoginModule {
 		return null;
 
 	}
+
+	public static boolean hasAcceptorCredentials() {
+		return Activator.getAcceptorCredentials() != null;
+	}
 }

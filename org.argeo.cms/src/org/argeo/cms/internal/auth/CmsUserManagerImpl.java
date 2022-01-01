@@ -62,7 +62,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 //	private Map<String, String> serviceProperties;
 	private WorkTransaction userTransaction;
 
-	private Map<UserDirectory, Hashtable<String, String>> userDirectories = Collections
+	private Map<UserDirectory, Hashtable<String, Object>> userDirectories = Collections
 			.synchronizedMap(new LinkedHashMap<>());
 
 	@Override
@@ -481,11 +481,11 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		this.userTransaction = userTransaction;
 	}
 
-	public void addUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
+	public void addUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
 		userDirectories.put(userDirectory, new Hashtable<>(properties));
 	}
 
-	public void removeUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
+	public void removeUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
 		userDirectories.remove(userDirectory);
 	}
 

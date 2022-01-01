@@ -13,9 +13,6 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,8 +31,8 @@ public class HttpSessionLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler = null;
 	private Map<String, Object> sharedState = null;
 
-	private HttpServletRequest request = null;
-	private HttpServletResponse response = null;
+	private HttpRequest request = null;
+	private HttpResponse response = null;
 
 	private BundleContext bc;
 
@@ -72,8 +69,8 @@ public class HttpSessionLoginModule implements LoginModule {
 				return false;
 			// TODO factorize with below
 			String httpSessionId = httpSession.getId();
-			if (log.isTraceEnabled())
-				log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
+//			if (log.isTraceEnabled())
+//				log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
 			CmsSessionImpl cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
 			if (cmsSession != null) {
 				authorization = cmsSession.getAuthorization();
@@ -84,16 +81,16 @@ public class HttpSessionLoginModule implements LoginModule {
 		} else {
 			authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
 			if (authorization == null) {// search by session ID
-				HttpSession httpSession = request.getSession(false);
+				HttpSession httpSession = request.getSession();
 				if (httpSession == null) {
 					// TODO make sure this is always safe
 					if (log.isTraceEnabled())
 						log.trace("Create http session");
-					httpSession = request.getSession(true);
+					httpSession = request.createSession();
 				}
 				String httpSessionId = httpSession.getId();
-				if (log.isTraceEnabled())
-					log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
+//				if (log.isTraceEnabled())
+//					log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
 				CmsSessionImpl cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
 				if (cmsSession != null) {
 					authorization = cmsSession.getAuthorization();
@@ -159,7 +156,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		return true;
 	}
 
-	private void extractHttpAuth(final HttpServletRequest httpRequest) {
+	private void extractHttpAuth(final HttpRequest httpRequest) {
 		String authHeader = httpRequest.getHeader(CmsAuthUtils.HEADER_AUTHORIZATION);
 		extractHttpAuth(authHeader);
 	}
@@ -206,7 +203,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		// }
 	}
 
-	private void extractClientCertificate(HttpServletRequest req) {
+	private void extractClientCertificate(HttpRequest req) {
 		X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
 		if (null != certs && certs.length > 0) {// Servlet container verified the client certificate
 			String certDn = certs[0].getSubjectX500Principal().getName();

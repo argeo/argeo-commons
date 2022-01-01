@@ -9,7 +9,6 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +42,7 @@ public class IdentLoginModule implements LoginModule {
 		} catch (UnsupportedCallbackException e) {
 			return false;
 		}
-		HttpServletRequest request = httpCallback.getRequest();
+		HttpRequest request = httpCallback.getRequest();
 		if (request == null)
 			return false;
 		IdentClient identClient = Activator.getIdentClient(request.getRemoteAddr());

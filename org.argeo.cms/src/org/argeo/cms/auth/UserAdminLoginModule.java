@@ -23,7 +23,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -253,7 +252,7 @@ public class UserAdminLoginModule implements LoginModule {
 		}
 
 		// Log and monitor new login
-		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		HttpRequest request = (HttpRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		CmsAuthUtils.addAuthorization(subject, authorization);
 
 		// Unlock keyring (underlying login to the JCR repository)

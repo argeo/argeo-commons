@@ -7,7 +7,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +48,7 @@ public class AnonymousLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		Authorization authorization = userAdmin.getAuthorization(null);
-		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		HttpRequest request = (HttpRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		Locale locale = Locale.getDefault();
 		if (request != null)
 			locale = request.getLocale();

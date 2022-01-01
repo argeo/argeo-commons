@@ -31,6 +31,7 @@
 		<module>org.argeo.transition</module>
 		<!-- <module>org.argeo.maintenance</module> -->
 		<module>org.argeo.cms</module>
+		<module>org.argeo.cms.servlet</module>
 		<module>org.argeo.cms.swt</module>
 		<module>org.argeo.cms.jcr</module>
 		<!-- <module>org.argeo.cms.ui.theme</module> -->

@@ -6,22 +6,19 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.LanguageCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  * Callback handler populating {@link HttpRequestCallback}s with the provided
  * {@link HttpServletRequest}, and ignoring any other callback.
  */
 public class HttpRequestCallbackHandler implements CallbackHandler {
-	final private HttpServletRequest request;
-	final private HttpServletResponse response;
+	final private HttpRequest request;
+	final private HttpResponse response;
 	final private HttpSession httpSession;
 
-	public HttpRequestCallbackHandler(HttpServletRequest request, HttpServletResponse response) {
+	public HttpRequestCallbackHandler(HttpRequest request, HttpResponse response) {
 		this.request = request;
-		this.httpSession = request.getSession(false);
+		this.httpSession = request.getSession();
 		this.response = response;
 	}
 

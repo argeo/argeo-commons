@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.http;
+package org.argeo.cms.servlet.internal;
 
 import java.io.IOException;
 import java.io.PrintWriter;
