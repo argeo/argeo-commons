@@ -7,11 +7,10 @@ import org.osgi.resource.Namespace;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 
+/** Simplify filtering resources. */
 public class FilterRequirement implements Requirement {
 	private String namespace;
 	private String filter;
-	
-	
 
 	public FilterRequirement(String namespace, String filter) {
 		this.namespace = namespace;
