@@ -1,70 +1,36 @@
 package org.argeo.util.register;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-public class Component {
-	private final static AtomicBoolean started = new AtomicBoolean(false);
-	private final static IdentityHashMap<Object, Component> components = new IdentityHashMap<>();
+/**
+ * A wrapper for an object, whose dependencies and life cycle can be managed.
+ */
+public class Component<I> {
 
-	private static synchronized void registerComponent(Component component) {
-		if (started.get()) // TODO make it rellay dynamic
-			throw new IllegalStateException("Already activated");
-		if (components.containsKey(component.instance))
-			throw new IllegalArgumentException("Already registered as component");
-		components.put(component.instance, component);
-	}
+	private final I instance;
 
-	static synchronized Component get(Object instance) {
-		if (!components.containsKey(instance))
-			throw new IllegalArgumentException("Not registered as component");
-		return components.get(instance);
-	}
+	private final Runnable init;
+	private final Runnable close;
 
-	public synchronized static void activate() {
-		if (started.get())
-			throw new IllegalStateException("Already activated");
-		for (Component component : components.values()) {
-			component.activationStarted.complete(null);
-		}
-		started.set(true);
-	}
-
-	public synchronized static void deactivate() {
-		if (!started.get())
-			throw new IllegalStateException("Not activated");
-		for (Component component : components.values()) {
-			component.deactivationStarted.complete(null);
-		}
-		started.set(false);
-	}
-
-	private final Object instance;
-
-	private Runnable init;
-	private Runnable close;
-
-	private final Map<Class<?>, PublishedType<?>> types;
+	private final Map<Class<? super I>, PublishedType<? super I>> types;
 	private final Set<Dependency<?>> dependencies;
 
-	private CompletableFuture<Void> activationStarted = new CompletableFuture<Void>();
-	private CompletableFuture<Void> activated = new CompletableFuture<Void>();
+	private CompletableFuture<Void> activationStarted = null;
+	private CompletableFuture<Void> activated = null;
 
-	private CompletableFuture<Void> deactivationStarted = new CompletableFuture<Void>();
-	private CompletableFuture<Void> deactivated = new CompletableFuture<Void>();
+	private CompletableFuture<Void> deactivationStarted = null;
+	private CompletableFuture<Void> deactivated = null;
 
 	private Set<Dependency<?>> dependants = new HashSet<>();
 
-	Component(Object instance, Runnable init, Runnable close, Set<Dependency<?>> dependencies, Set<Class<?>> classes) {
+	Component(I instance, Runnable init, Runnable close, Set<Dependency<?>> dependencies,
+			Set<Class<? super I>> classes) {
 		assert instance != null;
 		assert init != null;
 		assert close != null;
@@ -76,12 +42,12 @@ public class Component {
 		this.close = close;
 
 		// types
-		Map<Class<?>, PublishedType<?>> types = new HashMap<>(classes.size());
-		for (Class<?> clss : classes) {
+		Map<Class<? super I>, PublishedType<? super I>> types = new HashMap<>(classes.size());
+		for (Class<? super I> clss : classes) {
 			if (!clss.isAssignableFrom(instance.getClass()))
 				throw new IllegalArgumentException(
 						"Type " + clss.getName() + " is not compatible with " + instance.getClass().getName());
-			types.put(clss, new PublishedType<>(clss));
+			types.put(clss, new PublishedType<>(this, clss));
 		}
 		this.types = Collections.unmodifiableMap(types);
 
@@ -91,17 +57,50 @@ public class Component {
 			dependency.setDependantComponent(this);
 		}
 
-		// future activation
+		// deactivated by default
+		deactivated = CompletableFuture.completedFuture(null);
+		deactivationStarted = CompletableFuture.completedFuture(null);
+
+		// TODO check whether context is active, so that we start right away
+		prepareNextActivation();
+
+		StaticRegister.registerComponent(this);
+	}
+
+	private void prepareNextActivation() {
+		activationStarted = new CompletableFuture<Void>();
 		activated = activationStarted //
-				.thenCompose(this::dependenciesActivated) //
-				.thenRun(this.init);
+				.thenComposeAsync(this::dependenciesActivated) //
+				.thenRun(this.init) //
+				.thenRun(() -> prepareNextDeactivation());
+	}
 
-		// future deactivation
+	private void prepareNextDeactivation() {
+		deactivationStarted = new CompletableFuture<Void>();
 		deactivated = deactivationStarted //
-				.thenCompose(this::dependantsDeactivated) //
-				.thenRun(this.close);
+				.thenComposeAsync(this::dependantsDeactivated) //
+				.thenRun(this.close) //
+				.thenRun(() -> prepareNextActivation());
+	}
 
-		registerComponent(this);
+	public CompletableFuture<Void> getActivated() {
+		return activated;
+	}
+
+	public CompletableFuture<Void> getDeactivated() {
+		return deactivated;
+	}
+
+	void startActivating() {
+		if (activated.isDone() || activationStarted.isDone())
+			return;
+		activationStarted.complete(null);
+	}
+
+	void startDeactivating() {
+		if (deactivated.isDone() || deactivationStarted.isDone())
+			return;
+		deactivationStarted.complete(null);
 	}
 
 	CompletableFuture<Void> dependenciesActivated(Void v) {
@@ -131,25 +130,31 @@ public class Component {
 		dependants.add(dependant);
 	}
 
-	public <T> PublishedType<T> getType(Class<T> clss) {
+	I getInstance() {
+		return instance;
+	}
+
+	@SuppressWarnings("unchecked")
+	<T> PublishedType<T> getType(Class<T> clss) {
 		if (!types.containsKey(clss))
 			throw new IllegalArgumentException(clss.getName() + " is not a type published by this component");
 		return (PublishedType<T>) types.get(clss);
 	}
 
-	public class PublishedType<T> {
+	public static class PublishedType<T> {
+		private Component<? extends T> component;
 		private Class<T> clss;
 
 		private CompletableFuture<T> value;
 
-		public PublishedType(Class<T> clss) {
+		public PublishedType(Component<? extends T> component, Class<T> clss) {
 			this.clss = clss;
-
-			value = CompletableFuture.completedFuture((T) Component.this.instance);
+			this.component = component;
+			value = CompletableFuture.completedFuture((T) component.instance);
 		}
 
-		Component getPublisher() {
-			return Component.this;
+		Component<?> getPublisher() {
+			return component;
 		}
 
 		Class<T> getType() {
@@ -164,15 +169,16 @@ public class Component {
 		private Runnable close;
 
 		private Set<Dependency<?>> dependencies = new HashSet<>();
-		private Set<Class<?>> types = new HashSet<>();
+		private Set<Class<? super I>> types = new HashSet<>();
 
 		public Builder(I instance) {
 			this.instance = instance;
 		}
 
-		public Component build() {
+		public Component<I> build() {
+			// default values
 			if (types.isEmpty()) {
-				types.add(instance.getClass());
+				types.add(getInstanceClass());
 			}
 
 			if (init == null)
@@ -182,15 +188,16 @@ public class Component {
 				close = () -> {
 				};
 
-			Component component = new Component(instance, init, close, dependencies, types);
+			// instantiation
+			Component<I> component = new Component<I>(instance, init, close, dependencies, types);
 			for (Dependency<?> dependency : dependencies) {
 				dependency.type.getPublisher().addDependant(dependency);
 			}
 			return component;
 		}
 
-		public Builder<I> addType(Class<?>... classes) {
-			types.addAll(Arrays.asList(classes));
+		public Builder<I> addType(Class<? super I> clss) {
+			types.add(clss);
 			return this;
 		}
 
@@ -208,9 +215,8 @@ public class Component {
 			return this;
 		}
 
-		public <D> Builder<I> addDependency(PublishedType<D> type, Predicate<?> filter, Consumer<D> set,
-				Consumer<D> unset) {
-			dependencies.add(new Dependency<D>(type, filter, set, unset));
+		public <D> Builder<I> addDependency(PublishedType<D> type, Consumer<D> set, Consumer<D> unset) {
+			dependencies.add(new Dependency<D>(type, set, unset));
 			return this;
 		}
 
@@ -218,37 +224,40 @@ public class Component {
 			return instance;
 		}
 
+		@SuppressWarnings("unchecked")
+		private Class<I> getInstanceClass() {
+			return (Class<I>) instance.getClass();
+		}
+
 	}
 
 	static class Dependency<D> {
 		private PublishedType<D> type;
-		private Predicate<?> filter;
 		private Consumer<D> set;
 		private Consumer<D> unset;
 
 		// live
-		Component dependantComponent;
+		Component<?> dependantComponent;
 		CompletableFuture<Void> setStage;
 		CompletableFuture<Void> unsetStage;
 
-		public Dependency(PublishedType<D> types, Predicate<?> filter, Consumer<D> set, Consumer<D> unset) {
+		public Dependency(PublishedType<D> types, Consumer<D> set, Consumer<D> unset) {
 			super();
 			this.type = types;
-			this.filter = filter;
 			this.set = set;
 			this.unset = unset != null ? unset : (v) -> set.accept(null);
 		}
 
 		// live
-		void setDependantComponent(Component component) {
+		void setDependantComponent(Component<?> component) {
 			this.dependantComponent = component;
 		}
 
-		Component getPublisher() {
+		Component<?> getPublisher() {
 			return type.getPublisher();
 		}
 
-		Component getDependantComponent() {
+		Component<?> getDependantComponent() {
 			return dependantComponent;
 		}
 
@@ -262,4 +271,3 @@ public class Component {
 
 	}
 }
-
