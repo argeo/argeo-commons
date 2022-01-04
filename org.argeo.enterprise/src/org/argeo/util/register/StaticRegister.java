@@ -2,15 +2,43 @@ package org.argeo.util.register;
 
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /** A minimal component register. */
 public class StaticRegister {
 	private final static AtomicBoolean started = new AtomicBoolean(false);
 	private final static IdentityHashMap<Object, Component<?>> components = new IdentityHashMap<>();
+
+	public static Consumer<Component<?>> asConsumer() {
+		return (c) -> registerComponent(c);
+	}
+
+//	public static BiFunction<Class<?>, Predicate<Map<String, Object>>, Component<?>> asProvider() {
+//
+//	}
+
+	static synchronized <T> Component<? extends T> find(Class<T> clss, Predicate<Map<String, Object>> filter) {
+		Set<Component<? extends T>> result = new HashSet<>();
+		instances: for (Object instance : components.keySet()) {
+			if (!clss.isAssignableFrom(instance.getClass()))
+				continue instances;
+			Component<? extends T> component = (Component<? extends T>) components.get(instance);
+
+			// TODO filter
+			if (component.isPublishedType(clss))
+				result.add(component);
+		}
+		if (result.isEmpty())
+			return null;
+		return result.iterator().next();
+
+	}
 
 	static synchronized void registerComponent(Component<?> component) {
 		if (started.get()) // TODO make it really dynamic
@@ -60,6 +88,10 @@ public class StaticRegister {
 		} catch (ExecutionException | InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	synchronized static void clear() {
+		components.clear();
 	}
 
 }

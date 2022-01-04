@@ -29,8 +29,8 @@ public class Component<I> {
 
 	private Set<Dependency<?>> dependants = new HashSet<>();
 
-	Component(I instance, Runnable init, Runnable close, Set<Dependency<?>> dependencies,
-			Set<Class<? super I>> classes) {
+	Component(Consumer<Component<?>> register, I instance, Runnable init, Runnable close,
+			Set<Dependency<?>> dependencies, Set<Class<? super I>> classes) {
 		assert instance != null;
 		assert init != null;
 		assert close != null;
@@ -44,9 +44,9 @@ public class Component<I> {
 		// types
 		Map<Class<? super I>, PublishedType<? super I>> types = new HashMap<>(classes.size());
 		for (Class<? super I> clss : classes) {
-			if (!clss.isAssignableFrom(instance.getClass()))
-				throw new IllegalArgumentException(
-						"Type " + clss.getName() + " is not compatible with " + instance.getClass().getName());
+//			if (!clss.isAssignableFrom(instance.getClass()))
+//				throw new IllegalArgumentException(
+//						"Type " + clss.getName() + " is not compatible with " + instance.getClass().getName());
 			types.put(clss, new PublishedType<>(this, clss));
 		}
 		this.types = Collections.unmodifiableMap(types);
@@ -64,7 +64,7 @@ public class Component<I> {
 		// TODO check whether context is active, so that we start right away
 		prepareNextActivation();
 
-		StaticRegister.registerComponent(this);
+		register.accept(this);
 	}
 
 	private void prepareNextActivation() {
@@ -106,7 +106,7 @@ public class Component<I> {
 	CompletableFuture<Void> dependenciesActivated(Void v) {
 		Set<CompletableFuture<?>> constraints = new HashSet<>(this.dependencies.size());
 		for (Dependency<?> dependency : this.dependencies) {
-			CompletableFuture<Void> dependencyActivated = dependency.getPublisher().activated //
+			CompletableFuture<Void> dependencyActivated = dependency.publisherActivated() //
 					.thenCompose(dependency::set);
 			constraints.add(dependencyActivated);
 		}
@@ -116,7 +116,7 @@ public class Component<I> {
 	CompletableFuture<Void> dependantsDeactivated(Void v) {
 		Set<CompletableFuture<?>> constraints = new HashSet<>(this.dependants.size());
 		for (Dependency<?> dependant : this.dependants) {
-			CompletableFuture<Void> dependantDeactivated = dependant.getDependantComponent().deactivated //
+			CompletableFuture<Void> dependantDeactivated = dependant.dependantDeactivated() //
 					.thenCompose(dependant::unset);
 			constraints.add(dependantDeactivated);
 		}
@@ -141,21 +141,31 @@ public class Component<I> {
 		return (PublishedType<T>) types.get(clss);
 	}
 
+	<T> boolean isPublishedType(Class<T> clss) {
+		return types.containsKey(clss);
+	}
+
 	public static class PublishedType<T> {
 		private Component<? extends T> component;
 		private Class<T> clss;
 
+//		private CompletableFuture<Component<? extends T>> publisherAvailable;
 		private CompletableFuture<T> value;
 
 		public PublishedType(Component<? extends T> component, Class<T> clss) {
 			this.clss = clss;
 			this.component = component;
 			value = CompletableFuture.completedFuture((T) component.instance);
+//			value = publisherAvailable.thenApply((c) -> c.getInstance());
 		}
 
 		Component<?> getPublisher() {
 			return component;
 		}
+
+//		CompletableFuture<Component<? extends T>> publisherAvailable() {
+//			return publisherAvailable;
+//		}
 
 		Class<T> getType() {
 			return clss;
@@ -175,7 +185,7 @@ public class Component<I> {
 			this.instance = instance;
 		}
 
-		public Component<I> build() {
+		public Component<I> build(Consumer<Component<?>> register) {
 			// default values
 			if (types.isEmpty()) {
 				types.add(getInstanceClass());
@@ -189,7 +199,7 @@ public class Component<I> {
 				};
 
 			// instantiation
-			Component<I> component = new Component<I>(instance, init, close, dependencies, types);
+			Component<I> component = new Component<I>(register, instance, init, close, dependencies, types);
 			for (Dependency<?> dependency : dependencies) {
 				dependency.type.getPublisher().addDependant(dependency);
 			}
@@ -253,12 +263,12 @@ public class Component<I> {
 			this.dependantComponent = component;
 		}
 
-		Component<?> getPublisher() {
-			return type.getPublisher();
+		CompletableFuture<Void> publisherActivated() {
+			return type.getPublisher().activated.copy();
 		}
 
-		Component<?> getDependantComponent() {
-			return dependantComponent;
+		CompletableFuture<Void> dependantDeactivated() {
+			return dependantComponent.deactivated.copy();
 		}
 
 		CompletableFuture<Void> set(Void v) {
