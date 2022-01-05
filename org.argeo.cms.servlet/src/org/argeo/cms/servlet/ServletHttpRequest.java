@@ -18,13 +18,12 @@ public class ServletHttpRequest implements HttpRequest {
 
 	@Override
 	public HttpSession getSession() {
-		return new ServletHttpSession();
+		return new ServletHttpSession(request.getSession(false));
 	}
 
 	@Override
 	public HttpSession createSession() {
-		request.getSession(true);
-		return new ServletHttpSession();
+		return new ServletHttpSession(request.getSession(true));
 	}
 
 	@Override
@@ -60,24 +59,5 @@ public class ServletHttpRequest implements HttpRequest {
 	@Override
 	public int getRemotePort() {
 		return request.getRemotePort();
-	}
-
-	private class ServletHttpSession implements HttpSession {
-
-		@Override
-		public boolean isValid() {
-			try {// test http session
-				request.getSession(false).getCreationTime();
-				return true;
-			} catch (IllegalStateException ise) {
-				return false;
-			}
-		}
-
-		@Override
-		public String getId() {
-			return request.getSession(false).getId();
-		}
-
 	}
 }

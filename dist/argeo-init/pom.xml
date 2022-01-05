@@ -95,7 +95,7 @@
 											<dependency>
 												<stripVersion>true</stripVersion>
 												<includes>
-													<include>org.argeo.commons:org.argeo.osgi.boot</include>
+													<include>org.argeo.commons:org.argeo.init</include>
 												</includes>
 											</dependency>
 										</mapping>

@@ -61,7 +61,7 @@ public class CmsServletContext extends ServletContextHelper {
 			@Override
 			public Void run() {
 				// TODO also set login context in order to log out ?
-				ServletAuthUtils.configureRequestSecurity(request);
+				ServletAuthUtils.configureRequestSecurity(new ServletHttpRequest(request));
 				return null;
 			}
 
@@ -71,7 +71,7 @@ public class CmsServletContext extends ServletContextHelper {
 
 	@Override
 	public void finishSecurity(HttpServletRequest request, HttpServletResponse response) {
-		ServletAuthUtils.clearRequestSecurity(request);
+		ServletAuthUtils.clearRequestSecurity(new ServletHttpRequest(request));
 	}
 
 	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
