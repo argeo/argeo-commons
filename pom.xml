@@ -23,19 +23,18 @@
 		<module>org.argeo.init</module>
 		<module>org.argeo.enterprise</module>
 		<!-- Eclipse -->
-		<module>org.argeo.swt.specific.rap</module>
 		<!-- CMS -->
 		<module>org.argeo.api</module>
 		<module>org.argeo.cms.tp</module>
 		<module>org.argeo.cms</module>
 		<module>org.argeo.cms.servlet</module>
-		<module>org.argeo.cms.swt</module>
 		<module>org.argeo.cms.jcr</module>
+		<!-- CMS UX -->
+		<module>org.argeo.cms.swt</module>
 		<module>org.argeo.cms.ui</module>
-		<module>org.argeo.cms.ui.rap</module>
-		<!-- CMS E4 -->
 		<module>org.argeo.cms.e4</module>
-		<module>org.argeo.cms.e4.rap</module>
+		<!-- Eclipse RAP/RCP specific -->
+		<module>rap</module>
 		<!-- Distribution -->
 		<module>dep</module>
 		<module>demo</module>
