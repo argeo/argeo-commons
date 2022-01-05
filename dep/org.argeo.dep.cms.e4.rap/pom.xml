@@ -25,8 +25,10 @@
 			<artifactId>org.argeo.cms.e4</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
+		
+		<!-- RAP specific -->
 		<dependency>
-			<groupId>org.argeo.commons</groupId>
+			<groupId>org.argeo.commons.rap</groupId>
 			<artifactId>org.argeo.cms.e4.rap</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>

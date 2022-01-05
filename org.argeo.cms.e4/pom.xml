@@ -19,7 +19,7 @@
 
 		<!-- UI -->
 		<dependency>
-			<groupId>org.argeo.commons</groupId>
+			<groupId>org.argeo.commons.rap</groupId>
 			<artifactId>org.argeo.swt.specific.rap</artifactId>
 			<version>2.3-SNAPSHOT</version>
 			<scope>provided</scope>
