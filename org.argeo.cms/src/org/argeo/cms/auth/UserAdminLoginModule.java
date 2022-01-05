@@ -252,7 +252,7 @@ public class UserAdminLoginModule implements LoginModule {
 		}
 
 		// Log and monitor new login
-		HttpRequest request = (HttpRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		RemoteAuthRequest request = (RemoteAuthRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		CmsAuthUtils.addAuthorization(subject, authorization);
 
 		// Unlock keyring (underlying login to the JCR repository)

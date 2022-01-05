@@ -3,10 +3,10 @@ package org.argeo.cms.auth;
 import java.util.Locale;
 
 /** Transitional interface to decouple from the Servlet API. */
-public interface HttpRequest {
-	HttpSession getSession();
+public interface RemoteAuthRequest {
+	RemoteAuthSession getSession();
 
-	HttpSession createSession();
+	RemoteAuthSession createSession();
 
 	Locale getLocale();
 

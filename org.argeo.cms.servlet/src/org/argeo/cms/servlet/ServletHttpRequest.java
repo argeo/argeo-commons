@@ -5,10 +5,10 @@ import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.argeo.cms.auth.HttpRequest;
-import org.argeo.cms.auth.HttpSession;
+import org.argeo.cms.auth.RemoteAuthRequest;
+import org.argeo.cms.auth.RemoteAuthSession;
 
-public class ServletHttpRequest implements HttpRequest {
+public class ServletHttpRequest implements RemoteAuthRequest {
 	private final HttpServletRequest request;
 
 	public ServletHttpRequest(HttpServletRequest request) {
@@ -17,12 +17,12 @@ public class ServletHttpRequest implements HttpRequest {
 	}
 
 	@Override
-	public HttpSession getSession() {
+	public RemoteAuthSession getSession() {
 		return new ServletHttpSession(request.getSession(false));
 	}
 
 	@Override
-	public HttpSession createSession() {
+	public RemoteAuthSession createSession() {
 		return new ServletHttpSession(request.getSession(true));
 	}
 

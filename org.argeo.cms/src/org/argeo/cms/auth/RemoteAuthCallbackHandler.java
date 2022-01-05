@@ -8,21 +8,21 @@ import javax.security.auth.callback.LanguageCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 /**
- * Callback handler populating {@link HttpRequestCallback}s with the provided
+ * Callback handler populating {@link RemoteAuthCallback}s with the provided
  * {@link HttpServletRequest}, and ignoring any other callback.
  */
-public class HttpRequestCallbackHandler implements CallbackHandler {
-	final private HttpRequest request;
-	final private HttpResponse response;
-	final private HttpSession httpSession;
+public class RemoteAuthCallbackHandler implements CallbackHandler {
+	final private RemoteAuthRequest request;
+	final private RemoteAuthResponse response;
+	final private RemoteAuthSession httpSession;
 
-	public HttpRequestCallbackHandler(HttpRequest request, HttpResponse response) {
+	public RemoteAuthCallbackHandler(RemoteAuthRequest request, RemoteAuthResponse response) {
 		this.request = request;
 		this.httpSession = request.getSession();
 		this.response = response;
 	}
 
-	public HttpRequestCallbackHandler(HttpSession httpSession) {
+	public RemoteAuthCallbackHandler(RemoteAuthSession httpSession) {
 		this.httpSession = httpSession;
 		this.request = null;
 		this.response = null;
@@ -31,10 +31,10 @@ public class HttpRequestCallbackHandler implements CallbackHandler {
 	@Override
 	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 		for (Callback callback : callbacks)
-			if (callback instanceof HttpRequestCallback) {
-				((HttpRequestCallback) callback).setRequest(request);
-				((HttpRequestCallback) callback).setResponse(response);
-				((HttpRequestCallback) callback).setHttpSession(httpSession);
+			if (callback instanceof RemoteAuthCallback) {
+				((RemoteAuthCallback) callback).setRequest(request);
+				((RemoteAuthCallback) callback).setResponse(response);
+				((RemoteAuthCallback) callback).setHttpSession(httpSession);
 			} else if (callback instanceof LanguageCallback) {
 				((LanguageCallback) callback).setLocale(request.getLocale());
 			}

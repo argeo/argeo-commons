@@ -24,7 +24,7 @@ import org.argeo.api.NodeState;
 import org.argeo.api.cms.CmsView;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.LocaleUtils;
-import org.argeo.cms.auth.HttpRequestCallback;
+import org.argeo.cms.auth.RemoteAuthCallback;
 import org.argeo.cms.servlet.ServletHttpRequest;
 import org.argeo.cms.servlet.ServletHttpResponse;
 import org.argeo.cms.swt.CmsStyles;
@@ -310,9 +310,9 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 				((NameCallback) callback).setName(usernameT.getText());
 			else if (callback instanceof PasswordCallback && passwordT != null)
 				((PasswordCallback) callback).setPassword(passwordT.getTextChars());
-			else if (callback instanceof HttpRequestCallback) {
-				((HttpRequestCallback) callback).setRequest(new ServletHttpRequest(UiContext.getHttpRequest()));
-				((HttpRequestCallback) callback).setResponse(new ServletHttpResponse(UiContext.getHttpResponse()));
+			else if (callback instanceof RemoteAuthCallback) {
+				((RemoteAuthCallback) callback).setRequest(new ServletHttpRequest(UiContext.getHttpRequest()));
+				((RemoteAuthCallback) callback).setResponse(new ServletHttpResponse(UiContext.getHttpResponse()));
 			} else if (callback instanceof LanguageCallback) {
 				Locale toUse = null;
 				if (localeChoice != null)

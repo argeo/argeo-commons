@@ -1,8 +1,7 @@
 package org.argeo.cms.auth;
 
 /** Transitional interface to decouple from the Servlet API. */
-public interface HttpSession {
-	boolean isValid();
+public interface RemoteAuthResponse {
+	void setHeader(String keys, String value);
 
-	String getId();
 }

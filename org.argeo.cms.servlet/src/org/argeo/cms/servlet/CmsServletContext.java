@@ -14,7 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.argeo.api.NodeConstants;
-import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.auth.RemoteAuthCallbackHandler;
+import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.servlet.internal.HttpUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -44,7 +45,7 @@ public class CmsServletContext extends ServletContextHelper {
 		LoginContext lc;
 		try {
 			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
-					new HttpRequestCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
+					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
 			lc.login();
 		} catch (LoginException e) {
 			lc = processUnauthorized(request, response);
@@ -61,7 +62,7 @@ public class CmsServletContext extends ServletContextHelper {
 			@Override
 			public Void run() {
 				// TODO also set login context in order to log out ?
-				ServletAuthUtils.configureRequestSecurity(new ServletHttpRequest(request));
+				RemoteAuthUtils.configureRequestSecurity(new ServletHttpRequest(request));
 				return null;
 			}
 
@@ -71,14 +72,14 @@ public class CmsServletContext extends ServletContextHelper {
 
 	@Override
 	public void finishSecurity(HttpServletRequest request, HttpServletResponse response) {
-		ServletAuthUtils.clearRequestSecurity(new ServletHttpRequest(request));
+		RemoteAuthUtils.clearRequestSecurity(new ServletHttpRequest(request));
 	}
 
 	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
 		// anonymous
 		try {
 			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS,
-					new HttpRequestCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
+					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
 			lc.login();
 			return lc;
 		} catch (LoginException e1) {

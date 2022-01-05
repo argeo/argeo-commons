@@ -67,7 +67,7 @@ public class SingleUserLoginModule implements LoginModule {
 			authorizationName = principal.getName();
 		}
 
-		HttpRequest request = (HttpRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		RemoteAuthRequest request = (RemoteAuthRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		Locale locale = Locale.getDefault();
 		if (request != null)
 			locale = request.getLocale();

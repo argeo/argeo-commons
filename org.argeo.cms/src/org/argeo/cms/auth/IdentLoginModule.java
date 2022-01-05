@@ -34,7 +34,7 @@ public class IdentLoginModule implements LoginModule {
 	public boolean login() throws LoginException {
 		if (callbackHandler == null)
 			return false;
-		HttpRequestCallback httpCallback = new HttpRequestCallback();
+		RemoteAuthCallback httpCallback = new RemoteAuthCallback();
 		try {
 			callbackHandler.handle(new Callback[] { httpCallback });
 		} catch (IOException e) {
@@ -42,7 +42,7 @@ public class IdentLoginModule implements LoginModule {
 		} catch (UnsupportedCallbackException e) {
 			return false;
 		}
-		HttpRequest request = httpCallback.getRequest();
+		RemoteAuthRequest request = httpCallback.getRequest();
 		if (request == null)
 			return false;
 		IdentClient identClient = Activator.getIdentClient(request.getRemoteAddr());

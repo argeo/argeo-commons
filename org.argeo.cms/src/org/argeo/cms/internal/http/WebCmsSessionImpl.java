@@ -4,18 +4,18 @@ import java.util.Locale;
 
 import javax.security.auth.Subject;
 
-import org.argeo.cms.auth.HttpRequest;
-import org.argeo.cms.auth.HttpSession;
+import org.argeo.cms.auth.RemoteAuthRequest;
+import org.argeo.cms.auth.RemoteAuthSession;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.osgi.service.useradmin.Authorization;
 
 /** CMS session implementation in a web context. */
 public class WebCmsSessionImpl extends CmsSessionImpl {
 	private static final long serialVersionUID = -5178883380637048025L;
-	private HttpSession httpSession;
+	private RemoteAuthSession httpSession;
 
 	public WebCmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale,
-			HttpRequest request) {
+			RemoteAuthRequest request) {
 		super(initialSubject, authorization, locale, request.getSession().getId());
 		httpSession = request.getSession();
 	}
@@ -27,7 +27,7 @@ public class WebCmsSessionImpl extends CmsSessionImpl {
 		return httpSession.isValid();
 	}
 
-	public static CmsSessionImpl getCmsSession(HttpRequest request) {
+	public static CmsSessionImpl getCmsSession(RemoteAuthRequest request) {
 		return CmsSessionImpl.getByLocalId(request.getSession().getId());
 	}
 }

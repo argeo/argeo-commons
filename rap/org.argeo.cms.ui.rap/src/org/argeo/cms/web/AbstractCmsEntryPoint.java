@@ -27,8 +27,8 @@ import org.argeo.api.NodeConstants;
 import org.argeo.api.cms.CmsView;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.auth.HttpRequestCallback;
-import org.argeo.cms.auth.HttpRequestCallbackHandler;
+import org.argeo.cms.auth.RemoteAuthCallback;
+import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.servlet.ServletHttpRequest;
 import org.argeo.cms.servlet.ServletHttpResponse;
 import org.argeo.cms.swt.CmsStyles;
@@ -86,7 +86,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		LoginContext lc;
 		try {
 			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
-					new HttpRequestCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
+					new RemoteAuthCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
 							new ServletHttpResponse(UiContext.getHttpResponse())));
 			lc.login();
 		} catch (LoginException e) {
@@ -293,10 +293,10 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 						super.handle(callbacks);
 						// handle HTTP context
 						for (Callback callback : callbacks) {
-							if (callback instanceof HttpRequestCallback) {
-								((HttpRequestCallback) callback)
+							if (callback instanceof RemoteAuthCallback) {
+								((RemoteAuthCallback) callback)
 										.setRequest(new ServletHttpRequest(UiContext.getHttpRequest()));
-								((HttpRequestCallback) callback)
+								((RemoteAuthCallback) callback)
 										.setResponse(new ServletHttpResponse(UiContext.getHttpResponse()));
 							}
 						}

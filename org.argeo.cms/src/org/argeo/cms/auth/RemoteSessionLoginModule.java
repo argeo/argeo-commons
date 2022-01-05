@@ -24,15 +24,15 @@ import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
 /** Use the HTTP session as the basis for authentication. */
-public class HttpSessionLoginModule implements LoginModule {
-	private final static Log log = LogFactory.getLog(HttpSessionLoginModule.class);
+public class RemoteSessionLoginModule implements LoginModule {
+	private final static Log log = LogFactory.getLog(RemoteSessionLoginModule.class);
 
 	private Subject subject = null;
 	private CallbackHandler callbackHandler = null;
 	private Map<String, Object> sharedState = null;
 
-	private HttpRequest request = null;
-	private HttpResponse response = null;
+	private RemoteAuthRequest request = null;
+	private RemoteAuthResponse response = null;
 
 	private BundleContext bc;
 
@@ -43,7 +43,7 @@ public class HttpSessionLoginModule implements LoginModule {
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
-		bc = FrameworkUtil.getBundle(HttpSessionLoginModule.class).getBundleContext();
+		bc = FrameworkUtil.getBundle(RemoteSessionLoginModule.class).getBundleContext();
 		assert bc != null;
 		this.subject = subject;
 		this.callbackHandler = callbackHandler;
@@ -54,7 +54,7 @@ public class HttpSessionLoginModule implements LoginModule {
 	public boolean login() throws LoginException {
 		if (callbackHandler == null)
 			return false;
-		HttpRequestCallback httpCallback = new HttpRequestCallback();
+		RemoteAuthCallback httpCallback = new RemoteAuthCallback();
 		try {
 			callbackHandler.handle(new Callback[] { httpCallback });
 		} catch (IOException e) {
@@ -64,7 +64,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		}
 		request = httpCallback.getRequest();
 		if (request == null) {
-			HttpSession httpSession = httpCallback.getHttpSession();
+			RemoteAuthSession httpSession = httpCallback.getHttpSession();
 			if (httpSession == null)
 				return false;
 			// TODO factorize with below
@@ -81,7 +81,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		} else {
 			authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
 			if (authorization == null) {// search by session ID
-				HttpSession httpSession = request.getSession();
+				RemoteAuthSession httpSession = request.getSession();
 				if (httpSession == null) {
 					// TODO make sure this is always safe
 					if (log.isTraceEnabled())
@@ -156,7 +156,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		return true;
 	}
 
-	private void extractHttpAuth(final HttpRequest httpRequest) {
+	private void extractHttpAuth(final RemoteAuthRequest httpRequest) {
 		String authHeader = httpRequest.getHeader(CmsAuthUtils.HEADER_AUTHORIZATION);
 		extractHttpAuth(authHeader);
 	}
@@ -203,7 +203,7 @@ public class HttpSessionLoginModule implements LoginModule {
 		// }
 	}
 
-	private void extractClientCertificate(HttpRequest req) {
+	private void extractClientCertificate(RemoteAuthRequest req) {
 		X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
 		if (null != certs && certs.length > 0) {// Servlet container verified the client certificate
 			String certDn = certs[0].getSubjectX500Principal().getName();

@@ -48,7 +48,7 @@ public class AnonymousLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		Authorization authorization = userAdmin.getAuthorization(null);
-		HttpRequest request = (HttpRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		RemoteAuthRequest request = (RemoteAuthRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		Locale locale = Locale.getDefault();
 		if (request != null)
 			locale = request.getLocale();

@@ -122,12 +122,12 @@ class CmsAuthUtils {
 	}
 
 	@SuppressWarnings("unused")
-	synchronized static void registerSessionAuthorization(HttpRequest request, Subject subject,
+	synchronized static void registerSessionAuthorization(RemoteAuthRequest request, Subject subject,
 			Authorization authorization, Locale locale) {
 		// synchronized in order to avoid multiple registrations
 		// TODO move it to a service in order to avoid static synchronization
 		if (request != null) {
-			HttpSession httpSession = request.getSession();
+			RemoteAuthSession httpSession = request.getSession();
 			assert httpSession != null;
 			String httpSessId = httpSession.getId();
 			boolean anonymous = authorization.getName() == null;
