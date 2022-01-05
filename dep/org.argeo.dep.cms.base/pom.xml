@@ -9,8 +9,8 @@
 		<artifactId>dep</artifactId>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.dep.cms.minimal</artifactId>
-	<name>CMS Minimal</name>
+	<artifactId>org.argeo.dep.cms.base</artifactId>
+	<name>CMS Base</name>
 	<dependencies>
 
 		<!-- Argeo Commons -->
@@ -287,7 +287,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-minimal${argeo.rpm.suffix}</name>
+									<name>argeo-cms-base${argeo.rpm.suffix}</name>
 									<mappings>
 										<mapping>
 											<directory>/usr/share/osgi</directory>
@@ -306,7 +306,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-minimal-tp${argeo.rpm.suffix}</require>
+										<require>argeo-cms-base-tp${argeo.rpm.suffix}</require>
 										<require>argeo-osgi-boot${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
@@ -348,7 +348,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-cms-minimal-tp${argeo.rpm.suffix}</name>
+									<name>argeo-cms-base-tp${argeo.rpm.suffix}</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${argeo.rpm.release.tp}</release>
 									<mappings>

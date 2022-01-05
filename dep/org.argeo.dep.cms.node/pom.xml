@@ -17,7 +17,7 @@
 		<!-- Parent dependencies -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.dep.cms.minimal</artifactId>
+			<artifactId>org.argeo.dep.cms.base</artifactId>
 			<version>2.3-SNAPSHOT</version>
 			<type>pom</type>
 		</dependency>
@@ -267,7 +267,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-minimal{argeo.rpm.suffix}</require>
+										<require>argeo-cms-base{argeo.rpm.suffix}</require>
 										<require>argeo-cms-node-tp${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
@@ -330,7 +330,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-cms-minimal-tp${argeo.rpm.suffix}</require>
+										<require>argeo-cms-base-tp${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
 							</execution>
