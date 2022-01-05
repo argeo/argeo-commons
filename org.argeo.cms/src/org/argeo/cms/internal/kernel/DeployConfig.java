@@ -18,13 +18,12 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
-import org.argeo.naming.AttributesDictionary;
-import org.argeo.naming.LdifParser;
-import org.argeo.naming.LdifWriter;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.osgi.useradmin.UserAdminConf;
+import org.argeo.util.naming.AttributesDictionary;
+import org.argeo.util.naming.LdifParser;
+import org.argeo.util.naming.LdifWriter;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -35,7 +34,7 @@ import org.osgi.service.cm.ConfigurationListener;
 
 /** Manages the LDIF-based deployment configuration. */
 class DeployConfig implements ConfigurationListener {
-	private final Log log = LogFactory.getLog(getClass());
+	private final CmsLog log = CmsLog.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	private static Path deployConfigPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
@@ -92,16 +91,16 @@ class DeployConfig implements ConfigurationListener {
 				Dictionary<String, Object> userDirectoryConfig = userDirectoryConfigs.get(i);
 				String baseDn = (String) userDirectoryConfig.get(UserAdminConf.baseDn.name());
 				String cn;
-				if (NodeConstants.ROLES_BASEDN.equals(baseDn))
+				if (CmsConstants.ROLES_BASEDN.equals(baseDn))
 					cn = ROLES;
 				else
 					cn = UserAdminConf.baseDnHash(userDirectoryConfig);
 				activeCns.add(cn);
-				userDirectoryConfig.put(NodeConstants.CN, cn);
-				putFactoryDeployConfig(NodeConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
+				userDirectoryConfig.put(CmsConstants.CN, cn);
+				putFactoryDeployConfig(CmsConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
 			}
 			// disable others
-			LdapName userAdminFactoryName = serviceFactoryDn(NodeConstants.NODE_USER_ADMIN_PID);
+			LdapName userAdminFactoryName = serviceFactoryDn(CmsConstants.NODE_USER_ADMIN_PID);
 			for (LdapName name : deployConfigs.keySet()) {
 				if (name.startsWith(userAdminFactoryName) && !name.equals(userAdminFactoryName)) {
 //					try {
@@ -125,7 +124,7 @@ class DeployConfig implements ConfigurationListener {
 //			webServerConfig.put("customizer.class", "org.argeo.equinox.jetty.CmsJettyCustomizer");
 //			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
 //		}
-		LdapName defaultHttpServiceDn = serviceDn(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT);
+		LdapName defaultHttpServiceDn = serviceDn(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT);
 		if (deployConfigs.containsKey(defaultHttpServiceDn)) {
 			// remove old default configs since we have now to start Jetty servlet bridge
 			// indirectly
@@ -139,7 +138,7 @@ class DeployConfig implements ConfigurationListener {
 		// Explicitly configures Jetty so that the default server is not started by the
 		// activator of the Equinox Jetty bundle.
 		Dictionary<String, Object> webServerConfig = InitUtils
-				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
+				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT));
 //		if (!webServerConfig.isEmpty()) {
 //			webServerConfig.put("customizer.class", KernelConstants.CMS_JETTY_CUSTOMIZER_CLASS);
 //
@@ -203,8 +202,8 @@ class DeployConfig implements ConfigurationListener {
 		deployConfigs: for (LdapName dn : deployConfigs.keySet()) {
 			Rdn lastRdn = dn.getRdn(dn.size() - 1);
 			LdapName prefix = (LdapName) dn.getPrefix(dn.size() - 1);
-			if (prefix.toString().equals(NodeConstants.DEPLOY_BASEDN)) {
-				if (lastRdn.getType().equals(NodeConstants.CN)) {
+			if (prefix.toString().equals(CmsConstants.DEPLOY_BASEDN)) {
+				if (lastRdn.getType().equals(CmsConstants.CN)) {
 					// service
 					String pid = lastRdn.getValue().toString();
 					Configuration conf = configurationAdmin.getConfiguration(pid);
@@ -220,7 +219,7 @@ class DeployConfig implements ConfigurationListener {
 					continue deployConfigs;
 				// service factory service
 				Rdn beforeLastRdn = dn.getRdn(dn.size() - 2);
-				assert beforeLastRdn.getType().equals(NodeConstants.OU);
+				assert beforeLastRdn.getType().equals(CmsConstants.OU);
 				String factoryPid = beforeLastRdn.getValue().toString();
 				Configuration conf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
 				if (systemRolesDn.equals(dn)) {
@@ -253,7 +252,7 @@ class DeployConfig implements ConfigurationListener {
 						for (LdapName dn : deployConfigs.keySet()) {
 							if (dn.startsWith(serviceFactoryDn)) {
 								Rdn lastRdn = dn.getRdn(dn.size() - 1);
-								assert lastRdn.getType().equals(NodeConstants.CN);
+								assert lastRdn.getType().equals(CmsConstants.CN);
 								Object value = conf.getProperties().get(lastRdn.getType());
 								assert value != null;
 								if (value.equals(lastRdn.getValue())) {
@@ -263,7 +262,7 @@ class DeployConfig implements ConfigurationListener {
 							}
 						}
 
-						Object cn = conf.getProperties().get(NodeConstants.CN);
+						Object cn = conf.getProperties().get(CmsConstants.CN);
 						if (cn == null)
 							throw new IllegalArgumentException("Properties must contain cn");
 						if (serviceDn == null) {
@@ -299,12 +298,12 @@ class DeployConfig implements ConfigurationListener {
 	}
 
 	void putFactoryDeployConfig(String factoryPid, Dictionary<String, Object> props) {
-		Object cn = props.get(NodeConstants.CN);
+		Object cn = props.get(CmsConstants.CN);
 		if (cn == null)
 			throw new IllegalArgumentException("cn must be set in properties");
 		LdapName serviceFactoryDn = serviceFactoryDn(factoryPid);
 		if (!deployConfigs.containsKey(serviceFactoryDn))
-			deployConfigs.put(serviceFactoryDn, new BasicAttributes(NodeConstants.OU, factoryPid));
+			deployConfigs.put(serviceFactoryDn, new BasicAttributes(CmsConstants.OU, factoryPid));
 		LdapName serviceDn = serviceDn(factoryPid, cn.toString());
 		Attributes attrs = new BasicAttributes();
 		AttributesDictionary.copy(props, attrs);
@@ -313,7 +312,7 @@ class DeployConfig implements ConfigurationListener {
 
 	void putDeployConfig(String servicePid, Dictionary<String, Object> props) {
 		LdapName serviceDn = serviceDn(servicePid);
-		Attributes attrs = new BasicAttributes(NodeConstants.CN, servicePid);
+		Attributes attrs = new BasicAttributes(CmsConstants.CN, servicePid);
 		AttributesDictionary.copy(props, attrs);
 		deployConfigs.put(serviceDn, attrs);
 	}
@@ -332,7 +331,7 @@ class DeployConfig implements ConfigurationListener {
 	 */
 	private LdapName serviceFactoryDn(String factoryPid) {
 		try {
-			return new LdapName(NodeConstants.OU + "=" + factoryPid + "," + NodeConstants.DEPLOY_BASEDN);
+			return new LdapName(CmsConstants.OU + "=" + factoryPid + "," + CmsConstants.DEPLOY_BASEDN);
 		} catch (InvalidNameException e) {
 			throw new IllegalArgumentException("Cannot generate DN from " + factoryPid, e);
 		}
@@ -340,7 +339,7 @@ class DeployConfig implements ConfigurationListener {
 
 	private LdapName serviceDn(String servicePid) {
 		try {
-			return new LdapName(NodeConstants.CN + "=" + servicePid + "," + NodeConstants.DEPLOY_BASEDN);
+			return new LdapName(CmsConstants.CN + "=" + servicePid + "," + CmsConstants.DEPLOY_BASEDN);
 		} catch (InvalidNameException e) {
 			throw new IllegalArgumentException("Cannot generate DN from " + servicePid, e);
 		}
@@ -348,7 +347,7 @@ class DeployConfig implements ConfigurationListener {
 
 	private LdapName serviceDn(String factoryPid, String cn) {
 		try {
-			return (LdapName) serviceFactoryDn(factoryPid).add(new Rdn(NodeConstants.CN, cn));
+			return (LdapName) serviceFactoryDn(factoryPid).add(new Rdn(CmsConstants.CN, cn));
 		} catch (InvalidNameException e) {
 			throw new IllegalArgumentException("Cannot generate DN from " + factoryPid + " and " + cn, e);
 		}

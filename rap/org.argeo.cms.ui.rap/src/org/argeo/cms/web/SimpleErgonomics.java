@@ -7,9 +7,8 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.UxContext;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.swt.CmsStyles;
@@ -31,7 +30,7 @@ import org.eclipse.swt.widgets.Control;
 public class SimpleErgonomics extends AbstractCmsEntryPoint {
 	private static final long serialVersionUID = 8743413921359548523L;
 
-	private final static Log log = LogFactory.getLog(SimpleErgonomics.class);
+	private final static CmsLog log = CmsLog.getLog(SimpleErgonomics.class);
 
 	private boolean uiInitialized = false;
 	private Composite headerArea;

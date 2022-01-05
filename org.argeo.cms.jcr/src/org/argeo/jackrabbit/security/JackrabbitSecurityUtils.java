@@ -8,15 +8,14 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.security.Privilege;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.security.JackrabbitAccessControlList;
 import org.apache.jackrabbit.api.security.JackrabbitAccessControlManager;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.jcr.JcrUtils;
 
 /** Utilities around Jackrabbit security extensions. */
 public class JackrabbitSecurityUtils {
-	private final static Log log = LogFactory.getLog(JackrabbitSecurityUtils.class);
+	private final static CmsLog log = CmsLog.getLog(JackrabbitSecurityUtils.class);
 
 	/**
 	 * Convenience method for denying a single privilege to a principal (user or

@@ -15,7 +15,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.naming.LdapAttrs;
+import org.argeo.util.naming.LdapAttrs;
 
 /** A synchronized wrapper for a single {@link InitialLdapContext}. */
 // TODO implement multiple contexts and connection pooling.

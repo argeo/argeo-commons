@@ -1,7 +1,7 @@
 package org.argeo.cms.e4.users;
 
 import org.argeo.cms.e4.CmsE4Utils;
-import org.argeo.naming.LdapAttrs;
+import org.argeo.util.naming.LdapAttrs;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;

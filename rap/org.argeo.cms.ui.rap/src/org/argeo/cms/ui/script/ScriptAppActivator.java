@@ -2,8 +2,7 @@ package org.argeo.cms.ui.script;
 
 import javax.jcr.Repository;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -11,7 +10,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class ScriptAppActivator implements BundleActivator {
-	private final static Log log = LogFactory.getLog(ScriptAppActivator.class);
+	private final static CmsLog log = CmsLog.getLog(ScriptAppActivator.class);
 
 	@Override
 	public void start(BundleContext context) throws Exception {

@@ -13,9 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.jcr.JcrException;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.jcr.Bin;
 import org.argeo.jcr.JcrUtils;
 
@@ -23,7 +22,7 @@ import org.argeo.jcr.JcrUtils;
 public class ResourceProxyServlet extends HttpServlet {
 	private static final long serialVersionUID = -8886549549223155801L;
 
-	private final static Log log = LogFactory
+	private final static CmsLog log = CmsLog
 			.getLog(ResourceProxyServlet.class);
 
 	private ResourceProxy proxy;

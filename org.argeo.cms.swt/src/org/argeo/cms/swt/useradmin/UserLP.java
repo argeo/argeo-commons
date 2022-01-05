@@ -1,6 +1,6 @@
 package org.argeo.cms.swt.useradmin;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -46,7 +46,7 @@ class UserLP extends ColumnLabelProvider {
 		if (COL_ICON.equals(currType)) {
 			User user = (User) element;
 			String dn = user.getName();
-			if (dn.endsWith(NodeConstants.ROLES_BASEDN))
+			if (dn.endsWith(CmsConstants.ROLES_BASEDN))
 				return UsersImages.ICON_ROLE;
 			else if (user.getType() == Role.GROUP)
 				return UsersImages.ICON_GROUP;

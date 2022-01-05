@@ -12,9 +12,9 @@ import javax.inject.Inject;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.api.security.CryptoKeyring;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.security.CryptoKeyring;
 import org.argeo.cms.swt.dialogs.CmsMessageDialog;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.osgi.transaction.WorkTransaction;

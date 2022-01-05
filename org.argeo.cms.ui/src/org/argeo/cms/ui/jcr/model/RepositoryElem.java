@@ -4,7 +4,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.JcrUtils;
@@ -31,7 +31,7 @@ public class RepositoryElem extends TreeParent {
 
 	public void login() {
 		try {
-			defaultSession = repositoryLogin(NodeConstants.SYS_WORKSPACE);
+			defaultSession = repositoryLogin(CmsConstants.SYS_WORKSPACE);
 			String[] wkpNames = defaultSession.getWorkspace().getAccessibleWorkspaceNames();
 			for (String wkpName : wkpNames) {
 				if (wkpName.equals(defaultSession.getWorkspace().getName()))

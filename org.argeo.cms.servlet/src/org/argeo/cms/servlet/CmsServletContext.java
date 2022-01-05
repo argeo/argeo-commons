@@ -11,9 +11,8 @@ import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.servlet.internal.HttpUtils;
@@ -26,7 +25,7 @@ import org.osgi.service.http.context.ServletContextHelper;
  * pre-authenticated.
  */
 public class CmsServletContext extends ServletContextHelper {
-	private final static Log log = LogFactory.getLog(CmsServletContext.class);
+	private final static CmsLog log = CmsLog.getLog(CmsServletContext.class);
 	// use CMS bundle for resources
 	private Bundle bundle = FrameworkUtil.getBundle(getClass());
 
@@ -44,7 +43,7 @@ public class CmsServletContext extends ServletContextHelper {
 			HttpUtils.logRequestHeaders(log, request);
 		LoginContext lc;
 		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+			lc = CmsAuth.USER.newLoginContext(
 					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
 			lc.login();
 		} catch (LoginException e) {
@@ -78,7 +77,7 @@ public class CmsServletContext extends ServletContextHelper {
 	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
 		// anonymous
 		try {
-			LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS,
+			LoginContext lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS,
 					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
 			lc.login();
 			return lc;

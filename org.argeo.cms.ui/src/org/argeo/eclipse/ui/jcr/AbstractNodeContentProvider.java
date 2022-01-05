@@ -8,8 +8,7 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.eclipse.ui.AbstractTreeContentProvider;
 import org.argeo.eclipse.ui.EclipseUiException;
 
@@ -18,7 +17,7 @@ public abstract class AbstractNodeContentProvider extends
 		AbstractTreeContentProvider {
 	private static final long serialVersionUID = -4905836490027272569L;
 
-	private final static Log log = LogFactory
+	private final static CmsLog log = CmsLog
 			.getLog(AbstractNodeContentProvider.class);
 
 	private Session session;

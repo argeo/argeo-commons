@@ -3,17 +3,16 @@ package org.argeo.cms.jcr.internal;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.stats.RepositoryStatistics;
 import org.apache.jackrabbit.stats.RepositoryStatisticsImpl;
+import org.argeo.api.cms.CmsLog;
 
 /**
  * Background thread started by the kernel, which gather statistics and
  * monitor/control other processes.
  */
 public class StatisticsThread extends Thread {
-	private final static Log log = LogFactory.getLog(StatisticsThread.class);
+	private final static CmsLog log = CmsLog.getLog(StatisticsThread.class);
 
 	private RepositoryStatisticsImpl repoStats;
 
@@ -25,8 +24,8 @@ public class StatisticsThread extends Thread {
 
 	private boolean running = true;
 
-	private Log kernelStatsLog = LogFactory.getLog("argeo.stats.kernel");
-	private Log nodeStatsLog = LogFactory.getLog("argeo.stats.node");
+	private CmsLog kernelStatsLog = CmsLog.getLog("argeo.stats.kernel");
+	private CmsLog nodeStatsLog = CmsLog.getLog("argeo.stats.node");
 
 	@SuppressWarnings("unused")
 	private long cycle = 0l;

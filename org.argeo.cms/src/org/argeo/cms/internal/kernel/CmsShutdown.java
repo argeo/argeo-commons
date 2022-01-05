@@ -1,7 +1,6 @@
 package org.argeo.cms.internal.kernel;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkUtil;
@@ -14,7 +13,7 @@ class CmsShutdown extends Thread {
 	public final int EXIT_TIMEOUT = 2;
 	public final int EXIT_UNKNOWN = 3;
 
-	private final Log log = LogFactory.getLog(CmsShutdown.class);
+	private final CmsLog log = CmsLog.getLog(CmsShutdown.class);
 	// private final BundleContext bc =
 	// FrameworkUtil.getBundle(CmsShutdown.class).getBundleContext();
 	private final Framework framework;

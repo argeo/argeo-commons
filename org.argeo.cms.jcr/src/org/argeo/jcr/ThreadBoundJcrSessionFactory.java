@@ -17,13 +17,12 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 
 /** Proxy JCR sessions and attach them to calling threads. */
 @Deprecated
 public abstract class ThreadBoundJcrSessionFactory {
-	private final static Log log = LogFactory.getLog(ThreadBoundJcrSessionFactory.class);
+	private final static CmsLog log = CmsLog.getLog(ThreadBoundJcrSessionFactory.class);
 
 	private Repository repository;
 	/** can be injected as list, only used if repository is null */

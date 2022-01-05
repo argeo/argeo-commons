@@ -8,7 +8,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
-import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.CmsUiConstants;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -25,7 +25,7 @@ public class PropertyLabelProvider extends ColumnLabelProvider {
 	public static final int COLUMN_ATTRIBUTES = 3;
 
 	// Utils
-	protected DateFormat timeFormatter = new SimpleDateFormat(CmsConstants.DATE_TIME_FORMAT);
+	protected DateFormat timeFormatter = new SimpleDateFormat(CmsUiConstants.DATE_TIME_FORMAT);
 
 	public void update(ViewerCell cell) {
 		Object element = cell.getElement();

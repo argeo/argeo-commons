@@ -6,7 +6,7 @@ import javax.jcr.Repository;
 
 import org.apache.jackrabbit.server.SessionProvider;
 import org.apache.jackrabbit.server.remoting.davex.JcrRemotingServlet;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 
 /** A {@link JcrRemotingServlet} based on {@link CmsSessionProvider}. */
 public class CmsRemotingServlet extends JcrRemotingServlet {
@@ -29,7 +29,7 @@ public class CmsRemotingServlet extends JcrRemotingServlet {
 
 	public void setRepository(Repository repository, Map<String, String> properties) {
 		this.repository = repository;
-		String alias = properties.get(NodeConstants.CN);
+		String alias = properties.get(CmsConstants.CN);
 		if (alias != null)
 			sessionProvider = new CmsSessionProvider(alias);
 		else

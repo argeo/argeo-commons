@@ -11,9 +11,9 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
-import org.argeo.api.NodeConstants;
-import org.argeo.api.security.Keyring;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.jcr.CmsJcrUtils;
+import org.argeo.cms.security.Keyring;
 import org.argeo.cms.ui.jcr.model.RepositoriesElem;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
 import org.argeo.eclipse.ui.TreeParent;
@@ -62,7 +62,7 @@ public class NodeContentProvider implements ITreeContentProvider {
 				if (homeNode != null)
 					homeNode.dispose();
 				homeNode = new SingleJcrNodeElem(null, userHome,
-						userSession.getUserID(), NodeConstants.EGO_REPOSITORY);
+						userSession.getUserID(), CmsConstants.EGO_REPOSITORY);
 			}
 		}
 		if (repositoryRegister != null) {

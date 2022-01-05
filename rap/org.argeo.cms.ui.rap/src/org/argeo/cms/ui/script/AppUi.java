@@ -9,7 +9,7 @@ import javax.jcr.RepositoryException;
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.Selected;
 import org.argeo.cms.ui.CmsUiProvider;
@@ -79,7 +79,7 @@ public class AppUi implements CmsUiProvider, Branding {
 			EntryPointFactory entryPointFactory = new EntryPointFactory() {
 				@Override
 				public EntryPoint create() {
-					SimpleErgonomics ergonomics = new SimpleErgonomics(repository, NodeConstants.SYS_WORKSPACE,
+					SimpleErgonomics ergonomics = new SimpleErgonomics(repository, CmsConstants.SYS_WORKSPACE,
 							"/home/root/argeo:keyring", AppUi.this, factoryProperties);
 //					CmsUiProvider header = app.getHeader();
 //					if (header != null)

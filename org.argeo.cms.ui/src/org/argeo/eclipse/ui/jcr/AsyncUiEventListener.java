@@ -8,8 +8,7 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.widgets.Display;
 
@@ -19,7 +18,7 @@ import org.eclipse.swt.widgets.Display;
 public abstract class AsyncUiEventListener implements EventListener {
 	// private final static Log logSuper = LogFactory
 	// .getLog(AsyncUiEventListener.class);
-	private final Log logThis = LogFactory.getLog(getClass());
+	private final CmsLog logThis = CmsLog.getLog(getClass());
 
 	private final Display display;
 
@@ -39,7 +38,7 @@ public abstract class AsyncUiEventListener implements EventListener {
 		return true;
 	}
 
-	protected Log getLog() {
+	protected CmsLog getLog() {
 		return logThis;
 	}
 

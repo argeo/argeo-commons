@@ -3,13 +3,13 @@ package org.argeo.cms.swt.useradmin;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.LdapObjs;
+import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.LdapObjs;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -214,7 +214,7 @@ public class PickUpUserDialog extends TrayDialog {
 
 				if (!showSystemRoleBtn.getSelection())
 					typeStr = "(& " + typeStr + "(!(" + LdapAttrs.DN + "=*"
-							+ NodeConstants.ROLES_BASEDN + ")))";
+							+ CmsConstants.ROLES_BASEDN + ")))";
 
 				if (filterBuilder.length() > 1) {
 					builder.append("(&" + typeStr);

@@ -3,9 +3,8 @@ package org.argeo.cms.swt.dialogs;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.swt.CmsSwtUtils;
@@ -18,7 +17,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Dialog to change a password. */
 public class ChangePasswordDialog extends CmsMessageDialog {
-	private final static Log log = LogFactory.getLog(ChangePasswordDialog.class);
+	private final static CmsLog log = CmsLog.getLog(ChangePasswordDialog.class);
 
 	private CmsUserManager cmsUserManager;
 	private CmsView cmsView;

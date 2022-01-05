@@ -11,9 +11,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.Subject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.CmsEditable;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.ui.widgets.ScrolledPage;
 import org.argeo.jcr.JcrException;
 import org.eclipse.jface.viewers.ContentViewer;
@@ -33,7 +32,7 @@ import org.xml.sax.SAXParseException;
 public abstract class AbstractPageViewer extends ContentViewer implements Observer {
 	private static final long serialVersionUID = 5438688173410341485L;
 
-	private final static Log log = LogFactory.getLog(AbstractPageViewer.class);
+	private final static CmsLog log = CmsLog.getLog(AbstractPageViewer.class);
 
 	private final boolean readOnly;
 	/** The basis for the layouts, typically a ScrolledPage. */

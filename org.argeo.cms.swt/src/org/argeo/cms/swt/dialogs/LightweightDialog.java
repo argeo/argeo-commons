@@ -1,7 +1,6 @@
 package org.argeo.cms.swt.dialogs;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -19,7 +18,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Generic lightweight dialog, not based on JFace. */
 public class LightweightDialog {
-	private final static Log log = LogFactory.getLog(LightweightDialog.class);
+	private final static CmsLog log = CmsLog.getLog(LightweightDialog.class);
 
 	// must be the same value as org.eclipse.jface.window.Window#OK
 	public final static int OK = 0;

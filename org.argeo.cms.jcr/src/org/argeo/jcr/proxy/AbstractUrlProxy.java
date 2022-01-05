@@ -12,14 +12,13 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 
 /** Base class for URL based proxys. */
 public abstract class AbstractUrlProxy implements ResourceProxy {
-	private final static Log log = LogFactory.getLog(AbstractUrlProxy.class);
+	private final static CmsLog log = CmsLog.getLog(AbstractUrlProxy.class);
 
 	private Repository jcrRepository;
 	private Session jcrAdminSession;

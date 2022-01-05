@@ -3,14 +3,13 @@ package org.argeo.cms.e4.rap;
 import java.util.Enumeration;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.eclipse.rap.rwt.application.Application;
 import org.osgi.framework.Bundle;
 
 /** Simple RAP app which loads all e4xmi files. */
 public class SimpleRapE4App extends AbstractRapE4App {
-	private final static Log log = LogFactory.getLog(SimpleRapE4App.class);
+	private final static CmsLog log = CmsLog.getLog(SimpleRapE4App.class);
 
 	private String baseE4xmi = "/e4xmi";
 

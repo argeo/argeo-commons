@@ -7,11 +7,10 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsImageManager;
 import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.UxContext;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.swt.CmsSwtUtils;
@@ -33,7 +32,7 @@ import org.osgi.service.event.EventHandler;
 
 @SuppressWarnings("restriction")
 public class CmsLoginLifecycle implements CmsView {
-	private final static Log log = LogFactory.getLog(CmsLoginLifecycle.class);
+	private final static CmsLog log = CmsLog.getLog(CmsLoginLifecycle.class);
 
 	private UxContext uxContext;
 	private CmsImageManager imageManager;
@@ -68,7 +67,7 @@ public class CmsLoginLifecycle implements CmsView {
 		loginShell.setSubject(subject);
 		try {
 			// try pre-auth
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject, loginShell);
+			loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, subject, loginShell);
 			loginContext.login();
 		} catch (LoginException e) {
 			loginShell.createUi();

@@ -16,13 +16,13 @@ import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.jcr.Jcr;
 
 /** Utilities around documents. */
 public class CmsFsUtils {
 	// TODO make it more robust and configurable
-	private static String baseWorkspaceName = NodeConstants.SYS_WORKSPACE;
+	private static String baseWorkspaceName = CmsConstants.SYS_WORKSPACE;
 
 	public static Node getNode(Repository repository, Path path) {
 		String workspaceName = path.getNameCount() == 0 ? baseWorkspaceName : path.getName(0).toString();
@@ -75,7 +75,7 @@ public class CmsFsUtils {
 				: '/' + workspaceName + Jcr.getPath(node);
 		URI uri;
 		try {
-			uri = new URI(NodeConstants.SCHEME_NODE, null, fullPath, null);
+			uri = new URI(CmsConstants.SCHEME_NODE, null, fullPath, null);
 		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException("Cannot interpret " + fullPath + " as an URI", e);
 		}

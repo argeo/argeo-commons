@@ -7,9 +7,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
@@ -27,8 +26,8 @@ import org.argeo.cms.e4.users.providers.UserDragListener;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.LdapObjs;
+import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.LdapObjs;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
@@ -56,7 +55,7 @@ import org.osgi.service.useradmin.UserAdminListener;
 
 /** List all groups with filter */
 public class GroupsView {
-	private final static Log log = LogFactory.getLog(GroupsView.class);
+	private final static CmsLog log = CmsLog.getLog(GroupsView.class);
 	// public final static String ID = WorkbenchUiPlugin.PLUGIN_ID + ".groupsView";
 
 	@Inject
@@ -155,14 +154,14 @@ public class GroupsView {
 
 		public MyUserTableViewer(Composite parent, int style) {
 			super(parent, style);
-			showSystemRoles = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
+			showSystemRoles = CurrentUser.isInRole(CmsConstants.ROLE_ADMIN);
 		}
 
 		protected void populateStaticFilters(Composite staticFilterCmp) {
 			staticFilterCmp.setLayout(new GridLayout());
 			final Button showSystemRoleBtn = new Button(staticFilterCmp, SWT.CHECK);
 			showSystemRoleBtn.setText("Show system roles");
-			showSystemRoles = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
+			showSystemRoles = CurrentUser.isInRole(CmsConstants.ROLE_ADMIN);
 			showSystemRoleBtn.setSelection(showSystemRoles);
 
 			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {
@@ -195,11 +194,11 @@ public class GroupsView {
 					builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
 							.append(LdapObjs.groupOfNames.name()).append(")");
 					// hide tokens
-					builder.append("(!(").append(LdapAttrs.DN).append("=*").append(NodeConstants.TOKENS_BASEDN)
+					builder.append("(!(").append(LdapAttrs.DN).append("=*").append(CmsConstants.TOKENS_BASEDN)
 							.append("))");
 
 					if (!showSystemRoles)
-						builder.append("(!(").append(LdapAttrs.DN).append("=*").append(NodeConstants.ROLES_BASEDN)
+						builder.append("(!(").append(LdapAttrs.DN).append("=*").append(CmsConstants.ROLES_BASEDN)
 								.append("))");
 					builder.append("(|");
 					builder.append(tmpBuilder.toString());
@@ -208,12 +207,12 @@ public class GroupsView {
 					if (!showSystemRoles)
 						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
 								.append(LdapObjs.groupOfNames.name()).append(")(!(").append(LdapAttrs.DN).append("=*")
-								.append(NodeConstants.ROLES_BASEDN).append("))(!(").append(LdapAttrs.DN).append("=*")
-								.append(NodeConstants.TOKENS_BASEDN).append(")))");
+								.append(CmsConstants.ROLES_BASEDN).append("))(!(").append(LdapAttrs.DN).append("=*")
+								.append(CmsConstants.TOKENS_BASEDN).append(")))");
 					else
 						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
 								.append(LdapObjs.groupOfNames.name()).append(")(!(").append(LdapAttrs.DN).append("=*")
-								.append(NodeConstants.TOKENS_BASEDN).append(")))");
+								.append(CmsConstants.TOKENS_BASEDN).append(")))");
 
 				}
 				roles = userAdminWrapper.getUserAdmin().getRoles(builder.toString());

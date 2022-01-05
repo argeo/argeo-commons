@@ -1,7 +1,7 @@
 package org.argeo.osgi.useradmin;
 
-import static org.argeo.naming.LdapAttrs.description;
-import static org.argeo.naming.LdapAttrs.owner;
+import static org.argeo.util.naming.LdapAttrs.description;
+import static org.argeo.util.naming.LdapAttrs.owner;
 
 import java.security.Principal;
 import java.time.Instant;
@@ -12,7 +12,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 
-import org.argeo.naming.NamingUtils;
+import org.argeo.util.naming.NamingUtils;
 import org.osgi.service.useradmin.Group;
 
 /**

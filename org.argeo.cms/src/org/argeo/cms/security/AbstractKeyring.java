@@ -26,10 +26,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.api.NodeConstants;
-import org.argeo.api.security.CryptoKeyring;
-import org.argeo.api.security.Keyring;
-import org.argeo.api.security.PBEKeySpecCallback;
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.cms.CmsException;
 
 /** username / password based keyring. TODO internationalize */
@@ -77,7 +74,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 			ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
 			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 			try {
-				LoginContext loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_KEYRING, subject,
+				LoginContext loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_KEYRING, subject,
 						callbackHandler);
 				loginContext.login();
 				// FIXME will login even if password is wrong

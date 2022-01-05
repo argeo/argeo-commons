@@ -7,8 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.eclipse.e4.ui.model.application.MApplication;
@@ -19,7 +18,7 @@ import org.eclipse.e4.ui.model.application.ui.basic.MTrimmedWindow;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 
 public class AuthAddon {
-	private final static Log log = LogFactory.getLog(AuthAddon.class);
+	private final static CmsLog log = CmsLog.getLog(AuthAddon.class);
 
 	public final static String AUTH = "auth.";
 

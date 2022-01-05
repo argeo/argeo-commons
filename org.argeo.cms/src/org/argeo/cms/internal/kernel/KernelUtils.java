@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.osgi.DataModelNamespace;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -120,7 +120,7 @@ class KernelUtils implements KernelConstants {
 	// }
 	// }
 
-	static void logFrameworkProperties(Log log) {
+	static void logFrameworkProperties(CmsLog log) {
 		BundleContext bc = getBundleContext();
 		for (Object sysProp : new TreeSet<Object>(System.getProperties().keySet())) {
 			log.debug(sysProp + "=" + bc.getProperty(sysProp.toString()));

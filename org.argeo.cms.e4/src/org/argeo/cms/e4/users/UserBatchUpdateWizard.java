@@ -5,9 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
@@ -18,9 +17,9 @@ import org.argeo.cms.e4.users.providers.UserNameLP;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.LdapObjs;
 import org.argeo.osgi.transaction.WorkTransaction;
+import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.LdapObjs;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -47,7 +46,7 @@ import org.osgi.service.useradmin.UserAdminEvent;
 /** Wizard to update users */
 public class UserBatchUpdateWizard extends Wizard {
 
-	private final static Log log = LogFactory.getLog(UserBatchUpdateWizard.class);
+	private final static CmsLog log = CmsLog.getLog(UserBatchUpdateWizard.class);
 	private UserAdminWrapper userAdminWrapper;
 
 	// pages
@@ -463,7 +462,7 @@ public class UserBatchUpdateWizard extends Wizard {
 			columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
 
 			// Only show technical DN to admin
-			if (CurrentUser.isInRole(NodeConstants.ROLE_ADMIN))
+			if (CurrentUser.isInRole(CmsConstants.ROLE_ADMIN))
 				columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 300));
 
 			userTableCmp = new ChooseUserTableViewer(pageCmp, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -562,7 +561,7 @@ public class UserBatchUpdateWizard extends Wizard {
 			columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
 			columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
 			// Only show technical DN to admin
-			if (CurrentUser.isInRole(NodeConstants.ROLE_ADMIN))
+			if (CurrentUser.isInRole(CmsConstants.ROLE_ADMIN))
 				columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 300));
 			userTableCmp = new ChosenUsersTableViewer(pageCmp, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 			userTableCmp.setLayoutData(EclipseUiUtils.fillAll());

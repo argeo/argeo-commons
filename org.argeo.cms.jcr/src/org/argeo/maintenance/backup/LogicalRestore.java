@@ -11,9 +11,8 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
@@ -22,7 +21,7 @@ import org.osgi.framework.BundleContext;
 
 /** Restores a backup in the format defined by {@link LogicalBackup}. */
 public class LogicalRestore implements Runnable {
-	private final static Log log = LogFactory.getLog(LogicalRestore.class);
+	private final static CmsLog log = CmsLog.getLog(LogicalRestore.class);
 
 	private final Repository repository;
 	private final BundleContext bundleContext;

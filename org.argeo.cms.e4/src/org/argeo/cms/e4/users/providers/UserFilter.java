@@ -2,9 +2,9 @@ package org.argeo.cms.e4.users.providers;
 
 import static org.argeo.eclipse.ui.EclipseUiUtils.notEmpty;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.auth.UserAdminUtils;
-import org.argeo.naming.LdapAttrs;
+import org.argeo.util.naming.LdapAttrs;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.osgi.service.useradmin.User;
@@ -37,7 +37,7 @@ public class UserFilter extends ViewerFilter {
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		User user = (User) element;
-		if (!showSystemRole && user.getName().matches(".*(" + NodeConstants.ROLES_BASEDN + ")"))
+		if (!showSystemRole && user.getName().matches(".*(" + CmsConstants.ROLES_BASEDN + ")"))
 			// UserAdminUtils.getProperty(user, LdifName.dn.name())
 			// .toLowerCase().endsWith(AuthConstants.ROLES_BASEDN))
 			return false;

@@ -26,15 +26,12 @@ import javax.jcr.Session;
 import javax.security.auth.callback.CallbackHandler;
 import javax.servlet.Servlet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
-import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeDeployment;
-import org.argeo.api.security.CryptoKeyring;
-import org.argeo.api.security.Keyring;
+import org.argeo.api.cms.CmsDeployment;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.internal.jcr.JcrInitUtils;
 import org.argeo.cms.jcr.CmsJcrUtils;
@@ -42,11 +39,13 @@ import org.argeo.cms.jcr.internal.servlet.CmsRemotingServlet;
 import org.argeo.cms.jcr.internal.servlet.CmsWebDavServlet;
 import org.argeo.cms.jcr.internal.servlet.JcrHttpUtils;
 import org.argeo.cms.osgi.DataModelNamespace;
+import org.argeo.cms.security.CryptoKeyring;
+import org.argeo.cms.security.Keyring;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.naming.LdapAttrs;
 import org.argeo.util.LangUtils;
+import org.argeo.util.naming.LdapAttrs;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -62,7 +61,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /** Implementation of a CMS deployment. */
 public class JcrDeployment {
-	private final Log log = LogFactory.getLog(getClass());
+	private final CmsLog log = CmsLog.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	private DataModels dataModels;
@@ -73,7 +72,7 @@ public class JcrDeployment {
 	// Readiness
 	private boolean nodeAvailable = false;
 
-	NodeDeployment nodeDeployment;
+	CmsDeployment nodeDeployment;
 
 	public JcrDeployment() {
 		dataModels = new DataModels(bc);
@@ -107,7 +106,7 @@ public class JcrDeployment {
 
 	}
 
-	public void setNodeDeployment(NodeDeployment nodeDeployment) {
+	public void setNodeDeployment(CmsDeployment nodeDeployment) {
 		this.nodeDeployment = nodeDeployment;
 	}
 
@@ -144,7 +143,7 @@ public class JcrDeployment {
 //		}
 
 		// home
-		prepareDataModel(NodeConstants.NODE_REPOSITORY, deployedNodeRepository, publishAsLocalRepo);
+		prepareDataModel(CmsConstants.NODE_REPOSITORY, deployedNodeRepository, publishAsLocalRepo);
 
 		// init from backup
 //		if (deployConfig.isFirstInit()) {
@@ -162,7 +161,7 @@ public class JcrDeployment {
 		Collection<ServiceReference<Repository>> initRepositorySr;
 		try {
 			initRepositorySr = bc.getServiceReferences(Repository.class,
-					"(" + NodeConstants.CN + "=" + NodeConstants.NODE_INIT + ")");
+					"(" + CmsConstants.CN + "=" + CmsConstants.NODE_INIT + ")");
 		} catch (InvalidSyntaxException e1) {
 			throw new IllegalArgumentException(e1);
 		}
@@ -241,11 +240,11 @@ public class JcrDeployment {
 
 		// Publish home with the highest service ranking
 		Hashtable<String, Object> regProps = new Hashtable<>();
-		regProps.put(NodeConstants.CN, NodeConstants.EGO_REPOSITORY);
+		regProps.put(CmsConstants.CN, CmsConstants.EGO_REPOSITORY);
 		regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 		Repository egoRepository = new EgoRepository(deployedRepository, false);
 		bc.registerService(Repository.class, egoRepository, regProps);
-		registerRepositoryServlets(NodeConstants.EGO_REPOSITORY, egoRepository);
+		registerRepositoryServlets(CmsConstants.EGO_REPOSITORY, egoRepository);
 
 		// Keyring only if Argeo extensions are available
 		if (argeoDataModelExtensionsAvailable) {
@@ -257,7 +256,7 @@ public class JcrDeployment {
 					CallbackHandler callbackHandler = bc.getService(reference);
 					nodeKeyring.setDefaultCallbackHandler(callbackHandler);
 					bc.registerService(LangUtils.names(Keyring.class, CryptoKeyring.class, ManagedService.class),
-							nodeKeyring, LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_KEYRING_PID));
+							nodeKeyring, LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_KEYRING_PID));
 					return callbackHandler;
 				}
 
@@ -274,7 +273,7 @@ public class JcrDeployment {
 				BundleWiring wiring = bundle.adapt(BundleWiring.class);
 				if (wiring == null)
 					continue bundles;
-				if (NodeConstants.NODE_REPOSITORY.equals(cn))// process all data models
+				if (CmsConstants.NODE_REPOSITORY.equals(cn))// process all data models
 					processWiring(cn, adminSession, wiring, processed, false, publishAsLocalRepo);
 				else {
 					List<BundleCapability> capabilities = wiring.getCapabilities(CMS_DATA_MODEL_NAMESPACE);
@@ -348,7 +347,7 @@ public class JcrDeployment {
 		boolean publishLocalRepo;
 		if (isStandalone && name.equals(cn))// includes the node itself
 			publishLocalRepo = true;
-		else if (!isStandalone && cn.equals(NodeConstants.NODE_REPOSITORY))
+		else if (!isStandalone && cn.equals(CmsConstants.NODE_REPOSITORY))
 			publishLocalRepo = true;
 		else
 			publishLocalRepo = false;
@@ -357,12 +356,12 @@ public class JcrDeployment {
 	}
 
 	boolean isStandalone(String dataModelName) {
-		return nodeDeployment.getProps(NodeConstants.NODE_REPOS_FACTORY_PID, dataModelName) != null;
+		return nodeDeployment.getProps(CmsConstants.NODE_REPOS_FACTORY_PID, dataModelName) != null;
 	}
 
 	private void publishLocalRepo(String dataModelName, Repository repository) {
 		Hashtable<String, Object> properties = new Hashtable<>();
-		properties.put(NodeConstants.CN, dataModelName);
+		properties.put(CmsConstants.CN, dataModelName);
 		LocalRepository localRepository;
 		String[] classes;
 		if (repository instanceof RepositoryImpl) {
@@ -405,14 +404,14 @@ public class JcrDeployment {
 
 		ip.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/" + alias + "/*");
 		ip.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT,
-				"(" + HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH + "=" + NodeConstants.PATH_DATA + ")");
+				"(" + HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH + "=" + CmsConstants.PATH_DATA + ")");
 		bc.registerService(Servlet.class, webdavServlet, ip);
 	}
 
 	protected void registerRemotingServlet(String alias, Repository repository) {
 		CmsRemotingServlet remotingServlet = new CmsRemotingServlet(alias, repository);
 		Hashtable<String, String> ip = new Hashtable<>();
-		ip.put(NodeConstants.CN, alias);
+		ip.put(CmsConstants.CN, alias);
 		// Properties ip = new Properties();
 		ip.put(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX + CmsRemotingServlet.INIT_PARAM_RESOURCE_PATH_PREFIX,
 				"/" + alias);
@@ -435,7 +434,7 @@ public class JcrDeployment {
 
 		ip.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/" + alias + "/*");
 		ip.put(HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT,
-				"(" + HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH + "=" + NodeConstants.PATH_JCR + ")");
+				"(" + HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_PATH + "=" + CmsConstants.PATH_JCR + ")");
 		bc.registerService(Servlet.class, remotingServlet, ip);
 	}
 
@@ -448,10 +447,10 @@ public class JcrDeployment {
 		@Override
 		public RepositoryContext addingService(ServiceReference<RepositoryContext> reference) {
 			RepositoryContext repoContext = bc.getService(reference);
-			String cn = (String) reference.getProperty(NodeConstants.CN);
+			String cn = (String) reference.getProperty(CmsConstants.CN);
 			if (cn != null) {
 				List<String> publishAsLocalRepo = new ArrayList<>();
-				if (cn.equals(NodeConstants.NODE_REPOSITORY)) {
+				if (cn.equals(CmsConstants.NODE_REPOSITORY)) {
 //					JackrabbitDataModelMigration.clearRepositoryCaches(repoContext.getRepositoryConfig());
 					prepareNodeRepository(repoContext.getRepository(), publishAsLocalRepo);
 					// TODO separate home repository

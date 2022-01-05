@@ -21,9 +21,8 @@ import java.util.List;
 import javax.security.auth.x500.X500Principal;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.http.InternalHttpConstants;
 import org.argeo.osgi.useradmin.UserAdminConf;
 
@@ -32,7 +31,7 @@ import org.argeo.osgi.useradmin.UserAdminConf;
  * configuration.
  */
 class InitUtils {
-	private final static Log log = LogFactory.getLog(InitUtils.class);
+	private final static CmsLog log = CmsLog.getLog(InitUtils.class);
 
 
 	/** Override the provided config with the framework properties */
@@ -118,7 +117,7 @@ class InitUtils {
 			if (webSocketEnabled != null && webSocketEnabled.equals("true"))
 				props.put(InternalHttpConstants.WEBSOCKET_ENABLED, true);
 
-			props.put(NodeConstants.CN, NodeConstants.DEFAULT);
+			props.put(CmsConstants.CN, CmsConstants.DEFAULT);
 		}
 		return props;
 	}
@@ -129,8 +128,8 @@ class InitUtils {
 		List<String> uris = new ArrayList<>();
 
 		// node roles
-		String nodeRolesUri = getFrameworkProp(NodeConstants.ROLES_URI);
-		String baseNodeRoleDn = NodeConstants.ROLES_BASEDN;
+		String nodeRolesUri = getFrameworkProp(CmsConstants.ROLES_URI);
+		String baseNodeRoleDn = CmsConstants.ROLES_BASEDN;
 		if (nodeRolesUri == null) {
 			nodeRolesUri = baseNodeRoleDn + ".ldif";
 			File nodeRolesFile = new File(nodeBaseDir, nodeRolesUri);
@@ -146,8 +145,8 @@ class InitUtils {
 		uris.add(nodeRolesUri);
 
 		// node tokens
-		String nodeTokensUri = getFrameworkProp(NodeConstants.TOKENS_URI);
-		String baseNodeTokensDn = NodeConstants.TOKENS_BASEDN;
+		String nodeTokensUri = getFrameworkProp(CmsConstants.TOKENS_URI);
+		String baseNodeTokensDn = CmsConstants.TOKENS_BASEDN;
 		if (nodeTokensUri == null) {
 			nodeTokensUri = baseNodeTokensDn + ".ldif";
 			File nodeTokensFile = new File(nodeBaseDir, nodeTokensUri);
@@ -163,7 +162,7 @@ class InitUtils {
 		uris.add(nodeTokensUri);
 
 		// Business roles
-		String userAdminUris = getFrameworkProp(NodeConstants.USERADMIN_URIS);
+		String userAdminUris = getFrameworkProp(CmsConstants.USERADMIN_URIS);
 		if (userAdminUris == null) {
 			String demoBaseDn = "dc=example,dc=com";
 			userAdminUris = demoBaseDn + ".ldif";
@@ -220,7 +219,7 @@ class InitUtils {
 	 * some files (typically LDIF, etc).
 	 */
 	static void prepareFirstInitInstanceArea() {
-		String nodeInits = getFrameworkProp(NodeConstants.NODE_INIT);
+		String nodeInits = getFrameworkProp(CmsConstants.NODE_INIT);
 		if (nodeInits == null)
 			nodeInits = "../../init";
 

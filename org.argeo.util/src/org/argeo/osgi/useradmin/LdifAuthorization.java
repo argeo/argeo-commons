@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
 
-import org.argeo.naming.LdapAttrs;
+import org.argeo.util.naming.LdapAttrs;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;

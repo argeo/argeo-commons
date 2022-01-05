@@ -2,7 +2,6 @@
 Service-Component: OSGI-INF/cmsRcpApp.xml
 
 Import-Package:\
-org.argeo.api,\
 org.argeo.cms.auth,\
 org.eclipse.swt,\
 org.eclipse.swt.graphics,\

@@ -2,8 +2,7 @@ package org.argeo.cms.e4.maintenance;
 
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -16,7 +15,7 @@ import org.osgi.framework.ServiceReference;
 abstract class AbstractOsgiComposite extends Composite {
 	private static final long serialVersionUID = -4097415973477517137L;
 	protected final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
-	protected final Log log = LogFactory.getLog(getClass());
+	protected final CmsLog log = CmsLog.getLog(getClass());
 
 	public AbstractOsgiComposite(Composite parent, int style) {
 		super(parent, style);

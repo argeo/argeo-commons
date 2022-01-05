@@ -1,6 +1,6 @@
 package org.argeo.osgi.useradmin;
 
-import static org.argeo.naming.LdapAttrs.objectClass;
+import static org.argeo.util.naming.LdapAttrs.objectClass;
 
 import java.util.ArrayList;
 import java.util.Dictionary;

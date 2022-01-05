@@ -12,14 +12,13 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
 import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsImageManager;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsUi;
 import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.UxContext;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.CurrentUser;
@@ -50,7 +49,7 @@ import org.osgi.service.event.EventAdmin;
 @SuppressWarnings("restriction")
 public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationListener {
 	private static final long serialVersionUID = 7733510691684570402L;
-	private final static Log log = LogFactory.getLog(CmsWebEntryPoint.class);
+	private final static CmsLog log = CmsLog.getLog(CmsWebEntryPoint.class);
 
 	private EventAdmin eventAdmin;
 
@@ -85,13 +84,13 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		// Initial login
 		LoginContext lc;
 		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+			lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER,
 					new RemoteAuthCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
 							new ServletHttpResponse(UiContext.getHttpResponse())));
 			lc.login();
 		} catch (LoginException e) {
 			try {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
+				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS);
 				lc.login();
 			} catch (LoginException e1) {
 				throw new IllegalStateException("Cannot log in as anonymous", e1);
@@ -156,7 +155,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		try {
 			CurrentUser.logoutCmsSession(loginContext.getSubject());
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
+			LoginContext anonymousLc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS);
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {

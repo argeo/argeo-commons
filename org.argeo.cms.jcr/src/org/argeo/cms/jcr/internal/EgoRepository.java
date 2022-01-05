@@ -17,7 +17,8 @@ import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrException;
@@ -38,19 +39,19 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 
 	private SimpleDateFormat usersDatePath = new SimpleDateFormat("YYYY/MM");
 
-	private String defaultHomeWorkspace = NodeConstants.HOME_WORKSPACE;
-	private String defaultGroupsWorkspace = NodeConstants.SRV_WORKSPACE;
+	private String defaultHomeWorkspace = CmsConstants.HOME_WORKSPACE;
+	private String defaultGroupsWorkspace = CmsConstants.SRV_WORKSPACE;
 //	private String defaultGuestsWorkspace = NodeConstants.GUESTS_WORKSPACE;
 	private final boolean remote;
 
 	public EgoRepository(Repository repository, boolean remote) {
 		super(repository);
 		this.remote = remote;
-		putDescriptor(NodeConstants.CN, NodeConstants.EGO_REPOSITORY);
+		putDescriptor(CmsConstants.CN, CmsConstants.EGO_REPOSITORY);
 		if (!remote) {
 			LoginContext lc;
 			try {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
+				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_DATA_ADMIN);
 				lc.login();
 			} catch (javax.security.auth.login.LoginException e1) {
 				throw new IllegalStateException("Cannot login as system", e1);
@@ -112,7 +113,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 		String username = session.getUserID();
 		if (username == null || username.toString().equals(""))
 			return;
-		if (session.getUserID().equals(NodeConstants.ROLE_ANONYMOUS))
+		if (session.getUserID().equals(CmsConstants.ROLE_ANONYMOUS))
 			return;
 
 		String userHomeWorkspace = getUserHomeWorkspace();
@@ -155,7 +156,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 //		if (workspaceName != null)
 //			return;
 		// skip system users
-		if (username.endsWith(NodeConstants.ROLES_BASEDN))
+		if (username.endsWith(CmsConstants.ROLES_BASEDN))
 			return;
 
 		try {

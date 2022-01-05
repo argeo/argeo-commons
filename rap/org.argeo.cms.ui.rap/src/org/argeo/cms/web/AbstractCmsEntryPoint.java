@@ -1,6 +1,6 @@
 package org.argeo.cms.web;
 
-import static org.argeo.naming.SharedSecret.X_SHARED_SECRET;
+import static org.argeo.util.naming.SharedSecret.X_SHARED_SECRET;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
@@ -21,10 +21,9 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
 import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthCallback;
@@ -35,8 +34,8 @@ import org.argeo.cms.swt.CmsStyles;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.naming.AuthPassword;
-import org.argeo.naming.SharedSecret;
+import org.argeo.util.naming.AuthPassword;
+import org.argeo.util.naming.SharedSecret;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.WebClient;
@@ -53,7 +52,7 @@ import org.eclipse.swt.widgets.Shell;
 public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implements CmsView {
 	private static final long serialVersionUID = 906558779562569784L;
 
-	private final Log log = LogFactory.getLog(AbstractCmsEntryPoint.class);
+	private final CmsLog log = CmsLog.getLog(AbstractCmsEntryPoint.class);
 
 	// private final Subject subject;
 	private LoginContext loginContext;
@@ -85,13 +84,13 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		// Initial login
 		LoginContext lc;
 		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER,
+			lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER,
 					new RemoteAuthCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
 							new ServletHttpResponse(UiContext.getHttpResponse())));
 			lc.login();
 		} catch (LoginException e) {
 			try {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
+				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS);
 				lc.login();
 			} catch (LoginException e1) {
 				throw new CmsException("Cannot log in as anonymous", e1);
@@ -197,7 +196,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 		try {
 			CurrentUser.logoutCmsSession(loginContext.getSubject());
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS);
+			LoginContext anonymousLc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS);
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {
@@ -302,7 +301,7 @@ public abstract class AbstractCmsEntryPoint extends AbstractEntryPoint implement
 						}
 					}
 				};
-				LoginContext lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, token);
+				LoginContext lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, token);
 				lc.login();
 				authChange(lc);// sets the node as well
 				// } else {

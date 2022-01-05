@@ -31,14 +31,13 @@ import org.apache.commons.httpclient.auth.CredentialsProvider;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.params.HttpParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.internal.auth.CmsUserManagerImpl;
 import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
-import org.argeo.naming.DnsBrowser;
 import org.argeo.osgi.transaction.WorkControl;
 import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.AbstractUserDirectory;
@@ -48,6 +47,7 @@ import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.OsUserDirectory;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.naming.DnsBrowser;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -67,7 +67,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * roles.
  */
 class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactory, KernelConstants {
-	private final static Log log = LogFactory.getLog(NodeUserAdmin.class);
+	private final static CmsLog log = CmsLog.getLog(NodeUserAdmin.class);
 //	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	// OSGi
@@ -166,7 +166,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		if (isSystemRolesBaseDn(baseDn)) {
 			// publishes only when system roles are available
 			Dictionary<String, Object> userAdminregProps = new Hashtable<>();
-			userAdminregProps.put(NodeConstants.CN, NodeConstants.DEFAULT);
+			userAdminregProps.put(CmsConstants.CN, CmsConstants.DEFAULT);
 			userAdminregProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 			Activator.registerService(UserAdmin.class, this, userAdminregProps);
 		}
@@ -205,9 +205,9 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	@Override
 	protected void addAbstractSystemRoles(Authorization rawAuthorization, Set<String> sysRoles) {
 		if (rawAuthorization.getName() == null) {
-			sysRoles.add(NodeConstants.ROLE_ANONYMOUS);
+			sysRoles.add(CmsConstants.ROLE_ANONYMOUS);
 		} else {
-			sysRoles.add(NodeConstants.ROLE_USER);
+			sysRoles.add(CmsConstants.ROLE_USER);
 		}
 	}
 
@@ -235,7 +235,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 						}
 					};
 					try {
-						LoginContext nodeLc = new LoginContext(NodeConstants.LOGIN_CONTEXT_NODE, callbackHandler);
+						LoginContext nodeLc = new LoginContext(CmsAuth.LOGIN_CONTEXT_NODE, callbackHandler);
 						nodeLc.login();
 						acceptorCredentials = logInAsAcceptor(nodeLc.getSubject(), servicePrincipal);
 					} catch (LoginException e) {

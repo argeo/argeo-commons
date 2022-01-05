@@ -11,12 +11,12 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.argeo.api.NodeConstants;
-import org.argeo.api.security.Keyring;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.ArgeoTypes;
 import org.argeo.cms.e4.jcr.JcrBrowserView;
 import org.argeo.cms.jcr.CmsJcrUtils;
+import org.argeo.cms.security.Keyring;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.jcr.JcrUtils;
@@ -130,11 +130,11 @@ public class AddRemoteRepository {
 				String checkedUriStr = checkedUri.toString();
 
 				Hashtable<String, String> params = new Hashtable<String, String>();
-				params.put(NodeConstants.LABELED_URI, checkedUriStr);
+				params.put(CmsConstants.LABELED_URI, checkedUriStr);
 				Repository repository = repositoryFactory.getRepository(params);
 				if (username.getText().trim().equals("")) {// anonymous
 					// FIXME make it more generic
-					session = repository.login(NodeConstants.SYS_WORKSPACE);
+					session = repository.login(CmsConstants.SYS_WORKSPACE);
 				} else {
 					// FIXME use getTextChars() when upgrading to 3.7
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=297412

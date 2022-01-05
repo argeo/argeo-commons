@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -82,12 +82,12 @@ class DataDeploymentUi extends AbstractOsgiComposite {
 	private void initCurrentUi(Composite parent) {
 		parent.setLayout(new GridLayout());
 		Collection<ServiceReference<RepositoryContext>> contexts = getServiceReferences(RepositoryContext.class,
-				"(" + NodeConstants.CN + "=*)");
+				"(" + CmsConstants.CN + "=*)");
 		StringBuffer text = new StringBuffer();
 		text.append("<span style='font-variant: small-caps;'>Jackrabbit Repositories</span><br/>");
 		for (ServiceReference<RepositoryContext> sr : contexts) {
 			RepositoryContext repositoryContext = bc.getService(sr);
-			String alias = sr.getProperty(NodeConstants.CN).toString();
+			String alias = sr.getProperty(CmsConstants.CN).toString();
 			String rootNodeId = repositoryContext.getRootNodeId().toString();
 			RepositoryConfig repositoryConfig = repositoryContext.getRepositoryConfig();
 			Path repoHomePath = new File(repositoryConfig.getHomeDir()).toPath().toAbsolutePath();

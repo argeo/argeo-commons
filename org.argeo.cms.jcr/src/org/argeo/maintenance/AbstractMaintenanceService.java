@@ -10,20 +10,19 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.naming.Distinguished;
 import org.argeo.osgi.transaction.WorkTransaction;
+import org.argeo.util.naming.Distinguished;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
 
 /** Make sure roles and access rights are properly configured. */
 public abstract class AbstractMaintenanceService {
-	private final static Log log = LogFactory.getLog(AbstractMaintenanceService.class);
+	private final static CmsLog log = CmsLog.getLog(AbstractMaintenanceService.class);
 
 	private Repository repository;
 //	private UserAdminService userAdminService;

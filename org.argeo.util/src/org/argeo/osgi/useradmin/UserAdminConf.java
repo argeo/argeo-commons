@@ -12,7 +12,7 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.naming.NamingUtils;
+import org.argeo.util.naming.NamingUtils;
 
 /** Properties used to configure user admins. */
 public enum UserAdminConf {

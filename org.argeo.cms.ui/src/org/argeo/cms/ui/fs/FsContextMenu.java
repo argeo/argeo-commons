@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -40,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 public class FsContextMenu extends Shell {
 	private static final long serialVersionUID = -9120261153509855795L;
 
-	private final static Log log = LogFactory.getLog(FsContextMenu.class);
+	private final static CmsLog log = CmsLog.getLog(FsContextMenu.class);
 
 	// Default known actions
 	public final static String ACTION_ID_CREATE_FOLDER = "createFolder";

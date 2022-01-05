@@ -18,7 +18,7 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
@@ -35,7 +35,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 
 	@Override
 	public String getScheme() {
-		return NodeConstants.SCHEME_NODE;
+		return CmsConstants.SCHEME_NODE;
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 				return fileSystem;
 			} else {
 				Repository repository = bc.getService(
-						bc.getServiceReferences(Repository.class, "(cn=" + NodeConstants.EGO_REPOSITORY + ")")
+						bc.getServiceReferences(Repository.class, "(cn=" + CmsConstants.EGO_REPOSITORY + ")")
 								.iterator().next());
 //				Session session = repository.login();
 				CmsFileSystem fileSystem = new CmsFileSystem(this, repository);
@@ -97,7 +97,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 
 	public Node getUserHome(Repository repository) {
 		try {
-			Session session = repository.login(NodeConstants.HOME_WORKSPACE);
+			Session session = repository.login(CmsConstants.HOME_WORKSPACE);
 			return CmsJcrUtils.getUserHome(session);
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot get user home", e);

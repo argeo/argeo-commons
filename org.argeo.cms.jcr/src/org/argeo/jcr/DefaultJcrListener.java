@@ -7,12 +7,11 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 
 /** To be overridden */
 public class DefaultJcrListener implements EventListener {
-	private final static Log log = LogFactory.getLog(DefaultJcrListener.class);
+	private final static CmsLog log = CmsLog.getLog(DefaultJcrListener.class);
 	private Session session;
 	private String path = "/";
 	private Boolean deep = true;

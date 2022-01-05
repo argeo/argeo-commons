@@ -6,13 +6,12 @@ import java.util.TreeMap;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryImpl;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 
 class JackrabbitLocalRepository extends LocalRepository {
-	private final static Log log = LogFactory.getLog(JackrabbitLocalRepository.class);
+	private final static CmsLog log = CmsLog.getLog(JackrabbitLocalRepository.class);
 	final String SECURITY_WORKSPACE = "security";
 
 	private Map<String, CmsWorkspaceIndexer> workspaceMonitors = new TreeMap<>();
@@ -45,7 +44,7 @@ class JackrabbitLocalRepository extends LocalRepository {
 	private void addMonitor(String realWorkspaceName) {
 		if (realWorkspaceName.equals(SECURITY_WORKSPACE))
 			return;
-		if (!NodeConstants.NODE_REPOSITORY.equals(getCn()))
+		if (!CmsConstants.NODE_REPOSITORY.equals(getCn()))
 			return;
 
 		if (!workspaceMonitors.containsKey(realWorkspaceName)) {

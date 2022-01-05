@@ -3,9 +3,8 @@ package org.argeo.cms.ui.widgets;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.Cms2DSize;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.eclipse.swt.graphics.Point;
@@ -17,7 +16,7 @@ import org.eclipse.swt.widgets.Text;
 /** A stylable and editable image. */
 public abstract class EditableImage extends StyledControl {
 	private static final long serialVersionUID = -5689145523114022890L;
-	private final static Log log = LogFactory.getLog(EditableImage.class);
+	private final static CmsLog log = CmsLog.getLog(EditableImage.class);
 
 	private Cms2DSize preferredImageSize;
 	private Boolean loaded = false;

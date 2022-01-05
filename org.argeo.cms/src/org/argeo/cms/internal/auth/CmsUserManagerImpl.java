@@ -1,8 +1,8 @@
 package org.argeo.cms.internal.auth;
 
-import static org.argeo.naming.LdapAttrs.cn;
-import static org.argeo.naming.LdapAttrs.description;
-import static org.argeo.naming.LdapAttrs.owner;
+import static org.argeo.util.naming.LdapAttrs.cn;
+import static org.argeo.util.naming.LdapAttrs.description;
+import static org.argeo.util.naming.LdapAttrs.owner;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -23,19 +23,18 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
-import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.NamingUtils;
-import org.argeo.naming.SharedSecret;
 import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.NamingUtils;
+import org.argeo.util.naming.SharedSecret;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -56,7 +55,7 @@ import org.osgi.service.useradmin.UserAdmin;
  * </ul>
  */
 public class CmsUserManagerImpl implements CmsUserManager {
-	private final static Log log = LogFactory.getLog(CmsUserManagerImpl.class);
+	private final static CmsLog log = CmsLog.getLog(CmsUserManagerImpl.class);
 
 	private UserAdmin userAdmin;
 //	private Map<String, String> serviceProperties;
@@ -152,7 +151,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		List<User> users = new ArrayList<User>();
 		for (Role role : roles) {
 			if ((includeUsers && role.getType() == Role.USER || role.getType() == Role.GROUP) && !users.contains(role)
-					&& (includeSystemRoles || !role.getName().toLowerCase().endsWith(NodeConstants.ROLES_BASEDN))) {
+					&& (includeSystemRoles || !role.getName().toLowerCase().endsWith(CmsConstants.ROLES_BASEDN))) {
 				if (match(role, filter))
 					users.add((User) role);
 			}
@@ -234,9 +233,9 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 			if (onlyWritable && readOnly)
 				continue;
-			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.ROLES_BASEDN))
 				continue;
-			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;
 			dns.put(baseDn, UserAdminConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
 
@@ -364,7 +363,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	public void expireAuthToken(String token) {
 		try {
 			userTransaction.begin();
-			String dn = cn + "=" + token + "," + NodeConstants.TOKENS_BASEDN;
+			String dn = cn + "=" + token + "," + CmsConstants.TOKENS_BASEDN;
 			Group tokenGroup = (Group) userAdmin.getRole(dn);
 			String ldapDate = NamingUtils.instantToLdapDate(ZonedDateTime.now(ZoneOffset.UTC));
 			tokenGroup.getProperties().put(description.name(), ldapDate);
@@ -385,7 +384,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	@Override
 	public void expireAuthTokens(Subject subject) {
-		Set<String> tokens = TokenUtils.tokensUsed(subject, NodeConstants.TOKENS_BASEDN);
+		Set<String> tokens = TokenUtils.tokensUsed(subject, CmsConstants.TOKENS_BASEDN);
 		for (String token : tokens)
 			expireAuthToken(token);
 	}
@@ -400,7 +399,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		try {
 			userTransaction.begin();
 			User user = (User) userAdmin.getRole(userDn);
-			String tokenDn = cn + "=" + token + "," + NodeConstants.TOKENS_BASEDN;
+			String tokenDn = cn + "=" + token + "," + CmsConstants.TOKENS_BASEDN;
 			Group tokenGroup = (Group) userAdmin.createRole(tokenDn, Role.GROUP);
 			if (roles != null)
 				for (String role : roles) {
@@ -408,7 +407,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 					if (r != null)
 						tokenGroup.addMember(r);
 					else {
-						if (!role.equals(NodeConstants.ROLE_USER)) {
+						if (!role.equals(CmsConstants.ROLE_USER)) {
 							throw new IllegalStateException(
 									"Cannot add role " + role + " to token " + token + " for " + userDn);
 						}

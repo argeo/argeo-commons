@@ -8,10 +8,9 @@ import java.util.Map;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.cms.internal.jcr.RepositoryBuilder;
 import org.argeo.cms.jcr.internal.osgi.CmsJcrActivator;
@@ -22,7 +21,7 @@ import org.osgi.service.cm.ManagedServiceFactory;
 
 /** A {@link ManagedServiceFactory} creating or referencing JCR repositories. */
 public class RepositoryServiceFactory implements ManagedServiceFactory {
-	private final static Log log = LogFactory.getLog(RepositoryServiceFactory.class);
+	private final static CmsLog log = CmsLog.getLog(RepositoryServiceFactory.class);
 //	private final BundleContext bc = FrameworkUtil.getBundle(RepositoryServiceFactory.class).getBundleContext();
 
 	private Map<String, RepositoryContext> repositories = new HashMap<String, RepositoryContext>();
@@ -55,16 +54,16 @@ public class RepositoryServiceFactory implements ManagedServiceFactory {
 				Dictionary<String, Object> props = LangUtils.dict(Constants.SERVICE_PID, pid);
 				// props.put(ArgeoJcrConstants.JCR_REPOSITORY_URI,
 				// properties.get(RepoConf.labeledUri.name()));
-				Object cn = properties.get(NodeConstants.CN);
+				Object cn = properties.get(CmsConstants.CN);
 				if (cn != null) {
-					props.put(NodeConstants.CN, cn);
+					props.put(CmsConstants.CN, cn);
 					// props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
 					pidToCn.put(pid, cn);
 				}
 				CmsJcrActivator.registerService(RepositoryContext.class, repositoryContext, props);
 			} else {
 				try {
-					Object cn = properties.get(NodeConstants.CN);
+					Object cn = properties.get(CmsConstants.CN);
 					Object defaultWorkspace = properties.get(RepoConf.defaultWorkspace.name());
 					if (defaultWorkspace == null)
 						defaultWorkspace = RepoConf.defaultWorkspace.getDefault();
@@ -83,16 +82,16 @@ public class RepositoryServiceFactory implements ManagedServiceFactory {
 							new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null)
 									.toString());
 					if (cn != null) {
-						props.put(NodeConstants.CN, cn);
+						props.put(CmsConstants.CN, cn);
 						// props.put(NodeConstants.JCR_REPOSITORY_ALIAS, cn);
 						pidToCn.put(pid, cn);
 					}
 					CmsJcrActivator.registerService(Repository.class, repository, props);
 
 					// home
-					if (cn.equals(NodeConstants.NODE_REPOSITORY)) {
-						Dictionary<String, Object> homeProps = LangUtils.dict(NodeConstants.CN,
-								NodeConstants.EGO_REPOSITORY);
+					if (cn.equals(CmsConstants.NODE_REPOSITORY)) {
+						Dictionary<String, Object> homeProps = LangUtils.dict(CmsConstants.CN,
+								CmsConstants.EGO_REPOSITORY);
 						EgoRepository homeRepository = new EgoRepository(repository, true);
 						CmsJcrActivator.registerService(Repository.class, homeRepository, homeProps);
 					}

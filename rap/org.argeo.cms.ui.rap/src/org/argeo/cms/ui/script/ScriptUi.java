@@ -8,15 +8,14 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.osgi.framework.BundleContext;
 
 class ScriptUi implements CmsUiProvider {
-	private final static Log log = LogFactory.getLog(ScriptUi.class);
+	private final static CmsLog log = CmsLog.getLog(ScriptUi.class);
 
 	private boolean development = true;
 	private ScriptEngine scriptEngine;

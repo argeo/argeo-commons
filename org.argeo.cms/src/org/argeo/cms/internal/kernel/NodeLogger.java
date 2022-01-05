@@ -23,11 +23,10 @@ import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.ArgeoLogListener;
-import org.argeo.api.ArgeoLogger;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.ArgeoLogListener;
+import org.argeo.cms.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.osgi.useradmin.UserAdminConf;
@@ -151,7 +150,7 @@ class NodeLogger implements ArgeoLogger, LogListener {
 	//
 	@Override
 	public void logged(LogEntry status) {
-		Log pluginLog = LogFactory.getLog(status.getBundle().getSymbolicName());
+		CmsLog pluginLog = CmsLog.getLog(status.getBundle().getSymbolicName());
 		LogLevel severity = status.getLogLevel();
 		if (severity.equals(LogLevel.ERROR) && pluginLog.isErrorEnabled()) {
 			// FIXME Fix Argeo TP
@@ -190,9 +189,9 @@ class NodeLogger implements ArgeoLogger, LogListener {
 			} else {
 				sb.append(arrayToString(objectClasses));
 			}
-			Object cn = sr.getProperty(NodeConstants.CN);
+			Object cn = sr.getProperty(CmsConstants.CN);
 			if (cn != null)
-				sb.append(" " + NodeConstants.CN + ": " + cn);
+				sb.append(" " + CmsConstants.CN + ": " + cn);
 			Object factoryPid = sr.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
 			if (factoryPid != null)
 				sb.append(" " + ConfigurationAdmin.SERVICE_FACTORYPID + ": " + factoryPid);

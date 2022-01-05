@@ -1,13 +1,13 @@
 package org.slf4j.impl;
 
-import org.apache.commons.logging.Log;
+import org.argeo.api.cms.CmsLog;
 import org.slf4j.helpers.MarkerIgnoringBase;
 
 class ArgeoLogger extends MarkerIgnoringBase {
 	private static final long serialVersionUID = -7719157836932627307L;
-	private final Log log;
+	private final CmsLog log;
 
-	protected ArgeoLogger(String name, Log log) {
+	protected ArgeoLogger(String name, CmsLog log) {
 		this.name = name;
 		this.log = log;
 	}

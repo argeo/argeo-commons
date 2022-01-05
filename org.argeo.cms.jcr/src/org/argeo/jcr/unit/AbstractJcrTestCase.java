@@ -13,15 +13,14 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.jcr.JcrException;
 
 import junit.framework.TestCase;
 
 /** Base for unit tests with a JCR repository. */
 public abstract class AbstractJcrTestCase extends TestCase {
-	private final static Log log = LogFactory.getLog(AbstractJcrTestCase.class);
+	private final static CmsLog log = CmsLog.getLog(AbstractJcrTestCase.class);
 
 	private Repository repository;
 	private Session session = null;

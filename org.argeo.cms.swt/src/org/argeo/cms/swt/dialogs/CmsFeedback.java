@@ -3,8 +3,7 @@ package org.argeo.cms.swt.dialogs;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.swt.Selected;
 import org.eclipse.swt.SWT;
@@ -19,7 +18,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** A dialog feedback based on a {@link LightweightDialog}. */
 public class CmsFeedback extends LightweightDialog {
-	private final static Log log = LogFactory.getLog(CmsFeedback.class);
+	private final static CmsLog log = CmsLog.getLog(CmsFeedback.class);
 
 	private String message;
 	private Throwable exception;

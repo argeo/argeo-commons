@@ -20,11 +20,10 @@ import javax.script.ScriptEngine;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.CmsTheme;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsException;
-import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.CmsUiConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.web.BundleResourceLoader;
@@ -50,7 +49,7 @@ public class CmsScriptApp implements Branding {
 
 	private ScriptEngine scriptEngine;
 
-	private final static Log log = LogFactory.getLog(CmsScriptApp.class);
+	private final static CmsLog log = CmsLog.getLog(CmsScriptApp.class);
 
 	private String webPath;
 	private String repo = "(cn=node)";
@@ -90,9 +89,9 @@ public class CmsScriptApp implements Branding {
 		application.setExceptionHandler(new CmsExceptionHandler());
 
 		// loading animated gif
-		application.addResource(CmsConstants.LOADING_IMAGE, createResourceLoader(CmsConstants.LOADING_IMAGE));
+		application.addResource(CmsUiConstants.LOADING_IMAGE, createResourceLoader(CmsUiConstants.LOADING_IMAGE));
 		// empty image
-		application.addResource(CmsConstants.NO_IMAGE, createResourceLoader(CmsConstants.NO_IMAGE));
+		application.addResource(CmsUiConstants.NO_IMAGE, createResourceLoader(CmsUiConstants.NO_IMAGE));
 
 		for (String resource : resources) {
 			application.addResource(resource, bundleRL);

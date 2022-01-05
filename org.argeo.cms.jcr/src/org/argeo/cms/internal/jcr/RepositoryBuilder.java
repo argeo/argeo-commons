@@ -14,20 +14,19 @@ import java.util.UUID;
 
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.cache.CacheManager;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.config.RepositoryConfigurationParser;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jcr.internal.CmsPaths;
 import org.xml.sax.InputSource;
 
 /** Can interpret properties in order to create an actual JCR repository. */
 public class RepositoryBuilder {
-	private final static Log log = LogFactory.getLog(RepositoryBuilder.class);
+	private final static CmsLog log = CmsLog.getLog(RepositoryBuilder.class);
 
 	public RepositoryContext createRepositoryContext(Dictionary<String, ?> properties)
 			throws RepositoryException, IOException {
@@ -99,7 +98,7 @@ public class RepositoryBuilder {
 		String homeUri = props.getProperty(RepoConf.labeledUri.name());
 		Path homePath;
 		if (homeUri == null) {
-			String cn = props.getProperty(NodeConstants.CN);
+			String cn = props.getProperty(CmsConstants.CN);
 			assert cn != null;
 			if (clusterId != null) {
 				homePath = CmsPaths.getRepoDirPath(cn + '/' + clusterId);

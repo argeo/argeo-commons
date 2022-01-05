@@ -21,11 +21,10 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
 import org.argeo.api.cms.CmsSession;
-import org.argeo.api.security.NodeSecurityUtils;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.security.NodeSecurityUtils;
+import org.argeo.api.cms.CmsAuth;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -37,7 +36,7 @@ import org.osgi.service.useradmin.Authorization;
 public class CmsSessionImpl implements CmsSession, Serializable {
 	private static final long serialVersionUID = 1867719354246307225L;
 	private final static BundleContext bc = FrameworkUtil.getBundle(CmsSessionImpl.class).getBundleContext();
-	private final static Log log = LogFactory.getLog(CmsSessionImpl.class);
+	private final static CmsLog log = CmsLog.getLog(CmsSessionImpl.class);
 
 	// private final Subject initialSubject;
 	private transient AccessControlContext accessControlContext;
@@ -96,9 +95,9 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		try {
 			LoginContext lc;
 			if (isAnonymous()) {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, getSubject());
+				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS, getSubject());
 			} else {
-				lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, getSubject());
+				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, getSubject());
 			}
 			lc.logout();
 		} catch (LoginException e) {

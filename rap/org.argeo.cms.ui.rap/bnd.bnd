@@ -1,6 +1,5 @@
 Import-Package:\
 org.eclipse.swt,\
-org.argeo.api,\
 org.argeo.eclipse.ui,\
 javax.jcr.nodetype,\
 javax.jcr.security,\

@@ -3,8 +3,7 @@ package org.argeo.eclipse.ui.dialogs;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
@@ -27,7 +26,7 @@ import org.eclipse.swt.widgets.Text;
  */
 @Deprecated
 public class FeedbackDialog extends LightweightDialog {
-	private final static Log log = LogFactory.getLog(FeedbackDialog.class);
+	private final static CmsLog log = CmsLog.getLog(FeedbackDialog.class);
 
 	private String message;
 	private Throwable exception;

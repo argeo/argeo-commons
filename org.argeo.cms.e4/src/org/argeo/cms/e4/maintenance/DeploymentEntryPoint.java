@@ -3,9 +3,9 @@ package org.argeo.cms.e4.maintenance;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeDeployment;
-import org.argeo.api.NodeState;
+import org.argeo.api.cms.CmsState;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsDeployment;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -62,18 +62,18 @@ class DeploymentEntryPoint {
 		composite.setLayoutData(gridData);
 		composite.setLayout(new FillLayout());
 
-		ServiceReference<NodeState> nodeStateRef = bc.getServiceReference(NodeState.class);
+		ServiceReference<CmsState> nodeStateRef = bc.getServiceReference(CmsState.class);
 		if (nodeStateRef == null)
 			throw new IllegalStateException("No CMS state available");
-		NodeState nodeState = bc.getService(nodeStateRef);
-		ServiceReference<NodeDeployment> nodeDeploymentRef = bc.getServiceReference(NodeDeployment.class);
+		CmsState nodeState = bc.getService(nodeStateRef);
+		ServiceReference<CmsDeployment> nodeDeploymentRef = bc.getServiceReference(CmsDeployment.class);
 		Label label = new Label(composite, SWT.WRAP);
 		CmsSwtUtils.markup(label);
 		if (nodeDeploymentRef == null) {
 			label.setText("Not yet deployed on <br>" + nodeState.getHostname() + "</br>, please configure below.");
 		} else {
-			Object stateUuid = nodeStateRef.getProperty(NodeConstants.CN);
-			NodeDeployment nodeDeployment = bc.getService(nodeDeploymentRef);
+			Object stateUuid = nodeStateRef.getProperty(CmsConstants.CN);
+			CmsDeployment nodeDeployment = bc.getService(nodeDeploymentRef);
 			GregorianCalendar calendar = new GregorianCalendar();
 			calendar.setTimeInMillis(nodeDeployment.getAvailableSince());
 			calendar.setTimeZone(TimeZone.getDefault());

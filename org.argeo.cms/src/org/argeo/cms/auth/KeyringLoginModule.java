@@ -15,7 +15,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.argeo.api.security.PBEKeySpecCallback;
+import org.argeo.cms.security.PBEKeySpecCallback;
 import org.argeo.util.PasswordEncryption;
 
 /** Adds a secret key to the private credentials */

@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.jcr.RepositoryFactory;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.jcr.internal.CmsFsProvider;
 import org.argeo.cms.jcr.internal.StatisticsThread;
 import org.argeo.cms.jcr.internal.NodeRepositoryFactory;
@@ -46,7 +46,7 @@ public class CmsJcrActivator implements BundleActivator {
 		repositoryServiceFactory = new RepositoryServiceFactory();
 //		stopHooks.add(() -> repositoryServiceFactory.shutdown());
 		registerService(ManagedServiceFactory.class, repositoryServiceFactory,
-				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_REPOS_FACTORY_PID));
+				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_REPOS_FACTORY_PID));
 
 		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
 		registerService(RepositoryFactory.class, repositoryFactory, null);
@@ -64,7 +64,7 @@ public class CmsJcrActivator implements BundleActivator {
 //			log.debug("Installed FileSystemProvider " + fsp);
 //		}
 		registerService(FileSystemProvider.class, cmsFsProvider,
-				LangUtils.dict(Constants.SERVICE_PID, NodeConstants.NODE_FS_PROVIDER_PID));
+				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_FS_PROVIDER_PID));
 
 //		jcrDeployment = new JcrDeployment();
 //		jcrDeployment.init();

@@ -4,7 +4,7 @@ import static javax.jcr.Node.JCR_CONTENT;
 import static javax.jcr.Property.JCR_DATA;
 import static javax.jcr.nodetype.NodeType.NT_FILE;
 import static javax.jcr.nodetype.NodeType.NT_RESOURCE;
-import static org.argeo.cms.ui.CmsConstants.NO_IMAGE_SIZE;
+import static org.argeo.cms.ui.CmsUiConstants.NO_IMAGE_SIZE;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -18,10 +18,9 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.Cms2DSize;
 import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -36,7 +35,7 @@ import org.eclipse.swt.widgets.Label;
 
 /** Manages only public images so far. */
 public class DefaultImageManager implements CmsImageManager<Control, Node> {
-	private final static Log log = LogFactory.getLog(DefaultImageManager.class);
+	private final static CmsLog log = CmsLog.getLog(DefaultImageManager.class);
 //	private MimetypesFileTypeMap fileTypeMap = new MimetypesFileTypeMap();
 
 	public Boolean load(Node node, Control control, Cms2DSize preferredSize) {

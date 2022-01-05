@@ -16,11 +16,10 @@ import javax.security.auth.Subject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.server.SessionProvider;
-import org.argeo.api.NodeConstants;
 import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.jcr.JcrUtils;
 
 /**
@@ -30,7 +29,7 @@ import org.argeo.jcr.JcrUtils;
 public class CmsSessionProvider implements SessionProvider, Serializable {
 	private static final long serialVersionUID = -1358136599534938466L;
 
-	private final static Log log = LogFactory.getLog(CmsSessionProvider.class);
+	private final static CmsLog log = CmsLog.getLog(CmsSessionProvider.class);
 
 	private final String alias;
 
@@ -92,7 +91,7 @@ public class CmsSessionProvider implements SessionProvider, Serializable {
 			checkValid();
 			// FIXME make it more robust
 			if (workspace == null)
-				workspace = NodeConstants.SYS_WORKSPACE;
+				workspace = CmsConstants.SYS_WORKSPACE;
 			String path = cn + '/' + workspace;
 			if (dataSessionsInUse.contains(path)) {
 				try {

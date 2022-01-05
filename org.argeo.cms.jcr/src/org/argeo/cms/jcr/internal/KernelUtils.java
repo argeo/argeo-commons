@@ -23,8 +23,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jcr.internal.osgi.CmsJcrActivator;
 import org.argeo.cms.osgi.DataModelNamespace;
 import org.osgi.framework.BundleContext;
@@ -130,7 +130,7 @@ class KernelUtils implements KernelConstants {
 	// }
 	// }
 
-	static void logFrameworkProperties(Log log) {
+	static void logFrameworkProperties(CmsLog log) {
 		BundleContext bc = getBundleContext();
 		for (Object sysProp : new TreeSet<Object>(System.getProperties().keySet())) {
 			log.debug(sysProp + "=" + bc.getProperty(sysProp.toString()));
@@ -185,7 +185,7 @@ class KernelUtils implements KernelConstants {
 		Thread.currentThread().setContextClassLoader(KernelUtils.class.getClassLoader());
 		LoginContext loginContext;
 		try {
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
+			loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_DATA_ADMIN);
 			loginContext.login();
 		} catch (LoginException e1) {
 			throw new IllegalStateException("Could not login as data admin", e1);

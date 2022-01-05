@@ -7,7 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
@@ -18,8 +18,8 @@ import org.argeo.cms.e4.users.providers.UserNameLP;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.LdapObjs;
+import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.LdapObjs;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
@@ -66,7 +66,7 @@ public class UsersView {
 		columnDefs.add(new ColumnDefinition(new MailLP(), "E-mail", 150));
 		columnDefs.add(new ColumnDefinition(new DomainNameLP(), "Domain", 200));
 		// Only show technical DN to admin
-		if (CurrentUser.isInRole(NodeConstants.ROLE_ADMIN))
+		if (CurrentUser.isInRole(CmsConstants.ROLE_ADMIN))
 			columnDefs.add(new ColumnDefinition(new UserNameLP(), "Distinguished Name", 300));
 
 		// Create and configure the table

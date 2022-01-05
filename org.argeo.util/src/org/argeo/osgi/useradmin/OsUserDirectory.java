@@ -11,7 +11,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.naming.LdapAttrs;
+import org.argeo.util.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.User;
 

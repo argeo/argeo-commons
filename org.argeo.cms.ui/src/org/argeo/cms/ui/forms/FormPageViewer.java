@@ -14,11 +14,10 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.Cms2DSize;
 import org.argeo.api.cms.CmsEditable;
 import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.viewers.AbstractPageViewer;
 import org.argeo.cms.ui.viewers.EditablePart;
@@ -62,7 +61,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Manage life cycle of a form page that is linked to a given node */
 public class FormPageViewer extends AbstractPageViewer {
-	private final static Log log = LogFactory.getLog(FormPageViewer.class);
+	private final static CmsLog log = CmsLog.getLog(FormPageViewer.class);
 	private static final long serialVersionUID = 5277789504209413500L;
 
 	private final Section mainSection;

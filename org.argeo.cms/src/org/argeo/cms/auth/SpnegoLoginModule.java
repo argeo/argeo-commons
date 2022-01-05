@@ -8,8 +8,7 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.kernel.Activator;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
@@ -19,7 +18,7 @@ import org.ietf.jgss.GSSName;
 
 /** SPNEGO login */
 public class SpnegoLoginModule implements LoginModule {
-	private final static Log log = LogFactory.getLog(SpnegoLoginModule.class);
+	private final static CmsLog log = CmsLog.getLog(SpnegoLoginModule.class);
 
 	private Subject subject;
 	private Map<String, Object> sharedState = null;

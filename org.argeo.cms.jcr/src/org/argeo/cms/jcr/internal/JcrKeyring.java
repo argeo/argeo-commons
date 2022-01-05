@@ -26,20 +26,19 @@ import javax.jcr.Session;
 import javax.jcr.query.Query;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
-import org.argeo.api.security.PBEKeySpecCallback;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.ArgeoTypes;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.security.AbstractKeyring;
+import org.argeo.cms.security.PBEKeySpecCallback;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 
 /** JCR based implementation of a keyring */
 public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
-	private final static Log log = LogFactory.getLog(JcrKeyring.class);
+	private final static CmsLog log = CmsLog.getLog(JcrKeyring.class);
 	/**
 	 * Stronger with 256, but causes problem with Oracle JVM, force 128 in this case
 	 */
@@ -96,7 +95,7 @@ public class JcrKeyring extends AbstractKeyring implements ArgeoNames {
 
 	private Session login() {
 		try {
-			return repository.login(NodeConstants.HOME_WORKSPACE);
+			return repository.login(CmsConstants.HOME_WORKSPACE);
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot login key ring session", e);
 		}

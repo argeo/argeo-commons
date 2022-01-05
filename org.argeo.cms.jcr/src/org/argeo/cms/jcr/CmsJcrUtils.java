@@ -18,19 +18,20 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsConstants;
 
 /** Utilities related to Argeo model in JCR */
 public class CmsJcrUtils {
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#CN} in order to simplify it and protect against future
+	 * {@link CmsConstants#CN} in order to simplify it and protect against future
 	 * API changes.
 	 */
 	public static Repository getRepositoryByAlias(RepositoryFactory repositoryFactory, String alias) {
 		try {
 			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put(NodeConstants.CN, alias);
+			parameters.put(CmsConstants.CN, alias);
 			return repositoryFactory.getRepository(parameters);
 		} catch (RepositoryException e) {
 			throw new RuntimeException("Unexpected exception when trying to retrieve repository with alias " + alias,
@@ -40,7 +41,7 @@ public class CmsJcrUtils {
 
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#LABELED_URI} in order to simplify it and protect against
+	 * {@link CmsConstants#LABELED_URI} in order to simplify it and protect against
 	 * future API changes.
 	 */
 	public static Repository getRepositoryByUri(RepositoryFactory repositoryFactory, String uri) {
@@ -49,15 +50,15 @@ public class CmsJcrUtils {
 
 	/**
 	 * Wraps the call to the repository factory based on parameter
-	 * {@link NodeConstants#LABELED_URI} in order to simplify it and protect against
+	 * {@link CmsConstants#LABELED_URI} in order to simplify it and protect against
 	 * future API changes.
 	 */
 	public static Repository getRepositoryByUri(RepositoryFactory repositoryFactory, String uri, String alias) {
 		try {
 			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put(NodeConstants.LABELED_URI, uri);
+			parameters.put(CmsConstants.LABELED_URI, uri);
 			if (alias != null)
-				parameters.put(NodeConstants.CN, alias);
+				parameters.put(CmsConstants.CN, alias);
 			return repositoryFactory.getRepository(parameters);
 		} catch (RepositoryException e) {
 			throw new RuntimeException("Unexpected exception when trying to retrieve repository with uri " + uri, e);
@@ -113,7 +114,7 @@ public class CmsJcrUtils {
 
 	private static void checkUserWorkspace(Session session, String username) {
 		String workspaceName = session.getWorkspace().getName();
-		if (!NodeConstants.HOME_WORKSPACE.equals(workspaceName))
+		if (!CmsConstants.HOME_WORKSPACE.equals(workspaceName))
 			throw new IllegalArgumentException(workspaceName + " is not the home workspace for user " + username);
 	}
 
@@ -167,7 +168,7 @@ public class CmsJcrUtils {
 
 	private static void checkGroupWorkspace(Session session, String groupname) {
 		String workspaceName = session.getWorkspace().getName();
-		if (!NodeConstants.SRV_WORKSPACE.equals(workspaceName))
+		if (!CmsConstants.SRV_WORKSPACE.equals(workspaceName))
 			throw new IllegalArgumentException(workspaceName + " is not the group workspace for group " + groupname);
 	}
 
@@ -218,7 +219,7 @@ public class CmsJcrUtils {
 	 */
 	public static String getDataPath(String cn, Node node) {
 		assert node != null;
-		StringBuilder buf = new StringBuilder(NodeConstants.PATH_DATA);
+		StringBuilder buf = new StringBuilder(CmsConstants.PATH_DATA);
 		try {
 			return buf.append('/').append(cn).append('/').append(node.getSession().getWorkspace().getName())
 					.append(node.getPath()).toString();
@@ -232,20 +233,20 @@ public class CmsJcrUtils {
 	 * repository and the name of the workspace.
 	 */
 	public static String getDataPath(Node node) {
-		return getDataPath(NodeConstants.NODE, node);
+		return getDataPath(CmsConstants.NODE, node);
 	}
 
 	/**
 	 * Open a JCR session with full read/write rights on the data, as
-	 * {@link NodeConstants#ROLE_USER_ADMIN}, using the
-	 * {@link NodeConstants#LOGIN_CONTEXT_DATA_ADMIN} login context. For security
+	 * {@link CmsConstants#ROLE_USER_ADMIN}, using the
+	 * {@link CmsAuth#LOGIN_CONTEXT_DATA_ADMIN} login context. For security
 	 * hardened deployement, use {@link AuthPermission} on this login context.
 	 */
 	public static Session openDataAdminSession(Repository repository, String workspaceName) {
 		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
 		LoginContext loginContext;
 		try {
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
+			loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_DATA_ADMIN);
 			loginContext.login();
 		} catch (LoginException e1) {
 			throw new RuntimeException("Could not login as data admin", e1);

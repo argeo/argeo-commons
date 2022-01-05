@@ -25,7 +25,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrUtils;
@@ -88,7 +89,7 @@ public class LinkServlet extends HttpServlet {
 				@Override
 				public Session run() throws Exception {
 					Collection<ServiceReference<Repository>> srs = bc.getServiceReferences(Repository.class,
-							"(" + NodeConstants.CN + "=" + NodeConstants.EGO_REPOSITORY + ")");
+							"(" + CmsConstants.CN + "=" + CmsConstants.EGO_REPOSITORY + ")");
 					Repository repository = bc.getService(srs.iterator().next());
 					return repository.login();
 				}
@@ -196,7 +197,7 @@ public class LinkServlet extends HttpServlet {
 	private String getDataUrl(Node node, HttpServletRequest request) throws RepositoryException {
 		try {
 			StringBuilder buf = getServerBaseUrl(request);
-			buf.append(CmsJcrUtils.getDataPath(NodeConstants.EGO_REPOSITORY, node));
+			buf.append(CmsJcrUtils.getDataPath(CmsConstants.EGO_REPOSITORY, node));
 			return new URL(buf.toString()).toString();
 		} catch (MalformedURLException e) {
 			throw new CmsException("Cannot build data URL for " + node, e);
@@ -247,7 +248,7 @@ public class LinkServlet extends HttpServlet {
 		Subject subject = new Subject();
 		LoginContext lc;
 		try {
-			lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_ANONYMOUS, subject);
+			lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS, subject);
 			lc.login();
 			return subject;
 		} catch (LoginException e) {

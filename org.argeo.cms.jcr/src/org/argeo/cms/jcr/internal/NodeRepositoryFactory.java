@@ -10,10 +10,9 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.RepositoryFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.jcr2dav.Jcr2davRepositoryFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.cms.jcr.internal.osgi.CmsJcrActivator;
 import org.osgi.framework.BundleContext;
@@ -25,7 +24,7 @@ import org.osgi.framework.ServiceReference;
  * {@link Repository} as OSGi services.
  */
 public class NodeRepositoryFactory implements RepositoryFactory {
-	private final Log log = LogFactory.getLog(getClass());
+	private final CmsLog log = CmsLog.getLog(getClass());
 //	private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	// private Resource fileRepositoryConfiguration = new ClassPathResource(
@@ -36,7 +35,7 @@ public class NodeRepositoryFactory implements RepositoryFactory {
 		if (bundleContext != null) {
 			try {
 				Collection<ServiceReference<Repository>> srs = bundleContext.getServiceReferences(Repository.class,
-						"(" + NodeConstants.CN + "=" + alias + ")");
+						"(" + CmsConstants.CN + "=" + alias + ")");
 				if (srs.size() == 0)
 					throw new IllegalArgumentException("No repository with alias " + alias + " found in OSGi registry");
 				else if (srs.size() > 1)
@@ -75,7 +74,7 @@ public class NodeRepositoryFactory implements RepositoryFactory {
 		Repository repository;
 		String uri = null;
 		if (parameters.containsKey(RepoConf.labeledUri.name()))
-			uri = parameters.get(NodeConstants.LABELED_URI).toString();
+			uri = parameters.get(CmsConstants.LABELED_URI).toString();
 		else if (parameters.containsKey(KernelConstants.JACKRABBIT_REPOSITORY_URI))
 			uri = parameters.get(KernelConstants.JACKRABBIT_REPOSITORY_URI).toString();
 
@@ -94,10 +93,10 @@ public class NodeRepositoryFactory implements RepositoryFactory {
 
 		}
 
-		else if (parameters.containsKey(NodeConstants.CN)) {
+		else if (parameters.containsKey(CmsConstants.CN)) {
 			// Properties properties = new Properties();
 			// properties.putAll(parameters);
-			String alias = parameters.get(NodeConstants.CN).toString();
+			String alias = parameters.get(CmsConstants.CN).toString();
 			// publish(alias, repository, properties);
 			// log.info("Registered JCR repository under alias '" + alias + "'
 			// with properties " + properties);

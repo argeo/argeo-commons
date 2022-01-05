@@ -11,14 +11,13 @@ import java.util.concurrent.Executors;
 
 import javax.security.auth.login.Configuration;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.ArgeoLogger;
-import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeDeployment;
-import org.argeo.api.NodeInstance;
-import org.argeo.api.NodeState;
-import org.argeo.ident.IdentClient;
+import org.argeo.api.cms.CmsState;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsData;
+import org.argeo.api.cms.CmsDeployment;
+import org.argeo.cms.ArgeoLogger;
+import org.argeo.cms.auth.ident.IdentClient;
 import org.ietf.jgss.GSSCredential;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
@@ -40,7 +39,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * bundle (and only it)
  */
 public class Activator implements BundleActivator {
-	private final static Log log = LogFactory.getLog(Activator.class);
+	private final static CmsLog log = CmsLog.getLog(Activator.class);
 
 	private static Activator instance;
 
@@ -52,9 +51,9 @@ public class Activator implements BundleActivator {
 	private LogReaderService logReaderService;
 
 	private NodeLogger logger;
-	private CmsState nodeState;
-	private CmsDeployment nodeDeployment;
-	private CmsInstance nodeInstance;
+	private CmsStateImpl nodeState;
+	private CmsDeploymentImpl nodeDeployment;
+	private CmsDataImpl nodeInstance;
 
 	private ServiceTracker<UserAdmin, NodeUserAdmin> userAdminSt;
 	private ExecutorService internalExecutorService;
@@ -162,16 +161,16 @@ public class Activator implements BundleActivator {
 
 	private void initNode() throws IOException {
 		// Node state
-		nodeState = new CmsState();
-		registerService(NodeState.class, nodeState, null);
+		nodeState = new CmsStateImpl();
+		registerService(CmsState.class, nodeState, null);
 
 		// Node deployment
-		nodeDeployment = new CmsDeployment();
+		nodeDeployment = new CmsDeploymentImpl();
 //		registerService(NodeDeployment.class, nodeDeployment, null);
 
 		// Node instance
-		nodeInstance = new CmsInstance();
-		registerService(NodeInstance.class, nodeInstance, null);
+		nodeInstance = new CmsDataImpl();
+		registerService(CmsData.class, nodeInstance, null);
 	}
 
 	public static <T> void registerService(Class<T> clss, T service, Dictionary<String, ?> properties) {
@@ -218,7 +217,7 @@ public class Activator implements BundleActivator {
 //		return bundleContext.getService(sr);
 //	}
 
-	public static NodeState getNodeState() {
+	public static CmsState getNodeState() {
 		return instance.nodeState;
 	}
 
@@ -236,7 +235,7 @@ public class Activator implements BundleActivator {
 	}
 
 	public static String getHttpProxySslHeader() {
-		return KernelUtils.getFrameworkProp(NodeConstants.HTTP_PROXY_SSL_DN);
+		return KernelUtils.getFrameworkProp(CmsConstants.HTTP_PROXY_SSL_DN);
 	}
 
 	public static IdentClient getIdentClient(String remoteAddr) {

@@ -17,11 +17,10 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeState;
 import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.RemoteAuthCallback;
@@ -48,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class CmsLogin implements CmsStyles, CallbackHandler {
-	private final static Log log = LogFactory.getLog(CmsLogin.class);
+	private final static CmsLog log = CmsLog.getLog(CmsLogin.class);
 
 	private Composite parent;
 	private Text usernameT, passwordT;
@@ -65,7 +64,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 	public CmsLogin(CmsView cmsView) {
 		this.cmsView = cmsView;
-		NodeState nodeState = null;// = Activator.getNodeState();
+		CmsState nodeState = null;// = Activator.getNodeState();
 		if (nodeState != null) {
 			defaultLocale = nodeState.getDefaultLocale();
 			List<Locale> locales = nodeState.getLocales();
@@ -272,9 +271,9 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			// loginContext.logout();
 			LoginContext loginContext;
 			if (subject == null)
-				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, this);
+				loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, this);
 			else
-				loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject, this);
+				loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
 			cmsView.authChange(loginContext);
 			return true;

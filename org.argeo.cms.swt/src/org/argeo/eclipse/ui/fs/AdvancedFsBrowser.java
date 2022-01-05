@@ -6,8 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -33,7 +32,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Simple UI provider that populates a composite parent given a NIO path */
 public class AdvancedFsBrowser {
-	private final static Log log = LogFactory.getLog(AdvancedFsBrowser.class);
+	private final static CmsLog log = CmsLog.getLog(AdvancedFsBrowser.class);
 
 	// Some local constants to experiment. should be cleaned
 	// private final static int THUMBNAIL_WIDTH = 400;

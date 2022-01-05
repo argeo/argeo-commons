@@ -41,11 +41,10 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitSession;
 import org.apache.jackrabbit.api.JackrabbitValue;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jackrabbit.client.ClientDavexRepositoryFactory;
 import org.argeo.jcr.Jcr;
@@ -61,7 +60,7 @@ import org.osgi.framework.BundleContext;
  * recovery.
  */
 public class LogicalBackup implements Runnable {
-	private final static Log log = LogFactory.getLog(LogicalBackup.class);
+	private final static CmsLog log = CmsLog.getLog(LogicalBackup.class);
 
 	public final static String WORKSPACES_BASE = "workspaces/";
 	public final static String FILES_BASE = "files/";
@@ -369,7 +368,7 @@ public class LogicalBackup implements Runnable {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put(ClientDavexRepositoryFactory.JACKRABBIT_DAVEX_URI, uri.toString());
 		// TODO make it configurable
-		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, NodeConstants.SYS_WORKSPACE);
+		params.put(ClientDavexRepositoryFactory.JACKRABBIT_REMOTE_DEFAULT_WORKSPACE, CmsConstants.SYS_WORKSPACE);
 		return repositoryFactory.getRepository(params);
 	}
 

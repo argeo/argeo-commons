@@ -20,12 +20,11 @@ import javax.jcr.Session;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.VersionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.jcr.CmsJcrUtils;
-import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.CmsUiConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.LifeCycleUiProvider;
 import org.argeo.cms.ui.util.CmsUiUtils;
@@ -53,8 +52,8 @@ import org.osgi.framework.ServiceRegistration;
 
 /** A basic generic app based on {@link SimpleErgonomics}. */
 @Deprecated
-public class SimpleApp implements CmsConstants, ApplicationConfiguration {
-	private final static Log log = LogFactory.getLog(SimpleApp.class);
+public class SimpleApp implements CmsUiConstants, ApplicationConfiguration {
+	private final static CmsLog log = CmsLog.getLog(SimpleApp.class);
 
 	private String contextName = null;
 
@@ -68,8 +67,8 @@ public class SimpleApp implements CmsConstants, ApplicationConfiguration {
 	private Repository repository;
 	private String workspace = null;
 	private String jcrBasePath = "/";
-	private List<String> roPrincipals = Arrays.asList(NodeConstants.ROLE_ANONYMOUS, NodeConstants.ROLE_USER);
-	private List<String> rwPrincipals = Arrays.asList(NodeConstants.ROLE_USER);
+	private List<String> roPrincipals = Arrays.asList(CmsConstants.ROLE_ANONYMOUS, CmsConstants.ROLE_USER);
+	private List<String> rwPrincipals = Arrays.asList(CmsConstants.ROLE_USER);
 
 	private CmsUiProvider header;
 	private Map<String, CmsUiProvider> pages = new LinkedHashMap<String, CmsUiProvider>();

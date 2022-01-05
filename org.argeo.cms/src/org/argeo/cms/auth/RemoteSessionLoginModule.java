@@ -14,8 +14,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.kernel.Activator;
 import org.osgi.framework.BundleContext;
@@ -25,7 +24,7 @@ import org.osgi.service.useradmin.Authorization;
 
 /** Use the HTTP session as the basis for authentication. */
 public class RemoteSessionLoginModule implements LoginModule {
-	private final static Log log = LogFactory.getLog(RemoteSessionLoginModule.class);
+	private final static CmsLog log = CmsLog.getLog(RemoteSessionLoginModule.class);
 
 	private Subject subject = null;
 	private CallbackHandler callbackHandler = null;

@@ -1,9 +1,9 @@
 package org.argeo.cms.e4.users;
 
-import static org.argeo.api.NodeInstance.WORKGROUP;
+import static org.argeo.api.cms.CmsData.WORKGROUP;
 import static org.argeo.cms.auth.UserAdminUtils.setProperty;
-import static org.argeo.naming.LdapAttrs.businessCategory;
-import static org.argeo.naming.LdapAttrs.description;
+import static org.argeo.util.naming.LdapAttrs.businessCategory;
+import static org.argeo.util.naming.LdapAttrs.description;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,8 +18,8 @@ import javax.jcr.Session;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.api.NodeConstants;
-import org.argeo.api.NodeInstance;
+import org.argeo.api.cms.CmsData;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
@@ -34,8 +34,8 @@ import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.transaction.WorkTransaction;
+import org.argeo.util.naming.LdapAttrs;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -87,7 +87,7 @@ public class GroupEditor extends AbstractRoleEditor {
 	@Inject
 	private Repository repository;
 	@Inject
-	private NodeInstance nodeInstance;
+	private CmsData nodeInstance;
 	// private final UserAdminWrapper userAdminWrapper;
 	private Session groupsSession;
 
@@ -119,7 +119,7 @@ public class GroupEditor extends AbstractRoleEditor {
 	@Override
 	protected void createUi(Composite parent) {
 		try {
-			groupsSession = repository.login(NodeConstants.SRV_WORKSPACE);
+			groupsSession = repository.login(CmsConstants.SRV_WORKSPACE);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot retrieve session", e);
 		}

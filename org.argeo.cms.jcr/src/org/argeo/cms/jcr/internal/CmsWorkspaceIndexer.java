@@ -16,15 +16,14 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 import javax.jcr.version.VersionManager;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.JackrabbitValue;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.jcr.JcrUtils;
 
 /** Ensure consistency of files, folder and last modified nodes. */
 class CmsWorkspaceIndexer implements EventListener {
-	private final static Log log = LogFactory.getLog(CmsWorkspaceIndexer.class);
+	private final static CmsLog log = CmsLog.getLog(CmsWorkspaceIndexer.class);
 
 //	private final static String MIX_ETAG = "mix:etag";
 	private final static String JCR_ETAG = "jcr:etag";

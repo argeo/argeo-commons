@@ -13,8 +13,6 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.api.security.user.UserManager;
 import org.apache.jackrabbit.core.DefaultSecurityManager;
 import org.apache.jackrabbit.core.security.AMContext;
@@ -26,17 +24,18 @@ import org.apache.jackrabbit.core.security.authentication.CallbackHandlerImpl;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
-import org.argeo.api.NodeConstants;
 import org.argeo.api.cms.CmsSession;
-import org.argeo.api.security.AnonymousPrincipal;
-import org.argeo.api.security.DataAdminPrincipal;
+import org.argeo.api.cms.DataAdminPrincipal;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.AnonymousPrincipal;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.osgi.CmsOsgiUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
 /** Customises Jackrabbit security. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
-	private final static Log log = LogFactory.getLog(ArgeoSecurityManager.class);
+	private final static CmsLog log = CmsLog.getLog(ArgeoSecurityManager.class);
 
 	private BundleContext cmsBundleContext = null;
 
@@ -94,7 +93,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 			if (isDataAdmin || isJackrabbitSystem || isRegularUser)
 				throw new IllegalStateException("Inconsistent " + subject);
 			else
-				return NodeConstants.ROLE_ANONYMOUS;
+				return CmsConstants.ROLE_ANONYMOUS;
 		} else if (isRegularUser) {// must be before DataAdmin
 			if (isAnonymous || isJackrabbitSystem)
 				throw new IllegalStateException("Inconsistent " + subject);
@@ -112,7 +111,7 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 				throw new IllegalStateException("Inconsistent " + subject);
 			else {
 				assert !subject.getPrincipals(AdminPrincipal.class).isEmpty();
-				return NodeConstants.ROLE_DATA_ADMIN;
+				return CmsConstants.ROLE_DATA_ADMIN;
 			}
 		} else if (isJackrabbitSystem) {
 			if (isAnonymous || isDataAdmin || isRegularUser)

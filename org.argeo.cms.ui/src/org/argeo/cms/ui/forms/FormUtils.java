@@ -9,9 +9,8 @@ import java.util.GregorianCalendar;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -29,7 +28,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Utilitary methods to ease implementation of CMS forms */
 public class FormUtils {
-	private final static Log log = LogFactory.getLog(FormUtils.class);
+	private final static CmsLog log = CmsLog.getLog(FormUtils.class);
 
 	public final static String DEFAULT_SHORT_DATE_FORMAT = "dd/MM/yyyy";
 

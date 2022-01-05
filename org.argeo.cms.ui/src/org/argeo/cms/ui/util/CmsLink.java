@@ -8,9 +8,8 @@ import java.net.URL;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.CmsStyle;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
@@ -29,7 +28,7 @@ import org.osgi.framework.BundleContext;
 
 /** A link to an internal or external location. */
 public class CmsLink implements CmsUiProvider {
-	private final static Log log = LogFactory.getLog(CmsLink.class);
+	private final static CmsLog log = CmsLog.getLog(CmsLink.class);
 	private BundleContext bundleContext;
 
 	private String label;

@@ -5,8 +5,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -24,7 +23,7 @@ import org.eclipse.swt.widgets.Tree;
 
 /** A simple Java 7 nio files browser with a tree */
 public class SimpleFsTreeBrowser extends Composite {
-	private final static Log log = LogFactory.getLog(SimpleFsTreeBrowser.class);
+	private final static CmsLog log = CmsLog.getLog(SimpleFsTreeBrowser.class);
 	private static final long serialVersionUID = -40347919096946585L;
 
 	private Path currSelected;

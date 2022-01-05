@@ -3,7 +3,7 @@ package org.argeo.cms.ui.widgets;
 import javax.jcr.Item;
 
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.CmsUiConstants;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /** Editable text part displaying styled text. */
-public abstract class StyledControl extends JcrComposite implements CmsConstants {
+public abstract class StyledControl extends JcrComposite implements CmsUiConstants {
 	private static final long serialVersionUID = -6372283442330912755L;
 	private Control control;
 

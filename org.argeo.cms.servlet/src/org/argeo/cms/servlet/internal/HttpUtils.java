@@ -5,7 +5,7 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
+import org.argeo.api.cms.CmsLog;
 
 public class HttpUtils {
 	public final static String HEADER_AUTHORIZATION = "Authorization";
@@ -17,7 +17,7 @@ public class HttpUtils {
 				|| userAgent.contains("opera") || userAgent.contains("browser");
 	}
 
-	public static void logResponseHeaders(Log log, HttpServletResponse response) {
+	public static void logResponseHeaders(CmsLog log, HttpServletResponse response) {
 		if (!log.isDebugEnabled())
 			return;
 		for (String headerName : response.getHeaderNames()) {
@@ -26,7 +26,7 @@ public class HttpUtils {
 		}
 	}
 
-	public static void logRequestHeaders(Log log, HttpServletRequest request) {
+	public static void logRequestHeaders(CmsLog log, HttpServletRequest request) {
 		if (!log.isDebugEnabled())
 			return;
 		for (Enumeration<String> headerNames = request.getHeaderNames(); headerNames.hasMoreElements();) {
@@ -37,7 +37,7 @@ public class HttpUtils {
 		log.debug(request.getRequestURI() + "\n");
 	}
 
-	public static void logRequest(Log log, HttpServletRequest request) {
+	public static void logRequest(CmsLog log, HttpServletRequest request) {
 		log.debug("contextPath=" + request.getContextPath());
 		log.debug("servletPath=" + request.getServletPath());
 		log.debug("requestURI=" + request.getRequestURI());

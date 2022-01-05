@@ -16,10 +16,10 @@ import javax.jcr.observation.Event;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
-import org.argeo.api.NodeConstants;
-import org.argeo.api.security.CryptoKeyring;
-import org.argeo.api.security.Keyring;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.CmsException;
+import org.argeo.cms.security.CryptoKeyring;
+import org.argeo.cms.security.Keyring;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.jcr.JcrBrowserUtils;
 import org.argeo.cms.ui.jcr.NodeContentProvider;
@@ -100,7 +100,7 @@ public class JcrBrowserView {
 		top.setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		try {
-			this.userSession = this.nodeRepository.login(NodeConstants.HOME_WORKSPACE);
+			this.userSession = this.nodeRepository.login(CmsConstants.HOME_WORKSPACE);
 		} catch (RepositoryException e) {
 			throw new CmsException("Cannot open user session", e);
 		}

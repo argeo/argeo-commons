@@ -3,8 +3,7 @@ package org.argeo.eclipse.ui.dialogs;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
@@ -26,7 +25,7 @@ import org.eclipse.swt.widgets.Text;
 public class ErrorFeedback extends TitleAreaDialog {
 	private static final long serialVersionUID = -8918084784628179044L;
 
-	private final static Log log = LogFactory.getLog(ErrorFeedback.class);
+	private final static CmsLog log = CmsLog.getLog(ErrorFeedback.class);
 
 	private final String message;
 	private final Throwable exception;

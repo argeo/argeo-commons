@@ -7,8 +7,7 @@ import java.util.Map;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.osgi.transaction.WorkTransaction;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
@@ -18,7 +17,7 @@ import org.osgi.service.useradmin.UserAdmin;
  * is already registered.
  */
 public class SimpleRoleRegistration implements Runnable {
-	private final static Log log = LogFactory.getLog(SimpleRoleRegistration.class);
+	private final static CmsLog log = CmsLog.getLog(SimpleRoleRegistration.class);
 
 	private String role;
 	private List<String> roles = new ArrayList<String>();

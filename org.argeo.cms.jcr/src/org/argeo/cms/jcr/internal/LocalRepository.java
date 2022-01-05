@@ -2,7 +2,7 @@ package org.argeo.cms.jcr.internal;
 
 import javax.jcr.Repository;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.jcr.JcrRepositoryWrapper;
 
 class LocalRepository extends JcrRepositoryWrapper {
@@ -13,7 +13,7 @@ class LocalRepository extends JcrRepositoryWrapper {
 		this.cn = cn;
 		// Map<String, Object> attrs = dataModelCapability.getAttributes();
 		// cn = (String) attrs.get(DataModelNamespace.NAME);
-		putDescriptor(NodeConstants.CN, cn);
+		putDescriptor(CmsConstants.CN, cn);
 	}
 
 	String getCn() {

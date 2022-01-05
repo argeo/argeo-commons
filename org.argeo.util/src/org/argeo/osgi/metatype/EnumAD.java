@@ -1,6 +1,6 @@
 package org.argeo.osgi.metatype;
 
-import org.argeo.naming.SpecifiedName;
+import org.argeo.util.naming.SpecifiedName;
 import org.osgi.service.metatype.AttributeDefinition;
 
 public interface EnumAD extends SpecifiedName, AttributeDefinition {

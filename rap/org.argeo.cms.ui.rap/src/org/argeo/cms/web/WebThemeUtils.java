@@ -1,14 +1,13 @@
 package org.argeo.cms.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.CmsTheme;
+import org.argeo.api.cms.CmsLog;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 
 /** Web specific utilities around theming. */
 public class WebThemeUtils {
-	private final static Log log = LogFactory.getLog(WebThemeUtils.class);
+	private final static CmsLog log = CmsLog.getLog(WebThemeUtils.class);
 
 	public static void apply(Application application, CmsTheme theme) {
 		ResourceLoader resourceLoader = new CmsThemeResourceLoader(theme);

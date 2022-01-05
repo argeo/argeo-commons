@@ -12,7 +12,7 @@ import org.argeo.cms.ui.eclipse.forms.AbstractFormPart;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.argeo.cms.ui.eclipse.forms.ManagedForm;
 import org.argeo.eclipse.ui.EclipseUiUtils;
-import org.argeo.naming.LdapAttrs;
+import org.argeo.util.naming.LdapAttrs;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.e4.ui.di.Persist;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;

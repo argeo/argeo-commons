@@ -6,8 +6,7 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.ui.jcr.model.RemoteRepositoryElem;
 import org.argeo.cms.ui.jcr.model.RepositoriesElem;
 import org.argeo.cms.ui.jcr.model.RepositoryElem;
@@ -21,7 +20,7 @@ import org.eclipse.swt.graphics.Image;
 public class NodeLabelProvider extends ColumnLabelProvider {
 	private static final long serialVersionUID = -3662051696443321843L;
 
-	private final static Log log = LogFactory.getLog(NodeLabelProvider.class);
+	private final static CmsLog log = CmsLog.getLog(NodeLabelProvider.class);
 
 	public String getText(Object element) {
 		try {

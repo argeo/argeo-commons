@@ -10,14 +10,13 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.auth.ident.IdentClient;
 import org.argeo.cms.internal.kernel.Activator;
-import org.argeo.ident.IdentClient;
 
 /** Use an ident service to identify. */
 public class IdentLoginModule implements LoginModule {
-	private final static Log log = LogFactory.getLog(IdentLoginModule.class);
+	private final static CmsLog log = CmsLog.getLog(IdentLoginModule.class);
 
 	private CallbackHandler callbackHandler = null;
 	private Map<String, Object> sharedState = null;

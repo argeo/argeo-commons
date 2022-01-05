@@ -1,11 +1,11 @@
 package org.argeo.cms.e4.users;
 
 import static org.argeo.cms.auth.UserAdminUtils.getProperty;
-import static org.argeo.naming.LdapAttrs.cn;
-import static org.argeo.naming.LdapAttrs.givenName;
-import static org.argeo.naming.LdapAttrs.mail;
-import static org.argeo.naming.LdapAttrs.sn;
-import static org.argeo.naming.LdapAttrs.uid;
+import static org.argeo.util.naming.LdapAttrs.cn;
+import static org.argeo.util.naming.LdapAttrs.givenName;
+import static org.argeo.util.naming.LdapAttrs.mail;
+import static org.argeo.util.naming.LdapAttrs.sn;
+import static org.argeo.util.naming.LdapAttrs.uid;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,7 +13,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
@@ -27,7 +27,7 @@ import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
-import org.argeo.naming.LdapAttrs;
+import org.argeo.util.naming.LdapAttrs;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
@@ -370,7 +370,7 @@ public class UserEditor extends AbstractRoleEditor {
 			staticFilterCmp.setLayout(new GridLayout());
 			showSystemRoleBtn = new Button(staticFilterCmp, SWT.CHECK);
 			showSystemRoleBtn.setText("Show system roles");
-			boolean showSysRole = CurrentUser.isInRole(NodeConstants.ROLE_ADMIN);
+			boolean showSysRole = CurrentUser.isInRole(CmsConstants.ROLE_ADMIN);
 			showSystemRoleBtn.setSelection(showSysRole);
 			userFilter.setShowSystemRole(showSysRole);
 			showSystemRoleBtn.addSelectionListener(new SelectionAdapter() {

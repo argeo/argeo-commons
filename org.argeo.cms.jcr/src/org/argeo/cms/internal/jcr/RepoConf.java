@@ -1,6 +1,6 @@
 package org.argeo.cms.internal.jcr;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.osgi.metatype.EnumAD;
 import org.argeo.osgi.metatype.EnumOCD;
 
@@ -9,7 +9,7 @@ public enum RepoConf implements EnumAD {
 	/** Repository type */
 	type("h2"),
 	/** Default workspace */
-	defaultWorkspace(NodeConstants.SYS_WORKSPACE),
+	defaultWorkspace(CmsConstants.SYS_WORKSPACE),
 	/** Database URL */
 	dburl(null),
 	/** Database user */

@@ -12,12 +12,12 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.argeo.api.NodeConstants;
 import org.argeo.api.cms.Cms2DSize;
 import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.ui.CmsConstants;
+import org.argeo.cms.ui.CmsUiConstants;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -74,7 +74,7 @@ public class CmsUiUtils {
 
 	/** A path in the node repository */
 	public static String getDataPath(Node node) {
-		return getDataPath(NodeConstants.EGO_REPOSITORY, node);
+		return getDataPath(CmsConstants.EGO_REPOSITORY, node);
 	}
 
 	public static String getDataPath(String cn, Node node) {
@@ -114,7 +114,7 @@ public class CmsUiUtils {
 
 	@Deprecated
 	public static void setItemHeight(Table table, int height) {
-		table.setData(CmsConstants.ITEM_HEIGHT, height);
+		table.setData(CmsUiConstants.ITEM_HEIGHT, height);
 	}
 
 	//
@@ -175,18 +175,18 @@ public class CmsUiUtils {
 
 	public static String noImg(Cms2DSize size) {
 		ResourceManager rm = RWT.getResourceManager();
-		return CmsUiUtils.img(rm.getLocation(CmsConstants.NO_IMAGE), size);
+		return CmsUiUtils.img(rm.getLocation(CmsUiConstants.NO_IMAGE), size);
 	}
 
 	public static String noImg() {
-		return noImg(CmsConstants.NO_IMAGE_SIZE);
+		return noImg(CmsUiConstants.NO_IMAGE_SIZE);
 	}
 
 	public static Image noImage(Cms2DSize size) {
 		ResourceManager rm = RWT.getResourceManager();
 		InputStream in = null;
 		try {
-			in = rm.getRegisteredContent(CmsConstants.NO_IMAGE);
+			in = rm.getRegisteredContent(CmsUiConstants.NO_IMAGE);
 			ImageData id = new ImageData(in);
 			ImageData scaled = id.scaledTo(size.getWidth(), size.getHeight());
 			Image image = new Image(Display.getCurrent(), scaled);

@@ -1,7 +1,7 @@
 package org.argeo.osgi.useradmin;
 
-import static org.argeo.naming.LdapAttrs.objectClass;
-import static org.argeo.naming.LdapObjs.inetOrgPerson;
+import static org.argeo.util.naming.LdapAttrs.objectClass;
+import static org.argeo.util.naming.LdapObjs.inetOrgPerson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,8 +25,8 @@ import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.naming.LdifParser;
-import org.argeo.naming.LdifWriter;
+import org.argeo.util.naming.LdifParser;
+import org.argeo.util.naming.LdifWriter;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;

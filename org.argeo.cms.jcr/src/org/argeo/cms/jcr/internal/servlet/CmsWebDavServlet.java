@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.jcr.Repository;
 
 import org.apache.jackrabbit.webdav.simple.SimpleWebdavServlet;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 
 /** A {@link SimpleWebdavServlet} based on {@link CmsSessionProvider}. */
 public class CmsWebDavServlet extends SimpleWebdavServlet {
@@ -27,7 +27,7 @@ public class CmsWebDavServlet extends SimpleWebdavServlet {
 
 	public void setRepository(Repository repository, Map<String, String> properties) {
 		this.repository = repository;
-		String alias = properties.get(NodeConstants.CN);
+		String alias = properties.get(CmsConstants.CN);
 		if (alias != null)
 			setSessionProvider(new CmsSessionProvider(alias));
 		else

@@ -5,12 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAppListener;
 import org.argeo.api.cms.CmsTheme;
 import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.util.LangUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -27,7 +26,7 @@ import org.osgi.service.event.EventAdmin;
 
 /** An RWT web app integrating with a {@link CmsApp}. */
 public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, CmsAppListener {
-	private final static Log log = LogFactory.getLog(CmsWebApp.class);
+	private final static CmsLog log = CmsLog.getLog(CmsWebApp.class);
 
 	private BundleContext bundleContext;
 	private CmsApp cmsApp;

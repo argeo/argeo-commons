@@ -9,12 +9,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.commons.cnd.ParseException;
 import org.apache.jackrabbit.core.config.RepositoryConfig;
 import org.apache.jackrabbit.core.fs.FileSystemException;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.jcr.JcrCallback;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
@@ -22,7 +21,7 @@ import org.argeo.jcr.JcrUtils;
 /** Migrate the data in a Jackrabbit repository. */
 @Deprecated
 public class JackrabbitDataModelMigration implements Comparable<JackrabbitDataModelMigration> {
-	private final static Log log = LogFactory.getLog(JackrabbitDataModelMigration.class);
+	private final static CmsLog log = CmsLog.getLog(JackrabbitDataModelMigration.class);
 
 	private String dataModelNodePath;
 	private String targetVersion;

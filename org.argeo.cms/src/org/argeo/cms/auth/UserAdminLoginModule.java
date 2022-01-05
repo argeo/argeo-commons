@@ -1,6 +1,6 @@
 package org.argeo.cms.auth;
 
-import static org.argeo.naming.LdapAttrs.cn;
+import static org.argeo.util.naming.LdapAttrs.cn;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
@@ -24,15 +24,14 @@ import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
-import org.argeo.api.security.CryptoKeyring;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.kernel.Activator;
-import org.argeo.naming.LdapAttrs;
+import org.argeo.cms.security.CryptoKeyring;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
 import org.argeo.osgi.useradmin.TokenUtils;
+import org.argeo.util.naming.LdapAttrs;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -46,7 +45,7 @@ import org.osgi.service.useradmin.UserAdmin;
  * authentication.
  */
 public class UserAdminLoginModule implements LoginModule {
-	private final static Log log = LogFactory.getLog(UserAdminLoginModule.class);
+	private final static CmsLog log = CmsLog.getLog(UserAdminLoginModule.class);
 
 	private Subject subject;
 	private CallbackHandler callbackHandler;
@@ -337,7 +336,7 @@ public class UserAdminLoginModule implements LoginModule {
 	}
 
 	protected Group searchForToken(UserAdmin userAdmin, String token) {
-		String dn = cn + "=" + token + "," + NodeConstants.TOKENS_BASEDN;
+		String dn = cn + "=" + token + "," + CmsConstants.TOKENS_BASEDN;
 		Group tokenGroup = (Group) userAdmin.getRole(dn);
 		return tokenGroup;
 	}

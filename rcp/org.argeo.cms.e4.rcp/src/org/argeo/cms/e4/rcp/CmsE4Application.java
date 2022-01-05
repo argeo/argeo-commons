@@ -7,7 +7,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsImageManager;
 import org.argeo.api.cms.CmsView;
 import org.argeo.api.cms.UxContext;
@@ -39,7 +39,7 @@ public class CmsE4Application implements IApplication, CmsView {
 		loginShell.setSubject(subject);
 		try {
 			// try pre-auth
-			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject, loginShell);
+			loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, subject, loginShell);
 			loginContext.login();
 		} catch (LoginException e) {
 			e.printStackTrace();

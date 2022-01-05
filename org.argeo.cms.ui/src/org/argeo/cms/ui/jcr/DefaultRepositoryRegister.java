@@ -8,16 +8,15 @@ import java.util.TreeMap;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 
 public class DefaultRepositoryRegister extends Observable implements RepositoryRegister {
 	/** Key for a JCR repository alias */
-	private final static String CN = NodeConstants.CN;
+	private final static String CN = CmsConstants.CN;
 	/** Key for a JCR repository URI */
 	// public final static String JCR_REPOSITORY_URI = "argeo.jcr.repository.uri";
-	private final static Log log = LogFactory.getLog(DefaultRepositoryRegister.class);
+	private final static CmsLog log = CmsLog.getLog(DefaultRepositoryRegister.class);
 
 	/** Read only map which will be directly exposed. */
 	private Map<String, Repository> repositories = Collections.unmodifiableMap(new TreeMap<String, Repository>());

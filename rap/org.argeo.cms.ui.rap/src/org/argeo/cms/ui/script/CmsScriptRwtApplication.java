@@ -10,8 +10,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsException;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
@@ -23,7 +22,7 @@ public class CmsScriptRwtApplication implements ApplicationConfiguration {
 	public final static String APP = "APP";
 	public final static String BC = "BC";
 
-	private final Log log = LogFactory.getLog(CmsScriptRwtApplication.class);
+	private final CmsLog log = CmsLog.getLog(CmsScriptRwtApplication.class);
 
 	BundleContext bundleContext;
 	Repository repository;

@@ -9,9 +9,9 @@ import javax.jcr.RepositoryFactory;
 import javax.jcr.Session;
 import javax.jcr.SimpleCredentials;
 
-import org.argeo.api.security.Keyring;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.jcr.CmsJcrUtils;
+import org.argeo.cms.security.Keyring;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.argeo.eclipse.ui.TreeParent;
 

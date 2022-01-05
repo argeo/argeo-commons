@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.CmsException;
 import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.UserAdminConf;
@@ -95,9 +95,9 @@ public class UserAdminWrapper {
 
 			if (onlyWritable && readOnly)
 				continue;
-			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.ROLES_BASEDN))
 				continue;
-			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;
 			dns.put(baseDn, UserAdminConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
 

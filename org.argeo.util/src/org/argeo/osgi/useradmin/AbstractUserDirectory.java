@@ -1,11 +1,11 @@
 package org.argeo.osgi.useradmin;
 
-import static org.argeo.naming.LdapAttrs.objectClass;
-import static org.argeo.naming.LdapObjs.extensibleObject;
-import static org.argeo.naming.LdapObjs.inetOrgPerson;
-import static org.argeo.naming.LdapObjs.organizationalPerson;
-import static org.argeo.naming.LdapObjs.person;
-import static org.argeo.naming.LdapObjs.top;
+import static org.argeo.util.naming.LdapAttrs.objectClass;
+import static org.argeo.util.naming.LdapObjs.extensibleObject;
+import static org.argeo.util.naming.LdapObjs.inetOrgPerson;
+import static org.argeo.util.naming.LdapObjs.organizationalPerson;
+import static org.argeo.util.naming.LdapObjs.person;
+import static org.argeo.util.naming.LdapObjs.top;
 
 import java.io.File;
 import java.net.URI;
@@ -28,8 +28,8 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.naming.LdapAttrs;
 import org.argeo.osgi.transaction.WorkControl;
+import org.argeo.util.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
