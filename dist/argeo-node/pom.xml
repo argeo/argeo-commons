@@ -183,7 +183,7 @@
 									</mappings>
 									<requires>
 										<require>argeo-cms-node${argeo.rpm.suffix}</require>
-										<require>argeo-osgi-boot${argeo.rpm.suffix}</require>
+										<require>argeo-init${argeo.rpm.suffix}</require>
 										<!-- do not explicitely require java -->
 									</requires>
 								</configuration>

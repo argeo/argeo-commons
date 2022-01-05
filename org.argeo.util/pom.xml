@@ -7,6 +7,6 @@
 		<version>2.3-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>org.argeo.enterprise</artifactId>
-	<name>Argeo Enterprise</name>
+	<artifactId>org.argeo.util</artifactId>
+	<name>Java and OSGi utilities</name>
 </project>

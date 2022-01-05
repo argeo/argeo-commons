@@ -11,7 +11,7 @@
 	<name>Commons Deployable Distributions</name>
 	<packaging>pom</packaging>
 	<modules>
-		<module>osgi-boot</module>
+		<module>argeo-init</module>
 		<!-- <module>argeo-cli</module> -->
 		<module>argeo-node</module>
 	</modules>

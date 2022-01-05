@@ -21,7 +21,7 @@
 	<modules>
 		<!-- Base -->
 		<module>org.argeo.init</module>
-		<module>org.argeo.enterprise</module>
+		<module>org.argeo.util</module>
 		<!-- Eclipse -->
 		<!-- CMS -->
 		<module>org.argeo.api</module>
@@ -37,7 +37,6 @@
 		<module>rap</module>
 		<!-- Distribution -->
 		<module>dep</module>
-		<module>demo</module>
 		<module>dist</module>
 		<module>sdk</module>
 	</modules>

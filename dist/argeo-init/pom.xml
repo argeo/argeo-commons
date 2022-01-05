@@ -22,7 +22,7 @@
 		<!-- OSGi Boot (and Equinox) -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.osgi.boot</artifactId>
+			<artifactId>org.argeo.init</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
@@ -69,7 +69,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-osgi-boot${argeo.rpm.suffix}</name>
+									<name>argeo-init${argeo.rpm.suffix}</name>
 									<mappings>
 										<mapping>
 											<directory>/usr/bin</directory>
@@ -117,7 +117,7 @@
 										</mapping>
 									</mappings>
 									<requires>
-										<require>argeo-osgi-boot-equinox${argeo.rpm.suffix}</require>
+										<require>argeo-init-tp-equinox${argeo.rpm.suffix}</require>
 									</requires>
 								</configuration>
 							</execution>
@@ -141,7 +141,7 @@
 									<goal>rpm</goal>
 								</goals>
 								<configuration>
-									<name>argeo-osgi-boot-equinox${argeo.rpm.suffix}</name>
+									<name>argeo-init-tp-equinox${argeo.rpm.suffix}</name>
 									<projversion>${version.argeo-tp}</projversion>
 									<release>${argeo.rpm.release.tp}</release>
 									<mappings>
