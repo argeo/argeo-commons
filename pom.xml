@@ -34,6 +34,7 @@
 		<module>org.argeo.cms.ui</module>
 		<module>org.argeo.cms.e4</module>
 		<!-- Eclipse RAP/RCP specific -->
+		<module>rcp</module>
 		<module>rap</module>
 		<!-- Distribution -->
 		<module>dep</module>
