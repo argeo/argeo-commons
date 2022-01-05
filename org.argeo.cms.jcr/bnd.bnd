@@ -10,7 +10,7 @@ Import-Package:\
 org.argeo.cms.servlet,\
 javax.jcr.security,\
 org.h2;resolution:=optional,\
-org.postgresql;resolution:=optional,\
+org.postgresql;version="[42,43)";resolution:=optional,\
 org.apache.jackrabbit.webdav.server,\
 org.apache.jackrabbit.webdav.jcr,\
 org.apache.commons.httpclient.cookie;resolution:=optional,\

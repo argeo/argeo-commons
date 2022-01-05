@@ -27,6 +27,7 @@
 		<module>org.argeo.api</module>
 		<module>org.argeo.cms.tp</module>
 		<module>org.argeo.cms</module>
+		<module>org.argeo.cms.pgsql</module>
 		<module>org.argeo.cms.servlet</module>
 		<module>org.argeo.cms.jcr</module>
 		<!-- CMS UX -->

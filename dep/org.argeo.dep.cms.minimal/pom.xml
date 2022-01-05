@@ -50,6 +50,11 @@
 			<artifactId>org.argeo.cms</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.cms.pgsql</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
 
 		<!-- Third Parties -->
 
