@@ -114,6 +114,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.argeo.tp.apache.commons</groupId>
+			<artifactId>org.apache.commons.cli</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.tp.apache.commons</groupId>
 			<artifactId>org.apache.commons.codec</artifactId>
 		</dependency>
 		<dependency>
