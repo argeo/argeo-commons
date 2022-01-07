@@ -1,6 +1,6 @@
 package org.argeo.cms.e4.users;
 
-import static org.argeo.api.cms.CmsData.WORKGROUP;
+import static org.argeo.api.cms.CmsContext.WORKGROUP;
 import static org.argeo.cms.auth.UserAdminUtils.setProperty;
 import static org.argeo.util.naming.LdapAttrs.businessCategory;
 import static org.argeo.util.naming.LdapAttrs.description;
@@ -15,12 +15,9 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
 
-import org.argeo.api.cms.CmsData;
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.CmsException;
+import org.argeo.api.cms.CmsContext;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.MailLP;
@@ -33,6 +30,7 @@ import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.util.naming.LdapAttrs;
@@ -87,7 +85,7 @@ public class GroupEditor extends AbstractRoleEditor {
 	@Inject
 	private Repository repository;
 	@Inject
-	private CmsData nodeInstance;
+	private CmsContext nodeInstance;
 	// private final UserAdminWrapper userAdminWrapper;
 	private Session groupsSession;
 
@@ -121,7 +119,7 @@ public class GroupEditor extends AbstractRoleEditor {
 		try {
 			groupsSession = repository.login(CmsConstants.SRV_WORKSPACE);
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot retrieve session", e);
+			throw new JcrException("Cannot retrieve session", e);
 		}
 		// ScrolledForm form = mf.getForm();
 		// Composite body = form.getBody();
@@ -219,20 +217,15 @@ public class GroupEditor extends AbstractRoleEditor {
 					Node workgroupHome = CmsJcrUtils.getGroupHome(groupsSession, cn);
 					if (workgroupHome != null)
 						return; // already marked as workgroup, do nothing
-					else
-						try {
-							// improve transaction management
-							userAdminWrapper.beginTransactionIfNeeded();
-							nodeInstance.createWorkgroup(new LdapName(group.getName()));
-							setProperty(group, businessCategory, WORKGROUP);
-							userAdminWrapper.commitOrNotifyTransactionStateChange();
-							userAdminWrapper
-									.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, group));
-							part.refresh();
-						} catch (InvalidNameException e1) {
-							throw new CmsException("Cannot create Workgroup for " + group.toString(), e1);
-						}
-
+					else {
+						// improve transaction management
+						userAdminWrapper.beginTransactionIfNeeded();
+						nodeInstance.createWorkgroup(group.getName());
+						setProperty(group, businessCategory, WORKGROUP);
+						userAdminWrapper.commitOrNotifyTransactionStateChange();
+						userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, group));
+						part.refresh();
+					}
 				}
 			}
 		});
@@ -521,7 +514,8 @@ public class GroupEditor extends AbstractRoleEditor {
 					try {
 						transaction.commit();
 					} catch (Exception e) {
-						throw new CmsException("Cannot commit transaction " + "after user group membership update", e);
+						throw new IllegalStateException(
+								"Cannot commit transaction " + "after user group membership update", e);
 					}
 				userAdminWrapper.notifyListeners(new UserAdminEvent(null, UserAdminEvent.ROLE_CHANGED, myGroup));
 			}

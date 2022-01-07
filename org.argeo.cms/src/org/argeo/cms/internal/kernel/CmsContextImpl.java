@@ -1,19 +1,17 @@
 package org.argeo.cms.internal.kernel;
 
-import javax.naming.ldap.LdapName;
-
-import org.argeo.api.cms.CmsData;
+import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsLog;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
-public class CmsDataImpl implements CmsData {
+public class CmsContextImpl implements CmsContext {
 	private final CmsLog log = CmsLog.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 //	private EgoRepository egoRepository;
 
-	public CmsDataImpl() {
+	public CmsContextImpl() {
 		initTrackers();
 	}
 
@@ -45,7 +43,7 @@ public class CmsDataImpl implements CmsData {
 	}
 
 	@Override
-	public void createWorkgroup(LdapName dn) {
+	public void createWorkgroup(String dn) {
 //		if (egoRepository == null)
 //			throw new CmsException("Ego repository is not available");
 //		// TODO add check that the group exists

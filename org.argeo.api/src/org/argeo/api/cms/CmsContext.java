@@ -1,9 +1,10 @@
 package org.argeo.api.cms;
 
-import javax.naming.ldap.LdapName;
-
-/** The structured data */
-public interface CmsData {
+/**
+ * A logical view on this CMS instance, independently of a particular launch or
+ * deployment.
+ */
+public interface CmsContext {
 	/**
 	 * To be used as an identifier of a workgroup, typically as a value for the
 	 * 'businessCategory' attribute in LDAP.
@@ -11,5 +12,5 @@ public interface CmsData {
 	public final static String WORKGROUP = "workgroup";
 
 	/** Mark this group as a workgroup */
-	void createWorkgroup(LdapName groupDn);
+	void createWorkgroup(String groupDn);
 }

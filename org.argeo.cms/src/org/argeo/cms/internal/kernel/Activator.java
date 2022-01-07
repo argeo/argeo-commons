@@ -14,7 +14,7 @@ import javax.security.auth.login.Configuration;
 import org.argeo.api.cms.CmsState;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.api.cms.CmsData;
+import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.cms.ArgeoLogger;
 import org.argeo.cms.auth.ident.IdentClient;
@@ -53,7 +53,7 @@ public class Activator implements BundleActivator {
 	private NodeLogger logger;
 	private CmsStateImpl nodeState;
 	private CmsDeploymentImpl nodeDeployment;
-	private CmsDataImpl nodeInstance;
+	private CmsContextImpl nodeInstance;
 
 	private ServiceTracker<UserAdmin, NodeUserAdmin> userAdminSt;
 	private ExecutorService internalExecutorService;
@@ -169,8 +169,8 @@ public class Activator implements BundleActivator {
 //		registerService(NodeDeployment.class, nodeDeployment, null);
 
 		// Node instance
-		nodeInstance = new CmsDataImpl();
-		registerService(CmsData.class, nodeInstance, null);
+		nodeInstance = new CmsContextImpl();
+		registerService(CmsContext.class, nodeInstance, null);
 	}
 
 	public static <T> void registerService(Class<T> clss, T service, Dictionary<String, ?> properties) {

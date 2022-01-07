@@ -1,6 +1,6 @@
 package org.argeo.cms.e4.users.providers;
 
-import org.argeo.api.cms.CmsData;
+import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.SecurityAdminImages;
@@ -26,7 +26,7 @@ public class RoleIconLP extends UserAdminAbstractLP {
 			return SecurityAdminImages.ICON_ROLE;
 		else if (user.getType() == Role.GROUP) {
 			String businessCategory = UserAdminUtils.getProperty(user, LdapAttrs.businessCategory);
-			if (businessCategory != null && businessCategory.equals(CmsData.WORKGROUP))
+			if (businessCategory != null && businessCategory.equals(CmsContext.WORKGROUP))
 				return SecurityAdminImages.ICON_WORKGROUP;
 			return SecurityAdminImages.ICON_GROUP;
 		} else
