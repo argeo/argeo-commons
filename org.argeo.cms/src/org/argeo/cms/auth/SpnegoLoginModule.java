@@ -9,7 +9,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.internal.kernel.Activator;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -111,7 +111,7 @@ public class SpnegoLoginModule implements LoginModule {
 	private GSSContext checkToken(byte[] authToken) {
 		GSSManager manager = GSSManager.getInstance();
 		try {
-			GSSContext gContext = manager.createContext(Activator.getAcceptorCredentials());
+			GSSContext gContext = manager.createContext(CmsContextImpl.getAcceptorCredentials());
 
 			if (gContext == null) {
 				log.debug("SpnegoUserRealm: failed to establish GSSContext");
@@ -132,7 +132,8 @@ public class SpnegoLoginModule implements LoginModule {
 
 	}
 
+	@Deprecated
 	public static boolean hasAcceptorCredentials() {
-		return Activator.getAcceptorCredentials() != null;
+		return CmsContextImpl.getAcceptorCredentials() != null;
 	}
 }

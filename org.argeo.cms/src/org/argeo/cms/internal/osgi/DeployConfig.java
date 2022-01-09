@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.osgi;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,22 +20,25 @@ import javax.naming.ldap.Rdn;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.internal.runtime.InitUtils;
+import org.argeo.cms.internal.runtime.KernelConstants;
+import org.argeo.cms.internal.runtime.KernelUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.naming.AttributesDictionary;
 import org.argeo.util.naming.LdifParser;
 import org.argeo.util.naming.LdifWriter;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 
 /** Manages the LDIF-based deployment configuration. */
-class DeployConfig implements ConfigurationListener {
+public class DeployConfig implements ConfigurationListener {
 	private final CmsLog log = CmsLog.getLog(getClass());
-	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
+//	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	private static Path deployConfigPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
 	private SortedMap<LdapName, Attributes> deployConfigs = new TreeMap<>();
@@ -44,23 +47,23 @@ class DeployConfig implements ConfigurationListener {
 	private boolean isFirstInit = false;
 
 	private final static String ROLES = "roles";
-	
+
 	private ConfigurationAdmin configurationAdmin;
 
-	public DeployConfig(ConfigurationAdmin configurationAdmin, boolean isClean) {
+	public DeployConfig() {
 //		this.dataModels = dataModels;
 		// ConfigurationAdmin configurationAdmin =
-		// bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
-		try {
-			if (!isInitialized()) { // first init
-				isFirstInit = true;
-				firstInit();
-			}
-			this.configurationAdmin = configurationAdmin;
-			init(configurationAdmin, isClean, isFirstInit);
-		} catch (IOException e) {
-			throw new RuntimeException("Could not init deploy configs", e);
-		}
+//		// bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
+//		try {
+//			if (!isInitialized()) { // first init
+//				isFirstInit = true;
+//				firstInit();
+//			}
+//			this.configurationAdmin = configurationAdmin;
+////			init(configurationAdmin, isClean, isFirstInit);
+//		} catch (IOException e) {
+//			throw new RuntimeException("Could not init deploy configs", e);
+//		}
 		// FIXME check race conditions during initialization
 		// bc.registerService(ConfigurationListener.class, this, null);
 	}
@@ -175,7 +178,20 @@ class DeployConfig implements ConfigurationListener {
 
 	}
 
-	private void init(ConfigurationAdmin configurationAdmin, boolean isClean, boolean isFirstInit) throws IOException {
+	public void init() throws IOException {
+		if (!isInitialized()) { // first init
+			isFirstInit = true;
+			firstInit();
+		}
+
+		boolean isClean;
+		try {
+			Configuration[] confs = configurationAdmin
+					.listConfigurations("(service.factoryPid=" + CmsConstants.NODE_USER_ADMIN_PID + ")");
+			isClean = confs == null || confs.length == 0;
+		} catch (Exception e) {
+			throw new IllegalStateException("Cannot analyse clean state", e);
+		}
 
 		try (InputStream in = Files.newInputStream(deployConfigPath)) {
 			deployConfigs = new LdifParser().read(in);
@@ -188,7 +204,11 @@ class DeployConfig implements ConfigurationListener {
 		}
 		// TODO check consistency if not clean
 	}
-	
+
+	public void destroy() {
+
+	}
+
 	public void loadConfigs() throws IOException {
 		// FIXME make it more robust
 		Configuration systemRolesConf = null;
@@ -235,14 +255,13 @@ class DeployConfig implements ConfigurationListener {
 		if (systemRolesConf == null)
 			throw new IllegalStateException("System roles are not configured.");
 		systemRolesConf.update(new AttributesDictionary(deployConfigs.get(systemRolesDn)));
-		
+
 	}
 
 	@Override
 	public void configurationEvent(ConfigurationEvent event) {
 		try {
 			if (ConfigurationEvent.CM_UPDATED == event.getType()) {
-				ConfigurationAdmin configurationAdmin = bc.getService(event.getReference());
 				Configuration conf = configurationAdmin.getConfiguration(event.getPid(), null);
 				LdapName serviceDn = null;
 				String factoryPid = conf.getFactoryPid();
@@ -297,7 +316,7 @@ class DeployConfig implements ConfigurationListener {
 		}
 	}
 
-	void putFactoryDeployConfig(String factoryPid, Dictionary<String, Object> props) {
+	public void putFactoryDeployConfig(String factoryPid, Dictionary<String, Object> props) {
 		Object cn = props.get(CmsConstants.CN);
 		if (cn == null)
 			throw new IllegalArgumentException("cn must be set in properties");
@@ -317,13 +336,37 @@ class DeployConfig implements ConfigurationListener {
 		deployConfigs.put(serviceDn, attrs);
 	}
 
-	void save() {
+	public void save() {
 		try (Writer writer = Files.newBufferedWriter(deployConfigPath)) {
 			new LdifWriter(writer).write(deployConfigs);
 		} catch (IOException e) {
 			// throw new CmsException("Cannot save deploy configs", e);
 			log.error("Cannot save deploy configs", e);
 		}
+	}
+
+	public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+		this.configurationAdmin = configurationAdmin;
+	}
+
+	public boolean hasDomain() {
+		Configuration[] configs;
+		try {
+			configs = configurationAdmin
+					.listConfigurations("(service.factoryPid=" + CmsConstants.NODE_USER_ADMIN_PID + ")");
+		} catch (IOException | InvalidSyntaxException e) {
+			throw new IllegalStateException("Cannot list user directories", e);
+		}
+
+		boolean hasDomain = false;
+		for (Configuration config : configs) {
+			Object realm = config.getProperties().get(UserAdminConf.realm.name());
+			if (realm != null) {
+				log.debug("Found realm: " + realm);
+				hasDomain = true;
+			}
+		}
+		return hasDomain;
 	}
 
 	/*
@@ -353,7 +396,7 @@ class DeployConfig implements ConfigurationListener {
 		}
 	}
 
-public	Dictionary<String, Object> getProps(String factoryPid, String cn) {
+	public Dictionary<String, Object> getProps(String factoryPid, String cn) {
 		Attributes attrs = deployConfigs.get(serviceDn(factoryPid, cn));
 		if (attrs != null)
 			return new AttributesDictionary(attrs);

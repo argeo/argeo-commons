@@ -1,6 +1,6 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.runtime;
 
-import static org.argeo.cms.internal.kernel.KernelUtils.getFrameworkProp;
+import static org.argeo.cms.internal.runtime.KernelUtils.getFrameworkProp;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -30,12 +30,11 @@ import org.argeo.osgi.useradmin.UserAdminConf;
  * Interprets framework properties in order to generate the initial deploy
  * configuration.
  */
-class InitUtils {
+public class InitUtils {
 	private final static CmsLog log = CmsLog.getLog(InitUtils.class);
 
-
 	/** Override the provided config with the framework properties */
-	static Dictionary<String, Object> getHttpServerConfig(Dictionary<String, Object> provided) {
+	public static Dictionary<String, Object> getHttpServerConfig(Dictionary<String, Object> provided) {
 		String httpPort = getFrameworkProp("org.osgi.service.http.port");
 		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
 		/// TODO make it more generic
@@ -122,7 +121,7 @@ class InitUtils {
 		return props;
 	}
 
-	static List<Dictionary<String, Object>> getUserDirectoryConfigs() {
+	public static List<Dictionary<String, Object>> getUserDirectoryConfigs() {
 		List<Dictionary<String, Object>> res = new ArrayList<>();
 		File nodeBaseDir = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_NODE).toFile();
 		List<String> uris = new ArrayList<>();
@@ -218,7 +217,7 @@ class InitUtils {
 	 * Called before node initialisation, in order populate OSGi instance are with
 	 * some files (typically LDIF, etc).
 	 */
-	static void prepareFirstInitInstanceArea() {
+	public static void prepareFirstInitInstanceArea() {
 		String nodeInits = getFrameworkProp(CmsConstants.NODE_INIT);
 		if (nodeInits == null)
 			nodeInits = "../../init";
@@ -227,7 +226,7 @@ class InitUtils {
 
 			if (nodeInit.startsWith("http")) {
 				// TODO reconnect it
-				//registerRemoteInit(nodeInit);
+				// registerRemoteInit(nodeInit);
 			} else {
 
 				// TODO use java.nio.file

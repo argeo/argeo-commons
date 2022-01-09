@@ -14,9 +14,10 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
-import org.argeo.cms.internal.kernel.Activator;
+import org.argeo.cms.internal.runtime.KernelUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
@@ -211,7 +212,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 			if (log.isDebugEnabled())
 				log.debug("Client certificate " + certDn + " verified by servlet container");
 		} // Reverse proxy verified the client certificate
-		String clientDnHttpHeader = Activator.getHttpProxySslHeader();
+		String clientDnHttpHeader = KernelUtils.getFrameworkProp(CmsConstants.HTTP_PROXY_SSL_DN);
 		if (clientDnHttpHeader != null) {
 			String certDn = req.getHeader(clientDnHttpHeader);
 			// TODO retrieve more cf. https://httpd.apache.org/docs/current/mod/mod_ssl.html

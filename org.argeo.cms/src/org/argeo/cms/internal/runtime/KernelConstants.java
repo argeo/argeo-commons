@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.runtime;
 
 import org.argeo.api.cms.CmsConstants;
 

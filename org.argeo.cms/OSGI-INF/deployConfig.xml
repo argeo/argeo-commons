@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" name="Deploy Config">
+   <implementation class="org.argeo.cms.internal.osgi.DeployConfig"/>
+   <service>
+      <provide interface="org.argeo.cms.internal.osgi.DeployConfig"/>
+   </service>
+   <reference bind="setConfigurationAdmin" cardinality="1..1" interface="org.osgi.service.cm.ConfigurationAdmin" name="ConfigurationAdmin" policy="static"/>
+</scr:component>

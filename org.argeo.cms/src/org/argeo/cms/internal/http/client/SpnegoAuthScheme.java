@@ -20,7 +20,7 @@ import org.apache.commons.httpclient.auth.MalformedChallengeException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpParams;
-import org.argeo.cms.internal.kernel.KernelConstants;
+import org.argeo.cms.internal.runtime.KernelConstants;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;

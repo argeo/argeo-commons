@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" immediate="false" name="CMS Deployment">
+   <reference bind="setDeployConfig" cardinality="1..1" interface="org.argeo.cms.internal.osgi.DeployConfig" name="DeployConfig" policy="static"/>
+   <implementation class="org.argeo.cms.internal.runtime.CmsDeploymentImpl"/>
+   <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
+   <service>
+      <provide interface="org.argeo.api.cms.CmsDeployment"/>
+   </service>
+</scr:component>

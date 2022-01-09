@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.osgi;
 
 import java.io.IOException;
 import java.net.Inet6Address;
@@ -34,10 +34,10 @@ import org.apache.commons.httpclient.params.HttpParams;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.CmsUserManager;
-import org.argeo.cms.internal.auth.CmsUserManagerImpl;
 import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
+import org.argeo.cms.internal.runtime.KernelConstants;
+import org.argeo.cms.internal.runtime.KernelUtils;
 import org.argeo.osgi.transaction.WorkControl;
 import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.AbstractUserDirectory;
@@ -53,22 +53,20 @@ import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.useradmin.Authorization;
+import org.osgi.service.useradmin.Group;
+import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Aggregates multiple {@link UserDirectory} and integrates them with system
  * roles.
  */
-class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactory, KernelConstants {
+public class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactory, KernelConstants {
 	private final static CmsLog log = CmsLog.getLog(NodeUserAdmin.class);
-//	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
 	// OSGi
 	private Map<String, LdapName> pidToBaseDn = new HashMap<>();
@@ -76,7 +74,7 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 //	private ServiceRegistration<UserAdmin> userAdminReg;
 
 	// JTA
-	private final ServiceTracker<WorkControl, WorkControl> tmTracker;
+//	private final ServiceTracker<WorkControl, WorkControl> tmTracker;
 	// private final String cacheName = UserDirectory.class.getName();
 
 	// GSS API
@@ -86,29 +84,37 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 	private boolean singleUser = false;
 //	private boolean systemRolesAvailable = false;
 
-	CmsUserManagerImpl userManager;
+//	CmsUserManagerImpl userManager;
+	private WorkControl transactionManager;
+	private WorkTransaction userTransaction;
 
-	public NodeUserAdmin(String systemRolesBaseDn, String tokensBaseDn) {
-		super(systemRolesBaseDn, tokensBaseDn);
-		BundleContext bc = Activator.getBundleContext();
-		if (bc != null) {
-			tmTracker = new ServiceTracker<>(bc, WorkControl.class, null) {
+	public NodeUserAdmin() {
+		super(CmsConstants.ROLES_BASEDN, CmsConstants.TOKENS_BASEDN);
+//		BundleContext bc = Activator.getBundleContext();
+//		if (bc != null) {
+//			tmTracker = new ServiceTracker<>(bc, WorkControl.class, null) {
+//
+//				@Override
+//				public WorkControl addingService(ServiceReference<WorkControl> reference) {
+//					WorkControl workControl = super.addingService(reference);
+//					userManager = new CmsUserManagerImpl();
+//					userManager.setUserAdmin(NodeUserAdmin.this);
+//					// FIXME make it more robust
+//					userManager.setUserTransaction((WorkTransaction) workControl);
+//					bc.registerService(CmsUserManager.class, userManager, null);
+//					return workControl;
+//				}
+//			};
+//			tmTracker.open();
+//		} else {
+//			tmTracker = null;
+//		}
+	}
 
-				@Override
-				public WorkControl addingService(ServiceReference<WorkControl> reference) {
-					WorkControl workControl = super.addingService(reference);
-					userManager = new CmsUserManagerImpl();
-					userManager.setUserAdmin(NodeUserAdmin.this);
-					// FIXME make it more robust
-					userManager.setUserTransaction((WorkTransaction) workControl);
-					bc.registerService(CmsUserManager.class, userManager, null);
-					return workControl;
-				}
-			};
-			tmTracker.open();
-		} else {
-			tmTracker = null;
-		}
+	public void init() {
+	}
+
+	public void destroy() {
 	}
 
 	@Override
@@ -153,8 +159,8 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		regProps.put(UserAdminConf.baseDn.name(), baseDn);
 		// ServiceRegistration<UserDirectory> reg =
 		// bc.registerService(UserDirectory.class, userDirectory, regProps);
-		Activator.registerService(UserDirectory.class, userDirectory, regProps);
-		userManager.addUserDirectory(userDirectory, regProps);
+		CmsActivator.getBundleContext().registerService(UserDirectory.class, userDirectory, regProps);
+//		userManager.addUserDirectory(userDirectory, regProps);
 		pidToBaseDn.put(pid, baseDn);
 		// pidToServiceRegs.put(pid, reg);
 
@@ -164,11 +170,13 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		}
 
 		if (isSystemRolesBaseDn(baseDn)) {
-			// publishes only when system roles are available
+			addStandardSystemRoles();
+
+			// publishes itself as user admin only when system roles are available
 			Dictionary<String, Object> userAdminregProps = new Hashtable<>();
 			userAdminregProps.put(CmsConstants.CN, CmsConstants.DEFAULT);
 			userAdminregProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-			Activator.registerService(UserAdmin.class, this, userAdminregProps);
+			CmsActivator.getBundleContext().registerService(UserAdmin.class, this, userAdminregProps);
 		}
 
 //		if (isSystemRolesBaseDn(baseDn))
@@ -186,6 +194,29 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 //			userAdminregProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
 //			userAdminReg = bc.registerService(UserAdmin.class, this, userAdminregProps);
 //		}
+	}
+
+	private void addStandardSystemRoles() {
+		// we assume UserTransaction is already available (TODO make it more robust)
+		try {
+			userTransaction.begin();
+			Role adminRole = getRole(CmsConstants.ROLE_ADMIN);
+			if (adminRole == null) {
+				adminRole = createRole(CmsConstants.ROLE_ADMIN, Role.GROUP);
+			}
+			if (getRole(CmsConstants.ROLE_USER_ADMIN) == null) {
+				Group userAdminRole = (Group) createRole(CmsConstants.ROLE_USER_ADMIN, Role.GROUP);
+				userAdminRole.addMember(adminRole);
+			}
+			userTransaction.commit();
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				// silent
+			}
+			throw new IllegalStateException("Cannot add standard system roles", e);
+		}
 	}
 
 	@Override
@@ -213,10 +244,10 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 
 	protected void postAdd(AbstractUserDirectory userDirectory) {
 		// JTA
-		WorkControl tm = tmTracker != null ? tmTracker.getService() : null;
-		if (tm == null)
-			throw new IllegalStateException("A JTA transaction manager must be available.");
-		userDirectory.setTransactionControl(tm);
+//		WorkControl tm = tmTracker != null ? tmTracker.getService() : null;
+//		if (tm == null)
+//			throw new IllegalStateException("A JTA transaction manager must be available.");
+		userDirectory.setTransactionControl(transactionManager);
 //		if (tmTracker.getService() instanceof BitronixTransactionManager)
 //			EhCacheXAResourceProducer.registerXAResource(cacheName, userDirectory.getXaResource());
 
@@ -333,9 +364,25 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 		return acceptorCredentials;
 	}
 
+	public boolean hasAcceptorCredentials() {
+		return acceptorCredentials != null;
+	}
+
 	public boolean isSingleUser() {
 		return singleUser;
 	}
+
+	public void setTransactionManager(WorkControl transactionManager) {
+		this.transactionManager = transactionManager;
+	}
+
+	public void setUserTransaction(WorkTransaction userTransaction) {
+		this.userTransaction = userTransaction;
+	}
+
+	/*
+	 * STATIC
+	 */
 
 	public final static Oid KERBEROS_OID;
 	static {
@@ -345,5 +392,4 @@ class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServiceFactor
 			throw new IllegalStateException("Cannot create Kerberos OID", e);
 		}
 	}
-
 }

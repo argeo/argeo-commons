@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.runtime;
 
 /**
  * Workaround for killing Gogo shell by system shutdown.

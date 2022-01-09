@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.osgi;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,6 +29,8 @@ import org.argeo.cms.ArgeoLogListener;
 import org.argeo.cms.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.internal.runtime.KernelConstants;
+import org.argeo.cms.internal.runtime.KernelUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
@@ -40,7 +42,7 @@ import org.osgi.service.log.LogListener;
 import org.osgi.service.log.LogReaderService;
 
 /** Not meant to be used directly in standard log4j config */
-class NodeLogger implements ArgeoLogger, LogListener {
+public class NodeLogger implements ArgeoLogger, LogListener {
 	/** Internal debug for development purposes. */
 	private static Boolean debug = false;
 

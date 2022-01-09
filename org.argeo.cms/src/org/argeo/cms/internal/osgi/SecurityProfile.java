@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.osgi;
 
 import java.io.FilePermission;
 import java.lang.reflect.ReflectPermission;

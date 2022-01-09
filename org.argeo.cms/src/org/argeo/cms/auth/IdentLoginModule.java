@@ -12,7 +12,7 @@ import javax.security.auth.spi.LoginModule;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.auth.ident.IdentClient;
-import org.argeo.cms.internal.kernel.Activator;
+import org.argeo.cms.internal.runtime.CmsStateImpl;
 
 /** Use an ident service to identify. */
 public class IdentLoginModule implements LoginModule {
@@ -44,7 +44,7 @@ public class IdentLoginModule implements LoginModule {
 		RemoteAuthRequest request = httpCallback.getRequest();
 		if (request == null)
 			return false;
-		IdentClient identClient = Activator.getIdentClient(request.getRemoteAddr());
+		IdentClient identClient = CmsStateImpl.getIdentClient(request.getRemoteAddr());
 		if (identClient == null)
 			return false;
 		String identUsername;

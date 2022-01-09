@@ -31,6 +31,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 	private AbstractUserDirectory tokens = null;
 	private Map<LdapName, AbstractUserDirectory> businessRoles = new HashMap<LdapName, AbstractUserDirectory>();
 
+	// TODO rather use an empty constructor and an init method
 	public AggregatingUserAdmin(String systemRolesBaseDn, String tokensBaseDn) {
 		try {
 			this.systemRolesBaseDn = new LdapName(systemRolesBaseDn);

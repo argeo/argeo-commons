@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.osgi;
 
 import org.argeo.api.cms.CmsLog;
 import org.osgi.framework.Bundle;
@@ -7,7 +7,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.launch.Framework;
 
 /** Shutdowns the OSGi framework */
-class CmsShutdown extends Thread {
+public class CmsShutdown extends Thread {
 	public final int EXIT_OK = 0;
 	public final int EXIT_ERROR = 1;
 	public final int EXIT_TIMEOUT = 2;

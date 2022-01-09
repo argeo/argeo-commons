@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.runtime;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +16,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.osgi.DataModelNamespace;
-import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
+import org.argeo.cms.internal.osgi.CmsActivator;
 
 /** Package utilities */
-class KernelUtils implements KernelConstants {
+public class KernelUtils implements KernelConstants {
 	final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
 	final static String OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
 
@@ -66,15 +64,15 @@ class KernelUtils implements KernelConstants {
 	}
 
 	static File getOsgiInstanceDir() {
-		return new File(getBundleContext().getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
+		return new File(CmsActivator.getBundleContext().getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
 				.getAbsoluteFile();
 	}
 
-	static Path getOsgiInstancePath(String relativePath) {
+	public static Path getOsgiInstancePath(String relativePath) {
 		return Paths.get(getOsgiInstanceUri(relativePath));
 	}
 
-	static URI getOsgiInstanceUri(String relativePath) {
+	public static URI getOsgiInstanceUri(String relativePath) {
 		String osgiInstanceBaseUri = getFrameworkProp(OSGI_INSTANCE_AREA);
 		if (osgiInstanceBaseUri != null)
 			return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
@@ -84,7 +82,7 @@ class KernelUtils implements KernelConstants {
 
 	static File getOsgiConfigurationFile(String relativePath) {
 		try {
-			return new File(new URI(getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
+			return new File(new URI(CmsActivator.getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
 					.getCanonicalFile();
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Cannot get configuration file for " + relativePath, e);
@@ -92,10 +90,9 @@ class KernelUtils implements KernelConstants {
 	}
 
 	static String getFrameworkProp(String key, String def) {
-		BundleContext bundleContext = Activator.getBundleContext();
 		String value;
-		if (bundleContext != null)
-			value = bundleContext.getProperty(key);
+		if (CmsActivator.getBundleContext() != null)
+			value = CmsActivator.getBundleContext().getProperty(key);
 		else
 			value = System.getProperty(key);
 		if (value == null)
@@ -103,7 +100,7 @@ class KernelUtils implements KernelConstants {
 		return value;
 	}
 
-	static String getFrameworkProp(String key) {
+	public static String getFrameworkProp(String key) {
 		return getFrameworkProp(key, null);
 	}
 
@@ -121,9 +118,8 @@ class KernelUtils implements KernelConstants {
 	// }
 
 	static void logFrameworkProperties(CmsLog log) {
-		BundleContext bc = getBundleContext();
 		for (Object sysProp : new TreeSet<Object>(System.getProperties().keySet())) {
-			log.debug(sysProp + "=" + bc.getProperty(sysProp.toString()));
+			log.debug(sysProp + "=" + getFrameworkProp(sysProp.toString()));
 		}
 		// String[] keys = { Constants.FRAMEWORK_STORAGE,
 		// Constants.FRAMEWORK_OS_NAME, Constants.FRAMEWORK_OS_VERSION,
@@ -206,21 +202,21 @@ class KernelUtils implements KernelConstants {
 //		});
 //	}
 
-	static void asyncOpen(ServiceTracker<?, ?> st) {
-		Runnable run = new Runnable() {
+//	public static void asyncOpen(ServiceTracker<?, ?> st) {
+//		Runnable run = new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				st.open();
+//			}
+//		};
+//		Activator.getInternalExecutorService().execute(run);
+////		new Thread(run, "Open service tracker " + st).start();
+//	}
 
-			@Override
-			public void run() {
-				st.open();
-			}
-		};
-		Activator.getInternalExecutorService().execute(run);
-//		new Thread(run, "Open service tracker " + st).start();
-	}
-
-	static BundleContext getBundleContext() {
-		return Activator.getBundleContext();
-	}
+//	static BundleContext getBundleContext() {
+//		return Activator.getBundleContext();
+//	}
 
 	static boolean asBoolean(String value) {
 		if (value == null)
@@ -231,8 +227,7 @@ class KernelUtils implements KernelConstants {
 		case "false":
 			return false;
 		default:
-			throw new IllegalArgumentException(
-					"Unsupported value for attribute " + DataModelNamespace.ABSTRACT + ": " + value);
+			throw new IllegalArgumentException("Unsupported value for boolean attribute : " + value);
 		}
 	}
 

@@ -1,23 +1,18 @@
-package org.argeo.cms.internal.kernel;
-
-import static java.util.Locale.ENGLISH;
+package org.argeo.cms.internal.runtime;
 
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
-import org.argeo.api.cms.CmsState;
+import javax.security.auth.login.Configuration;
+
 import org.argeo.api.cms.CmsLog;
-import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.LocaleUtils;
-import org.argeo.osgi.transaction.SimpleTransactionManager;
-import org.argeo.osgi.transaction.WorkControl;
-import org.argeo.osgi.transaction.WorkTransaction;
-import org.argeo.util.LangUtils;
+import org.argeo.api.cms.CmsState;
+import org.argeo.cms.auth.ident.IdentClient;
+import org.argeo.cms.internal.osgi.CmsShutdown;
 import org.osgi.framework.Constants;
-import org.osgi.service.cm.ManagedServiceFactory;
 
 /**
  * Implementation of a {@link CmsState}, initialising the required services.
@@ -26,22 +21,38 @@ public class CmsStateImpl implements CmsState {
 	private final static CmsLog log = CmsLog.getLog(CmsStateImpl.class);
 //	private final BundleContext bc = FrameworkUtil.getBundle(CmsState.class).getBundleContext();
 
+//	private static CmsStateImpl instance;
+
+//	private ExecutorService internalExecutorService;
+
 	// REFERENCES
 	private Long availableSince;
 
-	// i18n
-	private Locale defaultLocale;
-	private List<Locale> locales = null;
 
-	private ThreadGroup threadGroup = new ThreadGroup("CMS");
+//	private ThreadGroup threadGroup = new ThreadGroup("CMS");
 	private List<Runnable> stopHooks = new ArrayList<>();
 
-	private final String stateUuid;
+	private String stateUuid;
 //	private final boolean cleanState;
 	private String hostname;
 
-	public CmsStateImpl() {
-//		this.stateUuid = stateUuid;
+	public void init() {
+//		instance = this;
+
+		Runtime.getRuntime().addShutdownHook(new CmsShutdown());
+//		this.internalExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+		try {
+			initSecurity();
+//			initArgeoLogger();
+//			initNode();
+
+			if (log.isTraceEnabled())
+				log.trace("CMS State started");
+		} catch (Throwable e) {
+			log.error("## FATAL: CMS activator failed", e);
+		}
+
 		this.stateUuid = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
 //		this.cleanState = stateUuid.equals(frameworkUuid);
 		try {
@@ -56,31 +67,43 @@ public class CmsStateImpl implements CmsState {
 			// (clean state) " : " "));
 			log.debug("## CMS starting... (" + stateUuid + ")");
 
-		initI18n();
-		initServices();
+//		initI18n();
+//		initServices();
 
 	}
 
-	private void initI18n() {
-		Object defaultLocaleValue = KernelUtils.getFrameworkProp(CmsConstants.I18N_DEFAULT_LOCALE);
-		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
-				: new Locale(ENGLISH.getLanguage());
-		locales = LocaleUtils.asLocaleList(KernelUtils.getFrameworkProp(CmsConstants.I18N_LOCALES));
+	private void initSecurity() {
+		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
+			String jaasConfig = KernelConstants.JAAS_CONFIG;
+			URL url = getClass().getResource(jaasConfig);
+			// System.setProperty(KernelConstants.JAAS_CONFIG_PROP,
+			// url.toExternalForm());
+			KernelUtils.setJaasConfiguration(url);
+		}
+		// explicitly load JAAS configuration
+		Configuration.getConfiguration();
 	}
+
+//	private void initI18n() {
+//		Object defaultLocaleValue = KernelUtils.getFrameworkProp(CmsConstants.I18N_DEFAULT_LOCALE);
+//		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
+//				: new Locale(ENGLISH.getLanguage());
+//		locales = LocaleUtils.asLocaleList(KernelUtils.getFrameworkProp(CmsConstants.I18N_LOCALES));
+//	}
 
 	private void initServices() {
 		// JTA
-		String tmType = KernelUtils.getFrameworkProp(CmsConstants.TRANSACTION_MANAGER,
-				CmsConstants.TRANSACTION_MANAGER_SIMPLE);
-		if (CmsConstants.TRANSACTION_MANAGER_SIMPLE.equals(tmType)) {
-			initSimpleTransactionManager();
-		} else if (CmsConstants.TRANSACTION_MANAGER_BITRONIX.equals(tmType)) {
-//			initBitronixTransactionManager();
-			throw new UnsupportedOperationException(
-					"Bitronix is not supported anymore, but could be again if there is enough interest.");
-		} else {
-			throw new IllegalArgumentException("Usupported transaction manager type " + tmType);
-		}
+//		String tmType = KernelUtils.getFrameworkProp(CmsConstants.TRANSACTION_MANAGER,
+//				CmsConstants.TRANSACTION_MANAGER_SIMPLE);
+//		if (CmsConstants.TRANSACTION_MANAGER_SIMPLE.equals(tmType)) {
+//			initSimpleTransactionManager();
+//		} else if (CmsConstants.TRANSACTION_MANAGER_BITRONIX.equals(tmType)) {
+////			initBitronixTransactionManager();
+//			throw new UnsupportedOperationException(
+//					"Bitronix is not supported anymore, but could be again if there is enough interest.");
+//		} else {
+//			throw new IllegalArgumentException("Usupported transaction manager type " + tmType);
+//		}
 
 		// POI
 //		POIXMLTypeLoader.setClassLoader(CTConnection.class.getClassLoader());
@@ -106,21 +129,21 @@ public class CmsStateImpl implements CmsState {
 //		Activator.registerService(RepositoryFactory.class, repositoryFactory, null);
 
 		// Security
-		NodeUserAdmin userAdmin = new NodeUserAdmin(CmsConstants.ROLES_BASEDN, CmsConstants.TOKENS_BASEDN);
-		stopHooks.add(() -> userAdmin.destroy());
-		Activator.registerService(ManagedServiceFactory.class, userAdmin,
-				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_USER_ADMIN_PID));
+//		NodeUserAdmin userAdmin = new NodeUserAdmin(CmsConstants.ROLES_BASEDN, CmsConstants.TOKENS_BASEDN);
+//		stopHooks.add(() -> userAdmin.destroy());
+//		Activator.registerService(ManagedServiceFactory.class, userAdmin,
+//				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_USER_ADMIN_PID));
 
 	}
 
-	private void initSimpleTransactionManager() {
-		SimpleTransactionManager transactionManager = new SimpleTransactionManager();
-		Activator.registerService(WorkControl.class, transactionManager, null);
-		Activator.registerService(WorkTransaction.class, transactionManager, null);
-//		Activator.registerService(TransactionManager.class, transactionManager, null);
-//		Activator.registerService(UserTransaction.class, transactionManager, null);
-		// TODO TransactionSynchronizationRegistry
-	}
+//	private void initSimpleTransactionManager() {
+//		SimpleTransactionManager transactionManager = new SimpleTransactionManager();
+//		Activator.registerService(WorkControl.class, transactionManager, null);
+//		Activator.registerService(WorkTransaction.class, transactionManager, null);
+////		Activator.registerService(TransactionManager.class, transactionManager, null);
+////		Activator.registerService(UserTransaction.class, transactionManager, null);
+//		// TODO TransactionSynchronizationRegistry
+//	}
 
 //	private void initBitronixTransactionManager() {
 //		// TODO manage it in a managed service, as startup could be long
@@ -155,7 +178,7 @@ public class CmsStateImpl implements CmsState {
 //			log.debug("Initialised default Bitronix transaction manager");
 //	}
 
-	void shutdown() {
+	public void destroy() {
 		if (log.isDebugEnabled())
 			log.debug("CMS stopping...  (" + this.stateUuid + ")");
 
@@ -167,6 +190,8 @@ public class CmsStateImpl implements CmsState {
 		} catch (InterruptedException e) {
 			// silent
 		}
+
+//		internalExecutorService.shutdown();
 
 		long duration = ((System.currentTimeMillis() - availableSince) / 1000) / 60;
 		log.info("## ARGEO CMS STOPPED after " + (duration / 60) + "h " + (duration % 60) + "min uptime ##");
@@ -183,6 +208,8 @@ public class CmsStateImpl implements CmsState {
 		}
 		// Clean hanging Gogo shell thread
 		new GogoShellKiller().start();
+
+//		instance = null;
 	}
 
 //	@Override
@@ -198,15 +225,17 @@ public class CmsStateImpl implements CmsState {
 	/*
 	 * ACCESSORS
 	 */
-	public Locale getDefaultLocale() {
-		return defaultLocale;
-	}
-
-	public List<Locale> getLocales() {
-		return locales;
-	}
-
 	public String getHostname() {
 		return hostname;
+	}
+
+	/*
+	 * STATIC
+	 */
+	public static IdentClient getIdentClient(String remoteAddr) {
+		if (!IdentClient.isDefaultAuthdPassphraseFileAvailable())
+			return null;
+		// TODO make passphrase more configurable
+		return new IdentClient(remoteAddr);
 	}
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" name="Node User Admin">
+   <implementation class="org.argeo.cms.internal.osgi.NodeUserAdmin"/>
+   <property name="service.pid" type="String" value="org.argeo.api.userAdmin"/>
+   <reference bind="setTransactionManager" cardinality="1..1" interface="org.argeo.osgi.transaction.WorkControl" name="WorkControl" policy="static"/>
+   <service>
+      <provide interface="org.osgi.service.cm.ManagedServiceFactory"/>
+   </service>
+   <reference bind="setUserTransaction" cardinality="1..1" interface="org.argeo.osgi.transaction.WorkTransaction" name="WorkTransaction" policy="static"/>
+</scr:component>

@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.kernel;
+package org.argeo.cms.internal.runtime;
 
 import java.io.IOException;
 import java.io.InputStream;

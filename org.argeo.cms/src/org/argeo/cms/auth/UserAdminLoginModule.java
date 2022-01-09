@@ -26,7 +26,8 @@ import javax.security.auth.spi.LoginModule;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.internal.kernel.Activator;
+import org.argeo.cms.internal.osgi.NodeUserAdmin;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.security.CryptoKeyring;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.IpaUtils;
@@ -79,7 +80,7 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean login() throws LoginException {
-		UserAdmin userAdmin = Activator.getUserAdmin();
+		UserAdmin userAdmin = CmsContextImpl.getUserAdmin();
 		final String username;
 		final char[] password;
 		Object certificateChain = null;
@@ -211,7 +212,7 @@ public class UserAdminLoginModule implements LoginModule {
 //		if (singleUser) {
 //			OsUserUtils.loginAsSystemUser(subject);
 //		}
-		UserAdmin userAdmin = Activator.getUserAdmin();
+		UserAdmin userAdmin = CmsContextImpl.getUserAdmin();
 		Authorization authorization;
 		if (callbackHandler == null) {// anonymous
 			authorization = userAdmin.getAuthorization(null);

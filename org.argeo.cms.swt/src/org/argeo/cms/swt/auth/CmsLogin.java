@@ -17,10 +17,10 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.argeo.api.cms.CmsView;
-import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsAuth;
-import org.argeo.api.cms.CmsState;
+import org.argeo.api.cms.CmsContext;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsView;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.RemoteAuthCallback;
@@ -64,7 +64,8 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 
 	public CmsLogin(CmsView cmsView) {
 		this.cmsView = cmsView;
-		CmsState nodeState = null;// = Activator.getNodeState();
+		CmsContext nodeState = null;// = Activator.getNodeState();
+		// FIXME reactivate locales
 		if (nodeState != null) {
 			defaultLocale = nodeState.getDefaultLocale();
 			List<Locale> locales = nodeState.getLocales();

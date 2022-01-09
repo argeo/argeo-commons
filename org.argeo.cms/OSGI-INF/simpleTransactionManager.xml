@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="Simple Transaction Manager">
+   <implementation class="org.argeo.osgi.transaction.SimpleTransactionManager"/>
+   <service>
+      <provide interface="org.argeo.osgi.transaction.WorkControl"/>
+      <provide interface="org.argeo.osgi.transaction.WorkTransaction"/>
+   </service>
+</scr:component>
