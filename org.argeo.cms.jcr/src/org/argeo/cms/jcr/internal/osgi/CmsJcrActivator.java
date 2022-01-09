@@ -1,42 +1,34 @@
 package org.argeo.cms.jcr.internal.osgi;
 
 import java.nio.file.spi.FileSystemProvider;
-import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.List;
 
 import javax.jcr.RepositoryFactory;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.jcr.internal.CmsFsProvider;
-import org.argeo.cms.jcr.internal.StatisticsThread;
 import org.argeo.cms.jcr.internal.NodeRepositoryFactory;
 import org.argeo.cms.jcr.internal.RepositoryServiceFactory;
+import org.argeo.cms.jcr.internal.StatisticsThread;
 import org.argeo.util.LangUtils;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ManagedServiceFactory;
 
 public class CmsJcrActivator implements BundleActivator {
 	private static BundleContext bundleContext;
-	static {
-		Bundle bundle = FrameworkUtil.getBundle(CmsJcrActivator.class);
-		if (bundle != null) {
-			bundleContext = bundle.getBundleContext();
-		}
-	}
 
 //	private List<Runnable> stopHooks = new ArrayList<>();
 	private StatisticsThread kernelThread;
 
 	private RepositoryServiceFactory repositoryServiceFactory;
-//	private JcrDeployment jcrDeployment;
+//	private CmsJcrDeployment jcrDeployment;
 
 	@Override
 	public void start(BundleContext context) throws Exception {
+		bundleContext = context;
+		
 		// kernel thread
 		kernelThread = new StatisticsThread("Kernel Thread");
 		kernelThread.setContextClassLoader(getClass().getClassLoader());
@@ -66,7 +58,7 @@ public class CmsJcrActivator implements BundleActivator {
 		registerService(FileSystemProvider.class, cmsFsProvider,
 				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_FS_PROVIDER_PID));
 
-//		jcrDeployment = new JcrDeployment();
+//		jcrDeployment = new CmsJcrDeployment();
 //		jcrDeployment.init();
 	}
 
@@ -81,6 +73,7 @@ public class CmsJcrActivator implements BundleActivator {
 		if (kernelThread != null)
 			kernelThread.destroyAndJoin();
 
+		bundleContext = null;
 	}
 
 	@Deprecated

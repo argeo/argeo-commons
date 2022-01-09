@@ -29,9 +29,9 @@ import javax.servlet.Servlet;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.internal.jcr.JcrInitUtils;
 import org.argeo.cms.jcr.CmsJcrUtils;
@@ -60,7 +60,7 @@ import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.util.tracker.ServiceTracker;
 
 /** Implementation of a CMS deployment. */
-public class JcrDeployment {
+public class CmsJcrDeployment {
 	private final CmsLog log = CmsLog.getLog(getClass());
 	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
@@ -72,9 +72,9 @@ public class JcrDeployment {
 	// Readiness
 	private boolean nodeAvailable = false;
 
-	CmsDeployment nodeDeployment;
+	CmsDeployment cmsDeployment;
 
-	public JcrDeployment() {
+	public CmsJcrDeployment() {
 		dataModels = new DataModels(bc);
 //		initTrackers();
 	}
@@ -87,7 +87,7 @@ public class JcrDeployment {
 
 //		nodeDeployment = CmsJcrActivator.getService(NodeDeployment.class);
 
-		JcrInitUtils.addToDeployment(nodeDeployment);
+		JcrInitUtils.addToDeployment(cmsDeployment);
 
 	}
 
@@ -106,8 +106,8 @@ public class JcrDeployment {
 
 	}
 
-	public void setNodeDeployment(CmsDeployment nodeDeployment) {
-		this.nodeDeployment = nodeDeployment;
+	public void setCmsDeployment(CmsDeployment cmsDeployment) {
+		this.cmsDeployment = cmsDeployment;
 	}
 
 	/**
@@ -356,7 +356,7 @@ public class JcrDeployment {
 	}
 
 	boolean isStandalone(String dataModelName) {
-		return nodeDeployment.getProps(CmsConstants.NODE_REPOS_FACTORY_PID, dataModelName) != null;
+		return cmsDeployment.getProps(CmsConstants.NODE_REPOS_FACTORY_PID, dataModelName) != null;
 	}
 
 	private void publishLocalRepo(String dataModelName, Repository repository) {
