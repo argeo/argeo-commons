@@ -39,7 +39,8 @@ public interface KernelConstants {
 	// String PATH_WORKBENCH = "/ui";
 	// String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";
 
-	String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config";
+//	String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config";
+	String JETTY_FACTORY_PID = "org.argeo.equinox.jetty.config";
 	String WHITEBOARD_PATTERN_PROP = "osgi.http.whiteboard.servlet.pattern";
 	// default Jetty server configured via JettyConfigurator
 	String DEFAULT_JETTY_SERVER = "default";

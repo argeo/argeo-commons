@@ -111,10 +111,10 @@ public class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServic
 //		}
 	}
 
-	public void init() {
+	public void start() {
 	}
 
-	public void destroy() {
+	public void stop() {
 	}
 
 	@Override

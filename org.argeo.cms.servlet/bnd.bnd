@@ -6,5 +6,6 @@ org.argeo.cms.osgi,\
 *
 
 Service-Component:\
+OSGI-INF/jettyServiceFactory.xml,\
 OSGI-INF/pkgServletContext.xml,\
 OSGI-INF/pkgServlet.xml

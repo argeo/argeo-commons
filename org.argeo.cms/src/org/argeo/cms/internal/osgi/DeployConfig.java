@@ -27,8 +27,6 @@ import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.util.naming.AttributesDictionary;
 import org.argeo.util.naming.LdifParser;
 import org.argeo.util.naming.LdifWriter;
-import org.eclipse.equinox.http.jetty.JettyConfigurator;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -120,65 +118,29 @@ public class DeployConfig implements ConfigurationListener {
 		}
 
 		// http server
-//		Dictionary<String, Object> webServerConfig = InitUtils
-//				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, NodeConstants.DEFAULT));
-//		if (!webServerConfig.isEmpty()) {
-//			// TODO check for other customizers
+		Dictionary<String, Object> webServerConfig = InitUtils
+				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT));
+		if (!webServerConfig.isEmpty()) {
+			// TODO check for other customizers
 //			webServerConfig.put("customizer.class", "org.argeo.equinox.jetty.CmsJettyCustomizer");
-//			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
-//		}
-		LdapName defaultHttpServiceDn = serviceDn(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT);
-		if (deployConfigs.containsKey(defaultHttpServiceDn)) {
-			// remove old default configs since we have now to start Jetty servlet bridge
-			// indirectly
-			deployConfigs.remove(defaultHttpServiceDn);
+			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
 		}
+//		LdapName defaultHttpServiceDn = serviceDn(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT);
+//		if (deployConfigs.containsKey(defaultHttpServiceDn)) {
+//			// remove old default configs since we have now to start Jetty servlet bridge
+//			// indirectly
+//			deployConfigs.remove(defaultHttpServiceDn);
+//		}
 
 		// SAVE
 		save();
 		//
 
-		// Explicitly configures Jetty so that the default server is not started by the
-		// activator of the Equinox Jetty bundle.
-		Dictionary<String, Object> webServerConfig = InitUtils
-				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT));
-//		if (!webServerConfig.isEmpty()) {
-//			webServerConfig.put("customizer.class", KernelConstants.CMS_JETTY_CUSTOMIZER_CLASS);
-//
-//			// TODO centralise with Jetty extender
-//			Object webSocketEnabled = webServerConfig.get(InternalHttpConstants.WEBSOCKET_ENABLED);
-//			if (webSocketEnabled != null && webSocketEnabled.toString().equals("true")) {
-//				bc.registerService(ServerEndpointConfig.Configurator.class, new CmsWebSocketConfigurator(), null);
-//				webServerConfig.put(InternalHttpConstants.WEBSOCKET_ENABLED, "true");
-//			}
-//		}
-
-		int tryCount = 60;
-		try {
-			tryGettyJetty: while (tryCount > 0) {
-				try {
-					JettyConfigurator.startServer(KernelConstants.DEFAULT_JETTY_SERVER, webServerConfig);
-					// Explicitly starts Jetty OSGi HTTP bundle, so that it gets triggered if OSGi
-					// configuration is not cleaned
-					FrameworkUtil.getBundle(JettyConfigurator.class).start();
-					break tryGettyJetty;
-				} catch (IllegalStateException e) {
-					// Jetty may not be ready
-					try {
-						Thread.sleep(1000);
-					} catch (Exception e1) {
-						// silent
-					}
-					tryCount--;
-				}
-			}
-		} catch (Exception e) {
-			log.error("Cannot start default Jetty server with config " + webServerConfig, e);
-		}
-
+//		Dictionary<String, Object> webServerConfig = InitUtils
+//				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT));
 	}
 
-	public void init() throws IOException {
+	public void start() throws IOException {
 		if (!isInitialized()) { // first init
 			isFirstInit = true;
 			firstInit();
@@ -205,7 +167,7 @@ public class DeployConfig implements ConfigurationListener {
 		// TODO check consistency if not clean
 	}
 
-	public void destroy() {
+	public void stop() {
 
 	}
 

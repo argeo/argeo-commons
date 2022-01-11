@@ -33,7 +33,7 @@ public class CmsStateImpl implements CmsState {
 //	private final boolean cleanState;
 	private String hostname;
 
-	public void init() {
+	public void start() {
 //		instance = this;
 
 		Runtime.getRuntime().addShutdownHook(new CmsShutdown());
@@ -175,7 +175,7 @@ public class CmsStateImpl implements CmsState {
 //			log.debug("Initialised default Bitronix transaction manager");
 //	}
 
-	public void destroy() {
+	public void stop() {
 		if (log.isDebugEnabled())
 			log.debug("CMS stopping...  (" + this.stateUuid + ")");
 //		new GogoShellKiller().start();

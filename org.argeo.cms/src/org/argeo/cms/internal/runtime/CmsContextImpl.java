@@ -39,7 +39,7 @@ public class CmsContextImpl implements CmsContext {
 //		initTrackers();
 //	}
 
-	public void init() {
+	public void start() {
 		Object defaultLocaleValue = KernelUtils.getFrameworkProp(CmsConstants.I18N_DEFAULT_LOCALE);
 		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
 				: new Locale(ENGLISH.getLanguage());
@@ -70,7 +70,7 @@ public class CmsContextImpl implements CmsContext {
 		setInstance(this);
 	}
 
-	public void destroy() {
+	public void stop() {
 		setInstance(null);
 	}
 

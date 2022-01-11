@@ -8,7 +8,6 @@ import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.internal.osgi.DeployConfig;
-import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.service.http.HttpService;
 
 /** Implementation of a CMS deployment. */
@@ -111,7 +110,7 @@ public class CmsDeploymentImpl implements CmsDeployment {
 //		KernelUtils.asyncOpen(confAdminSt);
 	}
 
-	public void init() {
+	public void start() {
 		httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
 		if (deployConfig.hasDomain()) {
 			loadIpaJaasConfiguration();
@@ -177,18 +176,19 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		}
 	}
 
-	public void destroy() {
+	public void stop() {
 //		if (nodeHttp != null)
 //			nodeHttp.destroy();
 
-		try {
-			JettyConfigurator.stopServer(KernelConstants.DEFAULT_JETTY_SERVER);
-		} catch (Exception e) {
-			log.error("Cannot stop default Jetty server.", e);
-		}
+//		try {
+//			JettyConfigurator.stopServer(KernelConstants.DEFAULT_JETTY_SERVER);
+//		} catch (Exception e) {
+//			log.error("Cannot stop default Jetty server.", e);
+//		}
 
 		if (deployConfig != null) {
-			new Thread(() -> deployConfig.save(), "Save Argeo Deploy Config").start();
+			deployConfig.save();
+			// new Thread(() -> deployConfig.save(), "Save Argeo Deploy Config").start();
 		}
 	}
 
