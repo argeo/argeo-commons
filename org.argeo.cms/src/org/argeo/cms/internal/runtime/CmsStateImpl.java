@@ -3,8 +3,6 @@ package org.argeo.cms.internal.runtime;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.security.auth.login.Configuration;
 
@@ -29,7 +27,7 @@ public class CmsStateImpl implements CmsState {
 	private Long availableSince;
 
 //	private ThreadGroup threadGroup = new ThreadGroup("CMS");
-	private List<Runnable> stopHooks = new ArrayList<>();
+//	private List<Runnable> stopHooks = new ArrayList<>();
 
 	private String stateUuid;
 //	private final boolean cleanState;
@@ -180,15 +178,16 @@ public class CmsStateImpl implements CmsState {
 	public void destroy() {
 		if (log.isDebugEnabled())
 			log.debug("CMS stopping...  (" + this.stateUuid + ")");
+//		new GogoShellKiller().start();
 
 		// In a different thread in order to avoid interruptions
-		Thread stopHookThread = new Thread(() -> applyStopHooks(), "Apply Argeo Stop Hooks");
-		stopHookThread.start();
-		try {
-			stopHookThread.join(10 * 60 * 1000);
-		} catch (InterruptedException e) {
-			// silent
-		}
+//		Thread stopHookThread = new Thread(() -> applyStopHooks(), "Apply Argeo Stop Hooks");
+//		stopHookThread.start();
+//		try {
+//			stopHookThread.join(10 * 60 * 1000);
+//		} catch (InterruptedException e) {
+//			// silent
+//		}
 
 //		internalExecutorService.shutdown();
 
@@ -197,19 +196,19 @@ public class CmsStateImpl implements CmsState {
 	}
 
 	/** Apply shutdown hoos in reverse order. */
-	private void applyStopHooks() {
-		for (int i = stopHooks.size() - 1; i >= 0; i--) {
-			try {
-				stopHooks.get(i).run();
-			} catch (Exception e) {
-				log.error("Could not run shutdown hook #" + i);
-			}
-		}
-		// Clean hanging Gogo shell thread
-		new GogoShellKiller().start();
-
-//		instance = null;
-	}
+//	private void applyStopHooks() {
+////		for (int i = stopHooks.size() - 1; i >= 0; i--) {
+////			try {
+////				stopHooks.get(i).run();
+////			} catch (Exception e) {
+////				log.error("Could not run shutdown hook #" + i);
+////			}
+////		}
+//		// Clean hanging Gogo shell thread
+//		new GogoShellKiller().start();
+//
+////		instance = null;
+//	}
 
 //	@Override
 //	public boolean isClean() {

@@ -1,4 +1,6 @@
-package org.argeo.cms.internal.runtime;
+package org.argeo.cms.internal.osgi;
+
+import java.io.IOException;
 
 /**
  * Workaround for killing Gogo shell by system shutdown.
@@ -16,7 +18,7 @@ class GogoShellKiller extends Thread {
 	public void run() {
 		ThreadGroup rootTg = getRootThreadGroup(null);
 		Thread gogoShellThread = findGogoShellThread(rootTg);
-		if (gogoShellThread == null)
+		if (gogoShellThread == null) // no need to bother if it is not here
 			return;
 		while (getNonDaemonCount(rootTg) > 2) {
 			try {
@@ -28,8 +30,9 @@ class GogoShellKiller extends Thread {
 		gogoShellThread = findGogoShellThread(rootTg);
 		if (gogoShellThread == null)
 			return;
+		System.exit(0);
 		// No non-deamon threads left, forcibly halting the VM
-		Runtime.getRuntime().halt(0);
+		//Runtime.getRuntime().halt(0);
 	}
 
 	private ThreadGroup getRootThreadGroup(ThreadGroup tg) {

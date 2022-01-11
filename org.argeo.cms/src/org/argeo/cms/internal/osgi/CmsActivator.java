@@ -89,6 +89,8 @@ public class CmsActivator implements BundleActivator {
 		} catch (Exception e) {
 			log.error("CMS activator shutdown failed", e);
 		}
+		
+		new GogoShellKiller().start();
 	}
 
 	private void initSecurity() {
