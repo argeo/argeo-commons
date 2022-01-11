@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" immediate="false" name="CMS Context">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" immediate="true" name="CMS Context">
    <implementation class="org.argeo.cms.internal.runtime.CmsContextImpl"/>
    <reference bind="setCmsDeployment" cardinality="1..1" interface="org.argeo.api.cms.CmsDeployment" name="CmsDeployment" policy="static"/>
    <service>
