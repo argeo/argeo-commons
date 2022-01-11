@@ -20,12 +20,30 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 
 /** A {@link ManagedServiceFactory} creating or referencing JCR repositories. */
-public class RepositoryServiceFactory implements ManagedServiceFactory {
-	private final static CmsLog log = CmsLog.getLog(RepositoryServiceFactory.class);
+public class RepositoryContextsFactory implements ManagedServiceFactory {
+	private final static CmsLog log = CmsLog.getLog(RepositoryContextsFactory.class);
 //	private final BundleContext bc = FrameworkUtil.getBundle(RepositoryServiceFactory.class).getBundleContext();
 
 	private Map<String, RepositoryContext> repositories = new HashMap<String, RepositoryContext>();
 	private Map<String, Object> pidToCn = new HashMap<String, Object>();
+	
+	public void init() {
+		
+	}
+
+	public void destroy() {
+		for (String pid : repositories.keySet()) {
+			try {
+				repositories.get(pid).getRepository().shutdown();
+				if (log.isDebugEnabled())
+					log.debug("Shut down repository " + pid
+							+ (pidToCn.containsKey(pid) ? " (" + pidToCn.get(pid) + ")" : ""));
+			} catch (Exception e) {
+				log.error("Error when shutting down Jackrabbit repository " + pid, e);
+			}
+		}
+	}
+
 
 	@Override
 	public String getName() {
@@ -114,17 +132,5 @@ public class RepositoryServiceFactory implements ManagedServiceFactory {
 			log.debug("Deleted repository " + pid);
 	}
 
-	public void shutdown() {
-		for (String pid : repositories.keySet()) {
-			try {
-				repositories.get(pid).getRepository().shutdown();
-				if (log.isDebugEnabled())
-					log.debug("Shut down repository " + pid
-							+ (pidToCn.containsKey(pid) ? " (" + pidToCn.get(pid) + ")" : ""));
-			} catch (Exception e) {
-				log.error("Error when shutting down Jackrabbit repository " + pid, e);
-			}
-		}
-	}
 
 }

@@ -1,20 +1,10 @@
 package org.argeo.cms.jcr.internal.osgi;
 
-import java.nio.file.spi.FileSystemProvider;
 import java.util.Dictionary;
 
-import javax.jcr.RepositoryFactory;
-
-import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.jcr.internal.CmsFsProvider;
-import org.argeo.cms.jcr.internal.NodeRepositoryFactory;
-import org.argeo.cms.jcr.internal.RepositoryServiceFactory;
 import org.argeo.cms.jcr.internal.StatisticsThread;
-import org.argeo.util.LangUtils;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.service.cm.ManagedServiceFactory;
 
 public class CmsJcrActivator implements BundleActivator {
 	private static BundleContext bundleContext;
@@ -22,7 +12,7 @@ public class CmsJcrActivator implements BundleActivator {
 //	private List<Runnable> stopHooks = new ArrayList<>();
 	private StatisticsThread kernelThread;
 
-	private RepositoryServiceFactory repositoryServiceFactory;
+//	private JackrabbitRepositoryContextsFactory repositoryServiceFactory;
 //	private CmsJcrDeployment jcrDeployment;
 
 	@Override
@@ -35,16 +25,16 @@ public class CmsJcrActivator implements BundleActivator {
 		kernelThread.start();
 
 		// JCR
-		repositoryServiceFactory = new RepositoryServiceFactory();
-//		stopHooks.add(() -> repositoryServiceFactory.shutdown());
-		registerService(ManagedServiceFactory.class, repositoryServiceFactory,
-				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_REPOS_FACTORY_PID));
+//		repositoryServiceFactory = new JackrabbitRepositoryContextsFactory();
+////		stopHooks.add(() -> repositoryServiceFactory.shutdown());
+//		registerService(ManagedServiceFactory.class, repositoryServiceFactory,
+//				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_REPOS_FACTORY_PID));
 
-		NodeRepositoryFactory repositoryFactory = new NodeRepositoryFactory();
-		registerService(RepositoryFactory.class, repositoryFactory, null);
+//		JcrRepositoryFactory repositoryFactory = new JcrRepositoryFactory();
+//		registerService(RepositoryFactory.class, repositoryFactory, null);
 
 		// File System
-		CmsFsProvider cmsFsProvider = new CmsFsProvider();
+//		CmsJcrFsProvider cmsFsProvider = new CmsJcrFsProvider();
 //		ServiceLoader<FileSystemProvider> fspSl = ServiceLoader.load(FileSystemProvider.class);
 //		for (FileSystemProvider fsp : fspSl) {
 //			log.debug("FileSystemProvider " + fsp);
@@ -55,8 +45,8 @@ public class CmsJcrActivator implements BundleActivator {
 //		for (FileSystemProvider fsp : FileSystemProvider.installedProviders()) {
 //			log.debug("Installed FileSystemProvider " + fsp);
 //		}
-		registerService(FileSystemProvider.class, cmsFsProvider,
-				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_FS_PROVIDER_PID));
+//		registerService(FileSystemProvider.class, cmsFsProvider,
+//				LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_FS_PROVIDER_PID));
 
 //		jcrDeployment = new CmsJcrDeployment();
 //		jcrDeployment.init();
@@ -67,8 +57,8 @@ public class CmsJcrActivator implements BundleActivator {
 //		if (jcrDeployment != null)
 //			jcrDeployment.destroy();
 
-		if (repositoryServiceFactory != null)
-			repositoryServiceFactory.shutdown();
+//		if (repositoryServiceFactory != null)
+//			repositoryServiceFactory.shutdown();
 
 		if (kernelThread != null)
 			kernelThread.destroyAndJoin();

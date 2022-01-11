@@ -216,7 +216,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	/*
 	 * INTERNAL CLASSES
 	 */
-	
+
 	private class ThinLogger implements System.Logger {
 		private final String name;
 
@@ -297,9 +297,10 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 					case "java.util.logging.Logger":
 					case "org.apache.commons.logging.Log":
 					case "org.osgi.service.log.Logger":
-					case "org.argeo.cms.Log":
+					case "org.argeo.api.cms.CmsLog":
 					case "org.slf4j.impl.ArgeoLogger":
 					case "org.eclipse.jetty.util.log.Slf4jLog":
+					case "sun.util.logging.internal.LoggingProviderImpl$JULWrapper":
 						lowestLoggerInterface = i;
 						continue stack;
 					default:
@@ -519,12 +520,13 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			sb.append('\n');
 			for (StackTraceElement ste : throwable.getStackTrace()) {
 				sb.append(prefix);
+				sb.append('\t');
 				sb.append(ste.toString());
 				sb.append('\n');
 			}
 			if (throwable.getCause() != null) {
 				sb.append(prefix);
-				sb.append("caused by ");
+				sb.append("Caused by: ");
 				addThrowable(sb, prefix, throwable.getCause());
 			}
 		}

@@ -91,7 +91,8 @@ class ThinJavaUtilLogging {
 		@Override
 		public void publish(LogRecord record) {
 			java.lang.System.Logger systemLogger = ThinLoggerFinder.getLogger(record.getLoggerName());
-			systemLogger.log(ThinJavaUtilLogging.fromJulLevel(record.getLevel()), record.getMessage());
+			systemLogger.log(ThinJavaUtilLogging.fromJulLevel(record.getLevel()), record.getMessage(),
+					record.getThrown());
 		}
 
 		@Override

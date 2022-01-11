@@ -28,7 +28,6 @@ public class CmsStateImpl implements CmsState {
 	// REFERENCES
 	private Long availableSince;
 
-
 //	private ThreadGroup threadGroup = new ThreadGroup("CMS");
 	private List<Runnable> stopHooks = new ArrayList<>();
 
@@ -49,27 +48,27 @@ public class CmsStateImpl implements CmsState {
 
 			if (log.isTraceEnabled())
 				log.trace("CMS State started");
-		} catch (Throwable e) {
-			log.error("## FATAL: CMS activator failed", e);
-		}
 
-		this.stateUuid = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
+			this.stateUuid = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
 //		this.cleanState = stateUuid.equals(frameworkUuid);
-		try {
-			this.hostname = InetAddress.getLocalHost().getHostName();
-		} catch (UnknownHostException e) {
-			log.error("Cannot set hostname: " + e);
-		}
+			try {
+				this.hostname = InetAddress.getLocalHost().getHostName();
+			} catch (UnknownHostException e) {
+				log.error("Cannot set hostname: " + e);
+			}
 
-		availableSince = System.currentTimeMillis();
-		if (log.isDebugEnabled())
-			// log.debug("## CMS starting... stateUuid=" + this.stateUuid + (cleanState ? "
-			// (clean state) " : " "));
-			log.debug("## CMS starting... (" + stateUuid + ")");
+			availableSince = System.currentTimeMillis();
+			if (log.isDebugEnabled())
+				// log.debug("## CMS starting... stateUuid=" + this.stateUuid + (cleanState ? "
+				// (clean state) " : " "));
+				log.debug("## CMS starting... (" + stateUuid + ")");
 
 //		initI18n();
 //		initServices();
 
+		} catch (RuntimeException e) {
+			log.error("## FATAL: CMS activator failed", e);
+		}
 	}
 
 	private void initSecurity() {

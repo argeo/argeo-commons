@@ -18,8 +18,8 @@ public interface KernelConstants {
 	String NODE_KEY_TAB_PATH = DIR_NODE + "/krb5.keytab";
 
 	// Security
-	String JAAS_CONFIG = "/org/argeo/cms/internal/kernel/jaas.cfg";
-	String JAAS_CONFIG_IPA = "/org/argeo/cms/internal/kernel/jaas-ipa.cfg";
+	String JAAS_CONFIG = "/org/argeo/cms/internal/runtime/jaas.cfg";
+	String JAAS_CONFIG_IPA = "/org/argeo/cms/internal/runtime/jaas-ipa.cfg";
 
 	// Java
 	String JAAS_CONFIG_PROP = "java.security.auth.login.config";

@@ -23,7 +23,7 @@ import org.osgi.framework.ServiceReference;
  * OSGi-aware Jackrabbit repository factory which can retrieve/publish
  * {@link Repository} as OSGi services.
  */
-public class NodeRepositoryFactory implements RepositoryFactory {
+public class JcrRepositoryFactory implements RepositoryFactory {
 	private final CmsLog log = CmsLog.getLog(getClass());
 //	private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 

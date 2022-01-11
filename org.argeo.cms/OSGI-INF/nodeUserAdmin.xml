@@ -7,4 +7,5 @@
       <provide interface="org.osgi.service.cm.ManagedServiceFactory"/>
    </service>
    <reference bind="setUserTransaction" cardinality="1..1" interface="org.argeo.osgi.transaction.WorkTransaction" name="WorkTransaction" policy="static"/>
+   <reference cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
 </scr:component>

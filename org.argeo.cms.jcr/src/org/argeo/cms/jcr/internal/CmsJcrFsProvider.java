@@ -25,13 +25,13 @@ import org.argeo.jackrabbit.fs.AbstractJackrabbitFsProvider;
 import org.argeo.jcr.fs.JcrFileSystem;
 import org.argeo.jcr.fs.JcrFileSystemProvider;
 import org.argeo.jcr.fs.JcrFsException;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
 
 /** Implementation of an {@link FileSystemProvider} based on Jackrabbit. */
-public class CmsFsProvider extends AbstractJackrabbitFsProvider {
+public class CmsJcrFsProvider extends AbstractJackrabbitFsProvider {
 	private Map<String, CmsFileSystem> fileSystems = new HashMap<>();
+
+	private RepositoryFactory repositoryFactory;
+	private Repository repository;
 
 	@Override
 	public String getScheme() {
@@ -40,7 +40,7 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 
 	@Override
 	public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
-		BundleContext bc = FrameworkUtil.getBundle(CmsFsProvider.class).getBundleContext();
+//		BundleContext bc = FrameworkUtil.getBundle(CmsJcrFsProvider.class).getBundleContext();
 		String username = CurrentUser.getUsername();
 		if (username == null) {
 			// TODO deal with anonymous
@@ -53,21 +53,22 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 			String host = uri.getHost();
 			if (host != null && !host.trim().equals("")) {
 				URI repoUri = new URI("http", uri.getUserInfo(), uri.getHost(), uri.getPort(), "/jcr/node", null, null);
-				RepositoryFactory repositoryFactory = bc.getService(bc.getServiceReference(RepositoryFactory.class));
+//				RepositoryFactory repositoryFactory = bc.getService(bc.getServiceReference(RepositoryFactory.class));
 				Repository repository = CmsJcrUtils.getRepositoryByUri(repositoryFactory, repoUri.toString());
 				CmsFileSystem fileSystem = new CmsFileSystem(this, repository);
 				fileSystems.put(username, fileSystem);
 				return fileSystem;
 			} else {
-				Repository repository = bc.getService(
-						bc.getServiceReferences(Repository.class, "(cn=" + CmsConstants.EGO_REPOSITORY + ")")
-								.iterator().next());
-//				Session session = repository.login();
+//				Repository repository = bc.getService(
+//						bc.getServiceReferences(Repository.class, "(cn=" + CmsConstants.EGO_REPOSITORY + ")")
+//								.iterator().next());
+
+				// Session session = repository.login();
 				CmsFileSystem fileSystem = new CmsFileSystem(this, repository);
 				fileSystems.put(username, fileSystem);
 				return fileSystem;
 			}
-		} catch (InvalidSyntaxException | URISyntaxException e) {
+		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException("Cannot open file system " + uri + " for user " + username, e);
 		}
 	}
@@ -102,6 +103,14 @@ public class CmsFsProvider extends AbstractJackrabbitFsProvider {
 		} catch (RepositoryException e) {
 			throw new IllegalStateException("Cannot get user home", e);
 		}
+	}
+
+	public void setRepositoryFactory(RepositoryFactory repositoryFactory) {
+		this.repositoryFactory = repositoryFactory;
+	}
+
+	public void setRepository(Repository repository) {
+		this.repository = repository;
 	}
 
 	static class CmsFileSystem extends JcrFileSystem {

@@ -5,4 +5,5 @@
       <provide interface="org.argeo.cms.internal.osgi.DeployConfig"/>
    </service>
    <reference bind="setConfigurationAdmin" cardinality="1..1" interface="org.osgi.service.cm.ConfigurationAdmin" name="ConfigurationAdmin" policy="static"/>
+   <reference cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
 </scr:component>
