@@ -75,15 +75,15 @@ public class CmsJcrDeployment {
 	CmsDeployment cmsDeployment;
 
 	public CmsJcrDeployment() {
-		dataModels = new DataModels(bc);
 //		initTrackers();
 	}
 
-	public void init() {
+	public void start() {
+		dataModels = new DataModels(bc);
 
 		ServiceTracker<?, ?> repoContextSt = new RepositoryContextStc();
-		// repoContextSt.open();
-		KernelUtils.asyncOpen(repoContextSt);
+		repoContextSt.open();
+		//KernelUtils.asyncOpen(repoContextSt);
 
 //		nodeDeployment = CmsJcrActivator.getService(NodeDeployment.class);
 
@@ -91,7 +91,7 @@ public class CmsJcrDeployment {
 
 	}
 
-	public void destroy() {
+	public void stop() {
 //		if (nodeHttp != null)
 //			nodeHttp.destroy();
 

@@ -35,7 +35,7 @@ public class CmsActivator implements BundleActivator {
 
 	private LogReaderService logReaderService;
 
-	private NodeLogger logger;
+	private CmsOsgiLogger logger;
 //	private CmsStateImpl nodeState;
 //	private CmsDeploymentImpl nodeDeployment;
 //	private CmsContextImpl nodeInstance;
@@ -55,6 +55,7 @@ public class CmsActivator implements BundleActivator {
 //		this.bc = bundleContext;
 		if (bundleContext != null)
 			this.logReaderService = getService(LogReaderService.class);
+		initArgeoLogger();
 //		this.internalExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 //
 //		try {
@@ -130,7 +131,7 @@ public class CmsActivator implements BundleActivator {
 	}
 
 	private void initArgeoLogger() {
-		logger = new NodeLogger(logReaderService);
+		logger = new CmsOsgiLogger(logReaderService);
 		if (bundleContext != null)
 			bundleContext.registerService(ArgeoLogger.class, logger, null);
 	}

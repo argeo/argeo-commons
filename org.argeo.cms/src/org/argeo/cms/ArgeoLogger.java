@@ -4,6 +4,7 @@ package org.argeo.cms;
  * Logging framework agnostic identifying a logging service, to which one can
  * register
  */
+@Deprecated
 public interface ArgeoLogger {
 	/**
 	 * Register for events by threads with the same authentication (or all

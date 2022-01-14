@@ -90,6 +90,8 @@ public class CmsServletContext extends ServletContextHelper {
 
 	@Override
 	public URL getResource(String name) {
+		// TODO make it more robust and versatile
+		// if used directly it can only load from within this bundle
 		return bundle.getResource(name);
 	}
 

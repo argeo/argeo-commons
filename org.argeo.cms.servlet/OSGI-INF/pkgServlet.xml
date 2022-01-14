@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.argeo.cms.pkgServlet">
-   <implementation class="org.argeo.cms.internal.http.PkgServlet"/>
+   <implementation class="org.argeo.cms.servlet.internal.PkgServlet"/>
    <service>
       <provide interface="javax.servlet.Servlet"/>
    </service>

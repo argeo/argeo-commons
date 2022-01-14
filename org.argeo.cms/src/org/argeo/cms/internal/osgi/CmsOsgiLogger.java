@@ -42,7 +42,7 @@ import org.osgi.service.log.LogListener;
 import org.osgi.service.log.LogReaderService;
 
 /** Not meant to be used directly in standard log4j config */
-public class NodeLogger implements ArgeoLogger, LogListener {
+public class CmsOsgiLogger implements ArgeoLogger, LogListener {
 	/** Internal debug for development purposes. */
 	private static Boolean debug = false;
 
@@ -77,7 +77,7 @@ public class NodeLogger implements ArgeoLogger, LogListener {
 		}
 	};
 
-	public NodeLogger(LogReaderService lrs) {
+	public CmsOsgiLogger(LogReaderService lrs) {
 		if (lrs != null) {
 			Enumeration<LogEntry> logEntries = lrs.getLog();
 			while (logEntries.hasMoreElements())
@@ -85,26 +85,26 @@ public class NodeLogger implements ArgeoLogger, LogListener {
 			lrs.addLogListener(this);
 
 			// configure log4j watcher
-			String log4jConfiguration = KernelUtils.getFrameworkProp("log4j.configuration");
-			if (log4jConfiguration != null && log4jConfiguration.startsWith("file:")) {
-				if (log4jConfiguration.contains("..")) {
-					if (log4jConfiguration.startsWith("file://"))
-						log4jConfiguration = log4jConfiguration.substring("file://".length());
-					else if (log4jConfiguration.startsWith("file:"))
-						log4jConfiguration = log4jConfiguration.substring("file:".length());
-				}
-				try {
-					Path log4jconfigPath;
-					if (log4jConfiguration.startsWith("file:"))
-						log4jconfigPath = Paths.get(new URI(log4jConfiguration));
-					else
-						log4jconfigPath = Paths.get(log4jConfiguration);
-					Thread log4jConfWatcher = new Log4jConfWatcherThread(log4jconfigPath);
-					log4jConfWatcher.start();
-				} catch (Exception e) {
-					stdErr("Badly formatted log4j configuration URI " + log4jConfiguration + ": " + e.getMessage());
-				}
-			}
+//			String log4jConfiguration = KernelUtils.getFrameworkProp("log4j.configuration");
+//			if (log4jConfiguration != null && log4jConfiguration.startsWith("file:")) {
+//				if (log4jConfiguration.contains("..")) {
+//					if (log4jConfiguration.startsWith("file://"))
+//						log4jConfiguration = log4jConfiguration.substring("file://".length());
+//					else if (log4jConfiguration.startsWith("file:"))
+//						log4jConfiguration = log4jConfiguration.substring("file:".length());
+//				}
+//				try {
+//					Path log4jconfigPath;
+//					if (log4jConfiguration.startsWith("file:"))
+//						log4jconfigPath = Paths.get(new URI(log4jConfiguration));
+//					else
+//						log4jconfigPath = Paths.get(log4jConfiguration);
+//					Thread log4jConfWatcher = new Log4jConfWatcherThread(log4jconfigPath);
+//					log4jConfWatcher.start();
+//				} catch (Exception e) {
+//					stdErr("Badly formatted log4j configuration URI " + log4jConfiguration + ": " + e.getMessage());
+//				}
+//			}
 		}
 	}
 
@@ -283,9 +283,9 @@ public class NodeLogger implements ArgeoLogger, LogListener {
 		if (username == null)// FIXME
 			return;
 		if (!userListeners.containsKey(username))
-			throw new CmsException("No user listeners " + listener + " registered for user " + username);
+			throw new IllegalStateException("No user listeners " + listener + " registered for user " + username);
 		if (!userListeners.get(username).contains(listener))
-			throw new CmsException("No user listeners " + listener + " registered for user " + username);
+			throw new IllegalStateException("No user listeners " + listener + " registered for user " + username);
 		userListeners.get(username).remove(listener);
 		if (userListeners.get(username).isEmpty())
 			userListeners.remove(username);

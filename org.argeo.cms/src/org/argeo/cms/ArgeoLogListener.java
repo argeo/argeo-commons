@@ -1,6 +1,7 @@
 package org.argeo.cms;
 
 /** Framework agnostic interface for log notifications */
+@Deprecated
 public interface ArgeoLogListener {
 	/**
 	 * Appends a log

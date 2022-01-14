@@ -285,6 +285,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		private StackTraceElement findCallLocation(Level level, Thread thread) {
 			assert level != null;
 			assert thread != null;
+			// TODO rather use a StackWalker and make it smarter
 			StackTraceElement callLocation = null;
 			if (level.getSeverity() >= callLocationLevel.getSeverity()) {
 				StackTraceElement[] stack = thread.getStackTrace();
@@ -293,12 +294,15 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 					String className = stack[i].getClassName();
 					switch (className) {
 					// TODO make it more configurable
+					// FIXME deal with privileges stacks (in Equinox)
 					case "java.lang.System$Logger":
 					case "java.util.logging.Logger":
 					case "org.apache.commons.logging.Log":
 					case "org.osgi.service.log.Logger":
+					case "org.eclipse.osgi.internal.log.LoggerImpl":
 					case "org.argeo.api.cms.CmsLog":
 					case "org.slf4j.impl.ArgeoLogger":
+					case "org.argeo.cms.internal.osgi.CmsOsgiLogger":
 					case "org.eclipse.jetty.util.log.Slf4jLog":
 					case "sun.util.logging.internal.LoggingProviderImpl$JULWrapper":
 						lowestLoggerInterface = i;

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.osgi.DataModelNamespace;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -129,7 +128,7 @@ class DataModels implements BundleListener {
 				assert requiredDataModelName != null;
 				DataModel requiredDataModel = dataModels.get(requiredDataModelName);
 				if (requiredDataModel == null)
-					throw new CmsException("No required data model " + requiredDataModelName);
+					throw new IllegalStateException("No required data model " + requiredDataModelName);
 				req.add(requiredDataModel);
 			}
 			required = Collections.unmodifiableList(req);

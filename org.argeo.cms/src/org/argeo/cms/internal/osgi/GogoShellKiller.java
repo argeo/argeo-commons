@@ -1,7 +1,5 @@
 package org.argeo.cms.internal.osgi;
 
-import java.io.IOException;
-
 /**
  * Workaround for killing Gogo shell by system shutdown.
  * 

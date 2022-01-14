@@ -38,10 +38,14 @@ public class RepositoryContextsFactory implements ManagedServiceFactory {
 		for (String pid : repositories.keySet()) {
 			try {
 				RepositoryContext repositoryContext = repositories.get(pid);
-				repositoryContext.getRepository().shutdown();
-				if (log.isDebugEnabled())
-					log.debug("Shut down repository " + pid
-							+ (pidToCn.containsKey(pid) ? " (" + pidToCn.get(pid) + ")" : ""));
+				// Must start in another thread otherwise shutdown is interrupted
+				// TODO use an executor?
+				new Thread(() -> {
+					repositoryContext.getRepository().shutdown();
+					if (log.isDebugEnabled())
+						log.debug("Shut down repository " + pid
+								+ (pidToCn.containsKey(pid) ? " (" + pidToCn.get(pid) + ")" : ""));
+				}, "Shutdown JCR repository " + pid).start();
 			} catch (Exception e) {
 				log.error("Error when shutting down Jackrabbit repository " + pid, e);
 			}
