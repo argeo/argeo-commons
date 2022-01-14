@@ -73,7 +73,7 @@ public class RepositoryContextsFactory implements ManagedServiceFactory {
 					RepositoryContext repositoryContext = repositories.remove(otherPid);
 					repositories.put(pid, repositoryContext);
 					if (log.isDebugEnabled())
-						log.debug("Ignore update of Jackrabbit repository " + cn);
+						log.debug("Ignoring update of Jackrabbit repository " + cn);
 					// FIXME perform a proper update (also of the OSGi service)
 					return;
 				}

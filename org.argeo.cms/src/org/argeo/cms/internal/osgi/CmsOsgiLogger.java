@@ -1,10 +1,8 @@
 package org.argeo.cms.internal.osgi;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
@@ -30,7 +28,6 @@ import org.argeo.cms.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.internal.runtime.KernelConstants;
-import org.argeo.cms.internal.runtime.KernelUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
@@ -160,10 +157,13 @@ public class CmsOsgiLogger implements ArgeoLogger, LogListener {
 				return;
 			pluginLog.error(msg(status), status.getException());
 		} else if (severity.equals(LogLevel.WARN) && pluginLog.isWarnEnabled()) {
-			if (pluginLog.isTraceEnabled())
-				pluginLog.warn(msg(status), status.getException());
-			else
+			if ("org.apache.felix.scr".equals(status.getBundle().getSymbolicName())
+					&& (status.getException() != null && status.getException() instanceof InterruptedException)) {
+				// do not print stacktraces by Felix SCR shutdown
 				pluginLog.warn(msg(status));
+			} else {
+				pluginLog.warn(msg(status), status.getException());
+			}
 		} else if (severity.equals(LogLevel.INFO) && pluginLog.isDebugEnabled())
 			pluginLog.debug(msg(status), status.getException());
 		else if (severity.equals(LogLevel.DEBUG) && pluginLog.isTraceEnabled())
@@ -401,7 +401,7 @@ public class CmsOsgiLogger implements ArgeoLogger, LogListener {
 //				event.getLoggerName(), event.getThreadName(), event.getMessage(), event.getThrowableStrRep());
 	}
 
-	private class AppenderImpl { //extends AppenderSkeleton {
+	private class AppenderImpl { // extends AppenderSkeleton {
 		public boolean requiresLayout() {
 			return false;
 		}

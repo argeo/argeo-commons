@@ -148,10 +148,18 @@ public class NodeUserAdmin extends AggregatingUserAdmin implements ManagedServic
 		} else {
 			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
 		}
+		LdapName baseDn = userDirectory.getBaseDn();
+
+		// FIXME make updates more robust
+		if (pidToBaseDn.containsValue(baseDn)) {
+			if (log.isDebugEnabled())
+				log.debug("Ignoring user directory update of " + baseDn);
+			return;
+		}
+
 		addUserDirectory(userDirectory);
 
 		// OSGi
-		LdapName baseDn = userDirectory.getBaseDn();
 		Hashtable<String, Object> regProps = new Hashtable<>();
 		regProps.put(Constants.SERVICE_PID, pid);
 		if (isSystemRolesBaseDn(baseDn))
