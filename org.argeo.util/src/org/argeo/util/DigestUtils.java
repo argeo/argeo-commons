@@ -1,5 +1,7 @@
 package org.argeo.util;
 
+import static org.argeo.util.BytesUtils.toHexString;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,27 +25,32 @@ public class DigestUtils {
 	// TODO: make it configurable
 	private final static Integer byteBufferCapacity = 100 * 1024;// 100 KB
 
-	public static byte[] sha1(byte[] bytes) {
+	public static byte[] sha1(byte[]... bytes) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance(SHA1);
-			digest.update(bytes);
+			for (byte[] arr : bytes)
+				digest.update(arr);
 			byte[] checksum = digest.digest();
 			return checksum;
 		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException(e);
+			throw new UnsupportedOperationException("SHA1 is not avalaible", e);
 		}
 	}
 
-	public static String digest(String algorithm, byte[] bytes) {
+	public static byte[] digestAsBytes(String algorithm, byte[]... bytes) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance(algorithm);
-			digest.update(bytes);
+			for (byte[] arr : bytes)
+				digest.update(arr);
 			byte[] checksum = digest.digest();
-			String res = encodeHexString(checksum);
-			return res;
+			return checksum;
 		} catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException("Cannot digest with algorithm " + algorithm, e);
+			throw new UnsupportedOperationException("Cannot digest with algorithm " + algorithm, e);
 		}
+	}
+
+	public static String digest(String algorithm, byte[]... bytes) {
+		return toHexString(digestAsBytes(algorithm, bytes));
 	}
 
 	public static String digest(String algorithm, InputStream in) {
@@ -60,7 +67,7 @@ public class DigestUtils {
 			}
 
 			byte[] checksum = digest.digest();
-			String res = encodeHexString(checksum);
+			String res = toHexString(checksum);
 			return res;
 		} catch (NoSuchAlgorithmException e) {
 			throw new IllegalArgumentException("Cannot digest with algorithm " + algorithm, e);
@@ -101,7 +108,7 @@ public class DigestUtils {
 			MessageDigest digest = MessageDigest.getInstance(algorithm);
 			digest.update(bb);
 			byte[] checksum = digest.digest();
-			String res = encodeHexString(checksum);
+			String res = toHexString(checksum);
 			long end = System.currentTimeMillis();
 			if (debug)
 				System.out.println((end - begin) + " ms / " + ((end - begin) / 1000) + " s");
@@ -116,11 +123,11 @@ public class DigestUtils {
 	}
 
 	public static String digest(String algorithm, Path path, long bufferSize) {
-		byte[] digest = digestRaw(algorithm, path, bufferSize);
-		return encodeHexString(digest);
+		byte[] digest = digestAsBytes(algorithm, path, bufferSize);
+		return toHexString(digest);
 	}
 
-	public static byte[] digestRaw(String algorithm, Path file, long bufferSize) {
+	public static byte[] digestAsBytes(String algorithm, Path file, long bufferSize) {
 		long begin = System.currentTimeMillis();
 		try {
 			MessageDigest md = MessageDigest.getInstance(algorithm);
@@ -181,21 +188,10 @@ public class DigestUtils {
 		}
 	}
 
-	final private static char[] hexArray = "0123456789abcdef".toCharArray();
-
-	/**
-	 * From
-	 * http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to
-	 * -a-hex-string-in-java
-	 */
+	/** @deprecated Use {@link BytesUtils#toHexString(byte[])} instead */
+	@Deprecated
 	public static String encodeHexString(byte[] bytes) {
-		char[] hexChars = new char[bytes.length * 2];
-		for (int j = 0; j < bytes.length; j++) {
-			int v = bytes[j] & 0xFF;
-			hexChars[j * 2] = hexArray[v >>> 4];
-			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-		}
-		return new String(hexChars);
+		return BytesUtils.toHexString(bytes);
 	}
 
 }
