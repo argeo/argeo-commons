@@ -494,7 +494,11 @@ public class UuidUtils {
 	private UuidUtils() {
 	}
 
-	final static void smokeTests() throws AssertionError {
+	/*
+	 * SMOKE TESTS
+	 */
+
+	static boolean smokeTests() throws AssertionError {
 
 		// warm up a bit before measuring perf and logging it
 		int warmUpCycles = 10;
@@ -564,6 +568,7 @@ public class UuidUtils {
 			assert "04738bdf-b25a-3829-a801-b21a1d25095b".equals(uuid.toString());
 			logger.log(DEBUG, () -> uuid.toString() + " in " + duration + " ns, isNameBased=" + isNameBased(uuid));
 		}
+		return UuidUtils.class.desiredAssertionStatus();
 	}
 
 	public static void main(String[] args) {
