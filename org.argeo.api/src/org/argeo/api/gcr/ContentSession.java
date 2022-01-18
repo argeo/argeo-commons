@@ -8,4 +8,6 @@ public interface ContentSession {
 	Subject getSubject();
 
 	Locale getLocale();
+
+	Content get(String path);
 }

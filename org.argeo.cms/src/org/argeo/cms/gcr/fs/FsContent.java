@@ -1,6 +1,7 @@
 package org.argeo.cms.gcr.fs;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,10 +16,14 @@ import java.util.Set;
 
 import org.argeo.api.gcr.Content;
 import org.argeo.api.gcr.ContentResourceException;
-import org.argeo.api.gcr.ContentSystemProvider;
+import org.argeo.api.gcr.CrName;
+import org.argeo.api.gcr.ContentName;
 import org.argeo.api.gcr.spi.AbstractContent;
+import org.argeo.util.FsUtils;
 
 public class FsContent extends AbstractContent implements Content {
+	private final static String USER_ = "user:";
+
 	private static final Set<String> BASIC_KEYS = new HashSet<>(
 			Arrays.asList("basic:creationTime", "basic:lastModifiedTime", "basic:size", "basic:fileKey"));
 	private static final Set<String> POSIX_KEYS;
@@ -29,13 +34,15 @@ public class FsContent extends AbstractContent implements Content {
 		POSIX_KEYS.add("posix:permissions");
 	}
 
-	private FsContentSession contentSession;
+	private final FsContentProvider contentProvider;
 	private final Path path;
+	private final boolean isRoot;
 
-	public FsContent(FsContentSession contentSession, Path path) {
+	public FsContent(FsContentProvider contentProvider, Path path) {
 		super();
-		this.contentSession = contentSession;
+		this.contentProvider = contentProvider;
 		this.path = path;
+		this.isRoot = contentProvider.isRoot(path);
 	}
 
 	private boolean isPosix() {
@@ -43,28 +50,22 @@ public class FsContent extends AbstractContent implements Content {
 	}
 
 	@Override
-	public Iterator<Content> iterator() {
-		if (Files.isDirectory(path)) {
-			try {
-				return Files.list(path).map((p) -> (Content) new FsContent(contentSession, p)).iterator();
-			} catch (IOException e) {
-				throw new ContentResourceException("Cannot list " + path, e);
-			}
-		} else {
-			return Collections.emptyIterator();
-		}
-	}
-
-	@Override
 	public String getName() {
+		if (isRoot)
+			return "";
 		return path.getFileName().toString();
 	}
+
+	/*
+	 * ATTRIBUTES
+	 */
 
 	@Override
 	public <A> A get(String key, Class<A> clss) {
 		Object value;
 		try {
-			value = Files.getAttribute(path, key);
+			// We need to add user: when accessing via Files#getAttribute
+			value = Files.getAttribute(path, toFsAttributeKey(key));
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot retrieve attribute " + key + " for " + path, e);
 		}
@@ -83,7 +84,6 @@ public class FsContent extends AbstractContent implements Content {
 		return (A) value;
 	}
 
-
 	@Override
 	protected Iterable<String> keys() {
 		Set<String> result = new HashSet<>(isPosix() ? POSIX_KEYS : BASIC_KEYS);
@@ -91,13 +91,89 @@ public class FsContent extends AbstractContent implements Content {
 		if (udfav != null) {
 			try {
 				for (String name : udfav.list()) {
-					result.add("user:" + name);
+					result.add(name);
 				}
 			} catch (IOException e) {
-				throw new ContentResourceException("Cannot liast attributes for " + path, e);
+				throw new ContentResourceException("Cannot list attributes for " + path, e);
 			}
 		}
 		return result;
+	}
+
+	@Override
+	protected void removeAttr(String key) {
+		UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		try {
+			udfav.delete(key);
+		} catch (IOException e) {
+			throw new ContentResourceException("Cannot delete attribute " + key + " for " + path, e);
+		}
+	}
+
+	@Override
+	public Object put(String key, Object value) {
+		Object previous = get(key);
+		UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
+		ByteBuffer bb = ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
+		try {
+			int size = udfav.write(key, bb);
+		} catch (IOException e) {
+			throw new ContentResourceException("Cannot delete attribute " + key + " for " + path, e);
+		}
+		return previous;
+	}
+
+	protected String toFsAttributeKey(String key) {
+		if (POSIX_KEYS.contains(key))
+			return key;
+		else
+			return USER_ + key;
+	}
+
+	/*
+	 * CONTENT OPERATIONS
+	 */
+	@Override
+	public Iterator<Content> iterator() {
+		if (Files.isDirectory(path)) {
+			try {
+				return Files.list(path).map((p) -> (Content) new FsContent(contentProvider, p)).iterator();
+			} catch (IOException e) {
+				throw new ContentResourceException("Cannot list " + path, e);
+			}
+		} else {
+			return Collections.emptyIterator();
+		}
+	}
+
+	@Override
+	public Content add(String name, ContentName... classes) {
+		try {
+			Path newPath = path.resolve(name);
+			if (ContentName.contains(classes, CrName.COLLECTION))
+				Files.createDirectory(newPath);
+			else
+				Files.createFile(newPath);
+
+//		for(ContentClass clss:classes) {
+//			Files.setAttribute(newPath, name, newPath, null)
+//		}
+			return new FsContent(contentProvider, newPath);
+		} catch (IOException e) {
+			throw new ContentResourceException("Cannot create new content", e);
+		}
+	}
+
+	@Override
+	public void remove() {
+		FsUtils.delete(path);
+	}
+
+	@Override
+	public Content getParent() {
+		if (isRoot)
+			return null;// TODO deal with mounts
+		return new FsContent(contentProvider, path.getParent());
 	}
 
 }

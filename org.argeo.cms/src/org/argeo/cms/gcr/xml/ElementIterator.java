@@ -9,14 +9,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class ElementIterator implements Iterator<Content> {
-	private final DomContentSession contentSession;
+	private final DomContentProvider contentSession;
 	private final NodeList nodeList;
 
 	private int currentIndex;
 	private final int length;
 	private Element nextElement = null;
 
-	public ElementIterator(DomContentSession contentSession, NodeList nodeList) {
+	public ElementIterator(DomContentProvider contentSession, NodeList nodeList) {
 		this.contentSession = contentSession;
 		this.nodeList = nodeList;
 

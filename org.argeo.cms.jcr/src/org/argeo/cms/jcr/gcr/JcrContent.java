@@ -10,18 +10,20 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.jcr.nodetype.NodeType;
 
 import org.argeo.api.gcr.Content;
+import org.argeo.api.gcr.ContentName;
 import org.argeo.api.gcr.spi.AbstractContent;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 
 public class JcrContent extends AbstractContent {
-	private JcrContentSession contentSession;
+	private JcrContentProvider contentProvider;
 	private Node jcrNode;
 
-	protected JcrContent(JcrContentSession contentSession, Node node) {
-		this.contentSession = contentSession;
+	protected JcrContent(JcrContentProvider contentSession, Node node) {
+		this.contentProvider = contentSession;
 		this.jcrNode = node;
 	}
 
@@ -41,7 +43,7 @@ public class JcrContent extends AbstractContent {
 	@Override
 	public Iterator<Content> iterator() {
 		try {
-			return new JcrContentIterator(contentSession, jcrNode.getNodes());
+			return new JcrContentIterator(contentProvider, jcrNode.getNodes());
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot list children of " + jcrNode, e);
 		}
@@ -55,7 +57,7 @@ public class JcrContent extends AbstractContent {
 			public Iterator<String> iterator() {
 				try {
 					PropertyIterator propertyIterator = jcrNode.getProperties();
-					return new JcrKeyIterator(contentSession, propertyIterator);
+					return new JcrKeyIterator(contentProvider, propertyIterator);
 				} catch (RepositoryException e) {
 					throw new JcrException("Cannot retrive properties from " + jcrNode, e);
 				}
@@ -94,12 +96,12 @@ public class JcrContent extends AbstractContent {
 	}
 
 	static class JcrContentIterator implements Iterator<Content> {
-		private final JcrContentSession contentSession;
+		private final JcrContentProvider contentSession;
 		private final NodeIterator nodeIterator;
 		// we keep track in order to be able to delete it
 		private JcrContent current = null;
 
-		protected JcrContentIterator(JcrContentSession contentSession, NodeIterator nodeIterator) {
+		protected JcrContentIterator(JcrContentProvider contentSession, NodeIterator nodeIterator) {
 			this.contentSession = contentSession;
 			this.nodeIterator = nodeIterator;
 		}
@@ -118,18 +120,59 @@ public class JcrContent extends AbstractContent {
 		@Override
 		public void remove() {
 			if (current != null) {
-				// current.getJcrNode().remove();
+				Jcr.remove(current.getJcrNode());
 			}
-			throw new UnsupportedOperationException();
+		}
+
+	}
+
+	@Override
+	public Content getParent() {
+		return new JcrContent(contentProvider, Jcr.getParent(getJcrNode()));
+	}
+
+	@Override
+	public Content add(String name, ContentName... classes) {
+		if (classes.length > 0) {
+			ContentName primaryType = classes[0];
+			Node child = Jcr.addNode(getJcrNode(), name, primaryType.toString());
+			for (int i = 1; i < classes.length; i++) {
+				try {
+					child.addMixin(classes[i].toString());
+				} catch (RepositoryException e) {
+					throw new JcrException("Cannot add child to " + getJcrNode(), e);
+				}
+			}
+
+		} else {
+			Jcr.addNode(getJcrNode(), name, NodeType.NT_UNSTRUCTURED);
+		}
+		return null;
+	}
+
+	@Override
+	public void remove() {
+		Jcr.remove(getJcrNode());
+	}
+
+	@Override
+	protected void removeAttr(String key) {
+		Property property = Jcr.getProperty(getJcrNode(), key);
+		if (property != null) {
+			try {
+				property.remove();
+			} catch (RepositoryException e) {
+				throw new JcrException("Cannot remove property " + key + " from " + getJcrNode(), e);
+			}
 		}
 
 	}
 
 	static class JcrKeyIterator implements Iterator<String> {
-		private final JcrContentSession contentSession;
+		private final JcrContentProvider contentSession;
 		private final PropertyIterator propertyIterator;
 
-		protected JcrKeyIterator(JcrContentSession contentSession, PropertyIterator propertyIterator) {
+		protected JcrKeyIterator(JcrContentProvider contentSession, PropertyIterator propertyIterator) {
 			this.contentSession = contentSession;
 			this.propertyIterator = propertyIterator;
 		}

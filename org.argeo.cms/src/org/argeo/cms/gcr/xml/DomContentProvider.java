@@ -11,14 +11,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.argeo.api.gcr.Content;
-import org.argeo.api.gcr.ContentSystemProvider;
 import org.argeo.api.gcr.ContentUtils;
+import org.argeo.api.gcr.spi.ContentProvider;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-public class DomContentSession implements ContentSystemProvider {
+public class DomContentProvider implements ContentProvider {
 	private Document document;
 
-	public DomContentSession(Document document) {
+	public DomContentProvider(Document document) {
 		this.document = document;
 		this.document.normalizeDocument();
 	}
@@ -26,6 +27,16 @@ public class DomContentSession implements ContentSystemProvider {
 	@Override
 	public Content get() {
 		return new DomContent(this, document.getDocumentElement());
+	}
+
+	public Element createElement(String name) {
+		return document.createElement(name);
+	}
+
+	@Override
+	public Content get(String relativePath) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public static void main(String args[]) throws Exception {
@@ -43,7 +54,7 @@ public class DomContentSession implements ContentSystemProvider {
 		testFile = Paths.get(System.getProperty("user.home") + "/tmp/test.xml");
 		Document doc = dBuilder.parse(Files.newInputStream(testFile));
 
-		DomContentSession contentSession = new DomContentSession(doc);
+		DomContentProvider contentSession = new DomContentProvider(doc);
 		ContentUtils.traverse(contentSession.get(), (c, d) -> ContentUtils.print(c, System.out, d, true));
 
 	}

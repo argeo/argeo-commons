@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.argeo.api.gcr.Content;
-import org.argeo.cms.gcr.fs.FsContentSession;
+import org.argeo.cms.gcr.fs.FsContentProvider;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -114,7 +114,7 @@ public class GcrContentTreeView extends Composite {
 		shell.setText(basePath.toString());
 		shell.setLayout(new FillLayout());
 
-		FsContentSession contentSession = new FsContentSession(basePath);
+		FsContentProvider contentSession = new FsContentProvider(basePath);
 		GcrContentTreeView treeView = new GcrContentTreeView(shell, 0, contentSession.get());
 
 		shell.setSize(shell.computeSize(800, 600));

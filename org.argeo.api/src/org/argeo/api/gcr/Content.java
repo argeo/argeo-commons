@@ -9,11 +9,22 @@ public interface Content extends Iterable<Content>, Map<String, Object> {
 
 	String getName();
 
-//	Iterable<String> keys();
+	String getPath();
+
+	Content getParent();
+
+	/*
+	 * ATTRIBUTES OPERATIONS
+	 */
 
 	<A> A get(String key, Class<A> clss) throws IllegalArgumentException;
 
-//	ContentSession getSession();
+	/*
+	 * CONTENT OPERATIONS
+	 */
+	Content add(String name, ContentName... classes);
+
+	void remove();
 
 	/*
 	 * DEFAULT METHODS
