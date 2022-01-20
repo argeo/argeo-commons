@@ -11,7 +11,7 @@ import java.util.UUID;
  * belong to java.base and can be implicitly derived form a given
  * <code>String<code>.
  */
-public enum StandardAttributeType {
+public enum CrAttributeType {
 	BOOLEAN(Boolean.class, new BooleanFormatter()), //
 	INTEGER(Integer.class, new IntegerFormatter()), //
 	LONG(Long.class, new LongFormatter()), //
@@ -24,7 +24,7 @@ public enum StandardAttributeType {
 	STRING(String.class, new StringFormatter()), //
 	;
 
-	private <T> StandardAttributeType(Class<T> clss, AttributeFormatter<T> formatter) {
+	private <T> CrAttributeType(Class<T> clss, AttributeFormatter<T> formatter) {
 		this.clss = clss;
 		this.formatter = formatter;
 	}

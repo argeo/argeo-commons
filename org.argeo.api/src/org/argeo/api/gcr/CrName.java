@@ -1,42 +1,58 @@
 package org.argeo.api.gcr;
 
-import java.util.UUID;
-
 /** Standard names. */
-public enum CrName implements ContentName {
+public enum CrName implements ContentNameSupplier {
+
 	/*
 	 * TYPES
 	 */
-	COLLECTION("collection"), // a collection type
+	COLLECTION, // a collection type
 
 	/*
 	 * ATTRIBUTES
 	 */
-	UUID("uuid"), // the UUID of a content
+	UUID, // the UUID of a content
+
+	/*
+	 * ATTRIBUTES FROM FILE SEMANTICS
+	 */
+	CREATION_TIME, //
+	LAST_MODIFIED_TIME, //
+	SIZE, //
+	FILE_KEY, //
+	OWNER, //
+	GROUP, //
+	PERMISSIONS, //
+
+	/*
+	 * CONTENT NAMES
+	 */
+	ROOT,
+
 	//
 	;
 
-	private String name;
-	private UUID uuid;
+	public final static String CR_NAMESPACE_URI = "http://argeo.org/ns/cr";
+	public final static String CR_DEFAULT_PREFIX = "cr";
+	private final ContentName value;
 
-	CrName(String name) {
-		this.name = name;
-		this.uuid = ContentNamespace.CR_NS.nameUuid(name);
+	CrName() {
+		value = toContentName();
 	}
 
 	@Override
-	public UUID getUuid() {
-		return uuid;
+	public ContentName get() {
+		return value;
 	}
 
 	@Override
-	public ContentNamespace getNamespace() {
-		return ContentNamespace.CR_NS;
+	public String getNamespaceURI() {
+		return CR_NAMESPACE_URI;
 	}
 
 	@Override
-	public String getName() {
-		return name;
+	public String getDefaultPrefix() {
+		return CR_DEFAULT_PREFIX;
 	}
 
 }

@@ -4,63 +4,122 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
+
 import org.argeo.api.gcr.Content;
 import org.argeo.api.gcr.ContentName;
 import org.argeo.api.gcr.spi.AbstractContent;
+import org.argeo.api.gcr.spi.ProvidedContent;
+import org.argeo.api.gcr.spi.ProvidedSession;
 import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-public class DomContent extends AbstractContent implements Content {
+public class DomContent extends AbstractContent implements ProvidedContent {
 
-	private final DomContentProvider contentProvider;
+	private final ProvidedSession session;
+	private final DomContentProvider provider;
 	private final Element element;
 
 //	private String text = null;
 	private Boolean hasText = null;
 
-	public DomContent(DomContentProvider contentProvider, Element element) {
-		this.contentProvider = contentProvider;
+	public DomContent(ProvidedSession session, DomContentProvider contentProvider, Element element) {
+		this.session = session;
+		this.provider = contentProvider;
 		this.element = element;
 	}
 
-	@Override
-	public Iterator<Content> iterator() {
-		NodeList nodeList = element.getChildNodes();
-		return new ElementIterator(contentProvider, nodeList);
+	public DomContent(DomContent context, Element element) {
+		this(context.getSession(), context.getProvider(), element);
 	}
 
 	@Override
-	public String getName() {
-		return element.getNodeName();
+	public QName getName() {
+		return toQName(this.element);
 	}
 
+	protected QName toQName(Node node) {
+		String prefix = node.getPrefix();
+		if (prefix == null) {
+			String namespaceURI = node.getNamespaceURI();
+			if (namespaceURI == null)
+				namespaceURI = node.getOwnerDocument().lookupNamespaceURI(null);
+			if (namespaceURI == null) {
+				return toQName(node, node.getLocalName());
+			} else {
+				String contextPrefix = session.getPrefix(namespaceURI);
+				if (contextPrefix == null)
+					throw new IllegalStateException("Namespace " + namespaceURI + " is unbound");
+				return toQName(node, namespaceURI, node.getLocalName(), session);
+			}
+		} else {
+			String namespaceURI = node.getNamespaceURI();
+			if (namespaceURI == null)
+				namespaceURI = node.getOwnerDocument().lookupNamespaceURI(prefix);
+			if (namespaceURI == null) {
+				namespaceURI = session.getNamespaceURI(prefix);
+				if (XMLConstants.NULL_NS_URI.equals(namespaceURI))
+					throw new IllegalStateException("Prefix " + prefix + " is unbound");
+				// TODO bind the prefix in the document?
+			}
+			return toQName(node, namespaceURI, node.getLocalName(), session);
+		}
+	}
+
+	protected QName toQName(Node source, String namespaceURI, String localName, NamespaceContext namespaceContext) {
+		return new ContentName(namespaceURI, localName, session);
+	}
+
+	protected QName toQName(Node source, String localName) {
+		return new ContentName(localName);
+	}
+	/*
+	 * ATTRIBUTES OPERATIONS
+	 */
+
 	@Override
-	public Iterable<String> keys() {
+	public Iterable<QName> keys() {
 		// TODO implement an iterator?
-		Set<String> result = new HashSet<>();
+		Set<QName> result = new HashSet<>();
 		NamedNodeMap attributes = element.getAttributes();
 		for (int i = 0; i < attributes.getLength(); i++) {
 			Attr attr = (Attr) attributes.item(i);
-			String attrName = attr.getNodeName();
-			result.add(attrName);
+			QName key = toQName(attr);
+			result.add(key);
 		}
 		return result;
 	}
 
 	@Override
-	public <A> A get(String key, Class<A> clss) {
-		if (element.hasAttribute(key)) {
-			String value = element.getAttribute(key);
+	public <A> A get(QName key, Class<A> clss) {
+		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(key.getNamespaceURI()) ? null
+				: key.getNamespaceURI();
+		if (element.hasAttributeNS(namespaceUriOrNull, key.getLocalPart())) {
+			String value = element.getAttributeNS(namespaceUriOrNull, key.getLocalPart());
 			if (clss.isAssignableFrom(String.class))
 				return (A) value;
 			else
 				throw new IllegalArgumentException();
 		} else
 			return null;
+	}
+
+	@Override
+	public Object put(QName key, Object value) {
+		Object previous = get(key);
+		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(key.getNamespaceURI()) ? null
+				: key.getNamespaceURI();
+		element.setAttributeNS(namespaceUriOrNull,
+				namespaceUriOrNull == null ? key.getLocalPart() : key.getPrefix() + ":" + key.getLocalPart(),
+				value.toString());
+		return previous;
 	}
 
 	@Override
@@ -100,6 +159,16 @@ public class DomContent extends AbstractContent implements Content {
 			return null;
 	}
 
+	/*
+	 * CONTENT OPERATIONS
+	 */
+
+	@Override
+	public Iterator<Content> iterator() {
+		NodeList nodeList = element.getChildNodes();
+		return new ElementIterator(session, provider, nodeList);
+	}
+
 	@Override
 	public Content getParent() {
 		Node parent = element.getParentNode();
@@ -107,14 +176,19 @@ public class DomContent extends AbstractContent implements Content {
 			return null;
 		if (!(parent instanceof Element))
 			throw new IllegalStateException("Parent is not an element");
-		return new DomContent(contentProvider, (Element) parent);
+		return new DomContent(this, (Element) parent);
 	}
 
 	@Override
-	public Content add(String name, ContentName... classes) {
+	public Content add(QName name, QName... classes) {
 		// TODO consider classes
-		Element child = contentProvider.createElement(name);
-		return new DomContent(contentProvider, child);
+		Document document = this.element.getOwnerDocument();
+		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI()) ? null
+				: name.getNamespaceURI();
+		Element child = document.createElementNS(namespaceUriOrNull,
+				namespaceUriOrNull == null ? name.getLocalPart() : name.getPrefix() + ":" + name.getLocalPart());
+		element.appendChild(child);
+		return new DomContent(this, child);
 	}
 
 	@Override
@@ -125,9 +199,20 @@ public class DomContent extends AbstractContent implements Content {
 	}
 
 	@Override
-	protected void removeAttr(String key) {
-		element.removeAttribute(key);
+	protected void removeAttr(QName key) {
+		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(key.getNamespaceURI()) ? null
+				: key.getNamespaceURI();
+		element.removeAttributeNS(namespaceUriOrNull,
+				namespaceUriOrNull == null ? key.getLocalPart() : key.getPrefix() + ":" + key.getLocalPart());
 
+	}
+
+	public ProvidedSession getSession() {
+		return session;
+	}
+
+	public DomContentProvider getProvider() {
+		return provider;
 	}
 
 }

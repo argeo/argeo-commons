@@ -3,6 +3,8 @@ package org.argeo.cms.swt.gcr;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.xml.namespace.QName;
+
 import org.argeo.api.gcr.Content;
 import org.argeo.cms.gcr.fs.FsContentProvider;
 import org.argeo.cms.swt.CmsSwtUtils;
@@ -36,7 +38,7 @@ public class GcrContentTreeView extends Composite {
 		treeGd.widthHint = 300;
 		tree.setLayoutData(treeGd);
 		initTable();
-		
+
 		table.setLayoutData(CmsSwtUtils.fillAll());
 	}
 
@@ -44,7 +46,7 @@ public class GcrContentTreeView extends Composite {
 		tree = new Tree(this, 0);
 		for (Content c : rootContent) {
 			TreeItem root = new TreeItem(tree, 0);
-			root.setText(c.getName());
+			root.setText(c.getName().toString());
 			root.setData(c);
 			new TreeItem(root, 0);
 		}
@@ -59,7 +61,7 @@ public class GcrContentTreeView extends Composite {
 			Content content = (Content) root.getData();
 			for (Content c : content) {
 				TreeItem item = new TreeItem(root, 0);
-				item.setText(c.getName());
+				item.setText(c.getName().toString());
 				item.setData(c);
 				boolean hasChildren = true;
 				if (hasChildren) {
@@ -91,9 +93,9 @@ public class GcrContentTreeView extends Composite {
 		for (TableItem item : table.getItems()) {
 			item.dispose();
 		}
-		for (String key : selected.keySet()) {
+		for (QName key : selected.keySet()) {
 			TableItem item = new TableItem(table, 0);
-			item.setText(0, key);
+			item.setText(0, key.toString());
 			Object value = selected.get(key);
 			item.setText(1, value.toString());
 		}
@@ -115,7 +117,7 @@ public class GcrContentTreeView extends Composite {
 		shell.setLayout(new FillLayout());
 
 		FsContentProvider contentSession = new FsContentProvider(basePath);
-		GcrContentTreeView treeView = new GcrContentTreeView(shell, 0, contentSession.get());
+//		GcrContentTreeView treeView = new GcrContentTreeView(shell, 0, contentSession.get("/"));
 
 		shell.setSize(shell.computeSize(800, 600));
 		shell.open();

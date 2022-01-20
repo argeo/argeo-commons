@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import org.argeo.api.gcr.Content;
 import org.argeo.api.gcr.ContentResourceException;
 import org.argeo.api.gcr.spi.ContentProvider;
+import org.argeo.api.gcr.spi.ProvidedSession;
 
 public class FsContentProvider implements ContentProvider {
 	private final Path rootPath;
@@ -25,12 +26,7 @@ public class FsContentProvider implements ContentProvider {
 	}
 
 	@Override
-	public Content get() {
-		return new FsContent(this, rootPath);
-	}
-
-	@Override
-	public Content get(String relativePath) {
-		return new FsContent(this, rootPath.resolve(relativePath));
+	public Content get(ProvidedSession session, String mountPath, String relativePath) {
+		return new FsContent(session, this, rootPath.resolve(relativePath));
 	}
 }

@@ -4,18 +4,44 @@ import java.security.AccessController;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.security.auth.Subject;
 
 import org.argeo.api.gcr.Content;
-import org.argeo.api.gcr.ContentRepository;
 import org.argeo.api.gcr.ContentSession;
+import org.argeo.api.gcr.CrName;
 import org.argeo.api.gcr.spi.ContentProvider;
+import org.argeo.api.gcr.spi.ProvidedRepository;
+import org.argeo.api.gcr.spi.ProvidedSession;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 
-public class CmsContentRepository implements ContentRepository {
+public class CmsContentRepository implements ProvidedRepository {
 	private NavigableMap<String, ContentProvider> partitions = new TreeMap<>();
+
+	// TODO synchronize ?
+	private NavigableMap<String, String> prefixes = new TreeMap<>();
+
+	public CmsContentRepository() {
+		prefixes.put(CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
+		prefixes.put("basic", CrName.CR_NAMESPACE_URI);
+		prefixes.put("owner", CrName.CR_NAMESPACE_URI);
+		prefixes.put("posix", CrName.CR_NAMESPACE_URI);
+	}
+
+	public void start() {
+
+	}
+
+	public void stop() {
+
+	}
+
+	/*
+	 * REPOSITORY
+	 */
 
 	@Override
 	public ContentSession get() {
@@ -32,7 +58,26 @@ public class CmsContentRepository implements ContentRepository {
 		partitions.put(base, provider);
 	}
 
-	class CmsContentSession implements ContentSession {
+	public void registerPrefix(String prefix, String namespaceURI) {
+		String registeredUri = prefixes.get(prefix);
+		if (registeredUri == null) {
+			prefixes.put(prefix, namespaceURI);
+			return;
+		}
+		if (!registeredUri.equals(namespaceURI))
+			throw new IllegalStateException("Prefix " + prefix + " is already registred for " + registeredUri);
+		// do nothing if same namespace is already registered
+	}
+
+	/*
+	 * NAMESPACE CONTEXT
+	 */
+
+	/*
+	 * SESSION
+	 */
+
+	class CmsContentSession implements ProvidedSession {
 		private Subject subject;
 		private Locale locale;
 
@@ -43,9 +88,11 @@ public class CmsContentRepository implements ContentRepository {
 
 		@Override
 		public Content get(String path) {
-			Map.Entry<String, ContentProvider> provider = partitions.floorEntry(path);
-			String relativePath = path.substring(provider.getKey().length());
-			return provider.getValue().get(relativePath);
+			Map.Entry<String, ContentProvider> entry = partitions.floorEntry(path);
+			String mountPath = entry.getKey();
+			ContentProvider provider = entry.getValue();
+			String relativePath = path.substring(mountPath.length());
+			return provider.get(CmsContentSession.this, mountPath, relativePath);
 		}
 
 		@Override
@@ -56,6 +103,35 @@ public class CmsContentRepository implements ContentRepository {
 		@Override
 		public Locale getLocale() {
 			return locale;
+		}
+
+		@Override
+		public ProvidedRepository getRepository() {
+			return CmsContentRepository.this;
+		}
+
+		/*
+		 * NAMESPACE CONTEXT
+		 */
+
+		@Override
+		public String findNamespace(String prefix) {
+			return prefixes.get(prefix);
+		}
+
+		@Override
+		public Set<String> findPrefixes(String namespaceURI) {
+			Set<String> res = prefixes.entrySet().stream().filter(e -> e.getValue().equals(namespaceURI))
+					.map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
+
+			return res;
+		}
+
+		@Override
+		public String findPrefix(String namespaceURI) {
+			if (CrName.CR_NAMESPACE_URI.equals(namespaceURI) && prefixes.containsKey(CrName.CR_DEFAULT_PREFIX))
+				return CrName.CR_DEFAULT_PREFIX;
+			return ProvidedSession.super.findPrefix(namespaceURI);
 		}
 
 	}

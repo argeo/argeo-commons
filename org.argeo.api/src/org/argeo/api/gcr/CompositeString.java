@@ -97,7 +97,13 @@ public class CompositeString {
 			while (st.hasMoreTokens()) {
 				res.add(st.nextToken().toLowerCase());
 			}
-		} else {// CAML
+		} else {
+			// single
+			String strLowerCase = str.toLowerCase();
+			if (str.toUpperCase().equals(str) || strLowerCase.equals(str))
+				return new String[] { strLowerCase };
+
+			// CAML
 			StringBuilder current = null;
 			for (char c : str.toCharArray()) {
 				if (Character.isUpperCase(c)) {
@@ -129,6 +135,13 @@ public class CompositeString {
 	}
 
 	static boolean smokeTests() {
+		CompositeString plainName = new CompositeString("NAME");
+		assert "name".equals(plainName.toString());
+		assert "NAME".equals(plainName.toString(UNDERSCORE, true));
+		assert "name".equals(plainName.toString(UNDERSCORE, false));
+		assert "name".equals(plainName.toStringCaml(false));
+		assert "Name".equals(plainName.toStringCaml(true));
+
 		CompositeString camlName = new CompositeString("myComplexName");
 
 		assert new CompositeString("my-complex-name").equals(camlName);
@@ -138,16 +151,14 @@ public class CompositeString {
 
 		assert "my-complex-name".equals(camlName.toString());
 		assert "MY_COMPLEX_NAME".equals(camlName.toString(UNDERSCORE, true));
+		assert "my_complex_name".equals(camlName.toString(UNDERSCORE, false));
 		assert "myComplexName".equals(camlName.toStringCaml(false));
 		assert "MyComplexName".equals(camlName.toStringCaml(true));
-
-		CompositeString plainName = new CompositeString("name");
-		assert "name".equals(plainName.toString());
 
 		return CompositeString.class.desiredAssertionStatus();
 	}
 
-//	public static void main(String[] args) {
-//		System.out.println(smokeTests());
-//	}
+	public static void main(String[] args) {
+		System.out.println(smokeTests());
+	}
 }

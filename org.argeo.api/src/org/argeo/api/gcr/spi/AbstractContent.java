@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.argeo.api.gcr.Content;
+import javax.xml.namespace.QName;
 
-public abstract class AbstractContent extends AbstractMap<String, Object> implements Content {
+import org.argeo.api.gcr.Content;
+import org.argeo.api.gcr.CrName;
+
+public abstract class AbstractContent extends AbstractMap<QName, Object> implements Content {
 
 	@Override
-	public Set<Entry<String, Object>> entrySet() {
+	public Set<Entry<QName, Object>> entrySet() {
 //		Set<Entry<String, Object>> result = new HashSet<>();
 //		for (String key : keys()) {
 //			Entry<String, Object> entry = new Entry<String, Object>() {
@@ -36,13 +39,13 @@ public abstract class AbstractContent extends AbstractMap<String, Object> implem
 //			};
 //			result.add(entry);
 //		}
-		Set<Entry<String, Object>> result = new AttrSet();
+		Set<Entry<QName, Object>> result = new AttrSet();
 		return result;
 	}
 
-	protected abstract Iterable<String> keys();
+	protected abstract Iterable<QName> keys();
 
-	protected abstract void removeAttr(String key);
+	protected abstract void removeAttr(QName key);
 
 	@Override
 	public String getPath() {
@@ -50,8 +53,9 @@ public abstract class AbstractContent extends AbstractMap<String, Object> implem
 		collectAncestors(ancestors, this);
 		StringBuilder path = new StringBuilder();
 		for (Content c : ancestors) {
-			String name = c.getName();
-			if (!"".equals(name))
+			QName name = c.getName();
+			// FIXME
+			if (!CrName.ROOT.get().equals(name))
 				path.append('/').append(name);
 		}
 		return path.toString();
@@ -74,21 +78,21 @@ public abstract class AbstractContent extends AbstractMap<String, Object> implem
 
 	@Override
 	public String toString() {
-		return "content "+getPath();
+		return "content " + getPath();
 	}
 
 	/*
 	 * SUB CLASSES
 	 */
 
-	class AttrSet extends AbstractSet<Entry<String, Object>> {
+	class AttrSet extends AbstractSet<Entry<QName, Object>> {
 
 		@Override
-		public Iterator<Entry<String, Object>> iterator() {
-			final Iterator<String> keys = keys().iterator();
-			Iterator<Entry<String, Object>> it = new Iterator<Map.Entry<String, Object>>() {
+		public Iterator<Entry<QName, Object>> iterator() {
+			final Iterator<QName> keys = keys().iterator();
+			Iterator<Entry<QName, Object>> it = new Iterator<Map.Entry<QName, Object>>() {
 
-				String key = null;
+				QName key = null;
 
 				@Override
 				public boolean hasNext() {
@@ -96,11 +100,11 @@ public abstract class AbstractContent extends AbstractMap<String, Object> implem
 				}
 
 				@Override
-				public Entry<String, Object> next() {
+				public Entry<QName, Object> next() {
 					key = keys.next();
 					// TODO check type
 					Object value = get(key, Object.class);
-					AbstractMap.SimpleEntry<String, Object> entry = new SimpleEntry<>(key, value);
+					AbstractMap.SimpleEntry<QName, Object> entry = new SimpleEntry<>(key, value);
 					return entry;
 				}
 
@@ -120,7 +124,7 @@ public abstract class AbstractContent extends AbstractMap<String, Object> implem
 		@Override
 		public int size() {
 			int count = 0;
-			for (String key : keys()) {
+			for (QName key : keys()) {
 				count++;
 			}
 			return count;

@@ -8,6 +8,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+import javax.xml.namespace.QName;
+
 public class ContentUtils {
 	public static void traverse(Content content, BiConsumer<Content, Integer> doIt) {
 		traverse(content, doIt, 0);
@@ -28,7 +30,7 @@ public class ContentUtils {
 		}
 		String prefix = sb.toString();
 		out.println(prefix + content.getName());
-		for (String key : content.keySet()) {
+		for (QName key : content.keySet()) {
 			out.println(prefix + " " + key + "=" + content.get(key));
 		}
 		if (printText) {

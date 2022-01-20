@@ -4,20 +4,23 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.argeo.api.gcr.Content;
+import org.argeo.api.gcr.spi.ProvidedSession;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ElementIterator implements Iterator<Content> {
-	private final DomContentProvider contentSession;
+class ElementIterator implements Iterator<Content> {
+	private final ProvidedSession session;
+	private final DomContentProvider provider;
 	private final NodeList nodeList;
 
 	private int currentIndex;
 	private final int length;
 	private Element nextElement = null;
 
-	public ElementIterator(DomContentProvider contentSession, NodeList nodeList) {
-		this.contentSession = contentSession;
+	public ElementIterator(ProvidedSession session, DomContentProvider provider, NodeList nodeList) {
+		this.session = session;
+		this.provider = provider;
 		this.nodeList = nodeList;
 
 		this.length = nodeList.getLength();
@@ -45,7 +48,7 @@ public class ElementIterator implements Iterator<Content> {
 	public Content next() {
 		if (nextElement == null)
 			throw new NoSuchElementException();
-		DomContent result = new DomContent(contentSession, nextElement);
+		DomContent result = new DomContent(session, provider, nextElement);
 		currentIndex++;
 		nextElement = findNext();
 		return result;
