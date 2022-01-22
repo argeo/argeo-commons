@@ -10,6 +10,10 @@ import javax.xml.namespace.NamespaceContext;
 public interface ContentNameSupplier extends Supplier<ContentName>, NamespaceContext {
 	String name();
 
+	String getNamespaceURI();
+
+	String getDefaultPrefix();
+
 	@Override
 	default ContentName get() {
 		return toContentName();
@@ -21,13 +25,13 @@ public interface ContentNameSupplier extends Supplier<ContentName>, NamespaceCon
 		return new ContentName(getNamespaceURI(), camlName, this);
 	}
 
-	default String getNamespaceURI() {
-		return XMLConstants.NULL_NS_URI;
-	}
-
-	default String getDefaultPrefix() {
-		return XMLConstants.DEFAULT_NS_PREFIX;
-	}
+//	default String getNamespaceURI() {
+//		return XMLConstants.NULL_NS_URI;
+//	}
+//
+//	default String getDefaultPrefix() {
+//		return XMLConstants.DEFAULT_NS_PREFIX;
+//	}
 
 //	static ContentName toContentName(String namespaceURI, String localName, String prefix) {
 //		CompositeString cs = new CompositeString(localName);

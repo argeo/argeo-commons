@@ -6,31 +6,33 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
+import javax.xml.XMLConstants;
+
 /**
  * Minimal standard attribute types that MUST be supported. All related classes
  * belong to java.base and can be implicitly derived form a given
  * <code>String<code>.
  */
-public enum CrAttributeType {
+public enum CrAttributeType implements ContentNameSupplier {
 	BOOLEAN(Boolean.class, new BooleanFormatter()), //
 	INTEGER(Integer.class, new IntegerFormatter()), //
 	LONG(Long.class, new LongFormatter()), //
 	DOUBLE(Double.class, new DoubleFormatter()), //
 	// we do not support short and float, like recent additions to Java
 	// (e.g. optional primitives)
-	INSTANT(Instant.class, new InstantFormatter()), //
+	DATE_TIME(Instant.class, new InstantFormatter()), //
 	UUID(UUID.class, new UuidFormatter()), //
-	URI(URI.class, new UriFormatter()), //
+	ANY_URI(URI.class, new UriFormatter()), //
 	STRING(String.class, new StringFormatter()), //
 	;
+
+	private final Class<?> clss;
+	private final AttributeFormatter<?> formatter;
 
 	private <T> CrAttributeType(Class<T> clss, AttributeFormatter<T> formatter) {
 		this.clss = clss;
 		this.formatter = formatter;
 	}
-
-	private final Class<?> clss;
-	private final AttributeFormatter<?> formatter;
 
 	public Class<?> getClss() {
 		return clss;
@@ -38,6 +40,22 @@ public enum CrAttributeType {
 
 	public AttributeFormatter<?> getFormatter() {
 		return formatter;
+	}
+
+	@Override
+	public String getDefaultPrefix() {
+		if (equals(UUID))
+			return CrName.CR_DEFAULT_PREFIX;
+		else
+			return "xs";
+	}
+
+	@Override
+	public String getNamespaceURI() {
+		if (equals(UUID))
+			return CrName.CR_NAMESPACE_URI;
+		else
+			return XMLConstants.W3C_XML_SCHEMA_NS_URI;
 	}
 
 	public static Object parse(String str) {
@@ -66,7 +84,7 @@ public enum CrAttributeType {
 			// silent
 		}
 		try {
-			return INSTANT.getFormatter().parse(str);
+			return DATE_TIME.getFormatter().parse(str);
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
@@ -77,7 +95,7 @@ public enum CrAttributeType {
 			// silent
 		}
 		try {
-			java.net.URI uri = (java.net.URI) URI.getFormatter().parse(str);
+			java.net.URI uri = (java.net.URI) ANY_URI.getFormatter().parse(str);
 			if (uri.getScheme() != null)
 				return uri;
 			String path = uri.getPath();

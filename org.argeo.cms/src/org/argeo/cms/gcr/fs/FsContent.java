@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -80,7 +81,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	 */
 
 	@Override
-	public <A> A get(QName key, Class<A> clss) {
+	public <A> Optional<A> get(QName key, Class<A> clss) {
 		Object value;
 		try {
 			// We need to add user: when accessing via Files#getAttribute
@@ -88,19 +89,26 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot retrieve attribute " + key + " for " + path, e);
 		}
+		A res = null;
 		if (value instanceof FileTime) {
 			if (clss.isAssignableFrom(FileTime.class))
-				return (A) value;
+				res = (A) value;
 			Instant instant = ((FileTime) value).toInstant();
 			if (Object.class.isAssignableFrom(clss)) {// plain object requested
-				return (A) instant;
+				res = (A) instant;
 			}
 			// TODO perform trivial file conversion to other formats
 		}
 		if (value instanceof byte[]) {
-			return (A) new String((byte[]) value, StandardCharsets.UTF_8);
+			res = (A) new String((byte[]) value, StandardCharsets.UTF_8);
 		}
-		return (A) value;
+		if (res == null)
+			try {
+				res = (A) value;
+			} catch (ClassCastException e) {
+				return Optional.empty();
+			}
+		return Optional.of(res);
 	}
 
 	@Override

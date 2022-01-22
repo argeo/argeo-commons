@@ -1,6 +1,8 @@
 package org.argeo.api.gcr;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -20,7 +22,7 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	 * ATTRIBUTES OPERATIONS
 	 */
 
-	<A> A get(QName key, Class<A> clss) throws IllegalArgumentException;
+	<A> Optional<A> get(QName key, Class<A> clss);
 
 	default Object get(String key) {
 		if (key.indexOf(':') >= 0)
@@ -38,6 +40,29 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		if (key.indexOf(':') >= 0)
 			throw new IllegalArgumentException("Name " + key + " has a prefix");
 		return remove(new QName(XMLConstants.NULL_NS_URI, key, XMLConstants.DEFAULT_NS_PREFIX));
+	}
+
+	Class<?> getType(QName key);
+
+	boolean isMultiple(QName key);
+
+	<A> Optional<List<A>> getMultiple(QName key, Class<A> clss);
+
+	default <A> List<A> getMultiple(QName key) {
+		Class<A> type;
+		try {
+			type = (Class<A>) getType(key);
+		} catch (ClassCastException e) {
+			throw new IllegalArgumentException("Requested type is not the default type");
+		}
+		Optional<List<A>> res = getMultiple(key, type);
+		if (res == null)
+			return null;
+		else {
+			if (res.isEmpty())
+				throw new IllegalStateException("Metadata " + key + " is not availabel as list of type " + type);
+			return res.get();
+		}
 	}
 
 	/*

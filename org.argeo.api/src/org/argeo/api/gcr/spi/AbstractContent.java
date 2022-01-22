@@ -3,9 +3,11 @@ package org.argeo.api.gcr.spi;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -15,37 +17,64 @@ import org.argeo.api.gcr.CrName;
 
 public abstract class AbstractContent extends AbstractMap<QName, Object> implements Content {
 
+	/*
+	 * ATTRIBUTES OPERATIONS
+	 */
+	protected abstract Iterable<QName> keys();
+
+	protected abstract void removeAttr(QName key);
+
 	@Override
 	public Set<Entry<QName, Object>> entrySet() {
-//		Set<Entry<String, Object>> result = new HashSet<>();
-//		for (String key : keys()) {
-//			Entry<String, Object> entry = new Entry<String, Object>() {
-//
-//				@Override
-//				public String getKey() {
-//					return key;
-//				}
-//
-//				@Override
-//				public Object getValue() {
-//					return get(key, Object.class);
-//				}
-//
-//				@Override
-//				public Object setValue(Object value) {
-//					throw new UnsupportedOperationException();
-//				}
-//
-//			};
-//			result.add(entry);
-//		}
 		Set<Entry<QName, Object>> result = new AttrSet();
 		return result;
 	}
 
-	protected abstract Iterable<QName> keys();
+	@Override
+	public Class<?> getType(QName key) {
+		return String.class;
+	}
 
-	protected abstract void removeAttr(QName key);
+	@Override
+	public boolean isMultiple(QName key) {
+		return false;
+	}
+
+	@Override
+	public <A> Optional<List<A>> getMultiple(QName key, Class<A> clss) {
+		Object value = get(key);
+		if (value == null)
+			return null;
+		if (value instanceof List) {
+			try {
+				List<A> res = (List<A>) value;
+				return Optional.of(res);
+			} catch (ClassCastException e) {
+				List<A> res = new ArrayList<>();
+				List<?> lst = (List<?>) value;
+				try {
+					for (Object o : lst) {
+						A item = (A) o;
+						res.add(item);
+					}
+					return Optional.of(res);
+				} catch (ClassCastException e1) {
+					return Optional.empty();
+				}
+			}
+		} else {// singleton
+			try {
+				A res = (A) value;
+				return Optional.of(Collections.singletonList(res));
+			} catch (ClassCastException e) {
+				return Optional.empty();
+			}
+		}
+	}
+
+	/*
+	 * CONTENT OPERATIONS
+	 */
 
 	@Override
 	public String getPath() {
@@ -103,8 +132,9 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 				public Entry<QName, Object> next() {
 					key = keys.next();
 					// TODO check type
-					Object value = get(key, Object.class);
-					AbstractMap.SimpleEntry<QName, Object> entry = new SimpleEntry<>(key, value);
+					Optional<?> value = get(key, Object.class);
+					assert !value.isEmpty();
+					AbstractMap.SimpleEntry<QName, Object> entry = new SimpleEntry<>(key, value.get());
 					return entry;
 				}
 

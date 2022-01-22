@@ -2,6 +2,7 @@ package org.argeo.cms.gcr.xml;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.xml.XMLConstants;
@@ -98,15 +99,15 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	}
 
 	@Override
-	public <A> A get(QName key, Class<A> clss) {
+	public <A> Optional<A> get(QName key, Class<A> clss) {
 		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(key.getNamespaceURI()) ? null
 				: key.getNamespaceURI();
 		if (element.hasAttributeNS(namespaceUriOrNull, key.getLocalPart())) {
 			String value = element.getAttributeNS(namespaceUriOrNull, key.getLocalPart());
 			if (clss.isAssignableFrom(String.class))
-				return (A) value;
+				return Optional.of((A) value);
 			else
-				throw new IllegalArgumentException();
+				return Optional.empty();
 		} else
 			return null;
 	}
@@ -121,6 +122,8 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 				value.toString());
 		return previous;
 	}
+	
+	
 
 	@Override
 	public boolean hasText() {

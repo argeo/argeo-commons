@@ -2,6 +2,7 @@ package org.argeo.cms.jcr.gcr;
 
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.Optional;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -37,11 +38,11 @@ public class JcrContent extends AbstractContent {
 	}
 
 	@Override
-	public <A> A get(QName key, Class<A> clss) {
+	public <A> Optional<A> get(QName key, Class<A> clss) {
 		if (isDefaultAttrTypeRequested(clss)) {
-			return (A) get(jcrNode, key.toString());
+			return Optional.of((A) get(jcrNode, key.toString()));
 		}
-		return (A) Jcr.get(jcrNode, key.toString());
+		return Optional.of((A) Jcr.get(jcrNode, key.toString()));
 	}
 
 	@Override

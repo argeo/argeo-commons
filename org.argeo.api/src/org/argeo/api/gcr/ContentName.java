@@ -42,17 +42,24 @@ public class ContentName extends QName {
 //	private final UUID uuid;
 
 	public ContentName(String namespaceURI, String localPart, NamespaceContext nsContext) {
-		this(namespaceURI, localPart, nsContext.getPrefix(namespaceURI));
+		super(namespaceURI, localPart, checkPrefix(nsContext, namespaceURI));
 	}
 
-	protected ContentName(String namespaceURI, String localPart, String prefix) {
-		super(namespaceURI, localPart, prefix);
+	private static String checkPrefix(NamespaceContext nsContext, String namespaceURI) {
+		Objects.requireNonNull(nsContext, "Namespace context cannot be null");
+		Objects.requireNonNull(namespaceURI, "Namespace URI cannot be null");
+		String prefix = nsContext.getNamespaceURI(namespaceURI);
 		if (prefix == null)
-			throw new IllegalArgumentException("Prefix annot be null");
+			throw new IllegalStateException("No prefix found for " + namespaceURI + " from context " + nsContext);
+		return prefix;
+	}
+
+	ContentName(String namespaceURI, String localPart, String prefix) {
+		super(namespaceURI, localPart, prefix);
 	}
 
 	public ContentName(String localPart) {
-		this(XMLConstants.NULL_NS_URI, localPart, XMLConstants.DEFAULT_NS_PREFIX);
+		super(XMLConstants.NULL_NS_URI, localPart, XMLConstants.DEFAULT_NS_PREFIX);
 	}
 
 	public ContentName(QName qName, NamespaceContext nsContext) {
