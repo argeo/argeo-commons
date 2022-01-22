@@ -8,6 +8,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -314,6 +316,9 @@ public class UuidUtils {
 	 * NAME BASED (version 3 and 5)
 	 */
 
+	public final static String MD5 = "MD5";
+	public final static String SHA1 = "SHA1";
+
 	public static UUID nameUUIDv5(UUID namespace, String name) {
 		Objects.requireNonNull(namespace, "Namespace cannot be null");
 		Objects.requireNonNull(name, "Name cannot be null");
@@ -341,6 +346,18 @@ public class UuidUtils {
 		copyBytes(namespace, arr, 0);
 		System.arraycopy(name, 0, arr, 16, name.length);
 		return UUID.nameUUIDFromBytes(arr);
+	}
+
+	static byte[] sha1(byte[]... bytes) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance(SHA1);
+			for (byte[] arr : bytes)
+				digest.update(arr);
+			byte[] checksum = digest.digest();
+			return checksum;
+		} catch (NoSuchAlgorithmException e) {
+			throw new UnsupportedOperationException("SHA1 is not avalaible", e);
+		}
 	}
 
 	/*
@@ -388,14 +405,14 @@ public class UuidUtils {
 		Objects.requireNonNull(uuid, "UUID cannot be null");
 		long msb = uuid.getMostSignificantBits();
 		long lsb = uuid.getLeastSignificantBits();
-		return BytesUtils.toBytes(msb, lsb);
+		return toBytes(msb, lsb);
 	}
 
 	public static void copyBytes(UUID uuid, byte[] arr, int offset) {
 		Objects.requireNonNull(uuid, "UUID cannot be null");
 		long msb = uuid.getMostSignificantBits();
 		long lsb = uuid.getLeastSignificantBits();
-		BytesUtils.copyBytes(msb, lsb, arr, offset);
+		copyBytes(msb, lsb, arr, offset);
 	}
 
 	/**
@@ -463,11 +480,7 @@ public class UuidUtils {
 
 	/** To a 32 characters hex string without '-'. */
 	public static String toCompact(UUID uuid) {
-		return BytesUtils.toHexString(toBytes(uuid));
-	}
-
-	public static String firstBlock(UUID uuid) {
-		return uuid.toString().substring(0, 8);
+		return toHexString(toBytes(uuid));
 	}
 
 	public static boolean isRandom(UUID uuid) {
@@ -488,6 +501,37 @@ public class UuidUtils {
 
 	public static boolean isNameBased(UUID uuid) {
 		return uuid.version() == 3 || uuid.version() == 5;
+	}
+
+	final private static char[] hexArray = "0123456789abcdef".toCharArray();
+
+	/** Convert two longs to a byte array with length 16. */
+	public static byte[] toBytes(long long1, long long2) {
+		byte[] result = new byte[16];
+		for (int i = 0; i < 8; i++)
+			result[i] = (byte) ((long1 >> ((7 - i) * 8)) & 0xff);
+		for (int i = 8; i < 16; i++)
+			result[i] = (byte) ((long2 >> ((15 - i) * 8)) & 0xff);
+		return result;
+	}
+
+	public static void copyBytes(long long1, long long2, byte[] arr, int offset) {
+		assert arr.length >= 16 + offset;
+		for (int i = offset; i < 8 + offset; i++)
+			arr[i] = (byte) ((long1 >> ((7 - i) * 8)) & 0xff);
+		for (int i = 8 + offset; i < 16 + offset; i++)
+			arr[i] = (byte) ((long2 >> ((15 - i) * 8)) & 0xff);
+	}
+
+	/** Converts a byte array to an hex String. */
+	public static String toHexString(byte[] bytes) {
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 
 	/** Singleton. */

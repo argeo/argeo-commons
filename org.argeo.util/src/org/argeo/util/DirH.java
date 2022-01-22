@@ -68,14 +68,14 @@ public class DirH {
 	}
 
 	public void print(PrintStream out) {
-		out.print(BytesUtils.toHexString(digest));
+		out.print(DigestUtils.toHexString(digest));
 		if (dirName.length > 0) {
 			out.print(' ');
 			out.print(new String(dirName, charset));
 		}
 		out.print('\n');
 		for (int i = 0; i < hashes.length; i++) {
-			out.print(BytesUtils.toHexString(hashes[i]));
+			out.print(DigestUtils.toHexString(hashes[i]));
 			out.print(' ');
 			out.print(new String(fileNames[i], charset));
 			out.print('\n');
