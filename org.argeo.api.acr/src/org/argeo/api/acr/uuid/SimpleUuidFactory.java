@@ -27,6 +27,7 @@ import java.util.UUID;
  */
 public class SimpleUuidFactory implements UuidFactory {
 	private final static Logger logger = System.getLogger(SimpleUuidFactory.class.getName());
+	public final static UuidFactory DEFAULT = new SimpleUuidFactory(null, -1, null);
 //	private final static int MAX_CLOCKSEQUENCE = 16384;
 
 	private SecureRandom secureRandom;
@@ -39,6 +40,7 @@ public class SimpleUuidFactory implements UuidFactory {
 
 	private final TimeUuidState macAddressTimeUuidState;
 	private final TimeUuidState defaultTimeUuidState;
+
 
 	public SimpleUuidFactory(byte[] nodeId, int offset, Clock clock) {
 		try {

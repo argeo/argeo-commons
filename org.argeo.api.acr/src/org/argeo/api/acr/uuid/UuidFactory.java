@@ -4,6 +4,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 /**
@@ -50,6 +51,10 @@ public interface UuidFactory extends Supplier<UUID> {
 
 	default UUID randomUUID() {
 		return UUID.randomUUID();
+	}
+
+	default UUID randomUUIDWeak() {
+		return randomUUID(ThreadLocalRandom.current());
 	}
 
 	@Override
@@ -112,9 +117,4 @@ public interface UuidFactory extends Supplier<UUID> {
 	static boolean isNameBased(UUID uuid) {
 		return uuid.version() == 3 || uuid.version() == 5;
 	}
-
-	/*
-	 * DEFAULT
-	 */
-	final static UuidFactory DEFAULT = new SimpleUuidFactory(null, -1, null);
 }
