@@ -1,4 +1,4 @@
-package org.argeo.util;
+package org.argeo.api.acr.uuid;
 
 import static java.lang.System.Logger.Level.DEBUG;
 
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 
  * @see https://datatracker.ietf.org/doc/html/rfc4122
  */
-public class UuidUtils {
+public class AbstractUuidFactory {
 	/** Nil UUID (00000000-0000-0000-0000-000000000000). */
 	public final static UUID NIL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
@@ -57,7 +57,7 @@ public class UuidUtils {
 	/*
 	 * INTERNAL STATIC UTILITIES
 	 */
-	private final static Logger logger = System.getLogger(UuidUtils.class.getName());
+	private final static Logger logger = System.getLogger(AbstractUuidFactory.class.getName());
 
 	private final static long MOST_SIG_VERSION1 = (1l << 12);
 	private final static long LEAST_SIG_RFC4122_VARIANT = (1l << 63);
@@ -191,127 +191,6 @@ public class UuidUtils {
 		return uuid;
 	}
 
-//	@Deprecated
-//	public static UUID timeBasedUUID() {
-//		return timeBasedUUID(LocalDateTime.now(ZoneOffset.UTC));
-//	}
-//
-//	@Deprecated
-//	public static UUID timeBasedRandomUUID() {
-//		return timeBasedRandomUUID(LocalDateTime.now(ZoneOffset.UTC), RANDOM);
-//	}
-//
-//	@Deprecated
-//	public static UUID timeBasedUUID(LocalDateTime time) {
-//		if (HARDWARE_ADDRESS == null)
-//			return timeBasedRandomUUID(time, RANDOM);
-//		return timeBasedUUID(time, BitSet.valueOf(HARDWARE_ADDRESS));
-//	}
-//
-//	@Deprecated
-//	public static UUID timeBasedAddressUUID(LocalDateTime time, NetworkInterface nic) throws SocketException {
-//		byte[] nodeBytes = nic.getHardwareAddress();
-//		BitSet node = BitSet.valueOf(nodeBytes);
-//		return timeBasedUUID(time, node);
-//	}
-//
-//	@Deprecated
-//	public static UUID timeBasedRandomUUID(LocalDateTime time, Random random) {
-//		byte[] nodeBytes = new byte[6];
-//		random.nextBytes(nodeBytes);
-//		BitSet node = BitSet.valueOf(nodeBytes);
-//		// set random marker
-//		node.set(0, true);
-//		return timeBasedUUID(time, node);
-//	}
-//
-//	@Deprecated
-//	public static UUID timeBasedUUID(LocalDateTime time, BitSet node) {
-//		// most significant
-//		Duration duration = Duration.between(GREGORIAN_START, time);
-//
-//		// Number of 100 ns intervals in one second: 1000000000 / 100 = 10000000
-//		long timeNanos = duration.getSeconds() * 10000000 + duration.getNano() / 100;
-//		BitSet timeBits = BitSet.valueOf(new long[] { timeNanos });
-//		assert timeBits.length() <= 60;
-//
-//		int clockSequence;
-//		synchronized (CLOCK_SEQUENCE) {
-//			clockSequence = CLOCK_SEQUENCE.incrementAndGet();
-//			if (clockSequence > 16384)
-//				CLOCK_SEQUENCE.set(0);
-//		}
-//		BitSet clockSequenceBits = BitSet.valueOf(new long[] { clockSequence });
-//
-//		// Build the UUID, bit by bit
-//		// see https://tools.ietf.org/html/rfc4122#section-4.2.2
-//		// time
-//		BitSet time_low = new BitSet(32);
-//		BitSet time_mid = new BitSet(16);
-//		BitSet time_hi_and_version = new BitSet(16);
-//
-//		for (int i = 0; i < 60; i++) {
-//			if (i < 32)
-//				time_low.set(i, timeBits.get(i));
-//			else if (i < 48)
-//				time_mid.set(i - 32, timeBits.get(i));
-//			else
-//				time_hi_and_version.set(i - 48, timeBits.get(i));
-//		}
-//		// version
-//		time_hi_and_version.set(12, true);
-//		time_hi_and_version.set(13, false);
-//		time_hi_and_version.set(14, false);
-//		time_hi_and_version.set(15, false);
-//
-//		// clock sequence
-//		BitSet clk_seq_hi_res = new BitSet(8);
-//		BitSet clk_seq_low = new BitSet(8);
-//		for (int i = 0; i < 8; i++) {
-//			clk_seq_low.set(i, clockSequenceBits.get(i));
-//		}
-//		for (int i = 8; i < 14; i++) {
-//			clk_seq_hi_res.set(i - 8, clockSequenceBits.get(i));
-//		}
-//		// variant
-//		clk_seq_hi_res.set(6, false);
-//		clk_seq_hi_res.set(7, true);
-//
-////		String str = toHexString(time_low.toLongArray()[0]) + "-" + toHexString(time_mid.toLongArray()[0]) + "-"
-////				+ toHexString(time_hi_and_version.toLongArray()[0]) + "-"
-////				+ toHexString(clock_seq_hi_and_reserved.toLongArray()[0]) + toHexString(clock_seq_low.toLongArray()[0])
-////				+ "-" + toHexString(node.toLongArray()[0]);
-////		UUID uuid = UUID.fromString(str);
-//
-//		BitSet uuidBits = new BitSet(128);
-//		for (int i = 0; i < 128; i++) {
-//			if (i < 48)
-//				uuidBits.set(i, node.get(i));
-//			else if (i < 56)
-//				uuidBits.set(i, clk_seq_low.get(i - 48));
-//			else if (i < 64)
-//				uuidBits.set(i, clk_seq_hi_res.get(i - 56));
-//			else if (i < 80)
-//				uuidBits.set(i, time_hi_and_version.get(i - 64));
-//			else if (i < 96)
-//				uuidBits.set(i, time_mid.get(i - 80));
-//			else
-//				uuidBits.set(i, time_low.get(i - 96));
-//		}
-//
-//		long[] uuidLongs = uuidBits.toLongArray();
-//		assert uuidLongs.length == 2;
-//		UUID uuid = new UUID(uuidLongs[1], uuidLongs[0]);
-//
-//		// tests
-//		assert uuid.node() == node.toLongArray()[0];
-//		assert uuid.timestamp() == timeNanos;
-//		assert uuid.clockSequence() == clockSequence;
-//		assert uuid.version() == 1;
-//		assert uuid.variant() == 2;
-//		return uuid;
-//	}
-
 	/*
 	 * NAME BASED (version 3 and 5)
 	 */
@@ -326,7 +205,7 @@ public class UuidUtils {
 	}
 
 	public static UUID nameUUIDv5(UUID namespace, byte[] name) {
-		byte[] bytes = DigestUtils.sha1(toBytes(namespace), name);
+		byte[] bytes = sha1(toBytes(namespace), name);
 		bytes[6] &= 0x0f;
 		bytes[6] |= 0x50;// v5
 		bytes[8] &= 0x3f;
@@ -535,7 +414,7 @@ public class UuidUtils {
 	}
 
 	/** Singleton. */
-	private UuidUtils() {
+	private AbstractUuidFactory() {
 	}
 
 	/*
@@ -612,7 +491,7 @@ public class UuidUtils {
 			assert "04738bdf-b25a-3829-a801-b21a1d25095b".equals(uuid.toString());
 			logger.log(DEBUG, () -> uuid.toString() + " in " + duration + " ns, isNameBased=" + isNameBased(uuid));
 		}
-		return UuidUtils.class.desiredAssertionStatus();
+		return AbstractUuidFactory.class.desiredAssertionStatus();
 	}
 
 	public static void main(String[] args) {
