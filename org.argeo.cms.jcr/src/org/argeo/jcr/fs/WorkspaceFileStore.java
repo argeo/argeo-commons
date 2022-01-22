@@ -11,7 +11,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 
-import org.argeo.api.gcr.fs.AbstractFsStore;
+import org.argeo.api.acr.fs.AbstractFsStore;
 import org.argeo.jcr.JcrUtils;
 
 /** A {@link FileStore} implementation based on JCR {@link Workspace}. */

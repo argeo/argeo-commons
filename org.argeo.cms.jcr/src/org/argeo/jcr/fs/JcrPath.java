@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.api.gcr.fs.AbstractFsPath;
+import org.argeo.api.acr.fs.AbstractFsPath;
 
 /** A {@link Path} which contains a reference to a JCR {@link Node}. */
 public class JcrPath extends AbstractFsPath<JcrFileSystem, WorkspaceFileStore> {

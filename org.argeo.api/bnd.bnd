@@ -1,4 +1,0 @@
-Import-Package: javax.naming.*,\
-javax.security.*
-
-Export-Package: org.argeo.api.*

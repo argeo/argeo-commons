@@ -5,8 +5,8 @@ import java.nio.file.Paths;
 
 import javax.xml.namespace.QName;
 
-import org.argeo.api.gcr.Content;
-import org.argeo.cms.gcr.fs.FsContentProvider;
+import org.argeo.api.acr.Content;
+import org.argeo.cms.acr.fs.FsContentProvider;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;

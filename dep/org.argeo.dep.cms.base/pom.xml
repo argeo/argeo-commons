@@ -24,20 +24,15 @@
 			<artifactId>org.argeo.util</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.jcr</artifactId> -->
-		<!-- <version>2.3-SNAPSHOT</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.argeo.commons</groupId> -->
-		<!-- <artifactId>org.argeo.core</artifactId> -->
-		<!-- <version>2.3-SNAPSHOT</version> -->
-		<!-- </dependency> -->
 
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.api</artifactId>
+			<artifactId>org.argeo.api.acr</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.api.cms</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>

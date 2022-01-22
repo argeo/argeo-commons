@@ -23,8 +23,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 
-import org.argeo.api.gcr.fs.AbstractFsStore;
-import org.argeo.api.gcr.fs.AbstractFsSystem;
+import org.argeo.api.acr.fs.AbstractFsStore;
+import org.argeo.api.acr.fs.AbstractFsSystem;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrUtils;
 
