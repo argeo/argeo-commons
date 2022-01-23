@@ -2,7 +2,7 @@ package org.argeo.api.acr.uuid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.util.Random;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
@@ -28,35 +28,44 @@ public interface UuidFactory extends Supplier<UUID> {
 	 * NAME BASED (version 3 and 5)
 	 */
 
-	UUID nameUUIDv5(UUID namespace, byte[] name);
+	UUID nameUUIDv5(UUID namespace, byte[] data);
 
-	UUID nameUUIDv3(UUID namespace, byte[] name);
+	UUID nameUUIDv3(UUID namespace, byte[] data);
 
 	default UUID nameUUIDv5(UUID namespace, String name) {
-		if (name == null)
-			throw new IllegalArgumentException("Name cannot be null");
+		Objects.requireNonNull(name, "Name cannot be null");
 		return nameUUIDv5(namespace, name.getBytes(UTF_8));
 	}
 
 	default UUID nameUUIDv3(UUID namespace, String name) {
-		if (name == null)
-			throw new IllegalArgumentException("Name cannot be null");
+		Objects.requireNonNull(name, "Name cannot be null");
 		return nameUUIDv3(namespace, name.getBytes(UTF_8));
 	}
 
 	/*
-	 * RANDOM v4
+	 * RANDOM (version 4)
 	 */
-	UUID randomUUID(Random random);
+	/** A random UUID at least as good as {@link UUID#randomUUID()}. */
+	UUID randomUUIDStrong();
 
+	/**
+	 * An {@link UUID} generated based on {@link ThreadLocalRandom}. Implementations
+	 * should always provide it synchronously.
+	 */
+	UUID randomUUIDWeak();
+
+	/**
+	 * The default random {@link UUID} (v4) generator to use. This default
+	 * implementation returns {@link #randomUUIDStrong()}.
+	 */
 	default UUID randomUUID() {
-		return UUID.randomUUID();
+		return randomUUIDStrong();
 	}
 
-	default UUID randomUUIDWeak() {
-		return randomUUID(ThreadLocalRandom.current());
-	}
-
+	/**
+	 * The default {@link UUID} to provide, either random (v4) or time based (v1).
+	 * This default implementations returns {@link #randomUUID()}.
+	 */
 	@Override
 	default UUID get() {
 		return randomUUID();

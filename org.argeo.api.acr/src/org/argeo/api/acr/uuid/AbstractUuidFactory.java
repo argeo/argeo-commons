@@ -290,6 +290,7 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 	 * make it more readable.
 	 */
 	public static String toBinaryString(UUID uuid, int charsPerSegment, char separator) {
+		Objects.requireNonNull(uuid, "UUID cannot be null");
 		String binaryString = toBinaryString(uuid);
 		StringBuilder sb = new StringBuilder(128 + (128 / charsPerSegment));
 		for (int i = 0; i < binaryString.length(); i++) {
@@ -302,11 +303,22 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 
 	/** Converts an UUID to a binary string (list of 0 and 1). */
 	public static String toBinaryString(UUID uuid) {
+		Objects.requireNonNull(uuid, "UUID cannot be null");
 		String most = zeroTo64Chars(Long.toBinaryString(uuid.getMostSignificantBits()));
 		String least = zeroTo64Chars(Long.toBinaryString(uuid.getLeastSignificantBits()));
 		String binaryString = most + least;
 		assert binaryString.length() == 128;
 		return binaryString;
+	}
+
+	/**
+	 * Force this node id to be identified as no MAC address.
+	 * 
+	 * @see https://datatracker.ietf.org/doc/html/rfc4122#section-4.5
+	 */
+	public static void forceToNoMacAddress(byte[] nodeId, int offset) {
+		assert nodeId != null && offset < nodeId.length;
+		nodeId[offset] = (byte) (nodeId[offset] | 1);
 	}
 
 	private static String zeroTo64Chars(String str) {

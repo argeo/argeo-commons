@@ -11,6 +11,14 @@ import java.util.Objects;
  * different clock sequences for each thread.
  */
 public class ConcurrentTimeUuidState implements TimeUuidState {
+//	public final static ThreadLocal<Boolean> isTimeUuidThread = new ThreadLocal<>() {
+//
+//		@Override
+//		protected Boolean initialValue() {
+//			return false;
+//		}
+//	};
+
 	/** The maximum possible value of the clocksequence. */
 	private final static int MAX_CLOCKSEQUENCE = 16384;
 
@@ -46,6 +54,7 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 				Holder value = new Holder();
 				value.lastTimestamp = startTimeStamp;
 				value.clockSequence = newClockSequence();
+//				isTimeUuidThread.set(true);
 				return value;
 			}
 		};
@@ -56,6 +65,7 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 	 */
 
 	public long useTimestamp() {
+
 		long previousTimestamp = holder.get().lastTimestamp;
 		long now = computeNow();
 
