@@ -28,19 +28,14 @@ import java.util.UUID;
 public class SimpleUuidFactory implements UuidFactory {
 	private final static Logger logger = System.getLogger(SimpleUuidFactory.class.getName());
 	public final static UuidFactory DEFAULT = new SimpleUuidFactory(null, -1, null);
-//	private final static int MAX_CLOCKSEQUENCE = 16384;
 
 	private SecureRandom secureRandom;
-	private final byte[] hardwareAddress;
+	private final TimeUuidState timeUuidState;
 
-//	private final AtomicInteger clockSequence;
-
-	/** A start timestamp to which {@link System#nanoTime()}/100 can be added. */
-//	private final long startTimeStamp;
-
-	private final TimeUuidState macAddressTimeUuidState;
-	private final TimeUuidState defaultTimeUuidState;
-
+//	private NodeId macAddressNodeId;
+//	private NodeId defaultNodeId;
+	private byte[] macAddressNodeId;
+	private byte[] defaultNodeId;
 
 	public SimpleUuidFactory(byte[] nodeId, int offset, Clock clock) {
 		try {
@@ -56,21 +51,16 @@ public class SimpleUuidFactory implements UuidFactory {
 			}
 		}
 
-//		clockSequence = new AtomicInteger(secureRandom.nextInt(MAX_CLOCKSEQUENCE));
-		hardwareAddress = getHardwareAddress();
+		byte[] hardwareAddress = getHardwareAddress();
+//		macAddressNodeId = hardwareAddress != null ? new NodeId(hardwareAddress, 0) : null;
+		macAddressNodeId = toNodeId(hardwareAddress, 0);
 
-		macAddressTimeUuidState = hardwareAddress != null
-				? new ConcurrentTimeUuidState(hardwareAddress, 0, secureRandom, clock)
-				: null;
-		defaultTimeUuidState = nodeId != null ? new ConcurrentTimeUuidState(nodeId, offset, secureRandom, clock)
-				: macAddressTimeUuidState != null ? macAddressTimeUuidState
-						// we use random as a last resort
-						: new ConcurrentTimeUuidState(null, -1, secureRandom, clock);
+//		defaultNodeId = nodeId != null ? new NodeId(nodeId, offset) : macAddressNodeId;
+		defaultNodeId = nodeId != null ? toNodeId(nodeId, offset) : toNodeId(macAddressNodeId, 0);
+		if (defaultNodeId == null)
+			throw new IllegalStateException("No default node id specified");
 
-		// GREGORIAN_START = ZonedDateTime.of(1582, 10, 15, 0, 0, 0, 0, ZoneOffset.UTC);
-//		Duration duration = Duration.between(TimeUuidState.GREGORIAN_START, Instant.now());
-//		long nowVm = System.nanoTime() / 100;
-//		startTimeStamp = (duration.getSeconds() * 10000000 + duration.getNano() / 100) - nowVm;
+		timeUuidState = new ConcurrentTimeUuidState(secureRandom, clock);
 	}
 
 	/*
@@ -103,7 +93,7 @@ public class SimpleUuidFactory implements UuidFactory {
 
 		// tests
 //		assert uuid.node() == BitSet.valueOf(node).toLongArray()[0];
-		//assert uuid.node() == longFromBytes(node);
+		// assert uuid.node() == longFromBytes(node);
 		assert uuid.timestamp() == timestamp;
 		assert uuid.clockSequence() == clockSequence
 				: "uuid.clockSequence()=" + uuid.clockSequence() + " clockSequence=" + clockSequence;
@@ -114,45 +104,15 @@ public class SimpleUuidFactory implements UuidFactory {
 
 	@Override
 	public UUID timeUUIDwithMacAddress() {
-		if (macAddressTimeUuidState == null)
+		if (macAddressNodeId == null)
 			throw new UnsupportedOperationException("No MAC address is available");
-//		long timestamp = startTimeStamp + System.nanoTime() / 100;
-		return timeUUID(macAddressTimeUuidState.useTimestamp(), macAddressTimeUuidState.getClockSequence(),
-				macAddressTimeUuidState.getNodeId(), 0);
+		return timeUUID(timeUuidState.useTimestamp(), timeUuidState.getClockSequence(), macAddressNodeId, 0);
 	}
-
-//	public UUID timeUUID(long timestamp, Random random) {
-//		byte[] node = new byte[6];
-//		random.nextBytes(node);
-//		node[0] = (byte) (node[0] | 1);
-////		long clockSequence = nextClockSequence();
-//		return timeUUID(timestamp, macAddressTimeUuidState.getClockSequence(), node, 0);
-//	}
 
 	@Override
 	public UUID timeUUID() {
-//		long timestamp = startTimeStamp + System.nanoTime() / 100;
-//		return timeUUID(timeUuidState.useTimestamp());
-//	}
-//
-//	public UUID timeUUID(long timestamp) {
-//		if (hardwareAddress == null)
-//			return timeUUID(timestamp, secureRandom);
-//		long clockSequence = nextClockSequence();
-		return timeUUID(defaultTimeUuidState.useTimestamp(), defaultTimeUuidState.getClockSequence(),
-				defaultTimeUuidState.getNodeId(), 0);
+		return timeUUID(timeUuidState.useTimestamp(), timeUuidState.getClockSequence(), defaultNodeId, 0);
 	}
-
-//	public UUID timeUUID(long timestamp, NetworkInterface nic) {
-//		byte[] node;
-//		try {
-//			node = nic.getHardwareAddress();
-//		} catch (SocketException e) {
-//			throw new IllegalStateException("Cannot get hardware address", e);
-//		}
-////		long clockSequence = nextClockSequence();
-//		return timeUUID(timestamp, macAddressTimeUuidState.getClockSequence(), node, 0);
-//	}
 
 	public UUID timeUUID(Temporal time, long clockSequence, byte[] node) {
 		Duration duration = Duration.between(TimeUuidState.GREGORIAN_START, time);
@@ -176,16 +136,6 @@ public class SimpleUuidFactory implements UuidFactory {
 		}
 
 	}
-
-//	private synchronized long nextClockSequence() {
-//		int i = clockSequence.incrementAndGet();
-//		while (i < 0 || i >= MAX_CLOCKSEQUENCE) {
-//			clockSequence.set(secureRandom.nextInt(MAX_CLOCKSEQUENCE));
-//			i = clockSequence.incrementAndGet();
-//		}
-//		return (long) i;
-//	}
-
 	/*
 	 * NAME BASED (version 3 and 5)
 	 */
@@ -247,7 +197,6 @@ public class SimpleUuidFactory implements UuidFactory {
 	@Override
 	public UUID randomUUID() {
 		return randomUUID(secureRandom);
-		// return UuidFactory.super.randomUUID();
 	}
 
 	/*
@@ -397,4 +346,35 @@ public class SimpleUuidFactory implements UuidFactory {
 		}
 		return new String(hexChars);
 	}
+
+	private byte[] toNodeId(byte[] source, int offset) {
+		if (source == null)
+			return null;
+		if (offset < 0 || offset + 6 > source.length)
+			throw new ArrayIndexOutOfBoundsException(offset);
+		byte[] nodeId = new byte[6];
+		System.arraycopy(source, offset, nodeId, 0, 6);
+		return nodeId;
+	}
+
+//	static class NodeId extends ThreadLocal<byte[]> {
+//		private byte[] source;
+//		private int offset;
+//
+//		public NodeId(byte[] source, int offset) {
+//			Objects.requireNonNull(source);
+//			this.source = source;
+//			this.offset = offset;
+//			if (offset < 0 || offset + 6 > source.length)
+//				throw new ArrayIndexOutOfBoundsException(offset);
+//		}
+//
+//		@Override
+//		protected byte[] initialValue() {
+//			byte[] value = new byte[6];
+//			System.arraycopy(source, offset, value, 0, 6);
+//			return value;
+//		}
+//
+//	}
 }

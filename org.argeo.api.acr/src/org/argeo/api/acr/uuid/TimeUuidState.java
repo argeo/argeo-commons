@@ -15,8 +15,6 @@ public interface TimeUuidState {
 	/** Start of the Gregorian time, used by time-based UUID (v1). */
 	final static Instant GREGORIAN_START = ZonedDateTime.of(1582, 10, 15, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
 
-	byte[] getNodeId();
-
 	long useTimestamp();
 
 	long getClockSequence();
@@ -26,17 +24,8 @@ public interface TimeUuidState {
 	}
 
 	static class Holder {
-		byte[] nodeId = new byte[6];
 		long lastTimestamp;
 		long clockSequence;
-
-		public byte[] getNodeId() {
-			return nodeId;
-		}
-
-		public void setNodeId(byte[] nodeId) {
-			this.nodeId = nodeId;
-		}
 
 		public long getLastTimestamp() {
 			return lastTimestamp;

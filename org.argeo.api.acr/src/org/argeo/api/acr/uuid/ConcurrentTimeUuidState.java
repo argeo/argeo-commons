@@ -1,6 +1,5 @@
 package org.argeo.api.acr.uuid;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
@@ -15,10 +14,10 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 	/** The maximum possible value of the clocksequence. */
 	private final static int MAX_CLOCKSEQUENCE = 16384;
 
-	private final byte[] nodeId = new byte[6];
 	private final ThreadLocal<Holder> holder;
 
 	private final Instant startInstant;
+	/** A start timestamp to which {@link System#nanoTime()}/100 can be added. */
 	private final long startTimeStamp;
 
 	private final Clock clock;
@@ -26,22 +25,12 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 
 	private final SecureRandom secureRandom;
 
-	public ConcurrentTimeUuidState(byte[] nodeId, int offset, SecureRandom secureRandom, Clock clock) {
+	public ConcurrentTimeUuidState(SecureRandom secureRandom, Clock clock) {
 		useClockForMeasurement = clock != null;
 		this.clock = clock != null ? clock : Clock.systemUTC();
 
 		Objects.requireNonNull(secureRandom);
 		this.secureRandom = secureRandom;
-		if (nodeId != null) {
-			// copy array in case it should change in the future
-			if (offset + 6 > nodeId.length)
-				throw new IllegalArgumentException(
-						"Node id array is too small: " + nodeId.length + ", offset=" + offset);
-			System.arraycopy(nodeId, offset, this.nodeId, 0, 6);
-		} else {
-			this.secureRandom.nextBytes(this.nodeId);
-			assert TimeUuidState.isNoMacAddressNodeId(this.nodeId);
-		}
 
 		// compute the start reference
 		startInstant = Instant.now(this.clock);
@@ -57,7 +46,6 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 				Holder value = new Holder();
 				value.lastTimestamp = startTimeStamp;
 				value.clockSequence = newClockSequence();
-				System.arraycopy(ConcurrentTimeUuidState.this.nodeId, 0, value.nodeId, 0, 6);
 				return value;
 			}
 		};
@@ -116,16 +104,6 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 		return (duration.getSeconds() * 10000000 + duration.getNano() / 100);
 	}
 
-	protected SecureRandom initSecureRandom() {
-		SecureRandom secureRandom;
-		try {
-			secureRandom = SecureRandom.getInstanceStrong();
-		} catch (NoSuchAlgorithmException e) {
-			secureRandom = new SecureRandom();
-		}
-		return secureRandom;
-	}
-
 	/*
 	 * STATE OPERATIONS
 	 */
@@ -138,16 +116,15 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 	 * ACCESSORS
 	 */
 
-	@Override
-	public byte[] getNodeId() {
-		byte[] arr = new byte[6];
-		System.arraycopy(holder.get().nodeId, 0, arr, 0, 6);
-		return arr;
-	}
+//	@Override
+//	public byte[] getNodeId() {
+//		byte[] arr = new byte[6];
+//		System.arraycopy(holder.get().nodeId, 0, arr, 0, 6);
+//		return arr;
+//	}
 
 	@Override
 	public long getClockSequence() {
 		return holder.get().clockSequence;
 	}
-
 }
