@@ -3,6 +3,7 @@ package org.argeo.api.cms;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * A Commons Logging / SLF4J style logging utilities wrapping a standard Java
@@ -39,6 +40,10 @@ public interface CmsLog {
 		getLogger().log(Level.TRACE, message);
 	}
 
+	default void trace(Supplier<String> message) {
+		getLogger().log(Level.TRACE, message);
+	}
+
 	default void trace(Object message) {
 		getLogger().log(Level.TRACE, Objects.requireNonNull(message));
 	}
@@ -60,6 +65,10 @@ public interface CmsLog {
 	 */
 
 	default void debug(String message) {
+		getLogger().log(Level.DEBUG, message);
+	}
+
+	default void debug(Supplier<String> message) {
 		getLogger().log(Level.DEBUG, message);
 	}
 
@@ -87,6 +96,10 @@ public interface CmsLog {
 		getLogger().log(Level.INFO, message);
 	}
 
+	default void info(Supplier<String> message) {
+		getLogger().log(Level.INFO, message);
+	}
+
 	default void info(Object message) {
 		getLogger().log(Level.INFO, message);
 	}
@@ -111,6 +124,10 @@ public interface CmsLog {
 		getLogger().log(Level.WARNING, message);
 	}
 
+	default void warn(Supplier<String> message) {
+		getLogger().log(Level.WARNING, message);
+	}
+
 	default void warn(Object message) {
 		getLogger().log(Level.WARNING, message);
 	}
@@ -132,6 +149,10 @@ public interface CmsLog {
 	 */
 
 	default void error(String message) {
+		getLogger().log(Level.ERROR, message);
+	}
+
+	default void error(Supplier<String> message) {
 		getLogger().log(Level.ERROR, message);
 	}
 
