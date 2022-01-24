@@ -1,13 +1,10 @@
 package org.argeo.api.uuid;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.temporal.Temporal;
+import java.util.BitSet;
 import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
@@ -48,17 +45,15 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 		UUID uuid = new UUID(mostSig, leastSig);
 
 		// tests
-//		assert uuid.node() == BitSet.valueOf(node).toLongArray()[0];
-		// assert uuid.node() == longFromBytes(node);
-		assert uuid.timestamp() == timestamp;
-		assert uuid.clockSequence() == clockSequence
-				: "uuid.clockSequence()=" + uuid.clockSequence() + " clockSequence=" + clockSequence;
 		assert uuid.version() == 1;
 		assert uuid.variant() == 2;
+		assert uuid.node() == BitSet.valueOf(node).toLongArray()[0];
+		assert uuid.timestamp() == timestamp;
+		assert uuid.clockSequence() == clockSequence;
 		return uuid;
 	}
 
-	public UUID timeUUID(Temporal time, long clockSequence, byte[] node, int offset) {
+	protected UUID timeUUID(Temporal time, long clockSequence, byte[] node, int offset) {
 		// TODO add checks
 		Duration duration = Duration.between(TimeUuidState.GREGORIAN_START, time);
 		// Number of 100 ns intervals in one second: 1000000000 / 100 = 10000000
@@ -66,21 +61,6 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 		return newTimeUUID(timestamp, clockSequence, node, offset);
 	}
 
-	protected byte[] getHardwareAddress() {
-		InetAddress localHost;
-		try {
-			localHost = InetAddress.getLocalHost();
-			try {
-				NetworkInterface nic = NetworkInterface.getByInetAddress(localHost);
-				return nic.getHardwareAddress();
-			} catch (SocketException e) {
-				return null;
-			}
-		} catch (UnknownHostException e) {
-			return null;
-		}
-
-	}
 	/*
 	 * NAME BASED (version 3 and 5)
 	 */
@@ -281,17 +261,6 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 		System.arraycopy(source, offset, nodeId, 0, 6);
 		return nodeId;
 	}
-
-//	protected long toNodeIdBase(byte[] node) {
-//		assert node.length == 6;
-//		return LEAST_SIG_RFC4122_VARIANT // base for Leach–Salz UUID
-//				| (node[0] & 0xFFL) //
-//				| ((node[1] & 0xFFL) << 8) //
-//				| ((node[2] & 0xFFL) << 16) //
-//				| ((node[3] & 0xFFL) << 24) //
-//				| ((node[4] & 0xFFL) << 32) //
-//				| ((node[5] & 0xFFL) << 40); //
-//	}
 
 	/*
 	 * STATIC UTILITIES

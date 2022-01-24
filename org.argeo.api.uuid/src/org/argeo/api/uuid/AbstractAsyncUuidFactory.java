@@ -64,14 +64,11 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 		if (nodeIdSupplier == null)
 			throw new IllegalStateException("No node id supplier available");
 		UUID uuid = new UUID(timeUuidState.getMostSignificantBits(), timeUuidState.getLeastSignificantBits());
-		long clockSequence = timeUuidState.getClockSequence(); 
-		long timestamp = timeUuidState.getLastTimestamp(); 
-		// assert uuid.node() == longFromBytes(node);
-		assert uuid.timestamp() == timestamp;
-		assert uuid.clockSequence() == clockSequence
-				: "uuid.clockSequence()=" + uuid.clockSequence() + " clockSequence=" + clockSequence;
+
 		assert uuid.version() == 1;
 		assert uuid.variant() == 2;
+		assert uuid.timestamp() == timeUuidState.getLastTimestamp();
+		assert uuid.clockSequence() == timeUuidState.getClockSequence();
 
 		return uuid;
 	}
