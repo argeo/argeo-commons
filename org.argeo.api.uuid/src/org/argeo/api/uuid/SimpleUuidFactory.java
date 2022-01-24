@@ -1,4 +1,4 @@
-package org.argeo.api.acr.uuid;
+package org.argeo.api.uuid;
 
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.WARNING;

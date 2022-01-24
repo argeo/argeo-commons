@@ -1,4 +1,4 @@
-package org.argeo.api.acr.uuid;
+package org.argeo.api.uuid;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 

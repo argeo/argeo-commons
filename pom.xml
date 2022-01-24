@@ -23,6 +23,7 @@
 		<module>org.argeo.init</module>
 		<module>org.argeo.util</module>
 		<!-- API -->
+		<module>org.argeo.api.uuid</module>
 		<module>org.argeo.api.acr</module>
 		<module>org.argeo.api.cms</module>
 		<!-- CMS -->

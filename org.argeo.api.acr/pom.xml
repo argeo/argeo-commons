@@ -10,4 +10,11 @@
 	<artifactId>org.argeo.api.acr</artifactId>
 	<name>ACR API</name>
 	<packaging>jar</packaging>
+		<dependencies>
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.api.uuid</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>

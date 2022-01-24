@@ -1,4 +1,4 @@
-package org.argeo.api.acr.uuid;
+package org.argeo.api.uuid;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

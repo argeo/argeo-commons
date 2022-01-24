@@ -13,7 +13,7 @@
 	<name>CMS Base</name>
 	<dependencies>
 
-		<!-- Argeo Commons -->
+		<!-- Base -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.init</artifactId>
@@ -25,6 +25,12 @@
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
 
+		<!-- APIs -->
+		<dependency>
+			<groupId>org.argeo.commons</groupId>
+			<artifactId>org.argeo.api.uuid</artifactId>
+			<version>2.3-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.api.acr</artifactId>
@@ -35,6 +41,8 @@
 			<artifactId>org.argeo.api.cms</artifactId>
 			<version>2.3-SNAPSHOT</version>
 		</dependency>
+
+		<!-- CMS -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms.tp</artifactId>

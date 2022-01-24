@@ -1,4 +1,4 @@
-package org.argeo.api.acr.uuid;
+package org.argeo.api.uuid;
 
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
