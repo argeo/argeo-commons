@@ -156,7 +156,7 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 		}
 
 		synchronized void reset() {
-			int min = secureRandom.nextInt(ConcurrentTimeUuidState.MAX_CLOCKSEQUENCE);
+			int min = secureRandom.nextInt(ConcurrentTimeUuidState.MAX_CLOCKSEQUENCE - rangeSize);
 			int max = min + rangeSize;
 			if (min >= max)
 				throw new IllegalArgumentException("Minimum " + min + " is bigger than maximum " + max);
