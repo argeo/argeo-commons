@@ -1,6 +1,9 @@
 package org.argeo.api.uuid;
 
+import java.security.DrbgParameters;
+import java.security.DrbgParameters.Capability;
 import java.security.SecureRandom;
+import java.security.SecureRandomParameters;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -53,6 +56,16 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 	 * SYNC OPERATIONS
 	 */
 	protected UUID newRandomUUIDStrong() {
+		SecureRandomParameters parameters = secureRandom.getParameters();
+		if (parameters != null) {
+			if (parameters instanceof DrbgParameters.Instantiation) {
+				Capability capability = ((DrbgParameters.Instantiation) parameters).getCapability();
+				if (capability.equals(DrbgParameters.Capability.PR_AND_RESEED)
+						|| capability.equals(DrbgParameters.Capability.RESEED_ONLY)) {
+					secureRandom.reseed();
+				}
+			}
+		}
 		return newRandomUUID(secureRandom);
 	}
 
