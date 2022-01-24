@@ -11,11 +11,7 @@ public interface AsyncUuidFactory extends UuidFactory {
 	 */
 	CompletionStage<UUID> requestTimeUUID();
 
-	CompletionStage<UUID> requestTimeUUIDwithMacAddress();
-
 	ForkJoinTask<UUID> futureTimeUUID();
-
-	ForkJoinTask<UUID> futureTimeUUIDwithMacAddress();
 
 	/*
 	 * NAME BASED (version 3 and 5)
@@ -46,11 +42,6 @@ public interface AsyncUuidFactory extends UuidFactory {
 	@Override
 	default UUID timeUUID() {
 		return futureTimeUUID().invoke();
-	}
-
-	@Override
-	default UUID timeUUIDwithMacAddress() {
-		return futureTimeUUIDwithMacAddress().invoke();
 	}
 
 	@Override

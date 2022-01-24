@@ -8,10 +8,12 @@ import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A simple base implementation of {@link TimeUuidState}, which maintains
@@ -32,6 +34,8 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 
 	private final Clock clock;
 	private final boolean useClockForMeasurement;
+
+	private long nodeIdBase;
 
 	public ConcurrentTimeUuidState(SecureRandom secureRandom, Clock clock) {
 		useClockForMeasurement = clock != null;
@@ -54,7 +58,7 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 			protected ConcurrentTimeUuidState.Holder initialValue() {
 				ConcurrentTimeUuidState.Holder value = new ConcurrentTimeUuidState.Holder();
 				value.threadId = Thread.currentThread().getId();
-				value.lastTimestamp = startTimeStamp;
+				value.lastTimestamp = 0;
 				clockSequenceProvider.newClockSequence(value);
 				return value;
 			}
@@ -113,13 +117,47 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 
 	@Override
 	public long getClockSequence() {
-		return (long) currentHolder.get().clockSequence;
+		return currentHolder.get().clockSequence;
 	}
 
-	private static class Holder {
+	@Override
+	public long getLastTimestamp() {
+		return currentHolder.get().lastTimestamp;
+	}
+
+	public void reset(long nodeIdBase) {
+		synchronized (clockSequenceProvider) {
+			this.nodeIdBase = nodeIdBase;
+			clockSequenceProvider.reset();
+			clockSequenceProvider.notifyAll();
+		}
+	}
+
+	@Override
+	public long getLeastSignificantBits() {
+		return currentHolder.get().leastSig;
+	}
+
+	@Override
+	public long getMostSignificantBits() {
+		long timestamp = useTimestamp();
+		long mostSig = MOST_SIG_VERSION1 // base for version 1 UUID
+				| ((timestamp & 0xFFFFFFFFL) << 32) // time_low
+				| (((timestamp >> 32) & 0xFFFFL) << 16) // time_mid
+				| ((timestamp >> 48) & 0x0FFFL);// time_hi_and_version
+		return mostSig;
+	}
+
+	/*
+	 * INTERNAL CLASSSES
+	 */
+
+	private class Holder {
 		private long lastTimestamp;
-		private int clockSequence;
+		private long clockSequence;
 		private long threadId;
+
+		private long leastSig;
 
 		@Override
 		public boolean equals(Object obj) {
@@ -129,8 +167,13 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 			return isItself;
 		}
 
-		private synchronized void setClockSequence(int clockSequence) {
+		private void setClockSequence(long clockSequence) {
 			this.clockSequence = clockSequence;
+//			if (nodeIdBase == null)
+//				throw new IllegalStateException("Node id base is not initialised");
+			this.leastSig = nodeIdBase // already computed node base
+					| (((clockSequence & 0x3F00) >> 8) << 56) // clk_seq_hi_res
+					| ((clockSequence & 0xFF) << 48); // clk_seq_low
 		}
 
 		@Override
@@ -144,11 +187,11 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 		private int rangeSize = 256;
 		private volatile int min;
 		private volatile int max;
-		private final AtomicInteger counter = new AtomicInteger(-1);
+		private final AtomicLong counter = new AtomicLong(-1);
 
 		private final SecureRandom secureRandom;
 
-		private final WeakHashMap<Holder, Integer> activeHolders = new WeakHashMap<>();
+		private final Map<Holder, Long> activeHolders = Collections.synchronizedMap(new WeakHashMap<>());
 
 		ClockSequenceProvider(SecureRandom secureRandom) {
 			this.secureRandom = secureRandom;
@@ -185,11 +228,8 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 		}
 
 		private synchronized void newClockSequence(Holder holder) {
-//			int activeCount = activeHolders.size();
+			// Too many holders, we will remove the oldes ones
 			while (activeHolders.size() > rangeSize) {
-//				throw new IllegalStateException(
-//						"There are too many holders for range [" + min + "," + max + "] : " + activeCount);
-				// remove oldest
 				long oldestTimeStamp = -1;
 				Holder holderToRemove = null;
 				holders: for (Holder h : activeHolders.keySet()) {
@@ -214,7 +254,7 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 					logger.log(WARNING, "Removed " + holderToRemove + ", oldClockSequence=" + oldClockSequence);
 			}
 
-			int newClockSequence = -1;
+			long newClockSequence = -1;
 			int tryCount = 0;// an explicit exit condition
 			do {
 				tryCount++;

@@ -19,15 +19,11 @@ public interface UuidFactory extends Supplier<UUID> {
 	/*
 	 * TIME-BASED (version 1)
 	 */
-
 	UUID timeUUID();
-
-	UUID timeUUIDwithMacAddress();
 
 	/*
 	 * NAME BASED (version 3 and 5)
 	 */
-
 	UUID nameUUIDv5(UUID namespace, byte[] data);
 
 	UUID nameUUIDv3(UUID namespace, byte[] data);

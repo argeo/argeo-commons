@@ -272,7 +272,7 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 		return new String(hexChars);
 	}
 
-	protected byte[] toNodeId(byte[] source, int offset) {
+	protected byte[] toNodeIdBytes(byte[] source, int offset) {
 		if (source == null)
 			return null;
 		if (offset < 0 || offset + 6 > source.length)
@@ -281,6 +281,17 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 		System.arraycopy(source, offset, nodeId, 0, 6);
 		return nodeId;
 	}
+
+//	protected long toNodeIdBase(byte[] node) {
+//		assert node.length == 6;
+//		return LEAST_SIG_RFC4122_VARIANT // base for Leach–Salz UUID
+//				| (node[0] & 0xFFL) //
+//				| ((node[1] & 0xFFL) << 8) //
+//				| ((node[2] & 0xFFL) << 16) //
+//				| ((node[3] & 0xFFL) << 24) //
+//				| ((node[4] & 0xFFL) << 32) //
+//				| ((node[5] & 0xFFL) << 40); //
+//	}
 
 	/*
 	 * STATIC UTILITIES

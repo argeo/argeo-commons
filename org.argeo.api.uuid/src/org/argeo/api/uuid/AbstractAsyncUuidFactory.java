@@ -20,7 +20,9 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory implements AsyncUuidFactory {
 	private SecureRandom secureRandom;
-	protected TimeUuidState timeUuidState;
+	protected ConcurrentTimeUuidState timeUuidState;
+
+	private NodeIdSupplier nodeIdSupplier;
 
 	public AbstractAsyncUuidFactory() {
 		secureRandom = newSecureRandom();
@@ -30,11 +32,22 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 	 * ABSTRACT METHODS
 	 */
 
-	protected abstract UUID newTimeUUID();
-
-	protected abstract UUID newTimeUUIDwithMacAddress();
-
 	protected abstract SecureRandom newSecureRandom();
+
+	/*
+	 * STATE
+	 */
+	public void reset() {
+		if (nodeIdSupplier == null)
+			throw new IllegalStateException("No node id supplier available");
+		long nodeIdBase = nodeIdSupplier.get();
+		timeUuidState.reset(nodeIdBase);
+	}
+
+	public void setNodeIdSupplier(NodeIdSupplier nodeIdSupplier) {
+		this.nodeIdSupplier = nodeIdSupplier;
+		reset();
+	}
 
 	/*
 	 * SYNC OPERATIONS
@@ -45,6 +58,22 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 
 	public UUID randomUUIDWeak() {
 		return newRandomUUID(ThreadLocalRandom.current());
+	}
+
+	protected UUID newTimeUUID() {
+		if (nodeIdSupplier == null)
+			throw new IllegalStateException("No node id supplier available");
+		UUID uuid = new UUID(timeUuidState.getMostSignificantBits(), timeUuidState.getLeastSignificantBits());
+		long clockSequence = timeUuidState.getClockSequence(); 
+		long timestamp = timeUuidState.getLastTimestamp(); 
+		// assert uuid.node() == longFromBytes(node);
+		assert uuid.timestamp() == timestamp;
+		assert uuid.clockSequence() == clockSequence
+				: "uuid.clockSequence()=" + uuid.clockSequence() + " clockSequence=" + clockSequence;
+		assert uuid.version() == 1;
+		assert uuid.variant() == 2;
+
+		return uuid;
 	}
 
 	/*
@@ -74,11 +103,6 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 		return request(futureTimeUUID());
 	}
 
-	@Override
-	public CompletionStage<UUID> requestTimeUUIDwithMacAddress() {
-		return request(futureTimeUUIDwithMacAddress());
-	}
-
 	/*
 	 * ASYNC OPERATIONS (light)
 	 */
@@ -105,26 +129,4 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 	public ForkJoinTask<UUID> futureTimeUUID() {
 		return submit(this::newTimeUUID);
 	}
-
-	@Override
-	public ForkJoinTask<UUID> futureTimeUUIDwithMacAddress() {
-		return submit(this::newTimeUUIDwithMacAddress);
-	}
-
-//	@Override
-//	public UUID timeUUID() {
-//		if (ConcurrentTimeUuidState.isTimeUuidThread.get())
-//			return newTimeUUID();
-//		else
-//			return futureTimeUUID().join();
-//	}
-//
-//	@Override
-//	public UUID timeUUIDwithMacAddress() {
-//		if (ConcurrentTimeUuidState.isTimeUuidThread.get())
-//			return newTimeUUIDwithMacAddress();
-//		else
-//			return futureTimeUUIDwithMacAddress().join();
-//	}
-
 }
