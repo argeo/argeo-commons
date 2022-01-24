@@ -22,26 +22,4 @@ public interface TimeUuidState {
 	static boolean isNoMacAddressNodeId(byte[] nodeId) {
 		return (nodeId[0] & 1) != 0;
 	}
-
-	static class Holder {
-		long lastTimestamp;
-		long clockSequence;
-
-		public long getLastTimestamp() {
-			return lastTimestamp;
-		}
-
-		public void setLastTimestamp(long lastTimestamp) {
-			this.lastTimestamp = lastTimestamp;
-		}
-
-		public long getClockSequence() {
-			return clockSequence;
-		}
-
-		public void setClockSequence(long clockSequence) {
-			this.clockSequence = clockSequence;
-		}
-
-	}
 }
