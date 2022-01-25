@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * A simple base implementation of {@link TimeUuidState}, which maintains
  * different clock sequences for each thread.
  */
-public class ConcurrentTimeUuidState implements TimeUuidState {
+public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 	private final static Logger logger = System.getLogger(ConcurrentTimeUuidState.class.getName());
 
 	/** The maximum possible value of the clocksequence. */
@@ -46,8 +46,8 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 		// compute the start reference
 		startInstant = Instant.now(this.clock);
 		long nowVm = nowVm();
-		Duration duration = Duration.between(TimeUuidState.GREGORIAN_START, startInstant);
-		startTimeStamp = durationToUuidTimestamp(duration) - nowVm;
+		Duration duration = Duration.between(TimeUuid.TIMESTAMP_ZERO, startInstant);
+		startTimeStamp = TimeUuid.durationToTimestamp(duration) - nowVm;
 
 		clockSequenceProvider = new ClockSequenceProvider(secureRandom);
 
@@ -100,8 +100,8 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 
 	private long computeNow() {
 		if (useClockForMeasurement) {
-			Duration duration = Duration.between(TimeUuidState.GREGORIAN_START, Instant.now(clock));
-			return durationToUuidTimestamp(duration);
+			Duration duration = Duration.between(TimeUuid.TIMESTAMP_ZERO, Instant.now(clock));
+			return TimeUuid.durationToTimestamp(duration);
 		} else {
 			return startTimeStamp + nowVm();
 		}
@@ -109,10 +109,6 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 
 	private long nowVm() {
 		return System.nanoTime() / 100;
-	}
-
-	private long durationToUuidTimestamp(Duration duration) {
-		return (duration.getSeconds() * 10000000 + duration.getNano() / 100);
 	}
 
 	@Override
@@ -141,8 +137,7 @@ public class ConcurrentTimeUuidState implements TimeUuidState {
 	@Override
 	public long getMostSignificantBits() {
 		long timestamp = useTimestamp();
-		long mostSig = MOST_SIG_VERSION1 // base for version 1 UUID
-				| ((timestamp & 0xFFFFFFFFL) << 32) // time_low
+		long mostSig = UuidFactory.MOST_SIG_VERSION1 | ((timestamp & 0xFFFFFFFFL) << 32) // time_low
 				| (((timestamp >> 32) & 0xFFFFL) << 16) // time_mid
 				| ((timestamp >> 48) & 0x0FFFL);// time_hi_and_version
 		return mostSig;

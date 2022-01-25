@@ -17,6 +17,7 @@ import java.util.function.Supplier;
  * @see https://datatracker.ietf.org/doc/html/rfc4122
  */
 public interface UuidFactory extends Supplier<UUID> {
+
 	/*
 	 * DEFAULT
 	 */
@@ -159,6 +160,14 @@ public interface UuidFactory extends Supplier<UUID> {
 	final static UUID NAMESPACE_UUID_X500 = UUID.fromString("6ba7b814-9dad-11d1-80b4-00c04fd430c8");
 
 	/*
+	 * BIT LEVEL CONSTANTS
+	 */
+	/** Base for the most significant bit of version 1 (time based) UUIDs. */
+	long MOST_SIG_VERSION1 = (1l << 12);
+	/** Base for the least significant part of RFC4122 (variant 2) UUIDs. */
+	long LEAST_SIG_RFC4122_VARIANT = (1l << 63);
+
+	/*
 	 * UTILITIES
 	 */
 	/** Whether this {@link UUID} is random (v4). */
@@ -187,5 +196,31 @@ public interface UuidFactory extends Supplier<UUID> {
 	/** Whether this {@link UUID} is name based (v3 or v5). */
 	static boolean isNameBased(UUID uuid) {
 		return uuid.version() == 3 || uuid.version() == 5;
+	}
+
+	/**
+	 * The state of a time based UUID generator, as described and discussed in
+	 * section 4.2.1 of RFC4122.
+	 * 
+	 * @see https://datatracker.ietf.org/doc/html/rfc4122#section-4.2.1
+	 */
+	interface TimeUuidState {
+		/** Current node id and clock sequence for this thread. */
+		long getLeastSignificantBits();
+
+		/** A new current timestamp for this thread. */
+		long getMostSignificantBits();
+
+		/**
+		 * The last timestamp which was produced by this thread, as returned by
+		 * {@link UUID#timestamp()}.
+		 */
+		long getLastTimestamp();
+
+		/**
+		 * The current clock sequence for this thread, as returned by
+		 * {@link UUID#clockSequence()}.
+		 */
+		long getClockSequence();
 	}
 }

@@ -52,6 +52,10 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 		reset();
 	}
 
+	protected NodeIdSupplier getNodeIdSupplier() {
+		return nodeIdSupplier;
+	}
+
 	/*
 	 * SYNC OPERATIONS
 	 */

@@ -16,7 +16,7 @@ public class MacAddressUuidFactory extends ConcurrentUuidFactory {
 	public final static UuidFactory DEFAULT = new MacAddressUuidFactory();
 
 	public MacAddressUuidFactory() {
-		super(localHardwareAddressAsNodeId(), 0);
+		super(localHardwareAddressAsNodeId());
 	}
 
 	public static byte[] localHardwareAddressAsNodeId() {
