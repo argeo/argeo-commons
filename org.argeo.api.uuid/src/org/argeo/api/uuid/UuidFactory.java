@@ -18,6 +18,17 @@ import java.util.function.Supplier;
  */
 public interface UuidFactory extends Supplier<UUID> {
 	/*
+	 * DEFAULT
+	 */
+	/**
+	 * The default {@link UUID} to provide, either random (v4) or time based (v1).
+	 * It SHOULD wrap either {@link #timeUUID()} (recommended) or
+	 * {@link #randomUUID()}.
+	 */
+	@Override
+	UUID get();
+
+	/*
 	 * TIME-BASED (version 1)
 	 */
 	/**
@@ -118,16 +129,6 @@ public interface UuidFactory extends Supplier<UUID> {
 	 */
 	default UUID randomUUID() {
 		return randomUUIDStrong();
-	}
-
-	/**
-	 * The default {@link UUID} to provide, either random (v4) or time based (v1).
-	 * This default implementations returns {@link #timeUUID()} because it is
-	 * supposed to be fast and use few resources.
-	 */
-	@Override
-	default UUID get() {
-		return timeUUID();
 	}
 
 	/*

@@ -17,6 +17,7 @@ import java.security.SecureRandom;
 import java.util.BitSet;
 import java.util.Enumeration;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * A configurable implementation of an {@link AsyncUuidFactory}, which can be
@@ -44,6 +45,18 @@ public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory {
 		nodeIdBase = NodeIdSupplier.toNodeIdBase(defaultNodeId);
 		setNodeIdSupplier(() -> nodeIdBase);
 		assert newTimeUUID().node() == BitSet.valueOf(defaultNodeId).toLongArray()[0];
+	}
+
+	/*
+	 * DEFAULT
+	 */
+	/**
+	 * The default {@link UUID} to provide. This implementations returns
+	 * {@link #timeUUID()} because it is fast and uses few resources.
+	 */
+	@Override
+	public UUID get() {
+		return timeUUID();
 	}
 
 	@Override
