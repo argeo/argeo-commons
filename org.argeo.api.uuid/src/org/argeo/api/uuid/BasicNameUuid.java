@@ -2,11 +2,11 @@ package org.argeo.api.uuid;
 
 import java.util.UUID;
 
-/** A name-based UUID (v3 or v5) whose construction values are not known. */
-public class UnkownNameUuid extends TypedUuid {
+/** A name based UUID (v3 or v5) whose construction values are not known. */
+public class BasicNameUuid extends TypedUuid {
 	private static final long serialVersionUID = APM.SERIAL;
 
-	public UnkownNameUuid(UUID uuid) {
+	public BasicNameUuid(UUID uuid) {
 		super(uuid);
 		if ((uuid.version() != 5 && uuid.version() != 3) || uuid.variant() != 2)
 			throw new IllegalArgumentException("The provided UUID is not a name-based UUID.");

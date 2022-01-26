@@ -23,7 +23,8 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 	private final static long MOST_SIG_VERSION1 = (1l << 12);
 	private final static long LEAST_SIG_RFC4122_VARIANT = (1l << 63);
 
-	protected UUID newTimeUUID(long timestamp, long clockSequence, byte[] node, int offset) {
+	@Deprecated
+	protected UUID createTimeUUID(long timestamp, long clockSequence, byte[] node, int offset) {
 		Objects.requireNonNull(node, "Node array cannot be null");
 		if (node.length < offset + 6)
 			throw new IllegalArgumentException("Node array must be at least 6 bytes long");
@@ -53,19 +54,23 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 		return uuid;
 	}
 
+	@Deprecated
 	protected UUID timeUUID(Temporal time, long clockSequence, byte[] node, int offset) {
 		// TODO add checks
 		Duration duration = Duration.between(TimeUuid.TIMESTAMP_ZERO, time);
 		// Number of 100 ns intervals in one second: 1000000000 / 100 = 10000000
 		long timestamp = duration.getSeconds() * 10000000 + duration.getNano() / 100;
-		return newTimeUUID(timestamp, clockSequence, node, offset);
+		return createTimeUUID(timestamp, clockSequence, node, offset);
 	}
 
 	/*
 	 * NAME BASED (version 3 and 5)
 	 */
+	protected UUID createNameUUIDv5(UUID namespace, byte[] name) {
+		return createNameUUIDv5Static(namespace, name);
+	}
 
-	protected UUID newNameUUIDv5(UUID namespace, byte[] name) {
+	static UUID createNameUUIDv5Static(UUID namespace, byte[] name) {
 		Objects.requireNonNull(namespace, "Namespace cannot be null");
 		Objects.requireNonNull(name, "Name cannot be null");
 
@@ -78,7 +83,11 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 		return result;
 	}
 
-	protected UUID newNameUUIDv3(UUID namespace, byte[] name) {
+	protected UUID createNameUUIDv3(UUID namespace, byte[] name) {
+		return createNameUUIDv3Static(namespace, name);
+	}
+
+	static UUID createNameUUIDv3Static(UUID namespace, byte[] name) {
 		Objects.requireNonNull(namespace, "Namespace cannot be null");
 		Objects.requireNonNull(name, "Name cannot be null");
 
@@ -91,7 +100,7 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 	/*
 	 * RANDOM v4
 	 */
-	protected UUID newRandomUUID(Random random) {
+	protected UUID createRandomUUID(Random random) {
 		byte[] arr = new byte[16];
 		random.nextBytes(arr);
 		arr[6] &= 0x0f;

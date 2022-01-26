@@ -18,6 +18,7 @@ public class TimeUuid extends TypedUuid {
 	 */
 	public final static Instant TIMESTAMP_ZERO = ZonedDateTime.of(1582, 10, 15, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
 
+	/** Constructor based on a {@link UUID}. */
 	public TimeUuid(UUID uuid) {
 		super(uuid);
 		if (uuid.version() != 1 && uuid.variant() != 2)

@@ -28,14 +28,14 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 	private NodeIdSupplier nodeIdSupplier;
 
 	public AbstractAsyncUuidFactory() {
-		secureRandom = newSecureRandom();
+		secureRandom = createSecureRandom();
 		timeUuidState = new ConcurrentTimeUuidState(secureRandom, null);
 	}
 	/*
 	 * ABSTRACT METHODS
 	 */
 
-	protected abstract SecureRandom newSecureRandom();
+	protected abstract SecureRandom createSecureRandom();
 
 	/*
 	 * STATE
@@ -59,7 +59,7 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 	/*
 	 * SYNC OPERATIONS
 	 */
-	protected UUID newRandomUUIDStrong() {
+	protected UUID createRandomUUIDStrong() {
 		SecureRandomParameters parameters = secureRandom.getParameters();
 		if (parameters != null) {
 			if (parameters instanceof DrbgParameters.Instantiation) {
@@ -70,14 +70,14 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 				}
 			}
 		}
-		return newRandomUUID(secureRandom);
+		return createRandomUUID(secureRandom);
 	}
 
 	public UUID randomUUIDWeak() {
-		return newRandomUUID(ThreadLocalRandom.current());
+		return createRandomUUID(ThreadLocalRandom.current());
 	}
 
-	protected UUID newTimeUUID() {
+	protected UUID createTimeUUID() {
 		if (nodeIdSupplier == null)
 			throw new IllegalStateException("No node id supplier available");
 		UUID uuid = new UUID(timeUuidState.getMostSignificantBits(), timeUuidState.getLeastSignificantBits());
@@ -126,21 +126,21 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 
 	@Override
 	public ForkJoinTask<UUID> futureNameUUIDv5(UUID namespace, byte[] data) {
-		return submit(() -> newNameUUIDv5(namespace, data));
+		return submit(() -> createNameUUIDv5(namespace, data));
 	}
 
 	@Override
 	public ForkJoinTask<UUID> futureNameUUIDv3(UUID namespace, byte[] data) {
-		return submit(() -> newNameUUIDv3(namespace, data));
+		return submit(() -> createNameUUIDv3(namespace, data));
 	}
 
 	@Override
 	public ForkJoinTask<UUID> futureRandomUUIDStrong() {
-		return submit(this::newRandomUUIDStrong);
+		return submit(this::createRandomUUIDStrong);
 	}
 
 	@Override
 	public ForkJoinTask<UUID> futureTimeUUID() {
-		return submit(this::newTimeUUID);
+		return submit(this::createTimeUUID);
 	}
 }

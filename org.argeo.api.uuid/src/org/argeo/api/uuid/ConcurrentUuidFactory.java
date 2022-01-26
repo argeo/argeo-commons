@@ -16,7 +16,7 @@ import java.util.UUID;
  * 
  * @see https://datatracker.ietf.org/doc/html/rfc4122
  */
-public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory {
+public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory implements TypedUuidFactory {
 	private final static Logger logger = System.getLogger(ConcurrentUuidFactory.class.getName());
 
 	public ConcurrentUuidFactory(byte[] nodeId) {
@@ -60,7 +60,7 @@ public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory {
 	}
 
 	@Override
-	protected SecureRandom newSecureRandom() {
+	protected SecureRandom createSecureRandom() {
 		SecureRandom secureRandom;
 		try {
 			secureRandom = SecureRandom.getInstance("DRBG",

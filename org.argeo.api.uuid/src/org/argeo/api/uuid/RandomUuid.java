@@ -6,6 +6,7 @@ import java.util.UUID;
 public final class RandomUuid extends TypedUuid {
 	private static final long serialVersionUID = APM.SERIAL;
 
+	/** Constructor based on a {@link UUID}. */
 	public RandomUuid(UUID uuid) {
 		super(uuid);
 		if (uuid.version() != 4 && uuid.variant() != 2)
