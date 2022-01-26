@@ -19,17 +19,17 @@ import java.util.UUID;
 public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory implements TypedUuidFactory {
 	private final static Logger logger = System.getLogger(ConcurrentUuidFactory.class.getName());
 
-	public ConcurrentUuidFactory(byte[] nodeId) {
-		this(nodeId, 0);
+	public ConcurrentUuidFactory(long initialClockRange, byte[] nodeId) {
+		this(initialClockRange, nodeId, 0);
 	}
 
-	public ConcurrentUuidFactory(byte[] nodeId, int offset) {
+	public ConcurrentUuidFactory(long initialClockRange, byte[] nodeId, int offset) {
 		Objects.requireNonNull(nodeId);
 		if (offset + 6 > nodeId.length)
 			throw new IllegalArgumentException("Offset too big: " + offset);
 		byte[] defaultNodeId = toNodeIdBytes(nodeId, offset);
 		long nodeIdBase = NodeIdSupplier.toNodeIdBase(defaultNodeId);
-		setNodeIdSupplier(() -> nodeIdBase);
+		setNodeIdSupplier(() -> nodeIdBase, initialClockRange);
 	}
 
 	/**

@@ -26,6 +26,7 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 	protected ConcurrentTimeUuidState timeUuidState;
 
 	private NodeIdSupplier nodeIdSupplier;
+	private long currentClockSequenceRange = 0;
 
 	public AbstractAsyncUuidFactory() {
 		secureRandom = createSecureRandom();
@@ -44,7 +45,7 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 		if (nodeIdSupplier == null)
 			throw new IllegalStateException("No node id supplier available");
 		long nodeIdBase = nodeIdSupplier.get();
-		timeUuidState.reset(nodeIdBase);
+		timeUuidState.reset(nodeIdBase, currentClockSequenceRange);
 	}
 
 	public void setNodeIdSupplier(NodeIdSupplier nodeIdSupplier) {
@@ -52,8 +53,22 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 		reset();
 	}
 
+	public void setNodeIdSupplier(NodeIdSupplier nodeIdSupplier, long range) {
+		this.currentClockSequenceRange = range >= 0 ? range & 0x3F00 : range;
+		setNodeIdSupplier(nodeIdSupplier);
+	}
+
 	protected NodeIdSupplier getNodeIdSupplier() {
 		return nodeIdSupplier;
+	}
+
+	/**
+	 * If positive, only clock_hi is taken from the argument (range & 0x3F00), if
+	 * negative, the full range of possible values is used.
+	 */
+	public void setCurrentClockSequenceRange(long range) {
+		this.currentClockSequenceRange = range >= 0 ? range & 0x3F00 : range;
+		reset();
 	}
 
 	/*

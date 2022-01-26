@@ -15,15 +15,24 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.argeo.api.uuid.UuidFactory.TimeUuidState;
+
 /**
  * A simple base implementation of {@link TimeUuidState}, which maintains
- * different clock sequences for each thread.
+ * different clock sequences for each thread, based on a specified range. This
+ * range is defined as clock_seq_hi (cf. RFC4122) and only clock_seq_low is
+ * dynamically allocated. It means that there can be at most 256 parallel clock
+ * sequences. If that limit is reached, the clock sequence which has not be used
+ * for the most time is reallocated to the new thread. It is assumed that the
+ * context where time uUIDs will be generated will often be using thread pools
+ * (e.g. {@link ForkJoinPool#commonPool(), http server, database access, etc.)
+ * and that such reallocation won't have to happen too often.
  */
 public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 	private final static Logger logger = System.getLogger(ConcurrentTimeUuidState.class.getName());
 
 	/** The maximum possible value of the clocksequence. */
-	private final static int MAX_CLOCKSEQUENCE = 16384;
+	private final static int MAX_CLOCKSEQUENCE = 0x3F00;
 
 	private final ClockSequenceProvider clockSequenceProvider;
 	private final ThreadLocal<ConcurrentTimeUuidState.Holder> currentHolder;
@@ -121,10 +130,10 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 		return currentHolder.get().lastTimestamp;
 	}
 
-	public void reset(long nodeIdBase) {
+	protected void reset(long nodeIdBase, long range) {
 		synchronized (clockSequenceProvider) {
 			this.nodeIdBase = nodeIdBase;
-			clockSequenceProvider.reset();
+			clockSequenceProvider.reset(range);
 			clockSequenceProvider.notifyAll();
 		}
 	}
@@ -146,7 +155,6 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 	/*
 	 * INTERNAL CLASSSES
 	 */
-
 	private class Holder {
 		private long lastTimestamp;
 		private long clockSequence;
@@ -164,8 +172,6 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 
 		private void setClockSequence(long clockSequence) {
 			this.clockSequence = clockSequence;
-//			if (nodeIdBase == null)
-//				throw new IllegalStateException("Node id base is not initialised");
 			this.leastSig = nodeIdBase // already computed node base
 					| (((clockSequence & 0x3F00) >> 8) << 56) // clk_seq_hi_res
 					| ((clockSequence & 0xFF) << 48); // clk_seq_low
@@ -179,9 +185,11 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 	}
 
 	private static class ClockSequenceProvider {
-		private int rangeSize = 256;
-		private volatile int min;
-		private volatile int max;
+		/** Set to an illegal value. */
+		private long range = MAX_CLOCKSEQUENCE;// this is actually clk_seq_hi
+//		private int rangeSize = 256;
+		private volatile long min;
+		private volatile long max;
 		private final AtomicLong counter = new AtomicLong(-1);
 
 		private final SecureRandom secureRandom;
@@ -190,12 +198,37 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 
 		ClockSequenceProvider(SecureRandom secureRandom) {
 			this.secureRandom = secureRandom;
-			reset();
+//			reset(range);
 		}
 
-		synchronized void reset() {
-			int min = secureRandom.nextInt(ConcurrentTimeUuidState.MAX_CLOCKSEQUENCE - rangeSize);
-			int max = min + rangeSize;
+		synchronized void reset(long range) {
+			// long min = secureRandom.nextInt(ConcurrentTimeUuidState.MAX_CLOCKSEQUENCE -
+			// rangeSize);
+			// long max = min + rangeSize;
+
+			long min, max;
+			if (range >= 0) {
+				if (range > MAX_CLOCKSEQUENCE)
+					throw new IllegalArgumentException("Range " + Long.toHexString(range) + " is too big");
+				long previousRange = this.range;
+				this.range = range & 0x3F00;
+				if (this.range != range) {
+					this.range = previousRange;
+					throw new IllegalArgumentException(
+							"Range is not properly formatted: " + range + " (0x" + Long.toHexString(range) + ")");
+				}
+
+				min = this.range;
+				max = min | 0xFF;
+			} else {// full range
+				this.range = range;
+				min = 0;
+				max = MAX_CLOCKSEQUENCE;
+			}
+			assert min == (int) min;
+			assert max == (int) max;
+
+			// TODO rather use assertions
 			if (min >= max)
 				throw new IllegalArgumentException("Minimum " + min + " is bigger than maximum " + max);
 			if (min < 0 || min > MAX_CLOCKSEQUENCE)
@@ -210,21 +243,21 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 			if (activeCount > getRangeSize())
 				throw new IllegalStateException(
 						"There are too many holders for range [" + min + "," + max + "] : " + activeCount);
-			// reset the counter
-			counter.set(min);
+
+			// reset the counter with a random value in range
+			long firstCount = min + secureRandom.nextInt(getRangeSize());
+			counter.set(firstCount);
+
+			// reset holders
 			for (Holder holder : active) {
 				// save old clocksequence?
 				newClockSequence(holder);
 			}
 		}
 
-		private synchronized int getRangeSize() {
-			return rangeSize;
-		}
-
 		private synchronized void newClockSequence(Holder holder) {
 			// Too many holders, we will remove the oldes ones
-			while (activeHolders.size() > rangeSize) {
+			while (activeHolders.size() > getRangeSize()) {
 				long oldestTimeStamp = -1;
 				Holder holderToRemove = null;
 				holders: for (Holder h : activeHolders.keySet()) {
@@ -253,7 +286,7 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 			int tryCount = 0;// an explicit exit condition
 			do {
 				tryCount++;
-				if (tryCount >= rangeSize)
+				if (tryCount >= getRangeSize())
 					throw new IllegalStateException("No more clock sequence available");
 
 				newClockSequence = counter.incrementAndGet();
@@ -267,9 +300,17 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 			// TODO use an iterator to check the values
 			holder.setClockSequence(newClockSequence);
 			activeHolders.put(holder, newClockSequence);
-			if (logger.isLoggable(DEBUG))
-				logger.log(DEBUG,
-						"New clocksequence " + newClockSequence + " for thread " + Thread.currentThread().getId());
+			if (logger.isLoggable(DEBUG)) {
+				String clockDesc = range >= 0 ? Long.toHexString(newClockSequence & 0x00FF)
+						: Long.toHexString(newClockSequence | 0x8000);
+				String rangeDesc = Long.toHexString(min | 0x8000) + "-" + Long.toHexString(max | 0x8000);
+				logger.log(DEBUG, "New clocksequence " + clockDesc + " for thread " + Thread.currentThread().getId()
+						+ " (in range " + rangeDesc + ")");
+			}
+		}
+
+		private synchronized int getRangeSize() {
+			return (int) (max - min);
 		}
 
 	}

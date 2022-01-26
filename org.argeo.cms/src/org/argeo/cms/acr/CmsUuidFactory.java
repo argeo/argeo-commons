@@ -17,7 +17,7 @@ public class CmsUuidFactory extends ConcurrentUuidFactory {
 	private final static CmsLog log = CmsLog.getLog(CmsUuidFactory.class);
 
 	public CmsUuidFactory(byte[] nodeId) {
-		super(nodeId);
+		super(0, nodeId);
 		assert createTimeUUID().node() == BitSet.valueOf(toNodeIdBytes(nodeId, 0)).toLongArray()[0];
 	}
 
