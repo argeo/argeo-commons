@@ -1,0 +1,1 @@
+sudo dnf install osgi-core osgi-compendium ecj aqute-bnd eclipse-equinox-osgi apache-commons-io apache-commons-cli apache-commons-exec bouncycastle bouncycastle-pkix tomcat-servlet-4.0-api jakarta-commons-httpclient eclipse-platform slf4j postgresql-jdbc

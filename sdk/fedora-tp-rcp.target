@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="fedora-tp-rcp">
+	<locations>
+		<location path="/usr/share/java/eclipse" type="Directory"/>
+		<location path="/usr/share/java/ecj" type="Directory"/>
+		<location path="/usr/share/java/" type="Directory"/>
+		<location path="/usr/share/java/slf4j" type="Directory"/>
+		<location path="/usr/share/java/jetty" type="Directory"/>
+	</locations>
+	<includeBundles>
+		<plugin id="bcprov"/>
+		<plugin id="bcpkix"/>
+		<plugin id="org.apache.commons.cli" version="1.5.0"/>
+		<plugin id="org.apache.commons.httpclient" version="3.1.0.v20080605-1935"/>
+		<plugin id="org.apache.commons.io" version="2.8.0"/>
+		<plugin id="org.eclipse.equinox.http.jetty"/>
+		<plugin id="org.eclipse.osgi"/>
+		<plugin id="org.eclipse.osgi.services"/>
+		<plugin id="slf4j.api" version="1.7.30"/>
+		<plugin id="org.eclipse.osgi.util"/>
+		<plugin id="jakarta.servlet-api"/>
+	</includeBundles>
+</target>

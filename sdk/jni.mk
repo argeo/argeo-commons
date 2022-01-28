@@ -18,7 +18,8 @@ LDFLAGS=-shared -fPIC -Wl,-soname,$(TARGET_EXEC).$(MAJOR).$(MINOR)
 #
 # Generic Argeo
 #
-BUILD_DIR := $(SDK_BUILD_BASE)/$(NATIVE_PACKAGE)
+#BUILD_DIR := $(SDK_BUILD_BASE)/$(NATIVE_PACKAGE)
+BUILD_DIR := ./build
 #META_INF_DIR := ./../META-INF
 ARCH := $(shell uname -p)
 
