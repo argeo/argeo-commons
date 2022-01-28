@@ -2,18 +2,45 @@ include sdk.mk
 
 MAKEDIRS = org.argeo.api.uuid
 
-BUILD_BASE=generated
+BUILD_BASE := generated
 
-.PHONY: clean all base rcp
-all: base
+BASE_BUNDLES := $(BUILD_BASE)/org.argeo.api.uuid.$(MAJOR).$(MINOR).jar 
+
+.PHONY: clean all build-base build-rcp
+all: build-base
 	$(foreach dir, $(MAKEDIRS), $(MAKE) -C $(dir);)
 	
 clean:
 	$(foreach dir, $(MAKEDIRS), $(MAKE) -C $(dir) clean;)
 
 
+
+
 JVM := /usr/lib/jvm/jre-11/bin/java
 ECJ_JAR := /usr/share/java/ecj/ecj.jar
+BND_TOOL := /usr/bin/bnd
+
+#osgi : $(BASE_BUNDLES)
+
+#$(BUILD_BASE)/%.$(MAJOR).$(MINOR).jar : $(SDK_SRC_BASE)/%
+#	$(BND_TOOL) build $<
+#	cp $</generated/$<.jar $@
+
+#base-java-sources : $(shell find org.argeo.* -name '*.java') 
+
+#base-java-classes : $(shell find org.argeo.* -name '*.class') 
+
+# each dir depends on its package directories
+#$(SDK_SRC_BASE)/% : $(shell  find */src -type f  | sed "s%/[^/]*$%%" | sort -u)
+
+# non empty package dirs
+#$(SDK_SRC_BASE)/*/src/% : $(shell  grep --no-filename ^import '%/*.java' | sed 's/import //g' | sed 's/static //g' | sed 's/\.[A-Za-z0-9_]*;//' | sed 's/\.[A-Z].*//'  | sort |  uniq)
+
+# convert dir to package
+#$(shell find %/src -mindepth 1 -type d -printf '%P\n' | sed "s/\//\./g")
+
+# all packages
+# grep --no-filename ^import src/org/argeo/api/uuid/*.java | sed "s/import //g" | sed "s/static //g" | sed "s/\.[A-Za-z0-9_]*;//" | sed "s/\.[A-Z].*//"  | sort |  uniq
 
 BASE_CLASSPATH=\
 /usr/share/java/osgi-core/osgi.core.jar:$\
@@ -28,7 +55,7 @@ BASE_CLASSPATH=\
 /usr/share/java/commons-httpclient3.jar:$\
 /usr/share/java/postgresql-jdbc.jar
 
-base: 
+build-base:
 	$(JVM) -jar $(ECJ_JAR) -11 -nowarn -time -cp $(BASE_CLASSPATH) \
 	$(SDK_SRC_BASE)/org.argeo.api.uuid/src[-d $(SDK_SRC_BASE)/org.argeo.api.uuid/bin] \
 	$(SDK_SRC_BASE)/org.argeo.api.acr/src[-d $(SDK_SRC_BASE)/org.argeo.api.acr/bin] \
@@ -38,7 +65,8 @@ base:
 	$(SDK_SRC_BASE)/org.argeo.cms.tp/src[-d $(SDK_SRC_BASE)/org.argeo.cms.tp/bin] \
 	$(SDK_SRC_BASE)/org.argeo.cms/src[-d $(SDK_SRC_BASE)/org.argeo.cms/bin] \
 	$(SDK_SRC_BASE)/org.argeo.cms.pgsql/src[-d $(SDK_SRC_BASE)/org.argeo.cms.pgsql/bin] \
-
+	
+	$(BND_TOOL) build
 
 RCP_CLASSPATH=$(BASE_CLASSPATH):$\
 $(SDK_SRC_BASE)/org.argeo.api.uuid/bin:$\
@@ -59,7 +87,7 @@ $(SDK_SRC_BASE)/org.argeo.cms/bin:$\
 /usr/share/java/sac.jar
 
 
-rcp: base
+build-rcp: build-base
 	$(JVM) -jar $(ECJ_JAR) -11 -nowarn -time -cp $(RCP_CLASSPATH) \
 	$(SDK_SRC_BASE)/eclipse/org.argeo.cms.servlet/src[-d $(SDK_SRC_BASE)/eclipse/org.argeo.cms.servlet/bin] \
 	$(SDK_SRC_BASE)/rcp/org.argeo.swt.minidesktop/src[-d $(SDK_SRC_BASE)/rcp/org.argeo.swt.minidesktop/bin] \
