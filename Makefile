@@ -61,10 +61,10 @@ $(SDK_SRC_BASE)/org.argeo.cms/bin:$\
 
 rcp: base
 	$(JVM) -jar $(ECJ_JAR) -11 -nowarn -time -cp $(RCP_CLASSPATH) \
-	$(SDK_SRC_BASE)/org.argeo.cms.servlet/src[-d $(SDK_SRC_BASE)/org.argeo.cms.servlet/bin] \
+	$(SDK_SRC_BASE)/eclipse/org.argeo.cms.servlet/src[-d $(SDK_SRC_BASE)/eclipse/org.argeo.cms.servlet/bin] \
 	$(SDK_SRC_BASE)/rcp/org.argeo.swt.minidesktop/src[-d $(SDK_SRC_BASE)/rcp/org.argeo.swt.minidesktop/bin] \
 	$(SDK_SRC_BASE)/rcp/org.argeo.swt.specific.rcp/src[-d $(SDK_SRC_BASE)/rcp/org.argeo.swt.specific.rcp/bin] \
-	$(SDK_SRC_BASE)/org.argeo.cms.swt/src[-d $(SDK_SRC_BASE)/org.argeo.cms.swt/bin] \
+	$(SDK_SRC_BASE)/eclipse/org.argeo.cms.swt/src[-d $(SDK_SRC_BASE)/eclipse/org.argeo.cms.swt/bin] \
 	$(SDK_SRC_BASE)/rcp/org.argeo.cms.ui.rcp/src[-d $(SDK_SRC_BASE)/rcp/org.argeo.cms.ui.rcp/bin] \
 
 

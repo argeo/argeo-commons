@@ -30,12 +30,10 @@
 		<module>org.argeo.cms.tp</module>
 		<module>org.argeo.cms</module>
 		<module>org.argeo.cms.pgsql</module>
-		<module>org.argeo.cms.servlet</module>
-		<module>org.argeo.cms.jcr</module>
-		<!-- CMS UX -->
-		<module>org.argeo.cms.swt</module>
-		<module>org.argeo.cms.ui</module>
-		<module>org.argeo.cms.e4</module>
+		<!-- CMS SWT -->
+		<module>eclipse</module>
+		<!-- CMS JCR -->
+		<module>jcr</module>
 		<!-- Eclipse RAP/RCP specific -->
 		<module>rcp</module>
 		<module>rap</module>
