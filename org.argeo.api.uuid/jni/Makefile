@@ -5,10 +5,10 @@ JNIDIRS = org_argeo_api_uuid
 all: jni
 
 jni:
-	$(foreach dir, jni/$(JNIDIRS), $(MAKE) -C $(dir);)
+	$(foreach dir, $(JNIDIRS), $(MAKE) -C $(dir);)
 	
 clean:
-	$(foreach dir, jni/$(JNIDIRS), $(MAKE) -C $(dir) clean;)
+	$(foreach dir, $(JNIDIRS), $(MAKE) -C $(dir) clean;)
 
 #ide: $(META_INF_DIR)/$(ARCH)/$(TARGET_EXEC)
 	

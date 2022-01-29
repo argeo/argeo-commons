@@ -1,33 +1,29 @@
 TARGET_EXEC := libJava_$(NATIVE_PACKAGE).so
 
-BASE_DIR := $(shell realpath .)
+LDFLAGS = -shared -fPIC -Wl,-soname,$(TARGET_EXEC).$(MAJOR).$(MINOR)
+
 SRC_DIRS := . 
-
-LDFLAGS=-shared -fPIC -Wl,-soname,$(TARGET_EXEC).$(MAJOR).$(MINOR)
-
 %:
 	@echo Making '$@' $(if $^,from '$^')
-	@echo 'MAJOR=$(MAJOR)'
-	@echo 'MINOR=$(MINOR)'
-	@echo 'BASE_DIR=$(BASE_DIR)'
-	@echo 'SRC_DIRS=$(BASE_DIR)'
+#	@echo 'MAJOR=$(MAJOR)'
+#	@echo 'MINOR=$(MINOR)'
+	@echo 'SRC_DIRS=$(SRC_DIRS)'
 	@echo 'BUILD_DIR=$(BUILD_DIR)'
-	@echo 'MAKEFILE_DIR=$(MAKEFILE_DIR)'
 	
 
 #
 # Generic Argeo
 #
-#BUILD_DIR := $(SDK_BUILD_BASE)/$(NATIVE_PACKAGE)
-BUILD_DIR := ./build
+BUILD_DIR := $(SDK_BUILD_BASE)/$(NATIVE_PACKAGE)
+#BUILD_DIR := ./build
 #META_INF_DIR := ./../META-INF
-ARCH := $(shell uname -p)
+#ARCH := $(shell uname -p)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
 INC_DIRS := $(shell find $(SRC_DIRS) -type d) /usr/lib/jvm/java/include /usr/lib/jvm/java/include/linux
 
 .PHONY: clean all ide
-all: $(BUILD_DIR)/$(TARGET_EXEC)
+all: $(SDK_BUILD_BASE)/$(TARGET_EXEC)
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. Make will incorrectly expand these otherwise.
@@ -49,7 +45,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 # The final build step.
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+$(SDK_BUILD_BASE)/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # Build step for C source
@@ -63,7 +59,7 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -r $(BUILD_DIR)
+	rm -r $(BUILD_DIR) $(SDK_BUILD_BASE)/$(TARGET_EXEC)
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those

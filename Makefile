@@ -1,18 +1,26 @@
 include sdk.mk
-
-MAKEDIRS = org.argeo.api.uuid
-
-BUILD_BASE := generated
-
-BASE_BUNDLES := $(BUILD_BASE)/org.argeo.api.uuid.$(MAJOR).$(MINOR).jar 
-
 .PHONY: clean all build-base build-rcp
-all: build-base
-	$(foreach dir, $(MAKEDIRS), $(MAKE) -C $(dir);)
+
+all: osgi jni
+
+BASE_BUNDLES := \
+$(SDK_BUILD_BASE)/org.argeo.init.$(MAJOR).$(MINOR).jar \
+$(SDK_BUILD_BASE)/org.argeo.util.$(MAJOR).$(MINOR).jar \
+$(SDK_BUILD_BASE)/org.argeo.api.uuid.$(MAJOR).$(MINOR).jar \
+$(SDK_BUILD_BASE)/org.argeo.api.acr.$(MAJOR).$(MINOR).jar \
+$(SDK_BUILD_BASE)/org.argeo.api.cms.$(MAJOR).$(MINOR).jar \
+$(SDK_BUILD_BASE)/org.argeo.cms.tp.$(MAJOR).$(MINOR).jar \
+$(SDK_BUILD_BASE)/org.argeo.cms.$(MAJOR).$(MINOR).jar \
+ 
+
+NATIVE_PROJECTS = org.argeo.api.uuid/jni
+
+jni:
+	$(foreach dir, $(NATIVE_PROJECTS), $(MAKE) -C $(dir);)
 	
 clean:
-	$(foreach dir, $(MAKEDIRS), $(MAKE) -C $(dir) clean;)
-
+	$(foreach dir, $(NATIVE_PROJECTS), $(MAKE) -C $(dir) clean;)
+	rm -rf $(SDK_BUILD_BASE)/*
 
 
 
@@ -20,11 +28,13 @@ JVM := /usr/lib/jvm/jre-11/bin/java
 ECJ_JAR := /usr/share/java/ecj/ecj.jar
 BND_TOOL := /usr/bin/bnd
 
-#osgi : $(BASE_BUNDLES)
+osgi : $(BASE_BUNDLES)
 
-#$(BUILD_BASE)/%.$(MAJOR).$(MINOR).jar : $(SDK_SRC_BASE)/%
-#	$(BND_TOOL) build $<
-#	cp $</generated/$<.jar $@
+$(SDK_BUILD_BASE)/%.$(MAJOR).$(MINOR).jar : $(SDK_SRC_BASE)/*/generated/%.jar
+	$(BND_TOOL) build $<
+	cp $< $@
+
+$(SDK_SRC_BASE)/*/generated/*.jar : build-base
 
 #base-java-sources : $(shell find org.argeo.* -name '*.java') 
 
@@ -57,23 +67,23 @@ BASE_CLASSPATH=\
 
 build-base:
 	$(JVM) -jar $(ECJ_JAR) -11 -nowarn -time -cp $(BASE_CLASSPATH) \
-	$(SDK_SRC_BASE)/org.argeo.api.uuid/src[-d $(SDK_SRC_BASE)/org.argeo.api.uuid/bin] \
-	$(SDK_SRC_BASE)/org.argeo.api.acr/src[-d $(SDK_SRC_BASE)/org.argeo.api.acr/bin] \
-	$(SDK_SRC_BASE)/org.argeo.api.cms/src[-d $(SDK_SRC_BASE)/org.argeo.api.cms/bin] \
-	$(SDK_SRC_BASE)/org.argeo.init/src[-d $(SDK_SRC_BASE)/org.argeo.init/bin] \
-	$(SDK_SRC_BASE)/org.argeo.util/src[-d $(SDK_SRC_BASE)/org.argeo.util/bin] \
-	$(SDK_SRC_BASE)/org.argeo.cms.tp/src[-d $(SDK_SRC_BASE)/org.argeo.cms.tp/bin] \
-	$(SDK_SRC_BASE)/org.argeo.cms/src[-d $(SDK_SRC_BASE)/org.argeo.cms/bin] \
-	$(SDK_SRC_BASE)/org.argeo.cms.pgsql/src[-d $(SDK_SRC_BASE)/org.argeo.cms.pgsql/bin] \
+	$(SDK_SRC_BASE)/org.argeo.api.uuid/src[-d $(SDK_BUILD_BASE)/org.argeo.api.uuid/bin] \
+	$(SDK_SRC_BASE)/org.argeo.api.acr/src[-d $(SDK_BUILD_BASE)/org.argeo.api.acr/bin] \
+	$(SDK_SRC_BASE)/org.argeo.api.cms/src[-d $(SDK_BUILD_BASE)/org.argeo.api.cms/bin] \
+	$(SDK_SRC_BASE)/org.argeo.init/src[-d $(SDK_BUILD_BASE)/org.argeo.init/bin] \
+	$(SDK_SRC_BASE)/org.argeo.util/src[-d $(SDK_BUILD_BASE)/org.argeo.util/bin] \
+	$(SDK_SRC_BASE)/org.argeo.cms.tp/src[-d $(SDK_BUILD_BASE)/org.argeo.cms.tp/bin] \
+	$(SDK_SRC_BASE)/org.argeo.cms/src[-d $(SDK_BUILD_BASE)/org.argeo.cms/bin] \
+	$(SDK_SRC_BASE)/org.argeo.cms.pgsql/src[-d $(SDK_BUILD_BASE)/org.argeo.cms.pgsql/bin] \
 	
-	$(BND_TOOL) build
+	#$(BND_TOOL) build
 
 RCP_CLASSPATH=$(BASE_CLASSPATH):$\
-$(SDK_SRC_BASE)/org.argeo.api.uuid/bin:$\
-$(SDK_SRC_BASE)/org.argeo.api.acr/bin:$\
-$(SDK_SRC_BASE)/org.argeo.api.cms/bin:$\
-$(SDK_SRC_BASE)/org.argeo.util/bin:$\
-$(SDK_SRC_BASE)/org.argeo.cms/bin:$\
+$(SDK_BUILD_BASE)/org.argeo.api.uuid/bin:$\
+$(SDK_BUILD_BASE)/org.argeo.api.acr/bin:$\
+$(SDK_BUILD_BASE)/org.argeo.api.cms/bin:$\
+$(SDK_BUILD_BASE)/org.argeo.util/bin:$\
+$(SDK_BUILD_BASE)/org.argeo.cms/bin:$\
 /usr/share/java/tomcat-servlet-api.jar:$\
 /usr/share/java/eclipse/equinox.http.jetty.jar:$\
 /usr/lib/java/swt.jar:$\
@@ -89,10 +99,10 @@ $(SDK_SRC_BASE)/org.argeo.cms/bin:$\
 
 build-rcp: build-base
 	$(JVM) -jar $(ECJ_JAR) -11 -nowarn -time -cp $(RCP_CLASSPATH) \
-	$(SDK_SRC_BASE)/eclipse/org.argeo.cms.servlet/src[-d $(SDK_SRC_BASE)/eclipse/org.argeo.cms.servlet/bin] \
-	$(SDK_SRC_BASE)/rcp/org.argeo.swt.minidesktop/src[-d $(SDK_SRC_BASE)/rcp/org.argeo.swt.minidesktop/bin] \
-	$(SDK_SRC_BASE)/rcp/org.argeo.swt.specific.rcp/src[-d $(SDK_SRC_BASE)/rcp/org.argeo.swt.specific.rcp/bin] \
-	$(SDK_SRC_BASE)/eclipse/org.argeo.cms.swt/src[-d $(SDK_SRC_BASE)/eclipse/org.argeo.cms.swt/bin] \
-	$(SDK_SRC_BASE)/rcp/org.argeo.cms.ui.rcp/src[-d $(SDK_SRC_BASE)/rcp/org.argeo.cms.ui.rcp/bin] \
+	$(SDK_SRC_BASE)/eclipse/org.argeo.cms.servlet/src[-d $(SDK_BUILD_BASE)/eclipse/org.argeo.cms.servlet/bin] \
+	$(SDK_SRC_BASE)/rcp/org.argeo.swt.minidesktop/src[-d $(SDK_BUILD_BASE)/rcp/org.argeo.swt.minidesktop/bin] \
+	$(SDK_SRC_BASE)/rcp/org.argeo.swt.specific.rcp/src[-d $(SDK_BUILD_BASE)/rcp/org.argeo.swt.specific.rcp/bin] \
+	$(SDK_SRC_BASE)/eclipse/org.argeo.cms.swt/src[-d $(SDK_BUILD_BASE)/eclipse/org.argeo.cms.swt/bin] \
+	$(SDK_SRC_BASE)/rcp/org.argeo.cms.ui.rcp/src[-d $(SDK_BUILD_BASE)/rcp/org.argeo.cms.ui.rcp/bin] \
 
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # We build where we are
-SDK_BUILD_BASE=$(pwd -P)/build
+SDK_BUILD_BASE=$(pwd -P)/output
 
 # Source are located where this script is
 SDK_SRC_BASE="$(cd "$(dirname "$0")"; pwd -P)"

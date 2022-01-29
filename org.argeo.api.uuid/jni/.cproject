@@ -91,7 +91,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="jni"/>
+                        <entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="org_argeo_api_uuid"/>
                         					
                     </sourceEntries>
                     				
@@ -117,7 +117,7 @@
         		
         <configuration configurationName="Default">
             			
-            <resource resourceType="PROJECT" workspacePath="/org.argeo.api.uuid"/>
+            <resource resourceType="PROJECT" workspacePath="/Java_org_argeo_api_uuid"/>
             		
         </configuration>
         	
