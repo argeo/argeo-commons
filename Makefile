@@ -14,6 +14,11 @@ org.argeo.api.acr \
 org.argeo.api.cms \
 org.argeo.cms.tp \
 org.argeo.cms \
+eclipse/org.argeo.cms.servlet \
+rcp/org.argeo.swt.minidesktop \
+rcp/org.argeo.swt.specific.rcp \
+eclipse/org.argeo.cms.swt \
+rcp/org.argeo.cms.ui.rcp \
 
 NATIVE_PROJECTS = \
 org.argeo.api.uuid/jni \
@@ -29,7 +34,19 @@ BUILD_CLASSPATH = \
 /usr/share/java/bcprov.jar:$\
 /usr/share/java/bcpkix.jar:$\
 /usr/share/java/commons-httpclient3.jar:$\
-/usr/share/java/postgresql-jdbc.jar
+/usr/share/java/postgresql-jdbc.jar:$\
+/usr/share/java/tomcat-servlet-api.jar:$\
+/usr/share/java/eclipse/equinox.http.jetty.jar:$\
+/usr/lib/java/swt.jar:$\
+/usr/lib/eclipse/plugins/org.eclipse.swt.gtk.linux.x86_64_3.116.0.v20210304-1735:$\
+/usr/lib/eclipse/plugins/org.eclipse.e4.ui.css.core_0.13.0.v20210304-1735.jar:$\
+/usr/lib/eclipse/plugins/org.eclipse.e4.ui.css.swt_0.14.100.v20210304-1735.jar:$\
+/usr/lib/eclipse/plugins/org.eclipse.e4.ui.css.swt.theme_0.13.0.v20210304-1735.jar:$\
+/usr/lib/eclipse/plugins/org.eclipse.jface_3.22.100.v20210304-1735.jar:$\
+/usr/lib/eclipse/plugins/org.eclipse.core.commands_3.9.800.v20210304-1735.jar:$\
+/usr/share/java/eclipse/equinox.common.jar:$\
+/usr/share/java/sac.jar:$\
+
 
 jni:
 	$(foreach dir, $(NATIVE_PROJECTS), $(MAKE) -C $(dir);)
@@ -45,14 +62,16 @@ ECJ_JAR := /usr/share/java/ecj/ecj.jar
 BND_TOOL := /usr/bin/bnd
 
 WORKSPACE_BNDS := $(shell cd $(SDK_SRC_BASE) && find cnf -name '*.bnd')
-BUILD_WORKSPACE_BNDS := $(WORKSPACE_BNDS:%=$(SDK_BUILD_BASE)/%)
+#BND_WORKSPACES := $(foreach bundle, $(BUNDLES), ./$(dir $(bundle)))
+BUILD_WORKSPACE_BNDS := $(WORKSPACE_BNDS:%=$(SDK_BUILD_BASE)/%) $(WORKSPACE_BNDS:%=$(SDK_BUILD_BASE)/eclipse/%) $(WORKSPACE_BNDS:%=$(SDK_BUILD_BASE)/rcp/%)
 
 cnf: $(BUILD_WORKSPACE_BNDS)
 
 A2_BUNDLES = $(BUNDLES:%=$(SDK_BUILD_BASE)/a2/$(A2_CATEGORY)/%.$(MAJOR).$(MINOR).jar)
 
-JAVA_SRCS = $(shell find $(BUNDLE_PREFIX).* -name '*.java')
-ECJ_SRCS = $(foreach bundle, $(BUNDLES), $(bundle)/src[-d $(BUILD_BASE)/$(shell basename $(bundle))/bin])
+#JAVA_SRCS = $(shell find $(BUNDLE_PREFIX).* -name '*.java')
+JAVA_SRCS = $(foreach bundle, $(BUNDLES), $(shell find $(bundle) -name '*.java'))
+ECJ_SRCS = $(foreach bundle, $(BUNDLES), $(bundle)/src[-d $(BUILD_BASE)/$(bundle)/bin])
 
 osgi: cnf $(A2_BUNDLES)
 
@@ -64,6 +83,14 @@ clean:
 
 # SDK level
 $(SDK_BUILD_BASE)/cnf/%.bnd: cnf/%.bnd
+	mkdir -p $(dir $@)
+	cp $< $@
+	
+$(SDK_BUILD_BASE)/eclipse/cnf/%.bnd: cnf/%.bnd
+	mkdir -p $(dir $@)
+	cp $< $@
+
+$(SDK_BUILD_BASE)/rcp/cnf/%.bnd: cnf/%.bnd
 	mkdir -p $(dir $@)
 	cp $< $@
 
