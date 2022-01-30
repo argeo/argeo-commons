@@ -1,6 +1,7 @@
 TARGET_EXEC := libJava_$(NATIVE_PACKAGE).so
 
 LDFLAGS = -shared -fPIC -Wl,-soname,$(TARGET_EXEC).$(MAJOR).$(MINOR)
+CFLAGS = -fPIC
 
 SRC_DIRS := . 
 %:
@@ -20,7 +21,8 @@ BUILD_DIR := $(SDK_BUILD_BASE)/$(NATIVE_PACKAGE)
 #ARCH := $(shell uname -p)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
-INC_DIRS := $(shell find $(SRC_DIRS) -type d) /usr/lib/jvm/java/include /usr/lib/jvm/java/include/linux
+INC_DIRS := $(shell find $(SRC_DIRS) -type d) /usr/lib/jvm/java/include /usr/lib/jvm/java/include/linux /usr/include/uuid
+
 
 .PHONY: clean all ide
 all: $(SDK_BUILD_BASE)/$(TARGET_EXEC)

@@ -55,7 +55,9 @@
                                     									
                                     <listOptionValue builtIn="false" value="/usr/lib/jvm/java-11-openjdk/include/"/>
                                     									
-                                    <listOptionValue builtIn="false" value="/usr/lib/jvm/java-11-openjdk/include/linux"/>
+                                    <listOptionValue builtIn="false" value="/usr/include/uuid/"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="/usr/lib/jvm/java-11-openjdk/include/linux/"/>
                                     								
                                 </option>
                                 								
