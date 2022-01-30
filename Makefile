@@ -14,6 +14,7 @@ org.argeo.api.acr \
 org.argeo.api.cms \
 org.argeo.cms.tp \
 org.argeo.cms \
+org.argeo.cms.pgsql \
 eclipse/org.argeo.cms.servlet \
 rcp/org.argeo.swt.minidesktop \
 rcp/org.argeo.swt.specific.rcp \
@@ -78,7 +79,7 @@ osgi: cnf $(A2_BUNDLES)
 clean:
 	rm -rf $(BUILD_BASE)/*-compiled
 	rm -rf $(BUILD_BASE)/{cnf,a2}
-	rm -rf $(BUILD_BASE)/$(BUNDLE_PREFIX).*
+	rm -rf $(BUILD_BASE)/$(BUNDLE_PREFIX).* $(BUILD_BASE)/eclipse $(BUILD_BASE)/rcp
 	$(foreach dir, $(NATIVE_PROJECTS), $(MAKE) -C $(dir) clean;)
 
 # SDK level
