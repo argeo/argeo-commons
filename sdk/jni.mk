@@ -1,7 +1,7 @@
 TARGET_EXEC := libJava_$(NATIVE_PACKAGE).so
 
 LDFLAGS = -shared -fPIC -Wl,-soname,$(TARGET_EXEC).$(MAJOR).$(MINOR) -luuid
-CFLAGS = -fPIC
+CFLAGS = -O3 -fPIC
 
 SRC_DIRS := . 
 %:
