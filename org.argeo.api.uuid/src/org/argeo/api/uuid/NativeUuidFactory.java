@@ -27,7 +27,7 @@ public class NativeUuidFactory implements UuidFactory, TypedUuidFactory {
 
 	@Override
 	public UUID randomUUIDWeak() {
-		throw new UnsupportedOperationException();
+		return randomUUIDStrong();
 	}
 
 }
