@@ -4,6 +4,9 @@ import java.util.UUID;
 
 /** An {@link UuidFactory} based on a native library. */
 public class NativeUuidFactory implements UuidFactory, TypedUuidFactory {
+	static {
+		System.loadLibrary("Java_org_argeo_api_uuid");
+	}
 
 	@Override
 	public UUID get() {

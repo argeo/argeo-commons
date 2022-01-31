@@ -1,73 +1,69 @@
 #include <jni.h>
 #include <uuid.h>
 #include "org_argeo_api_uuid_NativeUuidFactory.h"
-/* Header for class org_argeo_api_uuid_NativeUuidFactory */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-	/*
-	 * Class:     org_argeo_api_uuid_NativeUuidFactory
-	 * Method:    timeUUID
-	 * Signature: ()Ljava/util/UUID;
-	 */
-	JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_timeUUID(
-			JNIEnv *env, jobject) {
-		uuid_t out;
-		jlong msb = 0;
-		jlong lsb = 0;
+/*
+ * Class:     org_argeo_api_uuid_NativeUuidFactory
+ * Method:    timeUUID
+ * Signature: ()Ljava/util/UUID;
+ */
+JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_timeUUID(
+		JNIEnv *env, jobject) {
+	uuid_t out;
+	jlong msb = 0;
+	jlong lsb = 0;
 
-		uuid_generate_time(out);
+	uuid_generate_time(out);
 
-		for (int i = 0; i < 8; i++)
-			msb = (msb << 8) | (out[i] & 0xff);
-		for (int i = 8; i < 16; i++)
-			lsb = (lsb << 8) | (out[i] & 0xff);
+	for (int i = 0; i < 8; i++)
+		msb = (msb << 8) | (out[i] & 0xff);
+	for (int i = 8; i < 16; i++)
+		lsb = (lsb << 8) | (out[i] & 0xff);
 
-		jclass uuidClass = (*env)->FindClass(env, "java/util/UUID");
-		jmethodID uuidConstructor = (*env)->GetMethodID(env, uuidClass,
-				"<init>", "(JJ)V");
+	jclass uuidClass = (*env)->FindClass(env, "java/util/UUID");
+	jmethodID uuidConstructor = (*env)->GetMethodID(env, uuidClass, "<init>",
+			"(JJ)V");
 
-		jobject jUUID = (*env)->AllocObject(env, uuidClass);
-		(*env)->CallVoidMethod(env, jUUID, uuidConstructor, msb, lsb);
+	jobject jUUID = (*env)->AllocObject(env, uuidClass);
+	(*env)->CallVoidMethod(env, jUUID, uuidConstructor, msb, lsb);
 
-		return jUUID;
-	}
+	return jUUID;
+}
 
-	/*
-	 * Class:     org_argeo_api_uuid_NativeUuidFactory
-	 * Method:    nameUUIDv5
-	 * Signature: (Ljava/util/UUID;[B)Ljava/util/UUID;
-	 */
-	JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_nameUUIDv5(
-			JNIEnv *env, jobject, jobject, jbyteArray name) {
-		size_t length = (*env)->GetArrayLength(env, name);
-		jbyte *bytes = (*env)->GetByteArrayElements(env, name, 0);
-		return NULL;
-	}
+/*
+ * Class:     org_argeo_api_uuid_NativeUuidFactory
+ * Method:    nameUUIDv5
+ * Signature: (Ljava/util/UUID;[B)Ljava/util/UUID;
+ */
+JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_nameUUIDv5(
+		JNIEnv *env, jobject, jobject, jbyteArray name) {
+	size_t length = (*env)->GetArrayLength(env, name);
+	jbyte *bytes = (*env)->GetByteArrayElements(env, name, 0);
+	return NULL;
+}
 
-	/*
-	 * Class:     org_argeo_api_uuid_NativeUuidFactory
-	 * Method:    nameUUIDv3
-	 * Signature: (Ljava/util/UUID;[B)Ljava/util/UUID;
-	 */
-	JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_nameUUIDv3(
-			JNIEnv *env, jobject, jobject, jbyteArray) {
-		return NULL;
-	}
+/*
+ * Class:     org_argeo_api_uuid_NativeUuidFactory
+ * Method:    nameUUIDv3
+ * Signature: (Ljava/util/UUID;[B)Ljava/util/UUID;
+ */
+JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_nameUUIDv3(
+		JNIEnv *env, jobject, jobject, jbyteArray) {
+	return NULL;
+}
 
-	/*
-	 * Class:     org_argeo_api_uuid_NativeUuidFactory
-	 * Method:    randomUUIDStrong
-	 * Signature: ()Ljava/util/UUID;
-	 */
-	JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_randomUUIDStrong(
-			JNIEnv *env, jobject) {
-		uuid_t out;
+/*
+ * Class:     org_argeo_api_uuid_NativeUuidFactory
+ * Method:    randomUUIDStrong
+ * Signature: ()Ljava/util/UUID;
+ */
+JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_randomUUIDStrong(
+		JNIEnv *env, jobject) {
+	uuid_t out;
 
-		uuid_generate_random(out);
-		return NULL;
-	}
+	uuid_generate_random(out);
+	return NULL;
+}
 
 //	void fromBytes(JNIEnv *env, jobject jUUID, jmethodID uuidConstructor, uuid_t out){
 //		jlong msb = 0;
@@ -124,7 +120,3 @@ extern "C" {
 //			result[i] = (unsigned char) ((lsb >> ((15 - i) * 8)) & 0xff);
 //		return result;
 //	}
-
-#ifdef __cplusplus
-}
-#endif
