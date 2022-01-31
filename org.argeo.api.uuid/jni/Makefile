@@ -1,4 +1,4 @@
-JNIDIRS = org_argeo_api_uuid
+JNIDIRS = org_argeo_api_uuid_libuuid
 
 .PHONY: clean all jni
 

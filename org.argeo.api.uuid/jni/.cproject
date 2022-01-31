@@ -93,7 +93,7 @@
                     					
                     <sourceEntries>
                         						
-                        <entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="org_argeo_api_uuid"/>
+                        <entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="org_argeo_api_uuid_libuuid"/>
                         					
                     </sourceEntries>
                     				

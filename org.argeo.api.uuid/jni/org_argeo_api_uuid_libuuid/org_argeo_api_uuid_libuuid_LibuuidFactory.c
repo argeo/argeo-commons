@@ -1,6 +1,6 @@
 #include <jni.h>
 #include <uuid.h>
-#include "org_argeo_api_uuid_NativeUuidFactory.h"
+#include "org_argeo_api_uuid_libuuid_LibuuidFactory.h"
 
 /*
  * UTILITIES
@@ -46,12 +46,7 @@ static inline void toBytes(JNIEnv *env, jobject jUUID, uuid_t result) {
  * JNI IMPLEMENTATION
  */
 
-/*
- * Class:     org_argeo_api_uuid_NativeUuidFactory
- * Method:    timeUUID
- * Signature: ()Ljava/util/UUID;
- */
-JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_timeUUID(
+JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_timeUUID(
 		JNIEnv *env, jobject) {
 	uuid_t out;
 
@@ -59,12 +54,7 @@ JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_timeUUID(
 	return fromBytes(env, out);
 }
 
-/*
- * Class:     org_argeo_api_uuid_NativeUuidFactory
- * Method:    nameUUIDv5
- * Signature: (Ljava/util/UUID;[B)Ljava/util/UUID;
- */
-JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_nameUUIDv5(
+JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_nameUUIDv5(
 		JNIEnv *env, jobject, jobject namespaceUuid, jbyteArray name) {
 	uuid_t ns;
 	uuid_t out;
@@ -77,12 +67,7 @@ JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_nameUUIDv5(
 	return fromBytes(env, out);
 }
 
-/*
- * Class:     org_argeo_api_uuid_NativeUuidFactory
- * Method:    nameUUIDv3
- * Signature: (Ljava/util/UUID;[B)Ljava/util/UUID;
- */
-JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_nameUUIDv3(
+JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_nameUUIDv3(
 		JNIEnv *env, jobject, jobject namespaceUuid, jbyteArray name) {
 	uuid_t ns;
 	uuid_t out;
@@ -95,12 +80,7 @@ JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_nameUUIDv3(
 	return fromBytes(env, out);
 }
 
-/*
- * Class:     org_argeo_api_uuid_NativeUuidFactory
- * Method:    randomUUIDStrong
- * Signature: ()Ljava/util/UUID;
- */
-JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_NativeUuidFactory_randomUUIDStrong(
+JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_randomUUIDStrong(
 		JNIEnv *env, jobject) {
 	uuid_t out;
 

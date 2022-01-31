@@ -1,11 +1,14 @@
-package org.argeo.api.uuid;
+package org.argeo.api.uuid.libuuid;
 
 import java.util.UUID;
 
+import org.argeo.api.uuid.TypedUuidFactory;
+import org.argeo.api.uuid.UuidFactory;
+
 /** An {@link UuidFactory} based on a native library. */
-public class NativeUuidFactory implements UuidFactory, TypedUuidFactory {
+public class LibuuidFactory implements UuidFactory, TypedUuidFactory {
 	static {
-		System.loadLibrary("Java_org_argeo_api_uuid");
+		System.loadLibrary("Java_org_argeo_api_uuid_libuuid");
 	}
 
 	@Override
