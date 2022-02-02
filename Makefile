@@ -48,6 +48,16 @@ BUILD_CLASSPATH = \
 /usr/share/java/eclipse/equinox.common.jar:$\
 /usr/share/java/sac.jar:$\
 
+JAVADOC_BUNDLES =  \
+org.argeo.api.uuid \
+org.argeo.api.acr \
+org.argeo.api.cms
+
+JAVADOC_PACKAGES =  \
+org.argeo.api.uuid \
+org.argeo.api.acr \
+org.argeo.api.cms
+
 
 jni:
 	$(foreach dir, $(NATIVE_PROJECTS), $(MAKE) -C $(dir);)
@@ -59,6 +69,7 @@ BUILD_BASE = $(SDK_BUILD_BASE)
 # GENERIC
 #
 JVM := /usr/lib/jvm/jre-11/bin/java
+JAVADOC := /usr/lib/jvm/jre-11/bin/javadoc
 ECJ_JAR := /usr/share/java/ecj/ecj.jar
 BND_TOOL := /usr/bin/bnd
 
@@ -74,7 +85,12 @@ A2_BUNDLES = $(BUNDLES:%=$(SDK_BUILD_BASE)/a2/$(A2_CATEGORY)/%.$(MAJOR).$(MINOR)
 JAVA_SRCS = $(foreach bundle, $(BUNDLES), $(shell find $(bundle) -name '*.java'))
 ECJ_SRCS = $(foreach bundle, $(BUNDLES), $(bundle)/src[-d $(BUILD_BASE)/$(bundle)/bin])
 
+JAVADOC_SRCS = $(foreach bundle, $(JAVADOC_BUNDLES),$(bundle)/src)
+
 osgi: cnf $(A2_BUNDLES)
+
+javadoc: $(BUILD_BASE)/java-compiled
+	$(JAVADOC) -d $(SDK_BUILD_BASE)/api --source-path $(subst $(space),$(pathsep),$(strip $(JAVADOC_SRCS))) -subpackages $(JAVADOC_PACKAGES)
 
 clean:
 	rm -rf $(BUILD_BASE)/*-compiled
@@ -112,3 +128,10 @@ $(BUILD_BASE)/java-compiled : $(JAVA_SRCS)
 	$(JVM) -jar $(ECJ_JAR) -11 -nowarn -time -cp $(BUILD_CLASSPATH) \
 	$(ECJ_SRCS)
 	touch $@
+	
+null  :=
+space := $(null) #
+pathsep := :
+
+#WITH_LIST    := $(subst $(space),$(pathsep),$(strip $(WITH_LIST)))
+	
