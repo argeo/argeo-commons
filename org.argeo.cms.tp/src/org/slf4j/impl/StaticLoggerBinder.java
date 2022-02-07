@@ -1,6 +1,5 @@
 package org.slf4j.impl;
 
-import org.argeo.api.cms.CmsLog;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.spi.LoggerFactoryBinder;
 
@@ -33,7 +32,7 @@ public class StaticLoggerBinder implements LoggerFactoryBinder {
 
 		@Override
 		public org.slf4j.Logger getLogger(String name) {
-			CmsLog logger = CmsLog.getLog(name);
+			SystemLoggingAdapter logger = SystemLoggingAdapter.getLog(name);
 			return new ArgeoLogger(name, logger);
 		}
 
