@@ -15,16 +15,16 @@ org.apache.commons.httpclient.cookie;resolution:=optional,\
 org.osgi.framework.namespace;version=0.0.0,\
 org.osgi.*;version=0.0.0,\
 org.osgi.service.http.whiteboard,\
-org.apache.jackrabbit.api.stats;version="[1,3)",\
-org.apache.jackrabbit.api;version="[2,3)",\
-org.apache.jackrabbit.commons;version="[2,3)",\
-org.apache.jackrabbit.spi;version="[2,3)",\
-org.apache.jackrabbit.spi2dav;version="[2,3)",\
-org.apache.jackrabbit.spi2davex;version="[2,3)",\
-org.apache.jackrabbit.webdav.jcr;version="[2,3)",\
-org.apache.jackrabbit.webdav.server;version="[2,3)",\
-org.apache.jackrabbit.webdav.simple;version="[2,3)",\
-org.apache.jackrabbit.*;version="[2,3)",\
+org.apache.jackrabbit.api.stats;version="[1,4)",\
+org.apache.jackrabbit.api;version="[1,4)",\
+org.apache.jackrabbit.commons;version="[1,4)",\
+org.apache.jackrabbit.spi;version="[1,4)",\
+org.apache.jackrabbit.spi2dav;version="[1,4)",\
+org.apache.jackrabbit.spi2davex;version="[1,4)",\
+org.apache.jackrabbit.webdav.jcr;version="[1,4)",\
+org.apache.jackrabbit.webdav.server;version="[1,4)",\
+org.apache.jackrabbit.webdav.simple;version="[1,4)",\
+org.apache.jackrabbit.*;version="[1,4)",\
 junit.*;resolution:=optional,\
 *
 
