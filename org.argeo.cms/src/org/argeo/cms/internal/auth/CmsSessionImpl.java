@@ -5,13 +5,17 @@ import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import javax.crypto.SecretKey;
 import javax.naming.InvalidNameException;
@@ -21,10 +25,10 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.api.cms.CmsSession;
-import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.security.NodeSecurityUtils;
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.cms.security.NodeSecurityUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -53,6 +57,8 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 	private ServiceRegistration<CmsSession> serviceRegistration;
 
 	private Map<String, Object> views = new HashMap<>();
+
+	private List<Consumer<CmsSession>> onCloseCallbacks = Collections.synchronizedList(new ArrayList<>());
 
 	public CmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale, String localSessionId) {
 		this.creationTime = ZonedDateTime.now();
@@ -92,6 +98,10 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		end = ZonedDateTime.now();
 		serviceRegistration.unregister();
 
+		for (Consumer<CmsSession> onClose : onCloseCallbacks) {
+			onClose.accept(this);
+		}
+
 		try {
 			LoginContext lc;
 			if (isAnonymous()) {
@@ -106,6 +116,11 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 			accessControlContext = null;
 		}
 		log.debug("Closed " + this);
+	}
+
+	@Override
+	public void addOnCloseCallback(Consumer<CmsSession> onClose) {
+		onCloseCallbacks.add(onClose);
 	}
 
 	public Subject getSubject() {

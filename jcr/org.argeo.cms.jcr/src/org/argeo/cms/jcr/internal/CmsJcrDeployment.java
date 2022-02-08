@@ -74,10 +74,6 @@ public class CmsJcrDeployment {
 
 	CmsDeployment cmsDeployment;
 
-	public CmsJcrDeployment() {
-//		initTrackers();
-	}
-
 	public void start() {
 		dataModels = new DataModels(bc);
 
@@ -390,9 +386,8 @@ public class CmsJcrDeployment {
 //	}
 
 	protected void registerRepositoryServlets(String alias, Repository repository) {
-		// FIXME re-enable it with a proper class loader
-//		registerRemotingServlet(alias, repository);
-//		registerWebdavServlet(alias, repository);
+		registerRemotingServlet(alias, repository);
+		registerWebdavServlet(alias, repository);
 	}
 
 	protected void registerWebdavServlet(String alias, Repository repository) {

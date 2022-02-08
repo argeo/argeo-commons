@@ -17,9 +17,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.jackrabbit.server.SessionProvider;
-import org.argeo.api.cms.CmsSession;
-import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.cms.auth.RemoteAuthUtils;
+import org.argeo.cms.servlet.ServletHttpRequest;
 import org.argeo.jcr.JcrUtils;
 
 /**
@@ -46,9 +48,8 @@ public class CmsSessionProvider implements SessionProvider, Serializable {
 //		if (workspace == null)
 //			return null;
 
-//		CmsSessionImpl cmsSession = WebCmsSessionImpl.getCmsSession(request);
-		// FIXME retrieve CMS session
-		CmsSession cmsSession = null;
+		CmsSession cmsSession = RemoteAuthUtils.getCmsSession(new ServletHttpRequest(request));
+		// CmsSessionImpl cmsSession = WebCmsSessionImpl.getCmsSession(request);
 		if (log.isTraceEnabled()) {
 			log.trace("Get JCR session from " + cmsSession);
 		}
@@ -80,6 +81,7 @@ public class CmsSessionProvider implements SessionProvider, Serializable {
 
 		private CmsDataSession(CmsSession cmsSession) {
 			this.cmsSession = cmsSession;
+			cmsSession.addOnCloseCallback((sess) -> close());
 		}
 
 		public Session newDataSession(String cn, String workspace, Repository repository) {
@@ -160,8 +162,7 @@ public class CmsSessionProvider implements SessionProvider, Serializable {
 						"CMS session " + cmsSession.getUuid() + " is not valid since " + cmsSession.getEnd());
 		}
 
-		private void close() {
-			// FIXME class this when CMS session is closed
+		protected void close() {
 			synchronized (this) {
 				// TODO check data session in use ?
 				for (String path : dataSessions.keySet())
