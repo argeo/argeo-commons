@@ -9,25 +9,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 /** Utilities around the standard Java file abstractions. */
 public class FsUtils {
-	/** Sync a source path with a target path. */
-	public static void sync(Path sourceBasePath, Path targetBasePath) {
-		sync(sourceBasePath, targetBasePath, false);
-	}
-
-	/** Sync a source path with a target path. */
-	public static void sync(Path sourceBasePath, Path targetBasePath, boolean delete) {
-		sync(new BasicSyncFileVisitor(sourceBasePath, targetBasePath, delete, true));
-	}
-
-	public static void sync(BasicSyncFileVisitor syncFileVisitor) {
-		try {
-			Files.walkFileTree(syncFileVisitor.getSourceBasePath(), syncFileVisitor);
-		} catch (Exception e) {
-			throw new RuntimeException("Cannot sync " + syncFileVisitor.getSourceBasePath() + " with "
-					+ syncFileVisitor.getTargetBasePath(), e);
-		}
-	}
-
 	/**
 	 * Deletes this path, recursively if needed. Does nothing if the path does not
 	 * exist.
