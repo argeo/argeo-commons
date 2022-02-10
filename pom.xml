@@ -27,7 +27,6 @@
 		<module>org.argeo.api.acr</module>
 		<module>org.argeo.api.cms</module>
 		<!-- CMS -->
-		<module>org.argeo.cms.tp</module>
 		<module>org.argeo.cms</module>
 		<module>org.argeo.cms.pgsql</module>
 		<!-- CMS SWT -->
