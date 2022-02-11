@@ -9,7 +9,7 @@ osgi.service;objectClass="javax.jcr.Repository"
 Import-Package:\
 org.argeo.cms.servlet,\
 javax.jcr.security,\
-org.h2;resolution:=optional,\
+org.h2;resolution:=optional;version="[1,3)",\
 org.postgresql;version="[42,43)";resolution:=optional,\
 org.apache.commons.httpclient.cookie;resolution:=optional,\
 org.osgi.framework.namespace;version=0.0.0,\

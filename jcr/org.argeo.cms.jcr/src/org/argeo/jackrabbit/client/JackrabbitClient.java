@@ -64,17 +64,19 @@ public class JackrabbitClient {
 							Object uri = parameters.get(JACKRABBIT_DAVEX_URI);
 							Object defaultWorkspace = parameters.get(JACKRABBIT_REMOTE_DEFAULT_WORKSPACE);
 							BatchReadConfig brc = null;
-							return new RepositoryServiceImpl(uri.toString(), defaultWorkspace.toString(), brc,
-									ItemInfoCacheImpl.DEFAULT_CACHE_SIZE) {
-
-								@Override
-								protected HttpContext getContext(SessionInfo sessionInfo) throws RepositoryException {
-									HttpClientContext result = HttpClientContext.create();
-									result.setAuthCache(new NonSerialBasicAuthCache());
-									return result;
-								}
-
-							};
+							// FIXME adapt to change in Jackrabbit
+//							return new RepositoryServiceImpl(uri.toString(), defaultWorkspace.toString(), brc,
+//									ItemInfoCacheImpl.DEFAULT_CACHE_SIZE) {
+//
+//								@Override
+//								protected HttpContext getContext(SessionInfo sessionInfo) throws RepositoryException {
+//									HttpClientContext result = HttpClientContext.create();
+//									result.setAuthCache(new NonSerialBasicAuthCache());
+//									return result;
+//								}
+//
+//							};
+							return null;
 						}
 					};
 					return RepositoryImpl.create(

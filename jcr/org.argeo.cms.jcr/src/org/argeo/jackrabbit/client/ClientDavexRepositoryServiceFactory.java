@@ -71,12 +71,14 @@ public class ClientDavexRepositoryServiceFactory extends Spi2davexRepositoryServ
 			}
 		}
 
-		if (maximumHttpConnections > 0) {
-			return new ClientDavexRepositoryService(uri, workspaceNameDefault, brc, itemInfoCacheSize,
-					maximumHttpConnections);
-		} else {
-			return new ClientDavexRepositoryService(uri, workspaceNameDefault, brc, itemInfoCacheSize);
-		}
+		// FIXME adapt to changes in Jackrabbit
+//		if (maximumHttpConnections > 0) {
+//			return new ClientDavexRepositoryService(uri, workspaceNameDefault, brc, itemInfoCacheSize,
+//					maximumHttpConnections);
+//		} else {
+//			return new ClientDavexRepositoryService(uri, workspaceNameDefault, brc, itemInfoCacheSize);
+//		}
+		return null;
 	}
 
 }

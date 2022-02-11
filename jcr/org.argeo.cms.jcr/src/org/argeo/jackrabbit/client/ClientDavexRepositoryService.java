@@ -18,17 +18,28 @@ public class ClientDavexRepositoryService extends RepositoryServiceImpl {
 			throws RepositoryException {
 		super(jcrServerURI, batchReadConfig);
 	}
+	
+	
 
-	public ClientDavexRepositoryService(String jcrServerURI, String defaultWorkspaceName,
-			BatchReadConfig batchReadConfig, int itemInfoCacheSize, int maximumHttpConnections)
-			throws RepositoryException {
-		super(jcrServerURI, defaultWorkspaceName, batchReadConfig, itemInfoCacheSize, maximumHttpConnections);
-	}
+//	public ClientDavexRepositoryService(String jcrServerURI, String defaultWorkspaceName,
+//			BatchReadConfig batchReadConfig, int itemInfoCacheSize, ConnectionOptions connectionOptions)
+//			throws RepositoryException {
+//		super(jcrServerURI, defaultWorkspaceName, batchReadConfig, itemInfoCacheSize, connectionOptions);
+//		// TODO Auto-generated constructor stub
+//	}
 
-	public ClientDavexRepositoryService(String jcrServerURI, String defaultWorkspaceName,
-			BatchReadConfig batchReadConfig, int itemInfoCacheSize) throws RepositoryException {
-		super(jcrServerURI, defaultWorkspaceName, batchReadConfig, itemInfoCacheSize);
-	}
+
+
+//	public ClientDavexRepositoryService(String jcrServerURI, String defaultWorkspaceName,
+//			BatchReadConfig batchReadConfig, int itemInfoCacheSize, int maximumHttpConnections)
+//			throws RepositoryException {
+//		super(jcrServerURI, defaultWorkspaceName, batchReadConfig, itemInfoCacheSize, maximumHttpConnections);
+//	}
+//
+//	public ClientDavexRepositoryService(String jcrServerURI, String defaultWorkspaceName,
+//			BatchReadConfig batchReadConfig, int itemInfoCacheSize) throws RepositoryException {
+//		super(jcrServerURI, defaultWorkspaceName, batchReadConfig, itemInfoCacheSize);
+//	}
 
 	@Override
 	protected HttpContext getContext(SessionInfo sessionInfo) throws RepositoryException {
