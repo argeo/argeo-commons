@@ -1,7 +1,8 @@
 Import-Package: org.eclipse.swt,\
-				org.eclipse.jface.window,\
-				org.eclipse.core.commands.common,\
-				*
+org.eclipse.jface.window,\
+org.eclipse.core.commands.common,\
+javax.servlet.*;version="[3,5)",\
+*
 
 Bundle-ActivationPolicy: lazy
 				

@@ -13,6 +13,7 @@ org.eclipse.rap.rwt.client.service;version="[2.1,4)",\
 org.eclipse.rap.rwt.service;version="[2.1,4)",\
 org.eclipse.rap.rwt.widgets;version="[2.1,4)",\
 org.osgi.*;version=0.0.0,\
+javax.servlet.*;version="[3,5)",\
 *
 
 ## TODO: in order to enable single sourcing, we have introduced dummy RAP packages 

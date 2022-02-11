@@ -26,6 +26,7 @@ org.apache.jackrabbit.webdav.server;version="[1,4)",\
 org.apache.jackrabbit.webdav.simple;version="[1,4)",\
 org.apache.jackrabbit.*;version="[1,4)",\
 junit.*;resolution:=optional,\
+javax.servlet.*;version="[3,5)",\
 *
 
 Service-Component:\
