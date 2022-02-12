@@ -21,6 +21,12 @@ exit 1
 
 else
 
+if [ -z "$JAVA_HOME" ]
+then
+echo "Environment variable JAVA_HOME must be set"
+exit 1
+fi
+
 # Create build directory, so that it can be used right away
 # and we check whether we have the rights
 mkdir -p $SDK_BUILD_BASE
@@ -34,6 +40,7 @@ fi
 cat > "$SDK_MK" <<EOF
 SDK_SRC_BASE := $SDK_SRC_BASE
 SDK_BUILD_BASE := $SDK_BUILD_BASE
+JAVA_HOME := $JAVA_HOME
 
 include \$(SDK_SRC_BASE)/branch.properties
 include \$(SDK_SRC_BASE)/sdk/includes.mk
@@ -41,6 +48,7 @@ EOF
 
 
 echo SDK was configured.
+echo "JAVA_HOME        : $JAVA_HOME"
 echo "Base for sources : $SDK_SRC_BASE"
 echo "Base for builds  : $SDK_BUILD_BASE"
 exit 0

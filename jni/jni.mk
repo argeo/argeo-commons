@@ -1,31 +1,21 @@
 TARGET_EXEC := libJava_$(NATIVE_PACKAGE).so
 
-LDFLAGS = -shared -fPIC -Wl,-soname,$(TARGET_EXEC).$(MAJOR).$(MINOR) -luuid
+LDFLAGS = -shared -fPIC -Wl,-soname,$(TARGET_EXEC).$(MAJOR).$(MINOR) $(ADDITIONAL_LIBS)
 CFLAGS = -O3 -fPIC
 
 SRC_DIRS := . 
-%:
-	@echo Making '$@' $(if $^,from '$^')
-#	@echo 'MAJOR=$(MAJOR)'
-#	@echo 'MINOR=$(MINOR)'
-	@echo 'SRC_DIRS=$(SRC_DIRS)'
-	@echo 'BUILD_DIR=$(BUILD_DIR)'
-	
 
 #
 # Generic Argeo
 #
-BUILD_DIR := $(SDK_BUILD_BASE)/$(NATIVE_PACKAGE)
-#BUILD_DIR := ./build
-#META_INF_DIR := ./../META-INF
-#ARCH := $(shell uname -p)
+BUILD_DIR := $(SDK_BUILD_BASE)/jni/$(NATIVE_PACKAGE)
 
 # Every folder in ./src will need to be passed to GCC so that it can find header files
-INC_DIRS := $(shell find $(SRC_DIRS) -type d) /usr/lib/jvm/java/include /usr/lib/jvm/java/include/linux /usr/include/uuid
+INC_DIRS := $(shell find $(SRC_DIRS) -type d) $(JAVA_HOME)/include $(JAVA_HOME)/include/linux $(ADDITIONAL_INCLUDES)
 
 
 .PHONY: clean all ide
-all: $(SDK_BUILD_BASE)/$(TARGET_EXEC)
+all: $(SDK_BUILD_BASE)/jni/$(TARGET_EXEC)
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. Make will incorrectly expand these otherwise.
@@ -47,7 +37,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 # The final build step.
-$(SDK_BUILD_BASE)/$(TARGET_EXEC): $(OBJS)
+$(SDK_BUILD_BASE)/jni/$(TARGET_EXEC): $(OBJS)
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # Build step for C source

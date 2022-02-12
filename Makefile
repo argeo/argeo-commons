@@ -1,7 +1,7 @@
 include sdk.mk
-.PHONY: clean all osgi
+.PHONY: clean all osgi jni
 
-all: osgi jni
+all: osgi 
 
 BUNDLE_PREFIX = org.argeo
 A2_CATEGORY = org.argeo
@@ -12,7 +12,6 @@ org.argeo.util \
 org.argeo.api.uuid \
 org.argeo.api.acr \
 org.argeo.api.cms \
-org.argeo.cms.tp \
 org.argeo.cms \
 org.argeo.cms.pgsql \
 eclipse/org.argeo.cms.servlet \
@@ -20,9 +19,6 @@ rcp/org.argeo.swt.minidesktop \
 rcp/org.argeo.swt.specific.rcp \
 eclipse/org.argeo.cms.swt \
 rcp/org.argeo.cms.ui.rcp \
-
-NATIVE_PROJECTS = \
-org.argeo.api.uuid/jni \
 
 BUILD_CLASSPATH = \
 /usr/share/java/osgi-core/osgi.core.jar:$\
@@ -60,7 +56,7 @@ org.argeo.api.cms
 
 
 jni:
-	$(foreach dir, $(NATIVE_PROJECTS), $(MAKE) -C $(dir);)
+	$(MAKE) -C jni
 
 # TODO relativize from SDK_SRC_BASE
 BUILD_BASE = $(SDK_BUILD_BASE)
@@ -96,7 +92,7 @@ clean:
 	rm -rf $(BUILD_BASE)/*-compiled
 	rm -rf $(BUILD_BASE)/{cnf,a2}
 	rm -rf $(BUILD_BASE)/$(BUNDLE_PREFIX).* $(BUILD_BASE)/eclipse $(BUILD_BASE)/rcp
-	$(foreach dir, $(NATIVE_PROJECTS), $(MAKE) -C $(dir) clean;)
+	$(MAKE) -C jni clean
 
 # SDK level
 $(SDK_BUILD_BASE)/cnf/%.bnd: cnf/%.bnd

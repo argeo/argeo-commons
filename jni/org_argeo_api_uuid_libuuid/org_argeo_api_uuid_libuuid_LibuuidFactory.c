@@ -47,7 +47,7 @@ static inline void toBytes(JNIEnv *env, jobject jUUID, uuid_t result) {
  */
 
 JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_timeUUID(
-		JNIEnv *env, jobject) {
+		JNIEnv *env, jobject uuidFactory) {
 	uuid_t out;
 
 	uuid_generate_time(out);
@@ -55,7 +55,8 @@ JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_timeUUI
 }
 
 JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_nameUUIDv5(
-		JNIEnv *env, jobject, jobject namespaceUuid, jbyteArray name) {
+		JNIEnv *env, jobject uuidFactory, jobject namespaceUuid,
+		jbyteArray name) {
 	uuid_t ns;
 	uuid_t out;
 
@@ -68,7 +69,8 @@ JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_nameUUI
 }
 
 JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_nameUUIDv3(
-		JNIEnv *env, jobject, jobject namespaceUuid, jbyteArray name) {
+		JNIEnv *env, jobject uuidFactory, jobject namespaceUuid,
+		jbyteArray name) {
 	uuid_t ns;
 	uuid_t out;
 
@@ -81,7 +83,7 @@ JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_nameUUI
 }
 
 JNIEXPORT jobject JNICALL Java_org_argeo_api_uuid_libuuid_LibuuidFactory_randomUUIDStrong(
-		JNIEnv *env, jobject) {
+		JNIEnv *env, jobject uuidFactory) {
 	uuid_t out;
 
 	uuid_generate_random(out);

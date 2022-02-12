@@ -1,0 +1,5 @@
+SDK_SRC_BASE := /home/mbaudier/dev/git/unstable/argeo-commons
+SDK_BUILD_BASE := /home/mbaudier/dev/git/unstable/argeo-commons/output
+
+include $(SDK_SRC_BASE)/branch.properties
+include $(SDK_SRC_BASE)/sdk/includes.mk
