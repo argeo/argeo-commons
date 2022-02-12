@@ -35,7 +35,7 @@ $(BUILD_BASE)/cnf/%.bnd: cnf/%.bnd
 	mkdir -p $(dir $@)
 	cp $< $@
 	
-$(SDK_BUILD_BASE)/a2/$(A2_CATEGORY)/%.$(MAJOR).$(MINOR).jar : $(BUILD_BASE)/%.jar
+$(A2_OUTPUT)/$(A2_CATEGORY)/%.$(MAJOR).$(MINOR).jar : $(BUILD_BASE)/%.jar
 	mkdir -p $(dir $@)
 	cp $< $@
 

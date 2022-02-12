@@ -2,6 +2,9 @@ include sdk.mk
 .PHONY: clean all osgi jni
 
 all: osgi jni
+	mkdir -p $(A2_OUTPUT)/$(A2_CATEGORY).rap
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/$(A2_CATEGORY).rap
+	touch $(BUILD_BASE)/*.rap/bnd.bnd
 
 A2_CATEGORY = org.argeo.cms
 
@@ -37,7 +40,13 @@ A2_BASE = $(A2_OUTPUT)
 
 VPATH = .:eclipse:rap:jcr
 
-DEP_CATEGORIES = org.argeo.tp org.argeo.tp.apache org.argeo.tp.jetty org.argeo.tp.eclipse.equinox org.argeo.tp.eclipse.rap org.argeo.tp.jcr
+DEP_CATEGORIES = \
+org.argeo.tp \
+org.argeo.tp.apache \
+org.argeo.tp.jetty \
+org.argeo.tp.eclipse.equinox \
+org.argeo.tp.eclipse.rap \
+org.argeo.tp.jcr
 
 jni:
 	$(MAKE) -C jni
