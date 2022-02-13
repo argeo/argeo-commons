@@ -3,7 +3,7 @@ include sdk.mk
 
 all: osgi
 
-A2_CATEGORY = org.argeo.cms.rcp
+A2_CATEGORY = org.argeo.cms.eclipse.rcp
 
 BUNDLES = \
 rcp/org.argeo.cms.e4.rcp \
