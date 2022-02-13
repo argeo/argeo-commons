@@ -31,6 +31,9 @@ public class CmsE4Application implements IApplication, CmsView {
 
 	@Override
 	public Object start(IApplicationContext context) throws Exception {
+		// TODO wait for CMS to be ready
+		Thread.sleep(5000);
+		
 		uid = UUID.randomUUID().toString();
 		Subject subject = new Subject();
 		Display display = createDisplay();
@@ -39,7 +42,7 @@ public class CmsE4Application implements IApplication, CmsView {
 		loginShell.setSubject(subject);
 		try {
 			// try pre-auth
-			loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, subject, loginShell);
+			loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_SINGLE_USER, subject, loginShell);
 			loginContext.login();
 		} catch (LoginException e) {
 			e.printStackTrace();
