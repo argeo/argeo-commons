@@ -43,11 +43,11 @@
 		</dependency>
 
 		<!-- CMS -->
-		<dependency>
-			<groupId>org.argeo.commons</groupId>
-			<artifactId>org.argeo.cms.tp</artifactId>
-			<version>2.3-SNAPSHOT</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.argeo.commons</groupId> -->
+<!-- 			<artifactId>org.argeo.cms.tp</artifactId> -->
+<!-- 			<version>2.3-SNAPSHOT</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.argeo.commons</groupId>
 			<artifactId>org.argeo.cms</artifactId>
