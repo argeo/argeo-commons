@@ -1,9 +1,13 @@
-Import-Package: org.apache.commons.io,\
-				org.eclipse.core.commands,\
-				!org.eclipse.core.runtime,\
-				!org.eclipse.ui.plugin,\
-				org.eclipse.swt,\
-				*
+Import-Package: \
+!java.*,\
+org.apache.commons.io,\
+org.eclipse.core.commands,\
+!org.eclipse.core.runtime,\
+!org.eclipse.ui.plugin,\
+org.eclipse.swt,\
+javax.servlet.http;version="[3,5)",\
+javax.servlet;version="[3,5)",\
+*
 
 Export-Package: org.argeo.*,\
 org.eclipse.rap.fileupload.*;version="3.10",\
