@@ -17,7 +17,8 @@ public class UserMenu extends CmsLoginShell {
 	private final Node context;
 
 	public UserMenu(Control source, Node context) {
-		super(CmsUiUtils.getCmsView());
+		// FIXME pass CMS context
+		super(CmsUiUtils.getCmsView(), null);
 		this.context = context;
 		createUi();
 		if (source == null)

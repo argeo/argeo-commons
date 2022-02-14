@@ -62,13 +62,14 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 	// optional subject to be set explicitly
 	private Subject subject = null;
 
-	public CmsLogin(CmsView cmsView) {
+	private CmsContext cmsContext;
+
+	public CmsLogin(CmsView cmsView, CmsContext cmsContext) {
 		this.cmsView = cmsView;
-		CmsContext nodeState = null;// = Activator.getNodeState();
-		// FIXME reactivate locales
-		if (nodeState != null) {
-			defaultLocale = nodeState.getDefaultLocale();
-			List<Locale> locales = nodeState.getLocales();
+		this.cmsContext = cmsContext;
+		if (this.cmsContext != null) {
+			defaultLocale = this.cmsContext.getDefaultLocale();
+			List<Locale> locales = this.cmsContext.getLocales();
 			if (locales != null)
 				localeChoice = new LocaleChoice(locales, defaultLocale);
 		} else {

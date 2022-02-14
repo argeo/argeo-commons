@@ -1,5 +1,6 @@
 package org.argeo.cms.swt.auth;
 
+import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsView;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
@@ -11,8 +12,8 @@ import org.eclipse.swt.widgets.Shell;
 public class CmsLoginShell extends CmsLogin {
 	private final Shell shell;
 
-	public CmsLoginShell(CmsView cmsView) {
-		super(cmsView);
+	public CmsLoginShell(CmsView cmsView, CmsContext cmsContext) {
+		super(cmsView, cmsContext);
 		shell = createShell();
 //		createUi(shell);
 	}
@@ -65,8 +66,8 @@ public class CmsLoginShell extends CmsLogin {
 	public Shell getShell() {
 		return shell;
 	}
-	
-	public void createUi(){
+
+	public void createUi() {
 		createUi(shell);
 	}
 }

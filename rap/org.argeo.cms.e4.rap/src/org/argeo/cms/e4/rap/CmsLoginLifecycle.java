@@ -62,7 +62,8 @@ public class CmsLoginLifecycle implements CmsView {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		Display display = Display.getCurrent();
 //		UiContext.setData(CmsView.KEY, this);
-		CmsLoginShell loginShell = new CmsLoginShell(this);
+		// FIXME get CMS context
+		CmsLoginShell loginShell = new CmsLoginShell(this, null);
 		CmsSwtUtils.registerCmsView(loginShell.getShell(), this);
 		loginShell.setSubject(subject);
 		try {
