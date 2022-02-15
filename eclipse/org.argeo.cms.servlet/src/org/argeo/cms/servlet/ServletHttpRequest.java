@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthSession;
@@ -18,7 +19,10 @@ public class ServletHttpRequest implements RemoteAuthRequest {
 
 	@Override
 	public RemoteAuthSession getSession() {
-		return new ServletHttpSession(request.getSession(false));
+		HttpSession httpSession = request.getSession(false);
+		if (httpSession == null)
+			return null;
+		return new ServletHttpSession(httpSession);
 	}
 
 	@Override
