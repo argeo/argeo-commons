@@ -41,7 +41,10 @@ public enum UserAdminConf {
 	disabled(null),
 
 	/** Authentication realm */
-	realm(null);
+	realm(null),
+
+	/** Override all passwords with this value (typically for testing purposes) */
+	forcedPassword(null);
 
 	public final static String FACTORY_PID = "org.argeo.osgi.useradmin.config";
 

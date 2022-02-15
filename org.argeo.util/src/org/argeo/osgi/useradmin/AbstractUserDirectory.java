@@ -67,6 +67,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	private WorkControl transactionControl;
 	private WcXaResource xaResource = new WcXaResource(this);
 
+	private String forcedPassword;
+
 	AbstractUserDirectory(URI uriArg, Dictionary<String, ?> props, boolean scoped) {
 		this.scoped = scoped;
 		properties = new Hashtable<String, Object>();
@@ -85,6 +87,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			else
 				uri = uriStr;
 		}
+
+		forcedPassword = UserAdminConf.forcedPassword.getValue(properties);
 
 		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
 		userBase = UserAdminConf.userBase.getValue(properties);
@@ -493,6 +497,10 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 //	public void setTransactionManager(TransactionManager transactionManager) {
 //		this.transactionManager = transactionManager;
 //	}
+
+	public String getForcedPassword() {
+		return forcedPassword;
+	}
 
 	public void setTransactionControl(WorkControl transactionControl) {
 		this.transactionControl = transactionControl;

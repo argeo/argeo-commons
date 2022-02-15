@@ -78,6 +78,10 @@ class LdifUser implements DirectoryUser {
 			// String pwd = new String((char[]) value);
 			// authPassword (RFC 312 https://tools.ietf.org/html/rfc3112)
 			char[] password = DigestUtils.bytesToChars(value);
+
+			if (userAdmin.getForcedPassword() != null && userAdmin.getForcedPassword().equals(new String(password)))
+				return true;
+
 			AuthPassword authPassword = AuthPassword.matchAuthValue(getAttributes(), password);
 			if (authPassword != null) {
 				if (authPassword.getAuthScheme().equals(SharedSecret.X_SHARED_SECRET)) {
