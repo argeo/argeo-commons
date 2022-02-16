@@ -102,10 +102,15 @@ public class CmsSwtUtils {
 	/*
 	 * GRID LAYOUT
 	 */
+	/** A {@link GridLayout} without any spacing and one column. */
 	public static GridLayout noSpaceGridLayout() {
 		return noSpaceGridLayout(new GridLayout());
 	}
 
+	/**
+	 * A {@link GridLayout} without any spacing and multiple columns of unequal
+	 * width.
+	 */
 	public static GridLayout noSpaceGridLayout(int columns) {
 		return noSpaceGridLayout(new GridLayout(columns, false));
 	}
