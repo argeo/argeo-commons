@@ -239,11 +239,10 @@ public class CmsJcrUtils {
 	/**
 	 * Open a JCR session with full read/write rights on the data, as
 	 * {@link CmsConstants#ROLE_USER_ADMIN}, using the
-	 * {@link CmsAuth#LOGIN_CONTEXT_DATA_ADMIN} login context. For security
-	 * hardened deployement, use {@link AuthPermission} on this login context.
+	 * {@link CmsAuth#LOGIN_CONTEXT_DATA_ADMIN} login context. For security hardened
+	 * deployement, use {@link AuthPermission} on this login context.
 	 */
 	public static Session openDataAdminSession(Repository repository, String workspaceName) {
-		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
 		LoginContext loginContext;
 		try {
 			loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_DATA_ADMIN);
@@ -251,22 +250,28 @@ public class CmsJcrUtils {
 		} catch (LoginException e1) {
 			throw new RuntimeException("Could not login as data admin", e1);
 		} finally {
+		}
+
+		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread().setContextClassLoader(CmsJcrUtils.class.getClassLoader());
+			return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
+
+				@Override
+				public Session run() {
+					try {
+						return repository.login(workspaceName);
+					} catch (NoSuchWorkspaceException e) {
+						throw new IllegalArgumentException("No workspace " + workspaceName + " available", e);
+					} catch (RepositoryException e) {
+						throw new RuntimeException("Cannot open data admin session", e);
+					}
+				}
+
+			});
+		} finally {
 			Thread.currentThread().setContextClassLoader(currentCl);
 		}
-		return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
-
-			@Override
-			public Session run() {
-				try {
-					return repository.login(workspaceName);
-				} catch (NoSuchWorkspaceException e) {
-					throw new IllegalArgumentException("No workspace " + workspaceName + " available", e);
-				} catch (RepositoryException e) {
-					throw new RuntimeException("Cannot open data admin session", e);
-				}
-			}
-
-		});
 	}
 
 	/** Singleton. */
