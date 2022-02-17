@@ -1,5 +1,7 @@
 package org.argeo.util.naming;
 
+import java.util.function.Supplier;
+
 /**
  * Standard LDAP attributes as per:<br>
  * - <a href= "https://www.ldap.com/ldap-oid-reference">Standard LDAP</a><br>
@@ -7,7 +9,7 @@ package org.argeo.util.naming;
  * "https://github.com/krb5/krb5/blob/master/src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema">Kerberos
  * LDAP (partial)</a>
  */
-public enum LdapAttrs implements SpecifiedName {
+public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 	/** */
 	uid("0.9.2342.19200300.100.1.1", "RFC 4519"),
 	/** */
@@ -315,11 +317,17 @@ public enum LdapAttrs implements SpecifiedName {
 		return "ldap";
 	}
 
+	@Deprecated
 	public String property() {
-		return qualified();
+		return get();
 	}
 
+	@Deprecated
 	public String qualified() {
+		return get();
+	}
+
+	public String get() {
 		String prefix = getPrefix();
 		return prefix != null ? prefix + ":" + name() : name();
 	}
