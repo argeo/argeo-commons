@@ -29,6 +29,7 @@ import javax.jcr.Workspace;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
+import javax.jcr.query.Row;
 import javax.jcr.security.Privilege;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionHistory;
@@ -598,14 +599,14 @@ public class Jcr {
 			throw new JcrException("Cannot retrieve property " + property + " from " + node, e);
 		}
 	}
-	
+
 	public static <T> T getAs(Node node, String property, Class<T> clss) {
-		if(String.class.isAssignableFrom(clss)) {
-			return (T)get(node,property);
-		}	else	if(Long.class.isAssignableFrom(clss)) {
-			return (T)get(node,property);
-		}else {
-			throw new IllegalArgumentException("Unsupported format "+clss);
+		if (String.class.isAssignableFrom(clss)) {
+			return (T) get(node, property);
+		} else if (Long.class.isAssignableFrom(clss)) {
+			return (T) get(node, property);
+		} else {
+			throw new IllegalArgumentException("Unsupported format " + clss);
 		}
 	}
 
@@ -976,6 +977,14 @@ public class Jcr {
 			throw new JcrException("Cannot get query manager from session " + session, e);
 		}
 		return getNode(queryManager, sql, args);
+	}
+
+	public static Node getRowNode(Row row, String selectorName) {
+		try {
+			return row.getNode(selectorName);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get node " + selectorName + " from row", e);
+		}
 	}
 
 	/** Singleton. */
