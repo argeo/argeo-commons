@@ -10,6 +10,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,8 @@ public class BundleCmsTheme implements CmsTheme {
 
 //	private final static Log log = LogFactory.getLog(BundleCmsTheme.class);
 
+	private CmsTheme parentTheme;
+
 	private String themeId;
 	private Set<String> webCssPaths = new TreeSet<>();
 	private Set<String> rapCssPaths = new TreeSet<>();
@@ -52,7 +55,7 @@ public class BundleCmsTheme implements CmsTheme {
 	private String headerCss;
 	private List<String> fonts = new ArrayList<>();
 
-	private String bodyHtml="<body></body>";
+	private String bodyHtml = "<body></body>";
 
 	private String basePath;
 	private String styleCssPath;
@@ -137,7 +140,7 @@ public class BundleCmsTheme implements CmsTheme {
 		if (bodyUrl != null) {
 			loadBodyHtml(bodyUrl);
 		}
-}
+	}
 
 	public String getHtmlHeaders() {
 		StringBuilder sb = new StringBuilder();
@@ -156,8 +159,6 @@ public class BundleCmsTheme implements CmsTheme {
 		else
 			return sb.toString();
 	}
-	
-	
 
 	@Override
 	public String getBodyHtml() {
@@ -211,7 +212,7 @@ public class BundleCmsTheme implements CmsTheme {
 
 	void loadBodyHtml(URL url) {
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), UTF_8))) {
-		bodyHtml=	IOUtils.toString(url,StandardCharsets.UTF_8);
+			bodyHtml = IOUtils.toString(url, StandardCharsets.UTF_8);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot load URL " + url, e);
 		}
@@ -260,10 +261,11 @@ public class BundleCmsTheme implements CmsTheme {
 		URL res = themeBundle.getEntry(resourceName);
 		if (res == null) {
 			res = themeBundle.getResource(resourceName);
-			if (res == null)
-				return null;
-//				throw new IllegalArgumentException(
-//						"Resource " + resourceName + " not found in bundle " + themeBundle.getSymbolicName());
+			if (res == null) {
+				if (parentTheme == null)
+					return null;
+				return parentTheme.getResourceAsStream(resourceName);
+			}
 		}
 		return res.openStream();
 	}
@@ -272,43 +274,43 @@ public class BundleCmsTheme implements CmsTheme {
 		return themeId;
 	}
 
-//	public void setThemeId(String themeId) {
-//		this.themeId = themeId;
-//	}
-//
-//	public String getBasePath() {
-//		return basePath;
-//	}
-//
-//	public void setBasePath(String basePath) {
-//		this.basePath = basePath;
-//	}
-//
-//	public String getRapCssPath() {
-//		return rapCssPath;
-//	}
-//
-//	public void setRapCssPath(String cssPath) {
-//		this.rapCssPath = cssPath;
-//	}
-
 	@Override
 	public Set<String> getWebCssPaths() {
+		if (parentTheme != null) {
+			Set<String> res = new HashSet<>(parentTheme.getWebCssPaths());
+			res.addAll(webCssPaths);
+			return res;
+		}
 		return webCssPaths;
 	}
 
 	@Override
 	public Set<String> getRapCssPaths() {
+		if (parentTheme != null) {
+			Set<String> res = new HashSet<>(parentTheme.getRapCssPaths());
+			res.addAll(rapCssPaths);
+			return res;
+		}
 		return rapCssPaths;
 	}
 
 	@Override
 	public Set<String> getSwtCssPaths() {
+		if (parentTheme != null) {
+			Set<String> res = new HashSet<>(parentTheme.getSwtCssPaths());
+			res.addAll(swtCssPaths);
+			return res;
+		}
 		return swtCssPaths;
 	}
 
 	@Override
 	public Set<String> getImagesPaths() {
+		if (parentTheme != null) {
+			Set<String> res = new HashSet<>(parentTheme.getImagesPaths());
+			res.addAll(imagesPaths);
+			return res;
+		}
 		return imagesPaths;
 	}
 
@@ -355,6 +357,10 @@ public class BundleCmsTheme implements CmsTheme {
 	@Override
 	public String toString() {
 		return "Bundle CMS Theme " + themeId;
+	}
+
+	public void setParentTheme(CmsTheme parentTheme) {
+		this.parentTheme = parentTheme;
 	}
 
 }
