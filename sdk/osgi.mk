@@ -50,6 +50,7 @@ $(BUILD_BASE)/jars-built: $(BNDS)
 $(BUILD_BASE)/%/bnd.bnd : %/bnd.bnd $(BUILD_BASE)/java-compiled 
 	mkdir -p $(dir $@)bin
 	rsync -r --exclude "*.java" $(dir  $<)src/ $(dir $@)bin
+	rsync -r --exclude-from $(SDK_SRC_BASE)/sdk/excludes.txt $(dir  $<) $(dir $@)bin
 	if [ -d "$(dir  $<)OSGI-INF" ]; then rsync -r $(dir  $<)OSGI-INF/ $(dir $@)/OSGI-INF; fi
 	cp $< $@
 	echo "\n-sourcepath:$(SDK_SRC_BASE)/$(dir  $<)src\n" >> $@
