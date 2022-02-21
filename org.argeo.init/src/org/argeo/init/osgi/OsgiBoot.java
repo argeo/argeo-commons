@@ -101,9 +101,9 @@ public class OsgiBoot implements OsgiBootConstants {
 				if (source.trim().equals(A2Source.DEFAULT_A2_URI)) {
 					if (Files.exists(homePath))
 						provisioningManager.registerSource(
-								A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/osgi");
-					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/share/osgi");
-					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/share/osgi");
+								A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/a2");
+					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/share/a2");
+					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/share/a2");
 				} else {
 					provisioningManager.registerSource(source);
 				}
