@@ -1,0 +1,8 @@
+[general]
+[slapd]
+instance_name = argeo
+root_dn = cn=Directory Manager
+root_password = argeoargeo
+
+[backend-userroot]
+suffix = dc=example,dc=com
