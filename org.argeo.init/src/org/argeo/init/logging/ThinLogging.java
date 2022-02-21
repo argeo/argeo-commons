@@ -274,6 +274,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 			// NOTE: this is the method called when logging a plain message without
 			// exception, so it should be considered as a format only when args are not null
+			if (format.contains("{}"))// workaround for weird Jetty formatting
+				params = null;
 			String msg = params == null ? format : MessageFormat.format(format, params);
 			publisher.log(this, level, bundle, msg, now, thread, (Throwable) null, findCallLocation(level, thread));
 		}
@@ -358,7 +360,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			logEntry.put(KEY_THREAD, thread.getName());
 
 			// should be unmodifiable for security reasons
-			submit(Collections.unmodifiableMap(logEntry));
+			if (!isClosed())
+				submit(Collections.unmodifiableMap(logEntry));
 		}
 
 	}

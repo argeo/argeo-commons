@@ -43,27 +43,28 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 					String ext = moduleFileName.substring(lastDot + 1);
 					if (!"jar".equals(ext))
 						continue modules;
-					String moduleName = moduleFileName.substring(0, lastDot);
-					if (moduleName.endsWith("-SNAPSHOT"))
-						moduleName = moduleName.substring(0, moduleName.length() - "-SNAPSHOT".length());
-					int lastDash = moduleName.lastIndexOf('-');
-					String versionStr = moduleName.substring(lastDash + 1);
-					String componentName = moduleName.substring(0, lastDash);
+//					String moduleName = moduleFileName.substring(0, lastDot);
+//					if (moduleName.endsWith("-SNAPSHOT"))
+//						moduleName = moduleName.substring(0, moduleName.length() - "-SNAPSHOT".length());
+//					int lastDash = moduleName.lastIndexOf('-');
+//					String versionStr = moduleName.substring(lastDash + 1);
+//					String componentName = moduleName.substring(0, lastDash);
 					// if(versionStr.endsWith("-SNAPSHOT")) {
 					// versionStr = readVersionFromModule(modulePath);
 					// }
 					Version version;
-					try {
+//					try {
+//						version = new Version(versionStr);
+//					} catch (Exception e) {
+					String versionStr = readVersionFromModule(modulePath);
+					String componentName = readSymbolicNameFromModule(modulePath);
+					if (versionStr != null) {
 						version = new Version(versionStr);
-					} catch (Exception e) {
-						versionStr = readVersionFromModule(modulePath);
-						if (versionStr != null) {
-							version = new Version(versionStr);
-						} else {
-							OsgiBootUtils.debug("Ignore " + modulePath + " (" + e.getMessage() + ")");
-							continue modules;
-						}
+					} else {
+						OsgiBootUtils.debug("Ignore " + modulePath + " since version cannot be found");
+						continue modules;
 					}
+//					}
 					A2Component component = contribution.getOrAddComponent(componentName);
 					A2Module module = component.getOrAddModule(version, modulePath);
 					if (OsgiBootUtils.isDebug())

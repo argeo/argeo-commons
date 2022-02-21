@@ -73,23 +73,30 @@ public class OsgiRuntimeContext implements RuntimeContext {
 	}
 
 	public void stop(BundleContext bundleContext) {
-		if (loggingConfigurationSr != null)
-			loggingConfigurationSr.unregister();
-		if (logEntryPublisherSr != null)
-			logEntryPublisherSr.unregister();
-
+//		if (loggingConfigurationSr != null)
+//			try {
+//				loggingConfigurationSr.unregister();
+//			} catch (Exception e) {
+//				// silent
+//			}
+//		if (logEntryPublisherSr != null)
+//			try {
+//				logEntryPublisherSr.unregister();
+//			} catch (Exception e) {
+//				// silent
+//			}
 	}
 
 	@Override
 	public void waitForStop(long timeout) throws InterruptedException {
 		if (framework == null)
 			throw new IllegalStateException("Framework is not initialised");
-		stop(framework.getBundleContext());
 		framework.waitForStop(timeout);
 	}
 
 	@Override
 	public void close() throws Exception {
+		stop(framework.getBundleContext());
 		if (framework != null)
 			framework.stop();
 	}
