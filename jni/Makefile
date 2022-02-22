@@ -8,7 +8,7 @@ all:
 	$(foreach dir, $(JNIDIRS), $(MAKE) -C $(dir);)
 	
 clean:
-	rm -r $(BUILD_DIR) $(SDK_BUILD_BASE)/jni
+	rm -rf $(BUILD_DIR) $(SDK_BUILD_BASE)/jni
 
 
 
