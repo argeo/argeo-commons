@@ -1,8 +1,9 @@
 
 # 389 Directory Server
-setup-ds.pl --silent --file=argeo-slapd.inf
+sudo dscreate from-file argeo-slapd.inf
+sudo dsconf -D "cn=Directory Manager" ldap://localhost backend import <backend> <path to LDIF file> 
 
 # PostgreSQL
-postgresql-setup initdb
-systemctl start postgresql
+sudo postgresql-setup initdb
+sudo systemctl start postgresql
 sudo -u postgres psql < argeo-pgsql-setup.sql

@@ -5,4 +5,5 @@ root_dn = cn=Directory Manager
 root_password = argeoargeo
 
 [backend-userroot]
+create_suffix_entry = True
 suffix = dc=example,dc=com
