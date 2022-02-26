@@ -33,11 +33,11 @@ public class CmsE4Application implements IApplication, CmsView {
 	public Object start(IApplicationContext context) throws Exception {
 		// TODO wait for CMS to be ready
 		Thread.sleep(5000);
-		
+
 		uid = UUID.randomUUID().toString();
 		Subject subject = new Subject();
 		Display display = createDisplay();
-		CmsLoginShell loginShell = new CmsLoginShell(this);
+		CmsLoginShell loginShell = new CmsLoginShell(this, null);
 		// TODO customize CmsLoginShell to be smaller and centered
 		loginShell.setSubject(subject);
 		try {
@@ -83,7 +83,7 @@ public class CmsE4Application implements IApplication, CmsView {
 		// }
 
 		uxContext = new SimpleSwtUxContext();
-		//UiContext.setData(CmsView.KEY, this);
+		// UiContext.setData(CmsView.KEY, this);
 		CmsSwtUtils.registerCmsView(loginShell.getShell(), this);
 		e4Application = getApplication(null);
 		Object res = Subject.doAs(subject, new PrivilegedExceptionAction<Object>() {
@@ -204,5 +204,4 @@ public class CmsE4Application implements IApplication, CmsView {
 		return uid;
 	}
 
-	
 }
