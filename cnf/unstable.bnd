@@ -1,5 +1,5 @@
 version.released=2.3.5
-qualifier=
+qualifier=.next
 
 category=org.argeo.commons
 Bundle-RequiredExecutionEnvironment=JavaSE-11
