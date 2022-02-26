@@ -55,4 +55,4 @@ clean:
 	rm -rf $(BUILD_BASE)
 	$(MAKE) -C jni clean
 
-include  $(SDK_SRC_BASE)/sdk/osgi.mk
+include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk

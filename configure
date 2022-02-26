@@ -42,7 +42,7 @@ SDK_SRC_BASE := $SDK_SRC_BASE
 SDK_BUILD_BASE := $SDK_BUILD_BASE
 JAVA_HOME := $JAVA_HOME
 
-include \$(SDK_SRC_BASE)/branch.properties
+#include \$(SDK_SRC_BASE)/cnf/testing.bnd
 EOF
 
 
