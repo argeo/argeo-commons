@@ -29,4 +29,4 @@ clean:
 
 VPATH = .:rcp
 
-include  $(SDK_SRC_BASE)/sdk/osgi.mk
+include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk
