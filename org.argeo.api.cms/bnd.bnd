@@ -1,0 +1,4 @@
+Import-Package: \
+javax.security.*
+
+Export-Package: org.argeo.api.cms.*

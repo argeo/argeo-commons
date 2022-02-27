@@ -1,0 +1,4 @@
+[submodule "sdk/argeo-build"]
+	path = sdk/argeo-build
+	url = http://git.argeo.org/cc0/argeo-build.git
+	branch = testing

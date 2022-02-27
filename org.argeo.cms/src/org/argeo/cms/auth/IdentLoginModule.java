@@ -9,16 +9,14 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.cms.internal.kernel.Activator;
-import org.argeo.ident.IdentClient;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.auth.ident.IdentClient;
+import org.argeo.cms.internal.runtime.CmsStateImpl;
 
 /** Use an ident service to identify. */
 public class IdentLoginModule implements LoginModule {
-	private final static Log log = LogFactory.getLog(IdentLoginModule.class);
+	private final static CmsLog log = CmsLog.getLog(IdentLoginModule.class);
 
 	private CallbackHandler callbackHandler = null;
 	private Map<String, Object> sharedState = null;
@@ -35,7 +33,7 @@ public class IdentLoginModule implements LoginModule {
 	public boolean login() throws LoginException {
 		if (callbackHandler == null)
 			return false;
-		HttpRequestCallback httpCallback = new HttpRequestCallback();
+		RemoteAuthCallback httpCallback = new RemoteAuthCallback();
 		try {
 			callbackHandler.handle(new Callback[] { httpCallback });
 		} catch (IOException e) {
@@ -43,10 +41,10 @@ public class IdentLoginModule implements LoginModule {
 		} catch (UnsupportedCallbackException e) {
 			return false;
 		}
-		HttpServletRequest request = httpCallback.getRequest();
+		RemoteAuthRequest request = httpCallback.getRequest();
 		if (request == null)
 			return false;
-		IdentClient identClient = Activator.getIdentClient(request.getRemoteAddr());
+		IdentClient identClient = CmsStateImpl.getIdentClient(request.getRemoteAddr());
 		if (identClient == null)
 			return false;
 		String identUsername;

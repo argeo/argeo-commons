@@ -1,7 +1,0 @@
-[Unit]
-Description=Argeo user node %I for %u
-
-[Service]
-Type=simple
-ExecStart=/usr/sbin/argeoctl start %I
-ExecReload=/usr/sbin/argeoctl reload %I

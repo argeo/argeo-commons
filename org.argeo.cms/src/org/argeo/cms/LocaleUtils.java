@@ -8,15 +8,14 @@ import java.util.ResourceBundle;
 
 import javax.security.auth.Subject;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.auth.CurrentUser;
 
 /** Utilities simplifying the development of localization enums. */
 public class LocaleUtils {
 	final static String DEFAULT_OSGI_l10N_BUNDLE = "/OSGI-INF/l10n/bundle";
 
-	private final static Log log = LogFactory.getLog(LocaleUtils.class);
+	private final static CmsLog log = CmsLog.getLog(LocaleUtils.class);
 
 	private final static ThreadLocal<Locale> threadLocale = new ThreadLocal<>();
 

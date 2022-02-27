@@ -1,8 +1,0 @@
-Main-Class: org.argeo.osgi.boot.Main
-Class-Path: org.eclipse.osgi.jar
-
-Bundle-Activator: org.argeo.osgi.boot.Activator
-Import-Package: org.eclipse.*;resolution:=optional,\
-org.eclipse.osgi.launch.*;resolution:=optional,\
-org.osgi.*;version=0.0.0,\
-*

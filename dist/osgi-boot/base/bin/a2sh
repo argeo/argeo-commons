@@ -1,6 +1,0 @@
-#!/bin/sh
-BIN_DIR=`dirname $0`
-EQUINOX=$BIN_DIR/../share/osgi/boot/org.eclipse.osgi.jar
-OSGI_BOOT=$BIN_DIR/../share/osgi/boot/org.argeo.osgi.boot.jar
-
-/usr/bin/jshell --class-path "$EQUINOX:$OSGI_BOOT" $*

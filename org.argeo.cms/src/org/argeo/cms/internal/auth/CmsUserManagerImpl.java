@@ -1,8 +1,8 @@
 package org.argeo.cms.internal.auth;
 
-import static org.argeo.naming.LdapAttrs.cn;
-import static org.argeo.naming.LdapAttrs.description;
-import static org.argeo.naming.LdapAttrs.owner;
+import static org.argeo.util.naming.LdapAttrs.cn;
+import static org.argeo.util.naming.LdapAttrs.description;
+import static org.argeo.util.naming.LdapAttrs.owner;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -19,26 +19,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.jcr.Node;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
-import javax.transaction.Status;
-import javax.transaction.UserTransaction;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
-import org.argeo.jcr.JcrUtils;
-import org.argeo.naming.LdapAttrs;
-import org.argeo.naming.NamingUtils;
-import org.argeo.naming.SharedSecret;
+import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.NamingUtils;
+import org.argeo.util.naming.SharedSecret;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -59,13 +55,13 @@ import org.osgi.service.useradmin.UserAdmin;
  * </ul>
  */
 public class CmsUserManagerImpl implements CmsUserManager {
-	private final static Log log = LogFactory.getLog(CmsUserManagerImpl.class);
+	private final static CmsLog log = CmsLog.getLog(CmsUserManagerImpl.class);
 
 	private UserAdmin userAdmin;
 //	private Map<String, String> serviceProperties;
-	private UserTransaction userTransaction;
+	private WorkTransaction userTransaction;
 
-	private Map<UserDirectory, Hashtable<String, String>> userDirectories = Collections
+	private Map<UserDirectory, Hashtable<String, Object>> userDirectories = Collections
 			.synchronizedMap(new LinkedHashMap<>());
 
 	@Override
@@ -155,7 +151,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		List<User> users = new ArrayList<User>();
 		for (Role role : roles) {
 			if ((includeUsers && role.getType() == Role.USER || role.getType() == Role.GROUP) && !users.contains(role)
-					&& (includeSystemRoles || !role.getName().toLowerCase().endsWith(NodeConstants.ROLES_BASEDN))) {
+					&& (includeSystemRoles || !role.getName().toLowerCase().endsWith(CmsConstants.ROLES_BASEDN))) {
 				if (match(role, filter))
 					users.add((User) role);
 			}
@@ -237,9 +233,9 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 			if (onlyWritable && readOnly)
 				continue;
-			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.ROLES_BASEDN))
 				continue;
-			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;
 			dns.put(baseDn, UserAdminConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
 
@@ -353,7 +349,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 			return tokenStr;
 		} catch (Exception e1) {
 			try {
-				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
+				if (!userTransaction.isNoTransactionStatus())
 					userTransaction.rollback();
 			} catch (Exception e2) {
 				if (log.isTraceEnabled())
@@ -367,7 +363,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	public void expireAuthToken(String token) {
 		try {
 			userTransaction.begin();
-			String dn = cn + "=" + token + "," + NodeConstants.TOKENS_BASEDN;
+			String dn = cn + "=" + token + "," + CmsConstants.TOKENS_BASEDN;
 			Group tokenGroup = (Group) userAdmin.getRole(dn);
 			String ldapDate = NamingUtils.instantToLdapDate(ZonedDateTime.now(ZoneOffset.UTC));
 			tokenGroup.getProperties().put(description.name(), ldapDate);
@@ -376,7 +372,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 				log.debug("Token " + token + " expired.");
 		} catch (Exception e1) {
 			try {
-				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
+				if (!userTransaction.isNoTransactionStatus())
 					userTransaction.rollback();
 			} catch (Exception e2) {
 				if (log.isTraceEnabled())
@@ -388,7 +384,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	@Override
 	public void expireAuthTokens(Subject subject) {
-		Set<String> tokens = TokenUtils.tokensUsed(subject, NodeConstants.TOKENS_BASEDN);
+		Set<String> tokens = TokenUtils.tokensUsed(subject, CmsConstants.TOKENS_BASEDN);
 		for (String token : tokens)
 			expireAuthToken(token);
 	}
@@ -403,7 +399,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		try {
 			userTransaction.begin();
 			User user = (User) userAdmin.getRole(userDn);
-			String tokenDn = cn + "=" + token + "," + NodeConstants.TOKENS_BASEDN;
+			String tokenDn = cn + "=" + token + "," + CmsConstants.TOKENS_BASEDN;
 			Group tokenGroup = (Group) userAdmin.createRole(tokenDn, Role.GROUP);
 			if (roles != null)
 				for (String role : roles) {
@@ -411,7 +407,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 					if (r != null)
 						tokenGroup.addMember(r);
 					else {
-						if (!role.equals(NodeConstants.ROLE_USER)) {
+						if (!role.equals(CmsConstants.ROLE_USER)) {
 							throw new IllegalStateException(
 									"Cannot add role " + role + " to token " + token + " for " + userDn);
 						}
@@ -425,7 +421,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 			userTransaction.commit();
 		} catch (Exception e1) {
 			try {
-				if (userTransaction.getStatus() != Status.STATUS_NO_TRANSACTION)
+				if (!userTransaction.isNoTransactionStatus())
 					userTransaction.rollback();
 			} catch (Exception e2) {
 				if (log.isTraceEnabled())
@@ -435,44 +431,44 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		}
 	}
 
-	public User createUserFromPerson(Node person) {
-		String email = JcrUtils.get(person, LdapAttrs.mail.property());
-		String dn = buildDefaultDN(email, Role.USER);
-		User user;
-		try {
-			userTransaction.begin();
-			user = (User) userAdmin.createRole(dn, Role.USER);
-			Dictionary<String, Object> userProperties = user.getProperties();
-			String name = JcrUtils.get(person, LdapAttrs.displayName.property());
-			userProperties.put(LdapAttrs.cn.name(), name);
-			userProperties.put(LdapAttrs.displayName.name(), name);
-			String givenName = JcrUtils.get(person, LdapAttrs.givenName.property());
-			String surname = JcrUtils.get(person, LdapAttrs.sn.property());
-			userProperties.put(LdapAttrs.givenName.name(), givenName);
-			userProperties.put(LdapAttrs.sn.name(), surname);
-			userProperties.put(LdapAttrs.mail.name(), email.toLowerCase());
-			userTransaction.commit();
-		} catch (Exception e) {
-			try {
-				userTransaction.rollback();
-			} catch (Exception e1) {
-				log.error("Could not roll back", e1);
-			}
-			if (e instanceof RuntimeException)
-				throw (RuntimeException) e;
-			else
-				throw new RuntimeException("Cannot create user", e);
-		}
-		return user;
-	}
+//	public User createUserFromPerson(Node person) {
+//		String email = JcrUtils.get(person, LdapAttrs.mail.property());
+//		String dn = buildDefaultDN(email, Role.USER);
+//		User user;
+//		try {
+//			userTransaction.begin();
+//			user = (User) userAdmin.createRole(dn, Role.USER);
+//			Dictionary<String, Object> userProperties = user.getProperties();
+//			String name = JcrUtils.get(person, LdapAttrs.displayName.property());
+//			userProperties.put(LdapAttrs.cn.name(), name);
+//			userProperties.put(LdapAttrs.displayName.name(), name);
+//			String givenName = JcrUtils.get(person, LdapAttrs.givenName.property());
+//			String surname = JcrUtils.get(person, LdapAttrs.sn.property());
+//			userProperties.put(LdapAttrs.givenName.name(), givenName);
+//			userProperties.put(LdapAttrs.sn.name(), surname);
+//			userProperties.put(LdapAttrs.mail.name(), email.toLowerCase());
+//			userTransaction.commit();
+//		} catch (Exception e) {
+//			try {
+//				userTransaction.rollback();
+//			} catch (Exception e1) {
+//				log.error("Could not roll back", e1);
+//			}
+//			if (e instanceof RuntimeException)
+//				throw (RuntimeException) e;
+//			else
+//				throw new RuntimeException("Cannot create user", e);
+//		}
+//		return user;
+//	}
 
 	public UserAdmin getUserAdmin() {
 		return userAdmin;
 	}
 
-	public UserTransaction getUserTransaction() {
-		return userTransaction;
-	}
+//	public UserTransaction getUserTransaction() {
+//		return userTransaction;
+//	}
 
 	/* DEPENDENCY INJECTION */
 	public void setUserAdmin(UserAdmin userAdmin) {
@@ -480,15 +476,15 @@ public class CmsUserManagerImpl implements CmsUserManager {
 //		this.serviceProperties = serviceProperties;
 	}
 
-	public void setUserTransaction(UserTransaction userTransaction) {
+	public void setUserTransaction(WorkTransaction userTransaction) {
 		this.userTransaction = userTransaction;
 	}
-	
-	public void addUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
+
+	public void addUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
 		userDirectories.put(userDirectory, new Hashtable<>(properties));
 	}
 
-	public void removeUserDirectory(UserDirectory userDirectory, Map<String, String> properties) {
+	public void removeUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
 		userDirectories.remove(userDirectory);
 	}
 

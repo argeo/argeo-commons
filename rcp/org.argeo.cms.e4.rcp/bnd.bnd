@@ -1,0 +1,7 @@
+Bundle-SymbolicName: org.argeo.cms.e4.rcp;singleton=true
+
+Require-Bundle: org.eclipse.core.runtime
+
+Import-Package: !org.eclipse.core.runtime,\
+org.eclipse.swt,\
+*

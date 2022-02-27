@@ -1,0 +1,5 @@
+Import-Package: org.eclipse.swt,\
+org.eclipse.jface.dialogs,\
+org.eclipse.swt.events,\
+javax.servlet.http;version="[3,5)",\
+*

@@ -10,16 +10,16 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
-import org.argeo.api.NodeConstants;
-import org.argeo.api.security.AnonymousPrincipal;
-import org.argeo.api.security.DataAdminPrincipal;
-import org.argeo.api.security.NodeSecurityUtils;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsSessionId;
+import org.argeo.api.cms.DataAdminPrincipal;
+import org.argeo.api.cms.AnonymousPrincipal;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
+import org.argeo.cms.security.NodeSecurityUtils;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -122,16 +122,16 @@ class CmsAuthUtils {
 	}
 
 	@SuppressWarnings("unused")
-	synchronized static void registerSessionAuthorization(HttpServletRequest request, Subject subject,
+	synchronized static void registerSessionAuthorization(RemoteAuthRequest request, Subject subject,
 			Authorization authorization, Locale locale) {
 		// synchronized in order to avoid multiple registrations
 		// TODO move it to a service in order to avoid static synchronization
 		if (request != null) {
-			HttpSession httpSession = request.getSession(false);
+			RemoteAuthSession httpSession = request.getSession();
 			assert httpSession != null;
 			String httpSessId = httpSession.getId();
 			boolean anonymous = authorization.getName() == null;
-			String remoteUser = !anonymous ? authorization.getName() : NodeConstants.ROLE_ANONYMOUS;
+			String remoteUser = !anonymous ? authorization.getName() : CmsConstants.ROLE_ANONYMOUS;
 			request.setAttribute(HttpContext.REMOTE_USER, remoteUser);
 			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 
@@ -186,7 +186,7 @@ class CmsAuthUtils {
 		}
 	}
 
-	public static CmsSession cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
+	public static CmsSessionImpl cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
 		Authorization authorization = null;
 		Collection<ServiceReference<CmsSession>> sr;
 		try {
@@ -195,9 +195,9 @@ class CmsAuthUtils {
 		} catch (InvalidSyntaxException e) {
 			throw new IllegalArgumentException("Cannot get CMS session for id " + httpSessionId, e);
 		}
-		CmsSession cmsSession;
+		CmsSessionImpl cmsSession;
 		if (sr.size() == 1) {
-			cmsSession = bc.getService(sr.iterator().next());
+			cmsSession = (CmsSessionImpl) bc.getService(sr.iterator().next());
 //			locale = cmsSession.getLocale();
 			authorization = cmsSession.getAuthorization();
 			if (authorization.getName() == null)

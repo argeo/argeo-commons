@@ -5,6 +5,6 @@
       <provide interface="org.argeo.cms.CmsUserManager"/>
    </service>
    <reference bind="setUserAdmin" cardinality="1..1" interface="org.osgi.service.useradmin.UserAdmin" name="UserAdmin" policy="static"/>
-   <reference bind="setUserTransaction" cardinality="1..1" interface="javax.transaction.UserTransaction" name="UserTransaction" policy="static"/>
+   <reference bind="setUserTransaction" cardinality="1..1" interface="org.argeo.osgi.transaction.WorkTransaction" name="UserTransaction" policy="static"/>
    <reference bind="addUserDirectory" cardinality="0..n" interface="org.argeo.osgi.useradmin.UserDirectory" name="UserDirectory" policy="static" unbind="removeUserDirectory"/>
 </scr:component>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" immediate="true" name="CMS Context">
+   <implementation class="org.argeo.cms.internal.runtime.CmsContextImpl"/>
+   <reference bind="setCmsDeployment" cardinality="1..1" interface="org.argeo.api.cms.CmsDeployment" name="CmsDeployment" policy="static"/>
+   <service>
+      <provide interface="org.argeo.api.cms.CmsContext"/>
+   </service>
+   <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
+   <reference bind="setUserAdmin" cardinality="1..1" interface="org.osgi.service.useradmin.UserAdmin" name="UserAdmin" policy="static"/>
+</scr:component>

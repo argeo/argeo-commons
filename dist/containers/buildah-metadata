@@ -1,8 +1,0 @@
-VERSION_ARGEO_COMMONS=2.1
-VERSION_ARGEO_TP=2.1
-
-VERSION_MAVEN=3.5
-VERSION_JAVA=11
-
-ARCH=`arch`
-echo Building for architecture $ARCH

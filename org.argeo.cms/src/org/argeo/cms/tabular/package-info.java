@@ -1,2 +1,2 @@
-/** Argeo CMS implementation of the Argeo Tabular API (CSV, JCR). */
+/** Tabular format API. */
 package org.argeo.cms.tabular;

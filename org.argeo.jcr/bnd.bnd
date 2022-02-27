@@ -1,5 +1,0 @@
-Provide-Capability:\
-cms.datamodel; name=jcrx; cnd=/org/argeo/jcr/jcrx.cnd; abstract=true
-
-Import-Package:\
-*

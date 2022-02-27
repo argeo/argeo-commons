@@ -1,4 +1,6 @@
-version.released=2.1.104
+MAJOR=2
+MINOR=1
+MICRO=104
 qualifier=.next
 
 category=org.argeo.commons

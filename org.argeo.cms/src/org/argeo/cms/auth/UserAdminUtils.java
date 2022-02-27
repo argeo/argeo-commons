@@ -6,8 +6,8 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.api.NodeConstants;
-import org.argeo.naming.LdapAttrs;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.util.naming.LdapAttrs;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -135,9 +135,9 @@ public class UserAdminUtils {
 	/** Simply retrieves a display name of the relevant domain */
 	public final static String getDomainName(User user) {
 		String dn = user.getName();
-		if (dn.endsWith(NodeConstants.ROLES_BASEDN))
+		if (dn.endsWith(CmsConstants.ROLES_BASEDN))
 			return "System roles";
-		if (dn.endsWith(NodeConstants.TOKENS_BASEDN))
+		if (dn.endsWith(CmsConstants.TOKENS_BASEDN))
 			return "Tokens";
 		try {
 			// FIXME deal with non-DC

@@ -7,10 +7,8 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.argeo.api.cms.CmsLog;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.useradmin.Authorization;
@@ -18,7 +16,7 @@ import org.osgi.service.useradmin.UserAdmin;
 
 /** Anonymous CMS user */
 public class AnonymousLoginModule implements LoginModule {
-	private final static Log log = LogFactory.getLog(AnonymousLoginModule.class);
+	private final static CmsLog log = CmsLog.getLog(AnonymousLoginModule.class);
 
 	private Subject subject;
 	private Map<String, Object> sharedState = null;
@@ -49,7 +47,7 @@ public class AnonymousLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
 		Authorization authorization = userAdmin.getAuthorization(null);
-		HttpServletRequest request = (HttpServletRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
+		RemoteAuthRequest request = (RemoteAuthRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		Locale locale = Locale.getDefault();
 		if (request != null)
 			locale = request.getLocale();

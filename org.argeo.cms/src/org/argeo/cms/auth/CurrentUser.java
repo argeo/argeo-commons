@@ -13,10 +13,12 @@ import java.util.UUID;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.api.NodeConstants;
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsSessionId;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
-import org.argeo.cms.internal.kernel.Activator;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.osgi.service.useradmin.Authorization;
 
 /**
@@ -84,7 +86,7 @@ public final class CurrentUser {
 		if (subject == null)
 			throw new IllegalArgumentException("Subject cannot be null");
 		if (subject.getPrincipals(X500Principal.class).size() != 1)
-			return NodeConstants.ROLE_ANONYMOUS;
+			return CmsConstants.ROLE_ANONYMOUS;
 		Principal principal = subject.getPrincipals(X500Principal.class).iterator().next();
 		return principal.getName();
 	}
@@ -105,7 +107,7 @@ public final class CurrentUser {
 	public final static Locale locale(Subject subject) {
 		Set<Locale> locales = subject.getPublicCredentials(Locale.class);
 		if (locales.isEmpty()) {
-			Locale defaultLocale = Activator.getNodeState().getDefaultLocale();
+			Locale defaultLocale = CmsContextImpl.getCmsContext().getDefaultLocale();
 			return defaultLocale;
 		} else
 			return locales.iterator().next();
@@ -116,7 +118,7 @@ public final class CurrentUser {
 		if (subject == null)
 			return true;
 		String username = getUsername(subject);
-		return username == null || username.equalsIgnoreCase(NodeConstants.ROLE_ANONYMOUS);
+		return username == null || username.equalsIgnoreCase(CmsConstants.ROLE_ANONYMOUS);
 	}
 
 	public CmsSession getCmsSession() {
@@ -150,7 +152,7 @@ public final class CurrentUser {
 		else
 			return false;
 		CmsSessionImpl cmsSession = CmsSessionImpl.getByUuid(nodeSessionId.toString());
-		
+
 		// FIXME logout all views
 		// TODO check why it is sometimes null
 		if (cmsSession != null)
