@@ -1,6 +1,6 @@
 MAJOR=2
 MINOR=3
-MICRO=5
+MICRO=6
 qualifier=.next
 
 category=org.argeo.commons
