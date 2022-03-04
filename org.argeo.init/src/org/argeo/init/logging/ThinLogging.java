@@ -26,6 +26,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
+import org.argeo.init.RuntimeContext;
+import org.argeo.init.Service;
+
 /**
  * A thin logging system based on the {@link Logger} framework. It is a
  * {@link Consumer} of configuration, and can be registered as such.
@@ -115,6 +118,15 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	}
 
 	private void close() {
+		RuntimeContext runtimeContext = Service.getRuntimeContext();
+		if (runtimeContext != null) {
+			try {
+				runtimeContext.waitForStop(0);
+			} catch (InterruptedException e) {
+				// silent
+			}
+		}
+
 		publisher.close();
 		try {
 			// we ait a bit in order to make sure all messages are flushed

@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 import org.argeo.init.RuntimeContext;
 import org.argeo.init.logging.ThinLoggerFinder;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -91,14 +92,25 @@ public class OsgiRuntimeContext implements RuntimeContext {
 	public void waitForStop(long timeout) throws InterruptedException {
 		if (framework == null)
 			throw new IllegalStateException("Framework is not initialised");
+
 		framework.waitForStop(timeout);
 	}
 
-	@Override
 	public void close() throws Exception {
+		// TODO make shutdown of dynamic service more robust
+		Bundle scrBundle = osgiBoot.getBundlesBySymbolicName().get("org.apache.felix.scr");
+		if (scrBundle != null) {
+			scrBundle.stop();
+			while (!(scrBundle.getState() <= Bundle.RESOLVED)) {
+				Thread.sleep(500);
+			}
+			Thread.sleep(1000);
+		}
+
 		stop(framework.getBundleContext());
 		if (framework != null)
 			framework.stop();
+
 	}
 
 }
