@@ -25,14 +25,14 @@ public class Service implements Runnable, AutoCloseable {
 
 	public static void main(String[] args) {
 		long pid = ProcessHandle.current().pid();
-		log.log(Logger.Level.DEBUG, "Starting with PID " + pid);
+		log.log(Logger.Level.DEBUG, "Argeo Init starting with PID " + pid);
 
 		// shutdown on exit
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try {
 				if (Service.runtimeContext != null) {
 					Service.runtimeContext.close();
-					//Service.runtimeContext.waitForStop(0);
+					Service.runtimeContext.waitForStop(0);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -62,6 +62,7 @@ public class Service implements Runnable, AutoCloseable {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		log.log(Logger.Level.DEBUG, "Argeo Init stopping with PID " + pid);
 	}
 
 }
