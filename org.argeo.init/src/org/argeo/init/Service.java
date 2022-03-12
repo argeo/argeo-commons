@@ -25,14 +25,15 @@ public class Service implements Runnable, AutoCloseable {
 
 	public static void main(String[] args) {
 		long pid = ProcessHandle.current().pid();
-		log.log(Logger.Level.DEBUG, "Starting with PID " + pid);
+		log.log(Logger.Level.DEBUG, "Argeo Init starting with PID " + pid);
 
 		// shutdown on exit
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try {
 				if (Service.runtimeContext != null) {
+//					System.out.println("Argeo Init stopping with PID " + pid);
 					Service.runtimeContext.close();
-					//Service.runtimeContext.waitForStop(0);
+					Service.runtimeContext.waitForStop(0);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -47,21 +48,26 @@ public class Service implements Runnable, AutoCloseable {
 //			log.log(Logger.Level.DEBUG, key + "=" + System.getProperty(key.toString()));
 //		}
 		try {
-			try (OsgiRuntimeContext osgiRuntimeContext = new OsgiRuntimeContext((Map<String, String>) config)) {
+			try {
+				OsgiRuntimeContext osgiRuntimeContext = new OsgiRuntimeContext((Map<String, String>) config);
 				osgiRuntimeContext.run();
 				Service.runtimeContext = osgiRuntimeContext;
 				Service.runtimeContext.waitForStop(0);
 			} catch (NoClassDefFoundError e) {
-				try (StaticRuntimeContext staticRuntimeContext = new StaticRuntimeContext((Map<String, String>) config)) {
-					staticRuntimeContext.run();
-					Service.runtimeContext = staticRuntimeContext;
-					Service.runtimeContext.waitForStop(0);
-				}
+				StaticRuntimeContext staticRuntimeContext = new StaticRuntimeContext((Map<String, String>) config);
+				staticRuntimeContext.run();
+				Service.runtimeContext = staticRuntimeContext;
+				Service.runtimeContext.waitForStop(0);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		log.log(Logger.Level.DEBUG, "Argeo Init stopped with PID " + pid);
 	}
 
+	
+	public static RuntimeContext getRuntimeContext() {
+		return runtimeContext;
+	}
 }
