@@ -1,7 +1,10 @@
 include sdk.mk
 .PHONY: clean all osgi jni
 
-all: osgi jni
+all: osgi jni move-rap
+	$(MAKE) -f Makefile-rcp.mk
+
+move-rap:
 	mkdir -p $(A2_OUTPUT)/$(A2_CATEGORY).eclipse.rap
 	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/$(A2_CATEGORY).eclipse.rap
 	touch $(BUILD_BASE)/*.rap/bnd.bnd
@@ -54,5 +57,6 @@ jni:
 clean:
 	rm -rf $(BUILD_BASE)
 	$(MAKE) -C jni clean
+	$(MAKE) -f Makefile-rcp.mk clean
 
 include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk
