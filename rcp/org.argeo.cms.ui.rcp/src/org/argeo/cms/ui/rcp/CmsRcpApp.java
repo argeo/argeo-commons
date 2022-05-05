@@ -13,12 +13,13 @@ import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsTheme;
 import org.argeo.api.cms.CmsUi;
 import org.argeo.api.cms.CmsView;
-import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.UxContext;
 import org.argeo.cms.osgi.CmsOsgiUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
@@ -46,6 +47,8 @@ public class CmsRcpApp implements CmsView {
 	private CmsApp cmsApp;
 	private CmsUiThread uiThread;
 
+	private CmsContext cmsContext;
+	
 	// CMS View
 	private String uid;
 	private LoginContext loginContext;
@@ -93,7 +96,7 @@ public class CmsRcpApp implements CmsView {
 
 		@Override
 		public void run() {
-			display = new Display();
+			display = Display.getDefault();
 			shell = new Shell(display);
 			shell.setText("Argeo CMS");
 			Composite parent = shell;
@@ -165,9 +168,15 @@ public class CmsRcpApp implements CmsView {
 
 	}
 
+	
+	
 	/*
 	 * CMS VIEW
 	 */
+
+	public void setCmsContext(CmsContext cmsContext) {
+		this.cmsContext = cmsContext;
+	}
 
 	@Override
 	public String getUid() {

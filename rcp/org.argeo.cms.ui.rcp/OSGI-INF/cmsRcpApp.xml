@@ -3,4 +3,5 @@
    <implementation class="org.argeo.cms.ui.rcp.CmsRcpApp"/>
    <reference bind="setCmsApp" cardinality="1..1" interface="org.argeo.api.cms.CmsApp" name="CmsApp" policy="dynamic"/>
    <reference bind="setEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static"/>
+   <reference bind="setCmsContext" cardinality="1..1" interface="org.argeo.api.cms.CmsContext" name="CmsContext" policy="static"/>
 </scr:component>
