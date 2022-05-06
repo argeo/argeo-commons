@@ -55,11 +55,18 @@ public class BundleCmsSwtTheme extends BundleCmsTheme implements CmsSwtTheme {
 			paths: for (String p : getImagesPaths()) {
 				int lastSlash = p.lastIndexOf('/');
 				String fileName = p;
+				String ext = "";
 				if (lastSlash >= 0)
 					fileName = p.substring(lastSlash + 1);
 				int lastDot = fileName.lastIndexOf('.');
-				if (lastDot >= 0)
+				if (lastDot >= 0) {
+					ext = fileName.substring(lastDot + 1);
 					fileName = fileName.substring(0, lastDot);
+				}
+
+				if ("svg".equals(ext))
+					continue paths;
+
 				if (fileName.equals(name)) {// matched
 					Image img = getImage(p);
 					int width = img.getBounds().width;

@@ -327,10 +327,15 @@ public class BundleCmsTheme implements CmsTheme {
 	@Override
 	public InputStream loadPath(String path) throws IOException {
 		URL url = themeBundle.getResource(path);
-		if (url == null)
-			throw new IllegalArgumentException(
-					"Path " + path + " not found in bundle " + themeBundle.getSymbolicName());
-		return url.openStream();
+		if (url == null) {
+			if (parentTheme != null)
+				return parentTheme.loadPath(path);
+			else
+				throw new IllegalArgumentException(
+						"Path " + path + " not found in bundle " + themeBundle.getSymbolicName());
+		} else {
+			return url.openStream();
+		}
 	}
 
 	private static Bundle findThemeBundle(BundleContext bundleContext, String themeId) {

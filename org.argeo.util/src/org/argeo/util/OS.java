@@ -1,7 +1,8 @@
 package org.argeo.util;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /** When OS specific informations are needed. */
 public class OS {
@@ -40,17 +41,25 @@ public class OS {
 			return new String[] { "cmd.exe", "/C" };
 	}
 
-	public static Integer getJvmPid() {
-		/*
-		 * This method works on most platforms (including Linux). Although when Java 9
-		 * comes along, there is a better way: long pid =
-		 * ProcessHandle.current().getPid();
-		 *
-		 * See:
-		 * http://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-
-		 * process-id
-		 */
-		String pidAndHost = ManagementFactory.getRuntimeMXBean().getName();
-		return Integer.parseInt(pidAndHost.substring(0, pidAndHost.indexOf('@')));
+	public static long getJvmPid() {
+		return ProcessHandle.current().pid();
+//		String pidAndHost = ManagementFactory.getRuntimeMXBean().getName();
+//		return Integer.parseInt(pidAndHost.substring(0, pidAndHost.indexOf('@')));
+	}
+
+	/**
+	 * Get the runtime directory. It will be the environment variable
+	 * XDG_RUNTIME_DIR if it is set, or ~/.cache/argeo if not.
+	 */
+	public static Path getRunDir() {
+		Path runDir;
+		String xdgRunDir = System.getenv("XDG_RUNTIME_DIR");
+		if (xdgRunDir != null) {
+			// TODO support multiple names
+			runDir = Paths.get(xdgRunDir);
+		} else {
+			runDir = Paths.get(System.getProperty("user.home"), ".cache/argeo");
+		}
+		return runDir;
 	}
 }

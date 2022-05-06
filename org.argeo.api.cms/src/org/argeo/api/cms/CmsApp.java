@@ -13,6 +13,8 @@ public interface CmsApp {
 	 */
 	final static String UI_NAME_PROPERTY = CmsApp.class.getName() + ".ui.name";
 
+	final static String CONTEXT_NAME_PROPERTY = "argeo.cms.app.contextName";
+
 	Set<String> getUiNames();
 
 	CmsUi initUi(Object uiParent);
