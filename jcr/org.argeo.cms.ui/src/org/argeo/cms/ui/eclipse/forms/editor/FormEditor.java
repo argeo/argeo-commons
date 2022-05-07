@@ -1,11 +1,7 @@
 package org.argeo.cms.ui.eclipse.forms.editor;
 
 import org.argeo.cms.ui.eclipse.forms.FormToolkit;
-import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.jface.dialogs.IPageChangeProvider;
-import org.eclipse.jface.dialogs.IPageChangedListener;
-import org.eclipse.jface.dialogs.PageChangedEvent;
-import org.eclipse.jface.util.SafeRunnable;
 
 /**
  * This class forms a base of multi-page form editors that typically use one or
@@ -54,36 +50,36 @@ public FormPage getActivePageInstance() {
 	// RAP [if] As RAP is still using workbench 3.4, the implementation of
 // IPageChangeProvider is missing from MultiPageEditorPart. Remove this code
 // with the adoption of workbench > 3.5
-	private ListenerList pageListeners = new ListenerList();
-	
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.IPageChangeProvider#addPageChangedListener(org.eclipse.jface.dialogs.IPageChangedListener)
-     */
-    public void addPageChangedListener(IPageChangedListener listener) {
-        pageListeners.add(listener);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.IPageChangeProvider#removePageChangedListener(org.eclipse.jface.dialogs.IPageChangedListener)
-     */
-    public void removePageChangedListener(IPageChangedListener listener) {
-        pageListeners.remove(listener);
-    }
-    
-	private void firePageChanged(final PageChangedEvent event) {
-        Object[] listeners = pageListeners.getListeners();
-        for (int i = 0; i < listeners.length; ++i) {
-            final IPageChangedListener l = (IPageChangedListener) listeners[i];
-            SafeRunnable.run(new SafeRunnable() {
-                public void run() {
-                    l.pageChanged(event);
-                }
-            });
-        }
-    }
+//	private ListenerList pageListeners = new ListenerList();
+//	
+//    /*
+//     * (non-Javadoc)
+//     * 
+//     * @see org.eclipse.jface.dialogs.IPageChangeProvider#addPageChangedListener(org.eclipse.jface.dialogs.IPageChangedListener)
+//     */
+//    public void addPageChangedListener(IPageChangedListener listener) {
+//        pageListeners.add(listener);
+//    }
+//
+//    /*
+//     * (non-Javadoc)
+//     * 
+//     * @see org.eclipse.jface.dialogs.IPageChangeProvider#removePageChangedListener(org.eclipse.jface.dialogs.IPageChangedListener)
+//     */
+//    public void removePageChangedListener(IPageChangedListener listener) {
+//        pageListeners.remove(listener);
+//    }
+//    
+//	private void firePageChanged(final PageChangedEvent event) {
+//        Object[] listeners = pageListeners.getListeners();
+//        for (int i = 0; i < listeners.length; ++i) {
+//            final IPageChangedListener l = (IPageChangedListener) listeners[i];
+//            SafeRunnable.run(new SafeRunnable() {
+//                public void run() {
+//                    l.pageChanged(event);
+//                }
+//            });
+//        }
+//    }
 // RAPEND [if]
 }

@@ -5,8 +5,8 @@ import org.eclipse.swt.graphics.Image;
 
 /** SWT specific {@link CmsTheme}. */
 public interface CmsSwtTheme extends CmsTheme {
-	/** The image registered at this path, or <code>null</code> if not found. */
-	Image getImage(String path);
+//	/** The image registered at this path, or <code>null</code> if not found. */
+//	Image getImage(String path);
 
 	/**
 	 * And icon with this file name (without the extension), with a best effort to

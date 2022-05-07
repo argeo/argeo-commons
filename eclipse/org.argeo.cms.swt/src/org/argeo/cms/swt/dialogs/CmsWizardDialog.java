@@ -179,7 +179,8 @@ public class CmsWizardDialog extends LightweightDialog implements IWizardContain
 	@Override
 	public void run(boolean fork, boolean cancelable, IRunnableWithProgress runnable)
 			throws InvocationTargetException, InterruptedException {
-		runnable.run(null);
+		// FIXME it creates a dependency to Eclipse Core Runtime
+		// runnable.run(null);
 	}
 
 	@Override

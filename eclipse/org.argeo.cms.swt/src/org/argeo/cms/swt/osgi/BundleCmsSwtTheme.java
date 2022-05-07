@@ -17,7 +17,7 @@ public class BundleCmsSwtTheme extends BundleCmsTheme implements CmsSwtTheme {
 
 	private Map<String, Map<Integer, String>> iconPaths = new HashMap<>();
 
-	public Image getImage(String path) {
+	protected Image getImage(String path) {
 		if (!imageCache.containsKey(path)) {
 			try (InputStream in = getResourceAsStream(path)) {
 				if (in == null)

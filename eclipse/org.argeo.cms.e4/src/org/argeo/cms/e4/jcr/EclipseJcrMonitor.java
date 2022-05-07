@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui.jcr;
+package org.argeo.cms.e4.jcr;
 
 import org.argeo.jcr.JcrMonitor;
 import org.eclipse.core.runtime.IProgressMonitor;

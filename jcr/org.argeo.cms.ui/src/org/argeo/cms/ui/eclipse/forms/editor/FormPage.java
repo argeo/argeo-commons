@@ -1,7 +1,6 @@
 package org.argeo.cms.ui.eclipse.forms.editor;
 import org.argeo.cms.ui.eclipse.forms.IManagedForm;
 import org.argeo.cms.ui.eclipse.forms.ManagedForm;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
@@ -201,10 +200,10 @@ public class FormPage implements IFormPage {
 	/**
 	 * @see org.eclipse.ui.ISaveablePart#doSave(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void doSave(IProgressMonitor monitor) {
-		if (mform != null)
-			mform.commit(true);
-	}
+//	public void doSave(IProgressMonitor monitor) {
+//		if (mform != null)
+//			mform.commit(true);
+//	}
 	/**
 	 * @see org.eclipse.ui.ISaveablePart#doSaveAs()
 	 */
