@@ -122,8 +122,6 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 				value.toString());
 		return previous;
 	}
-	
-	
 
 	@Override
 	public boolean hasText() {
@@ -169,13 +167,15 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	@Override
 	public Iterator<Content> iterator() {
 		NodeList nodeList = element.getChildNodes();
-		return new ElementIterator(session, provider, nodeList);
+		return new ElementIterator(this, session, provider, nodeList);
 	}
 
 	@Override
 	public Content getParent() {
 		Node parent = element.getParentNode();
 		if (parent == null)
+			return null;
+		if (parent instanceof Document)
 			return null;
 		if (!(parent instanceof Element))
 			throw new IllegalStateException("Parent is not an element");

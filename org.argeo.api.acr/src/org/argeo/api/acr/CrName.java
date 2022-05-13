@@ -12,6 +12,7 @@ public enum CrName implements ContentNameSupplier {
 	 * ATTRIBUTES
 	 */
 	UUID, // the UUID of a content
+	MOUNT,
 
 	/*
 	 * ATTRIBUTES FROM FILE SEMANTICS

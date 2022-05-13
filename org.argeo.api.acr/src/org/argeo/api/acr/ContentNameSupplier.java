@@ -45,7 +45,7 @@ public interface ContentNameSupplier extends Supplier<ContentName>, NamespaceCon
 
 	@Override
 	default String getNamespaceURI(String prefix) {
-		String namespaceURI = getStandardNamespaceURI(prefix);
+		String namespaceURI = NamespaceUtils.getStandardNamespaceURI(prefix);
 		if (namespaceURI != null)
 			return namespaceURI;
 		if (prefix.equals(getDefaultPrefix()))
@@ -55,7 +55,7 @@ public interface ContentNameSupplier extends Supplier<ContentName>, NamespaceCon
 
 	@Override
 	default String getPrefix(String namespaceURI) {
-		String prefix = getStandardPrefix(namespaceURI);
+		String prefix = NamespaceUtils.getStandardPrefix(namespaceURI);
 		if (prefix != null)
 			return prefix;
 		if (namespaceURI.equals(getNamespaceURI()))
@@ -65,42 +65,12 @@ public interface ContentNameSupplier extends Supplier<ContentName>, NamespaceCon
 
 	@Override
 	default Iterator<String> getPrefixes(String namespaceURI) {
-		Iterator<String> it = getStandardPrefixes(namespaceURI);
+		Iterator<String> it = NamespaceUtils.getStandardPrefixes(namespaceURI);
 		if (it != null)
 			return it;
 		if (namespaceURI.equals(getNamespaceURI()))
 			return Collections.singleton(getDefaultPrefix()).iterator();
 		return Collections.emptyIterator();
-	}
-
-	/*
-	 * DEFAULT NAMESPACE CONTEXT OPERATIONS as specified in NamespaceContext
-	 */
-	static String getStandardPrefix(String namespaceURI) {
-		if (namespaceURI == null)
-			throw new IllegalArgumentException("Namespace URI cannot be null");
-		if (XMLConstants.XML_NS_URI.equals(namespaceURI))
-			return XMLConstants.XML_NS_PREFIX;
-		else if (XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(namespaceURI))
-			return XMLConstants.XMLNS_ATTRIBUTE;
-		return null;
-	}
-
-	static Iterator<String> getStandardPrefixes(String namespaceURI) {
-		String prefix = ContentNameSupplier.getStandardPrefix(namespaceURI);
-		if (prefix == null)
-			return null;
-		return Collections.singleton(prefix).iterator();
-	}
-
-	static String getStandardNamespaceURI(String prefix) {
-		if (prefix == null)
-			throw new IllegalArgumentException("Prefix cannot be null");
-		if (XMLConstants.XML_NS_PREFIX.equals(prefix))
-			return XMLConstants.XML_NS_URI;
-		else if (XMLConstants.XMLNS_ATTRIBUTE.equals(prefix))
-			return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
-		return null;
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.argeo.cms.swt.gcr;
+package org.argeo.cms.swt.acr;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.cms.MvcProvider;

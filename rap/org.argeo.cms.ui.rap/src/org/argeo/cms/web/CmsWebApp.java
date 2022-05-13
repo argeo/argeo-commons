@@ -7,9 +7,9 @@ import java.util.Set;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAppListener;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsTheme;
 import org.argeo.api.cms.CmsView;
-import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.util.LangUtils;
 import org.eclipse.rap.rwt.RWT;
@@ -20,7 +20,6 @@ import org.eclipse.rap.rwt.application.ExceptionHandler;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventAdmin;
 
@@ -30,7 +29,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	private BundleContext bundleContext;
 	private CmsApp cmsApp;
-	private String cmsAppId;
+//	private String cmsAppId;
 	private EventAdmin eventAdmin;
 
 	private ServiceRegistration<ApplicationConfiguration> rwtAppReg;
@@ -124,13 +123,13 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	public void setCmsApp(CmsApp cmsApp, Map<String, String> properties) {
 		this.cmsApp = cmsApp;
-		this.cmsAppId = properties.get(Constants.SERVICE_PID);
+//		this.cmsAppId = properties.get(Constants.SERVICE_PID);
 		this.cmsApp.addCmsAppListener(this);
 	}
 
 	public void unsetCmsApp(CmsApp cmsApp, Map<String, String> properties) {
-		String cmsAppId = properties.get(Constants.SERVICE_PID);
-		if (!cmsAppId.equals(this.cmsAppId))
+		String contextName = properties.get(CmsApp.CONTEXT_NAME_PROPERTY);
+		if (!contextName.equals(this.contextName))
 			return;
 		if (this.cmsApp != null) {
 			this.cmsApp.removeCmsAppListener(this);

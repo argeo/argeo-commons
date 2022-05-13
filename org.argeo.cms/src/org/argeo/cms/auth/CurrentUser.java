@@ -121,7 +121,7 @@ public final class CurrentUser {
 		return username == null || username.equalsIgnoreCase(CmsConstants.ROLE_ANONYMOUS);
 	}
 
-	public CmsSession getCmsSession() {
+	public static CmsSession getCmsSession() {
 		Subject subject = currentSubject();
 		CmsSessionId cmsSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next();
 		return CmsSessionImpl.getByUuid(cmsSessionId.getUuid());

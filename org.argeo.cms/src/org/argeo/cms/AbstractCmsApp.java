@@ -16,7 +16,10 @@ public abstract class AbstractCmsApp implements CmsApp {
 
 	private List<CmsAppListener> cmsAppListeners = new ArrayList<>();
 
-	protected abstract String getThemeId(String uiName);
+	/** To be overridden in order to provide themes. */
+	protected String getThemeId(String uiName) {
+		return null;
+	}
 
 	@Override
 	public CmsTheme getTheme(String uiName) {
@@ -35,7 +38,7 @@ public abstract class AbstractCmsApp implements CmsApp {
 			String themeId = getThemeId(uiName);
 			if ("org.eclipse.rap.rwt.theme.Default".equals(themeId))
 				continue uiNames;
-			if (!themes.containsKey(themeId)) {
+			if (themeId != null && !themes.containsKey(themeId)) {
 				themeMissing = true;
 				break uiNames;
 			}

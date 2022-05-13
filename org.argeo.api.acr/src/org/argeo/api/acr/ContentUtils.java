@@ -66,12 +66,25 @@ public class ContentUtils {
 
 	}
 
-	public static <T> boolean isString(T t) {
-		return t instanceof String;
+//	public static <T> boolean isString(T t) {
+//		return t instanceof String;
+//	}
+
+	/**
+	 * Split a path (with '/' separator) in an array of length 2, the first part
+	 * being the parent path (which could be either absolute or relative), the
+	 * second one being the last segment, (guaranteed to be with '/').
+	 */
+	public static String[] getParentPath(String path) {
+		int parentIndex = path.lastIndexOf('/');
+		// TODO make it more robust
+		return new String[] { parentIndex != 0 ? path.substring(0, parentIndex) : "/",
+				path.substring(parentIndex + 1) };
 	}
 
 	/** Singleton. */
 	private ContentUtils() {
 
 	}
+
 }

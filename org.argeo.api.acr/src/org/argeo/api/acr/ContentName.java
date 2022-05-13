@@ -48,7 +48,7 @@ public class ContentName extends QName {
 	private static String checkPrefix(NamespaceContext nsContext, String namespaceURI) {
 		Objects.requireNonNull(nsContext, "Namespace context cannot be null");
 		Objects.requireNonNull(namespaceURI, "Namespace URI cannot be null");
-		String prefix = nsContext.getNamespaceURI(namespaceURI);
+		String prefix = nsContext.getPrefix(namespaceURI);
 		if (prefix == null)
 			throw new IllegalStateException("No prefix found for " + namespaceURI + " from context " + nsContext);
 		return prefix;

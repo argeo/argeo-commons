@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -13,11 +15,15 @@ import javax.xml.xpath.XPathFactory;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentNotFoundException;
+import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 public class DomContentProvider implements ContentProvider, NamespaceContext {
 	private Document document;
@@ -96,4 +102,5 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		return Collections.unmodifiableList(res).iterator();
 	}
 
+	
 }

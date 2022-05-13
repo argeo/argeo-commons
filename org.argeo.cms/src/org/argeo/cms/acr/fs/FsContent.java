@@ -22,13 +22,14 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.ContentResourceException;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.util.FsUtils;
 
 public class FsContent extends AbstractContent implements ProvidedContent {
-	private final static String USER_ = "user:";
+	final static String USER_ = "user:";
 
 	private static final Map<QName, String> BASIC_KEYS;
 	private static final Map<QName, String> POSIX_KEYS;
@@ -59,8 +60,10 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		// TODO check file names with ':' ?
 		if (isRoot)
 			this.name = CrName.ROOT.get();
-		else
-			this.name = session.parsePrefixedName(path.getFileName().toString());
+		else {
+			QName providerName = NamespaceUtils.parsePrefixedName(provider, path.getFileName().toString());
+			this.name = new ContentName(providerName, session);
+		}
 	}
 
 	protected FsContent(FsContent context, Path path) {
@@ -118,7 +121,9 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		if (udfav != null) {
 			try {
 				for (String name : udfav.list()) {
-					result.add(session.parsePrefixedName(name));
+					QName providerName = NamespaceUtils.parsePrefixedName(provider, name);
+					QName sessionName = new ContentName(providerName, session);
+					result.add(sessionName);
 				}
 			} catch (IOException e) {
 				throw new ContentResourceException("Cannot list attributes for " + path, e);
@@ -131,7 +136,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	protected void removeAttr(QName key) {
 		UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
 		try {
-			udfav.delete(session.toPrefixedName(key));
+			udfav.delete(NamespaceUtils.toPrefixedName(provider, key));
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot delete attribute " + key + " for " + path, e);
 		}
@@ -143,7 +148,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
 		ByteBuffer bb = ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
 		try {
-			int size = udfav.write(session.toPrefixedName(key), bb);
+			int size = udfav.write(NamespaceUtils.toPrefixedName(provider, key), bb);
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot delete attribute " + key + " for " + path, e);
 		}
@@ -154,7 +159,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		if (POSIX_KEYS.containsKey(key))
 			return POSIX_KEYS.get(key);
 		else
-			return USER_ + session.toPrefixedName(key);
+			return USER_ + NamespaceUtils.toPrefixedName(provider, key);
 	}
 
 	/*
@@ -176,7 +181,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	@Override
 	public Content add(QName name, QName... classes) {
 		try {
-			Path newPath = path.resolve(session.toPrefixedName(name));
+			Path newPath = path.resolve(NamespaceUtils.toPrefixedName(provider, name));
 			if (ContentName.contains(classes, CrName.COLLECTION.get()))
 				Files.createDirectory(newPath);
 			else

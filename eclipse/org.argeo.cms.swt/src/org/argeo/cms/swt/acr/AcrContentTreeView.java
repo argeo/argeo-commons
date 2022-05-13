@@ -1,4 +1,4 @@
-package org.argeo.cms.swt.gcr;
+package org.argeo.cms.swt.acr;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,14 +21,14 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-public class GcrContentTreeView extends Composite {
+public class AcrContentTreeView extends Composite {
 	private Tree tree;
 	private Table table;
 	private Content rootContent;
 
 	private Content selected;
 
-	public GcrContentTreeView(Composite parent, int style, Content content) {
+	public AcrContentTreeView(Composite parent, int style, Content content) {
 		super(parent, style);
 		this.rootContent = content;
 		this.selected = rootContent;
@@ -116,7 +116,7 @@ public class GcrContentTreeView extends Composite {
 		shell.setText(basePath.toString());
 		shell.setLayout(new FillLayout());
 
-		FsContentProvider contentSession = new FsContentProvider(basePath);
+		FsContentProvider contentSession = new FsContentProvider(basePath, true);
 //		GcrContentTreeView treeView = new GcrContentTreeView(shell, 0, contentSession.get("/"));
 
 		shell.setSize(shell.computeSize(800, 600));
