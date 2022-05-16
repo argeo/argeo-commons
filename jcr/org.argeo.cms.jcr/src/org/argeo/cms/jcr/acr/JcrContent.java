@@ -1,5 +1,7 @@
 package org.argeo.cms.jcr.acr;
 
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -17,6 +19,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.NamespaceUtils;
@@ -210,6 +213,11 @@ public class JcrContent extends AbstractContent {
 	 * ADAPTERS
 	 */
 	public <A> A adapt(Class<A> clss) {
+		if (Source.class.isAssignableFrom(clss)) {
+			PipedInputStream in = new PipedInputStream();
+			PipedOutputStream out = new PipedOutputStream();
+		}
+//		provider.getJcrSession(session, jcrWorkspace).exportDocumentView(jcrPath, out, true, false);
 
 		return super.adapt(clss);
 	}
