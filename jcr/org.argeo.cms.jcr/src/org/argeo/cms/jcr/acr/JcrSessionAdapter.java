@@ -10,6 +10,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.Subject;
 
+import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 
 /** Manages JCR {@link Session} in an ACR context. */
@@ -20,6 +21,8 @@ class JcrSessionAdapter {
 	private Map<Thread, Map<String, Session>> threadSessions = Collections.synchronizedMap(new HashMap<>());
 
 	private boolean closed = false;
+
+	private Thread lastRetrievingThread = null;
 
 	public JcrSessionAdapter(Repository repository, Subject subject) {
 		this.repository = repository;
@@ -42,6 +45,8 @@ class JcrSessionAdapter {
 			throw new IllegalStateException("JCR session adapter is closed.");
 
 		Thread currentThread = Thread.currentThread();
+		if (lastRetrievingThread == null)
+			lastRetrievingThread = currentThread;
 
 		Map<String, Session> threadSession = threadSessions.get(currentThread);
 		if (threadSession == null) {
@@ -61,6 +66,15 @@ class JcrSessionAdapter {
 			});
 			threadSession.put(workspace, session);
 		}
+
+		if (lastRetrievingThread != currentThread) {
+			try {
+				session.refresh(true);
+			} catch (RepositoryException e) {
+				throw new JcrException("Cannot refresh JCR session " + session, e);
+			}
+		}
+		lastRetrievingThread = currentThread;
 		return session;
 	}
 
