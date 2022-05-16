@@ -27,40 +27,45 @@ import org.argeo.jcr.JcrException;
 
 /** A JCR {@link Node} accessed as {@link Content}. */
 public class JcrContent extends AbstractContent {
-	private Node jcrNode;
+//	private Node jcrNode;
 
 	private JcrContentProvider provider;
 	private ProvidedSession session;
 
-	protected JcrContent(ProvidedSession session, JcrContentProvider provider, Node node) {
+	private String jcrWorkspace;
+	private String jcrPath;
+
+	protected JcrContent(ProvidedSession session, JcrContentProvider provider, String jcrWorkspace, String jcrPath) {
 		this.session = session;
 		this.provider = provider;
-		this.jcrNode = node;
+		this.jcrWorkspace = jcrWorkspace;
+		this.jcrPath = jcrPath;
 	}
 
 	@Override
 	public QName getName() {
-		String name = Jcr.getName(jcrNode);
+		String name = Jcr.getName(getJcrNode());
 		if (name.equals("")) {// root
-			name = Jcr.getWorkspaceName(jcrNode);
+			name = Jcr.getWorkspaceName(getJcrNode());
 		}
 		return NamespaceUtils.parsePrefixedName(provider, name);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <A> Optional<A> get(QName key, Class<A> clss) {
 		if (isDefaultAttrTypeRequested(clss)) {
-			return Optional.of((A) get(jcrNode, key.toString()));
+			return Optional.of((A) get(getJcrNode(), key.toString()));
 		}
-		return Optional.of((A) Jcr.get(jcrNode, key.toString()));
+		return Optional.of((A) Jcr.get(getJcrNode(), key.toString()));
 	}
 
 	@Override
 	public Iterator<Content> iterator() {
 		try {
-			return new JcrContentIterator(jcrNode.getNodes());
+			return new JcrContentIterator(getJcrNode().getNodes());
 		} catch (RepositoryException e) {
-			throw new JcrException("Cannot list children of " + jcrNode, e);
+			throw new JcrException("Cannot list children of " + getJcrNode(), e);
 		}
 	}
 
@@ -68,7 +73,7 @@ public class JcrContent extends AbstractContent {
 	protected Iterable<QName> keys() {
 		try {
 			Set<QName> keys = new HashSet<>();
-			properties: for (PropertyIterator propertyIterator = jcrNode.getProperties(); propertyIterator.hasNext();) {
+			for (PropertyIterator propertyIterator = getJcrNode().getProperties(); propertyIterator.hasNext();) {
 				Property property = propertyIterator.nextProperty();
 				// TODO convert standard names
 				// TODO skip technical properties
@@ -77,25 +82,17 @@ public class JcrContent extends AbstractContent {
 			}
 			return keys;
 		} catch (RepositoryException e) {
-			throw new JcrException("Cannot list properties of " + jcrNode, e);
+			throw new JcrException("Cannot list properties of " + getJcrNode(), e);
 		}
-
-//		return new Iterable<QName>() {
-//
-//			@Override
-//			public Iterator<QName> iterator() {
-//				try {
-//					PropertyIterator propertyIterator = jcrNode.getProperties();
-//					return new JcrKeyIterator(provider, propertyIterator);
-//				} catch (RepositoryException e) {
-//					throw new JcrException("Cannot retrive properties from " + jcrNode, e);
-//				}
-//			}
-//		};
 	}
 
 	public Node getJcrNode() {
-		return jcrNode;
+		try {
+			// TODO caching?
+			return provider.getJcrSession(session, jcrWorkspace).getNode(jcrPath);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot retrieve " + jcrPath + " from workspace " + jcrWorkspace, e);
+		}
 	}
 
 	/** Cast to a standard Java object. */
@@ -154,7 +151,7 @@ public class JcrContent extends AbstractContent {
 
 		@Override
 		public Content next() {
-			current = new JcrContent(session, provider, nodeIterator.nextNode());
+			current = new JcrContent(session, provider, jcrWorkspace, Jcr.getPath(nodeIterator.nextNode()));
 			return current;
 		}
 
@@ -169,7 +166,7 @@ public class JcrContent extends AbstractContent {
 
 	@Override
 	public Content getParent() {
-		return new JcrContent(session, provider, Jcr.getParent(getJcrNode()));
+		return new JcrContent(session, provider, jcrWorkspace, Jcr.getParentPath(getJcrNode()));
 	}
 
 	@Override
@@ -209,31 +206,37 @@ public class JcrContent extends AbstractContent {
 
 	}
 
-	class JcrKeyIterator implements Iterator<QName> {
-		private final JcrContentProvider contentSession;
-		private final PropertyIterator propertyIterator;
+	/*
+	 * ADAPTERS
+	 */
+	public <A> A adapt(Class<A> clss) {
 
-		protected JcrKeyIterator(JcrContentProvider contentSession, PropertyIterator propertyIterator) {
-			this.contentSession = contentSession;
-			this.propertyIterator = propertyIterator;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return propertyIterator.hasNext();
-		}
-
-		@Override
-		public QName next() {
-			Property property = null;
-			try {
-				property = propertyIterator.nextProperty();
-				// TODO map standard property names
-				return NamespaceUtils.parsePrefixedName(provider, property.getName());
-			} catch (RepositoryException e) {
-				throw new JcrException("Cannot retrieve property " + property, null);
-			}
-		}
-
+		return super.adapt(clss);
 	}
+
+//	class JcrKeyIterator implements Iterator<QName> {
+//		private final PropertyIterator propertyIterator;
+//
+//		protected JcrKeyIterator(PropertyIterator propertyIterator) {
+//			this.propertyIterator = propertyIterator;
+//		}
+//
+//		@Override
+//		public boolean hasNext() {
+//			return propertyIterator.hasNext();
+//		}
+//
+//		@Override
+//		public QName next() {
+//			Property property = null;
+//			try {
+//				property = propertyIterator.nextProperty();
+//				// TODO map standard property names
+//				return NamespaceUtils.parsePrefixedName(provider, property.getName());
+//			} catch (RepositoryException e) {
+//				throw new JcrException("Cannot retrieve property " + property, null);
+//			}
+//		}
+//
+//	}
 }

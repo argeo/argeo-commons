@@ -3,9 +3,7 @@ package org.argeo.cms.jcr.acr;
 import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;

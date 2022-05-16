@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -41,7 +40,12 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 
 	@Override
 	public Content get(ProvidedSession contentSession, String mountPath, String relativePath) {
-		String workspace = ContentUtils.getParentPath(mountPath)[1];
+		String jcrWorkspace = ContentUtils.getParentPath(mountPath)[1];
+		String jcrPath = "/" + relativePath;
+		return new JcrContent(contentSession, this, jcrWorkspace, jcrPath);
+	}
+
+	public Session getJcrSession(ProvidedSession contentSession, String jcrWorkspace) {
 		JcrSessionAdapter sessionAdapter = sessionAdapters.get(contentSession);
 		if (sessionAdapter == null) {
 			final JcrSessionAdapter newSessionAdapter = new JcrSessionAdapter(jcrRepository,
@@ -51,15 +55,8 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 			sessionAdapter = newSessionAdapter;
 		}
 
-		Session jcrSession = sessionAdapter.getSession(workspace);
-		String jcrPath = "/" + relativePath;
-		try {
-			Node node = jcrSession.getNode(jcrPath);
-			return new JcrContent(contentSession, this, node);
-		} catch (RepositoryException e) {
-			throw new JcrException("Cannot get JCR content '" + jcrPath + ", mounted from '" + mountPath
-					+ "' with JCR session " + jcrSession, e);
-		}
+		Session jcrSession = sessionAdapter.getSession(jcrWorkspace);
+		return jcrSession;
 	}
 
 	/*
