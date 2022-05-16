@@ -11,7 +11,7 @@ import org.argeo.cms.acr.fs.FsContentProvider;
 import org.argeo.util.LangUtils;
 
 public class DeployedContentRepository extends CmsContentRepository {
-	private final static String ROOT_XML = "root.xml";
+	private final static String ROOT_XML = "cr:root.xml";
 	private final static String ACR_MOUNT_PATH = "acr.mount.path";
 
 	private CmsState cmsState;
@@ -19,12 +19,12 @@ public class DeployedContentRepository extends CmsContentRepository {
 	@Override
 	public void start() {
 		super.start();
-		Path rootXml = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_NODE).resolve(ROOT_XML);
+		Path rootXml = KernelUtils.getOsgiInstancePath(ROOT_XML);
 		initRootContentProvider(rootXml);
 
-		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);
-		FsContentProvider srvContentProvider = new FsContentProvider(srvPath, false);
-		addProvider("/" + CmsConstants.SRV_WORKSPACE, srvContentProvider);
+//		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);
+//		FsContentProvider srvContentProvider = new FsContentProvider(srvPath, false);
+//		addProvider("/" + CmsConstants.SRV_WORKSPACE, srvContentProvider);
 	}
 
 	@Override
