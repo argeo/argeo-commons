@@ -1,5 +1,8 @@
 package org.argeo.cms.jcr.acr;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
@@ -9,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -20,6 +24,7 @@ import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.NamespaceUtils;
@@ -27,6 +32,7 @@ import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
+import org.argeo.jcr.JcrUtils;
 
 /** A JCR {@link Node} accessed as {@link Content}. */
 public class JcrContent extends AbstractContent {
@@ -214,12 +220,40 @@ public class JcrContent extends AbstractContent {
 	 */
 	public <A> A adapt(Class<A> clss) {
 		if (Source.class.isAssignableFrom(clss)) {
+//			try {
 			PipedInputStream in = new PipedInputStream();
-			PipedOutputStream out = new PipedOutputStream();
-		}
-//		provider.getJcrSession(session, jcrWorkspace).exportDocumentView(jcrPath, out, true, false);
 
-		return super.adapt(clss);
+			ForkJoinPool.commonPool().execute(() -> {
+				try (PipedOutputStream out = new PipedOutputStream(in)) {
+					provider.getJcrSession(session, jcrWorkspace).exportDocumentView(jcrPath, out, true, false);
+					out.flush();
+				} catch (IOException | RepositoryException e) {
+					throw new RuntimeException("Cannot export " + jcrPath + " in workspace " + jcrWorkspace, e);
+				}
+
+			});
+			return (A) new StreamSource(in);
+//			} catch (IOException e) {
+//				throw new RuntimeException("Cannot adapt " + JcrContent.this + " to " + clss, e);
+//			}
+		} else
+
+			return super.adapt(clss);
+	}
+
+	@Override
+	public <C extends Closeable> C open(Class<C> clss) throws IOException, IllegalArgumentException {
+		if (InputStream.class.isAssignableFrom(clss)) {
+			Node node = getJcrNode();
+			if (Jcr.isNodeType(node, NodeType.NT_FILE)) {
+				try {
+					return (C) JcrUtils.getFileAsStream(node);
+				} catch (RepositoryException e) {
+					throw new JcrException("Cannot open " + jcrPath + " in workspace " + jcrWorkspace, e);
+				}
+			}
+		}
+		return super.open(clss);
 	}
 
 //	class JcrKeyIterator implements Iterator<QName> {

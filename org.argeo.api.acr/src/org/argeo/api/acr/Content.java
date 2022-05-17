@@ -1,5 +1,7 @@
 package org.argeo.api.acr;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -85,7 +87,7 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		throw new IllegalArgumentException("Cannot adapt content " + this + " to " + clss.getName());
 	}
 
-	default <C extends AutoCloseable> C open(Class<C> clss) throws Exception, IllegalArgumentException {
+	default <C extends Closeable> C open(Class<C> clss) throws IOException, IllegalArgumentException {
 		throw new IllegalArgumentException("Cannot open content " + this + " as " + clss.getName());
 	}
 

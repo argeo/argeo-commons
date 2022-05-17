@@ -243,6 +243,8 @@ public class CmsContentRepository implements ProvidedRepository {
 			String mountPath = entry.getKey();
 			ContentProvider provider = entry.getValue();
 			String relativePath = path.substring(mountPath.length());
+			if (relativePath.length() > 0 && relativePath.charAt(0) == '/')
+				relativePath = relativePath.substring(1);
 			return provider.get(CmsContentSession.this, mountPath, relativePath);
 		}
 
