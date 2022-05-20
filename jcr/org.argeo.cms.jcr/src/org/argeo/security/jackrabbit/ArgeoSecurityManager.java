@@ -24,25 +24,21 @@ import org.apache.jackrabbit.core.security.authentication.CallbackHandlerImpl;
 import org.apache.jackrabbit.core.security.authorization.WorkspaceAccessManager;
 import org.apache.jackrabbit.core.security.principal.AdminPrincipal;
 import org.apache.jackrabbit.core.security.principal.PrincipalProvider;
-import org.argeo.api.cms.CmsSession;
-import org.argeo.api.cms.DataAdminPrincipal;
-import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.AnonymousPrincipal;
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.osgi.CmsOsgiUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.DataAdminPrincipal;
 
 /** Customises Jackrabbit security. */
 public class ArgeoSecurityManager extends DefaultSecurityManager {
 	private final static CmsLog log = CmsLog.getLog(ArgeoSecurityManager.class);
 
-	private BundleContext cmsBundleContext = null;
+//	private BundleContext cmsBundleContext = null;
 
 	public ArgeoSecurityManager() {
-		if (FrameworkUtil.getBundle(CmsSession.class) != null) {
-			cmsBundleContext = FrameworkUtil.getBundle(CmsSession.class).getBundleContext();
-		}
+//		if (FrameworkUtil.getBundle(CmsSession.class) != null) {
+//			cmsBundleContext = FrameworkUtil.getBundle(CmsSession.class).getBundleContext();
+//		}
 	}
 
 	public AuthContext getAuthContext(Credentials creds, Subject subject, String workspaceName)
@@ -82,12 +78,12 @@ public class ArgeoSecurityManager extends DefaultSecurityManager {
 		boolean isJackrabbitSystem = !subject.getPrincipals(SystemPrincipal.class).isEmpty();
 		Set<X500Principal> userPrincipal = subject.getPrincipals(X500Principal.class);
 		boolean isRegularUser = !userPrincipal.isEmpty();
-		CmsSession cmsSession = null;
-		if (cmsBundleContext != null) {
-			cmsSession = CmsOsgiUtils.getCmsSession(cmsBundleContext, subject);
-			if (log.isTraceEnabled())
-				log.trace("Opening JCR session for CMS session " + cmsSession);
-		}
+//		CmsSession cmsSession = null;
+//		if (cmsBundleContext != null) {
+//			cmsSession = CmsOsgiUtils.getCmsSession(cmsBundleContext, subject);
+//			if (log.isTraceEnabled())
+//				log.trace("Opening JCR session for CMS session " + cmsSession);
+//		}
 
 		if (isAnonymous) {
 			if (isDataAdmin || isJackrabbitSystem || isRegularUser)
