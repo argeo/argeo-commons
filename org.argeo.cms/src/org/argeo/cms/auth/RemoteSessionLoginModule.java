@@ -17,9 +17,8 @@ import javax.security.auth.spi.LoginModule;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.internal.runtime.KernelUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
@@ -34,7 +33,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 	private RemoteAuthRequest request = null;
 	private RemoteAuthResponse response = null;
 
-	private BundleContext bc;
+//	private BundleContext bc;
 
 	private Authorization authorization;
 	private Locale locale;
@@ -43,8 +42,8 @@ public class RemoteSessionLoginModule implements LoginModule {
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
-		bc = FrameworkUtil.getBundle(RemoteSessionLoginModule.class).getBundleContext();
-		assert bc != null;
+//		bc = FrameworkUtil.getBundle(RemoteSessionLoginModule.class).getBundleContext();
+//		assert bc != null;
 		this.subject = subject;
 		this.callbackHandler = callbackHandler;
 		this.sharedState = (Map<String, Object>) sharedState;
@@ -71,8 +70,8 @@ public class RemoteSessionLoginModule implements LoginModule {
 			String httpSessionId = httpSession.getId();
 //			if (log.isTraceEnabled())
 //				log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
-			CmsSessionImpl cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
-			if (cmsSession != null) {
+			CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessionId);
+			if (cmsSession != null && !cmsSession.isAnonymous()) {
 				authorization = cmsSession.getAuthorization();
 				locale = cmsSession.getLocale();
 				if (log.isTraceEnabled())
@@ -91,8 +90,8 @@ public class RemoteSessionLoginModule implements LoginModule {
 				String httpSessionId = httpSession.getId();
 //				if (log.isTraceEnabled())
 //					log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
-				CmsSessionImpl cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
-				if (cmsSession != null) {
+				CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessionId);
+				if (cmsSession != null && !cmsSession.isAnonymous()) {
 					authorization = cmsSession.getAuthorization();
 					locale = cmsSession.getLocale();
 					if (log.isTraceEnabled())

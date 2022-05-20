@@ -28,6 +28,7 @@ import javax.security.auth.x500.X500Principal;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.security.NodeSecurityUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -39,7 +40,7 @@ import org.osgi.service.useradmin.Authorization;
 /** Default CMS session implementation. */
 public class CmsSessionImpl implements CmsSession, Serializable {
 	private static final long serialVersionUID = 1867719354246307225L;
-	private final static BundleContext bc = FrameworkUtil.getBundle(CmsSessionImpl.class).getBundleContext();
+//	private final static BundleContext bc = FrameworkUtil.getBundle(CmsSessionImpl.class).getBundleContext();
 	private final static CmsLog log = CmsLog.getLog(CmsSessionImpl.class);
 
 	// private final Subject initialSubject;
@@ -85,18 +86,20 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 			this.userDn = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
 			this.anonymous = true;
 		}
+		// TODO use time-based UUID?
 		this.uuid = UUID.randomUUID();
 		// register as service
-		Hashtable<String, String> props = new Hashtable<>();
-		props.put(CmsSession.USER_DN, userDn.toString());
-		props.put(CmsSession.SESSION_UUID, uuid.toString());
-		props.put(CmsSession.SESSION_LOCAL_ID, localSessionId);
-		serviceRegistration = bc.registerService(CmsSession.class, this, props);
+//		Hashtable<String, String> props = new Hashtable<>();
+//		props.put(CmsSession.USER_DN, userDn.toString());
+//		props.put(CmsSession.SESSION_UUID, uuid.toString());
+//		props.put(CmsSession.SESSION_LOCAL_ID, localSessionId);
+//		serviceRegistration = bc.registerService(CmsSession.class, this, props);
 	}
 
 	public void close() {
 		end = ZonedDateTime.now();
-		serviceRegistration.unregister();
+		CmsContextImpl.getCmsContext().unregisterCmsSession(this);
+//		serviceRegistration.unregister();
 
 		for (Consumer<CmsSession> onClose : onCloseCallbacks) {
 			onClose.accept(this);
@@ -205,59 +208,59 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 	}
 
 	public String toString() {
-		return "CMS Session " + userDn + " local=" + localSessionId + ", uuid=" + uuid;
+		return "CMS Session " + userDn + " localId=" + localSessionId + ", uuid=" + uuid;
 	}
 
-	public static CmsSessionImpl getByLocalId(String localId) {
-		Collection<ServiceReference<CmsSession>> sr;
-		try {
-			sr = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_LOCAL_ID + "=" + localId + ")");
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Cannot get CMS session for id " + localId, e);
-		}
-		ServiceReference<CmsSession> cmsSessionRef;
-		if (sr.size() == 1) {
-			cmsSessionRef = sr.iterator().next();
-			return (CmsSessionImpl) bc.getService(cmsSessionRef);
-		} else if (sr.size() == 0) {
-			return null;
-		} else
-			throw new IllegalStateException(sr.size() + " CMS sessions registered for " + localId);
-
-	}
-
-	public static CmsSessionImpl getByUuid(Object uuid) {
-		Collection<ServiceReference<CmsSession>> sr;
-		try {
-			sr = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_UUID + "=" + uuid + ")");
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Cannot get CMS session for uuid " + uuid, e);
-		}
-		ServiceReference<CmsSession> cmsSessionRef;
-		if (sr.size() == 1) {
-			cmsSessionRef = sr.iterator().next();
-			return (CmsSessionImpl) bc.getService(cmsSessionRef);
-		} else if (sr.size() == 0) {
-			return null;
-		} else
-			throw new IllegalStateException(sr.size() + " CMS sessions registered for " + uuid);
-
-	}
-
-	public static void closeInvalidSessions() {
-		Collection<ServiceReference<CmsSession>> srs;
-		try {
-			srs = bc.getServiceReferences(CmsSession.class, null);
-			for (ServiceReference<CmsSession> sr : srs) {
-				CmsSession cmsSession = bc.getService(sr);
-				if (!cmsSession.isValid()) {
-					((CmsSessionImpl) cmsSession).close();
-					if (log.isDebugEnabled())
-						log.debug("Closed expired CMS session " + cmsSession);
-				}
-			}
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Cannot get CMS sessions", e);
-		}
-	}
+//	public static CmsSessionImpl getByLocalId(String localId) {
+//		Collection<ServiceReference<CmsSession>> sr;
+//		try {
+//			sr = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_LOCAL_ID + "=" + localId + ")");
+//		} catch (InvalidSyntaxException e) {
+//			throw new IllegalArgumentException("Cannot get CMS session for id " + localId, e);
+//		}
+//		ServiceReference<CmsSession> cmsSessionRef;
+//		if (sr.size() == 1) {
+//			cmsSessionRef = sr.iterator().next();
+//			return (CmsSessionImpl) bc.getService(cmsSessionRef);
+//		} else if (sr.size() == 0) {
+//			return null;
+//		} else
+//			throw new IllegalStateException(sr.size() + " CMS sessions registered for " + localId);
+//
+//	}
+//
+//	public static CmsSessionImpl getByUuid(Object uuid) {
+//		Collection<ServiceReference<CmsSession>> sr;
+//		try {
+//			sr = bc.getServiceReferences(CmsSession.class, "(" + CmsSession.SESSION_UUID + "=" + uuid + ")");
+//		} catch (InvalidSyntaxException e) {
+//			throw new IllegalArgumentException("Cannot get CMS session for uuid " + uuid, e);
+//		}
+//		ServiceReference<CmsSession> cmsSessionRef;
+//		if (sr.size() == 1) {
+//			cmsSessionRef = sr.iterator().next();
+//			return (CmsSessionImpl) bc.getService(cmsSessionRef);
+//		} else if (sr.size() == 0) {
+//			return null;
+//		} else
+//			throw new IllegalStateException(sr.size() + " CMS sessions registered for " + uuid);
+//
+//	}
+//
+//	public static void closeInvalidSessions() {
+//		Collection<ServiceReference<CmsSession>> srs;
+//		try {
+//			srs = bc.getServiceReferences(CmsSession.class, null);
+//			for (ServiceReference<CmsSession> sr : srs) {
+//				CmsSession cmsSession = bc.getService(sr);
+//				if (!cmsSession.isValid()) {
+//					((CmsSessionImpl) cmsSession).close();
+//					if (log.isDebugEnabled())
+//						log.debug("Closed expired CMS session " + cmsSession);
+//				}
+//			}
+//		} catch (InvalidSyntaxException e) {
+//			throw new IllegalArgumentException("Cannot get CMS sessions", e);
+//		}
+//	}
 }

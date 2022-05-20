@@ -8,14 +8,12 @@ import java.util.function.Supplier;
 import javax.security.auth.Subject;
 
 import org.argeo.api.cms.CmsSession;
-import org.argeo.cms.osgi.CmsOsgiUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 
 /** Remote authentication utilities. */
 public class RemoteAuthUtils {
 	static final String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
-	private static BundleContext bundleContext = FrameworkUtil.getBundle(RemoteAuthUtils.class).getBundleContext();
+//	private static BundleContext bundleContext = FrameworkUtil.getBundle(RemoteAuthUtils.class).getBundleContext();
 
 	/**
 	 * Execute this supplier, using the CMS class loader as context classloader.
@@ -58,7 +56,7 @@ public class RemoteAuthUtils {
 	public static CmsSession getCmsSession(RemoteAuthRequest req) {
 		Subject subject = Subject
 				.getSubject((AccessControlContext) req.getAttribute(AccessControlContext.class.getName()));
-		CmsSession cmsSession = CmsOsgiUtils.getCmsSession(bundleContext, subject);
+		CmsSession cmsSession = CmsContextImpl.getCmsContext().getCmsSession(subject);
 		return cmsSession;
 	}
 }

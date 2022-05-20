@@ -80,7 +80,7 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean login() throws LoginException {
-		UserAdmin userAdmin = CmsContextImpl.getUserAdmin();
+		UserAdmin userAdmin = CmsContextImpl.getCmsContext().getUserAdmin();
 		final String username;
 		final char[] password;
 		Object certificateChain = null;
@@ -212,7 +212,7 @@ public class UserAdminLoginModule implements LoginModule {
 //		if (singleUser) {
 //			OsUserUtils.loginAsSystemUser(subject);
 //		}
-		UserAdmin userAdmin = CmsContextImpl.getUserAdmin();
+		UserAdmin userAdmin = CmsContextImpl.getCmsContext().getUserAdmin();
 		Authorization authorization;
 		if (callbackHandler == null) {// anonymous
 			authorization = userAdmin.getAuthorization(null);

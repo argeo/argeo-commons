@@ -30,4 +30,6 @@ public interface CmsApp {
 	void addCmsAppListener(CmsAppListener listener);
 
 	void removeCmsAppListener(CmsAppListener listener);
+
+	CmsContext getCmsContext();
 }

@@ -1,23 +1,18 @@
 package org.argeo.cms.e4.parts;
 
-import java.security.AccessController;
 import java.time.ZonedDateTime;
 
 import javax.annotation.PostConstruct;
-import javax.security.auth.Subject;
 
 import org.argeo.api.cms.CmsSession;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.osgi.CmsOsgiUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 
 /** A canonical view of the logged in user. */
 public class EgoDashboard {
-	private BundleContext bc = FrameworkUtil.getBundle(EgoDashboard.class).getBundleContext();
+//	private BundleContext bc = FrameworkUtil.getBundle(EgoDashboard.class).getBundleContext();
 
 	@PostConstruct
 	public void createPartControl(Composite p) {
@@ -33,14 +28,14 @@ public class EgoDashboard {
 			CmsSwtUtils.txt(p, role);
 		}
 
-		Subject subject = Subject.getSubject(AccessController.getContext());
-		if (subject != null) {
-			CmsSession cmsSession = CmsOsgiUtils.getCmsSession(bc, subject);
-			ZonedDateTime loggedIndSince = cmsSession.getCreationTime();
-			CmsSwtUtils.lbl(p, "Session:");
-			CmsSwtUtils.txt(p, cmsSession.getUuid().toString());
-			CmsSwtUtils.lbl(p, "Logged in since:");
-			CmsSwtUtils.txt(p, loggedIndSince.toString());
-		}
+//		Subject subject = Subject.getSubject(AccessController.getContext());
+//		if (subject != null) {
+		CmsSession cmsSession = CurrentUser.getCmsSession();
+		ZonedDateTime loggedIndSince = cmsSession.getCreationTime();
+		CmsSwtUtils.lbl(p, "Session:");
+		CmsSwtUtils.txt(p, cmsSession.getUuid().toString());
+		CmsSwtUtils.lbl(p, "Logged in since:");
+		CmsSwtUtils.txt(p, loggedIndSince.toString());
+//		}
 	}
 }

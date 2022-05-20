@@ -124,7 +124,7 @@ public final class CurrentUser {
 	public static CmsSession getCmsSession() {
 		Subject subject = currentSubject();
 		CmsSessionId cmsSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next();
-		return CmsSessionImpl.getByUuid(cmsSessionId.getUuid());
+		return CmsContextImpl.getCmsContext().getCmsSessionByUuid(cmsSessionId.getUuid());
 	}
 
 	/*
@@ -151,7 +151,7 @@ public final class CurrentUser {
 			nodeSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
 		else
 			return false;
-		CmsSessionImpl cmsSession = CmsSessionImpl.getByUuid(nodeSessionId.toString());
+		CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByUuid(nodeSessionId);
 
 		// FIXME logout all views
 		// TODO check why it is sometimes null

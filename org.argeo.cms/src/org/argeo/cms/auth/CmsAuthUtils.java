@@ -19,6 +19,7 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.security.NodeSecurityUtils;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.osgi.framework.BundleContext;
@@ -136,7 +137,7 @@ class CmsAuthUtils {
 			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
 
 			CmsSessionImpl cmsSession;
-			CmsSessionImpl currentLocalSession = CmsSessionImpl.getByLocalId(httpSessId);
+			CmsSessionImpl currentLocalSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessId);
 			if (currentLocalSession != null) {
 				boolean currentLocalSessionAnonymous = currentLocalSession.getAuthorization().getName() == null;
 				if (!anonymous) {
@@ -165,6 +166,7 @@ class CmsAuthUtils {
 			} else {
 				// new CMS session
 				cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
+				CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 			}
 
 			if (cmsSession == null)// should be dead code (cf. SuppressWarning of the method)
@@ -181,33 +183,34 @@ class CmsAuthUtils {
 			}
 		} else {
 			CmsSessionImpl cmsSession = new CmsSessionImpl(subject, authorization, locale, "desktop");
+			CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
 			subject.getPrivateCredentials().add(nodeSessionId);
 		}
 	}
 
-	public static CmsSessionImpl cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
-		Authorization authorization = null;
-		Collection<ServiceReference<CmsSession>> sr;
-		try {
-			sr = bc.getServiceReferences(CmsSession.class,
-					"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Cannot get CMS session for id " + httpSessionId, e);
-		}
-		CmsSessionImpl cmsSession;
-		if (sr.size() == 1) {
-			cmsSession = (CmsSessionImpl) bc.getService(sr.iterator().next());
-//			locale = cmsSession.getLocale();
-			authorization = cmsSession.getAuthorization();
-			if (authorization.getName() == null)
-				return null;// anonymous is not sufficient
-		} else if (sr.size() == 0)
-			return null;
-		else
-			throw new IllegalStateException(sr.size() + ">1 web sessions detected for http session " + httpSessionId);
-		return cmsSession;
-	}
+//	public static CmsSessionImpl cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
+//		Authorization authorization = null;
+//		Collection<ServiceReference<CmsSession>> sr;
+//		try {
+//			sr = bc.getServiceReferences(CmsSession.class,
+//					"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
+//		} catch (InvalidSyntaxException e) {
+//			throw new IllegalArgumentException("Cannot get CMS session for id " + httpSessionId, e);
+//		}
+//		CmsSessionImpl cmsSession;
+//		if (sr.size() == 1) {
+//			cmsSession = (CmsSessionImpl) bc.getService(sr.iterator().next());
+////			locale = cmsSession.getLocale();
+//			authorization = cmsSession.getAuthorization();
+//			if (authorization.getName() == null)
+//				return null;// anonymous is not sufficient
+//		} else if (sr.size() == 0)
+//			return null;
+//		else
+//			throw new IllegalStateException(sr.size() + ">1 web sessions detected for http session " + httpSessionId);
+//		return cmsSession;
+//	}
 
 	public static <T extends Principal> T getSinglePrincipal(Subject subject, Class<T> clss) {
 		Set<T> principals = subject.getPrincipals(clss);

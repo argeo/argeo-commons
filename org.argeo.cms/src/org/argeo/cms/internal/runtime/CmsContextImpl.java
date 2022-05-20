@@ -3,18 +3,25 @@ package org.argeo.cms.internal.runtime;
 import static java.util.Locale.ENGLISH;
 
 import java.lang.management.ManagementFactory;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+
+import javax.security.auth.Subject;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsSessionId;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.LocaleUtils;
-import org.argeo.cms.internal.osgi.NodeUserAdmin;
+import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.ietf.jgss.GSSCredential;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -34,6 +41,10 @@ public class CmsContextImpl implements CmsContext {
 	private List<Locale> locales = null;
 
 	private Long availableSince;
+
+	// CMS sessions
+	private Map<UUID, CmsSessionImpl> cmsSessionsByUuid = new HashMap<>();
+	private Map<String, CmsSessionImpl> cmsSessionsByLocalId = new HashMap<>();
 
 //	public CmsContextImpl() {
 //		initTrackers();
@@ -164,20 +175,20 @@ public class CmsContextImpl implements CmsContext {
 	 * STATIC
 	 */
 
-	public synchronized static CmsContext getCmsContext() {
+	public synchronized static CmsContextImpl getCmsContext() {
 		return getInstance();
 	}
 
-	/** Required by USER login module. */
-	public synchronized static UserAdmin getUserAdmin() {
-		return getInstance().userAdmin;
-	}
+//	/** Required by USER login module. */
+//	public synchronized static UserAdmin getUserAdmin() {
+//		return getInstance().userAdmin;
+//	}
 
 	/** Required by SPNEGO login module. */
 	@Deprecated
 	public synchronized static GSSCredential getAcceptorCredentials() {
 		// FIXME find a cleaner way
-		return ((NodeUserAdmin) getInstance().userAdmin).getAcceptorCredentials();
+		return ((CmsUserAdmin) getInstance().userAdmin).getAcceptorCredentials();
 	}
 
 	private synchronized static void setInstance(CmsContextImpl cmsContextImpl) {
@@ -196,6 +207,47 @@ public class CmsContextImpl implements CmsContext {
 		} catch (InterruptedException | ExecutionException e) {
 			throw new IllegalStateException("Cannot retrieve CMS Context", e);
 		}
+	}
+
+	public UserAdmin getUserAdmin() {
+		return userAdmin;
+	}
+
+	/*
+	 * CMS Sessions
+	 */
+
+	@Override
+	public synchronized CmsSession getCmsSession(Subject subject) {
+		if (subject.getPrivateCredentials(CmsSessionId.class).isEmpty())
+			return null;
+		CmsSessionId cmsSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next();
+		return getCmsSessionByUuid(cmsSessionId.getUuid());
+	}
+
+	public synchronized void registerCmsSession(CmsSessionImpl cmsSession) {
+		if (cmsSessionsByUuid.containsKey(cmsSession.getUuid())
+				|| cmsSessionsByLocalId.containsKey(cmsSession.getLocalId()))
+			throw new IllegalStateException("CMS session " + cmsSession + " is already registered.");
+		cmsSessionsByUuid.put(cmsSession.getUuid(), cmsSession);
+		cmsSessionsByLocalId.put(cmsSession.getLocalId(), cmsSession);
+	}
+
+	public synchronized void unregisterCmsSession(CmsSessionImpl cmsSession) {
+		if (!cmsSessionsByUuid.containsKey(cmsSession.getUuid())
+				|| !cmsSessionsByLocalId.containsKey(cmsSession.getLocalId()))
+			throw new IllegalStateException("CMS session " + cmsSession + " is not registered.");
+		CmsSession removed = cmsSessionsByUuid.remove(cmsSession.getUuid());
+		assert removed == cmsSession;
+		cmsSessionsByLocalId.remove(cmsSession.getLocalId());
+	}
+
+	public synchronized CmsSessionImpl getCmsSessionByUuid(UUID uuid) {
+		return cmsSessionsByUuid.get(uuid);
+	}
+
+	public synchronized CmsSessionImpl getCmsSessionByLocalId(String localId) {
+		return cmsSessionsByLocalId.get(localId);
 	}
 
 }

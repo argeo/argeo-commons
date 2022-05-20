@@ -20,7 +20,6 @@ import org.argeo.api.cms.CmsTheme;
 import org.argeo.api.cms.CmsUi;
 import org.argeo.api.cms.CmsView;
 import org.argeo.api.cms.UxContext;
-import org.argeo.cms.osgi.CmsOsgiUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.e4.ui.css.core.engine.CSSEngine;
 import org.eclipse.e4.ui.css.core.engine.CSSErrorHandler;
@@ -158,7 +157,7 @@ public class CmsRcpApp implements CmsView {
 
 	@Override
 	public CmsSession getCmsSession() {
-		CmsSession cmsSession = CmsOsgiUtils.getCmsSession(bundleContext, getSubject());
+		CmsSession cmsSession = cmsApp.getCmsContext().getCmsSession(getSubject());
 		return cmsSession;
 	}
 

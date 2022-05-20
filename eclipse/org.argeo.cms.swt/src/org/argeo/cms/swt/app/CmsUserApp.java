@@ -17,7 +17,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 public class CmsUserApp extends AbstractCmsApp {
-	private CmsContext cmsContext;
 	private ContentRepository contentRepository;
 
 	@Override
@@ -35,7 +34,7 @@ public class CmsUserApp extends AbstractCmsApp {
 		CmsSwtUi cmsUi = new CmsSwtUi(parent, SWT.NONE);
 		if ("login".equals(uiName)) {
 			CmsView cmsView = CmsSwtUtils.getCmsView(cmsUi);
-			CmsLogin cmsLogin = new CmsLogin(cmsView, cmsContext);
+			CmsLogin cmsLogin = new CmsLogin(cmsView, getCmsContext());
 			cmsLogin.createUi(cmsUi);
 
 		} else if ("data".equals(uiName)) {
@@ -59,10 +58,6 @@ public class CmsUserApp extends AbstractCmsApp {
 
 	public void setContentRepository(ContentRepository contentRepository) {
 		this.contentRepository = contentRepository;
-	}
-
-	public void setCmsContext(CmsContext cmsContext) {
-		this.cmsContext = cmsContext;
 	}
 
 }

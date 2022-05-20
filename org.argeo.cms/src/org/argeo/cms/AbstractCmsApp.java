@@ -8,10 +8,13 @@ import java.util.Map;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAppListener;
+import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsTheme;
 
 /** Base class for {@link CmsApp}s. */
 public abstract class AbstractCmsApp implements CmsApp {
+	private CmsContext cmsContext;
+	
 	private Map<String, CmsTheme> themes = Collections.synchronizedMap(new HashMap<>());
 
 	private List<CmsAppListener> cmsAppListeners = new ArrayList<>();
@@ -68,5 +71,16 @@ public abstract class AbstractCmsApp implements CmsApp {
 	public void removeCmsAppListener(CmsAppListener listener) {
 		cmsAppListeners.remove(listener);
 	}
+
+	@Override
+	public CmsContext getCmsContext() {
+		return cmsContext;
+	}
+
+	public void setCmsContext(CmsContext cmsContext) {
+		this.cmsContext = cmsContext;
+	}
+	
+	
 
 }

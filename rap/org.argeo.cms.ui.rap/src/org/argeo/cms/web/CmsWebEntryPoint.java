@@ -15,15 +15,14 @@ import javax.security.auth.login.LoginException;
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsUi;
 import org.argeo.api.cms.CmsView;
-import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.UxContext;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
-import org.argeo.cms.osgi.CmsOsgiUtils;
 import org.argeo.cms.servlet.ServletHttpRequest;
 import org.argeo.cms.servlet.ServletHttpResponse;
 import org.argeo.cms.swt.CmsSwtUtils;
@@ -265,7 +264,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 
 	@Override
 	public CmsSession getCmsSession() {
-		CmsSession cmsSession = CmsOsgiUtils.getCmsSession(cmsWebApp.getBundleContext(), getSubject());
+		CmsSession cmsSession = cmsWebApp.getCmsApp().getCmsContext().getCmsSession(getSubject());
 		return cmsSession;
 	}
 

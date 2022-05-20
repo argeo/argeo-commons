@@ -27,7 +27,7 @@ public class WebCmsSessionImpl extends CmsSessionImpl {
 		return httpSession.isValid();
 	}
 
-	public static CmsSessionImpl getCmsSession(RemoteAuthRequest request) {
-		return CmsSessionImpl.getByLocalId(request.getSession().getId());
-	}
+//	public static CmsSessionImpl getCmsSession(RemoteAuthRequest request) {
+//		return CmsSessionImpl.getByLocalId(request.getSession().getId());
+//	}
 }
