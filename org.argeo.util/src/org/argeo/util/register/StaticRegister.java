@@ -7,23 +7,27 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /** A minimal component register. */
-public class StaticRegister {
-	private final static AtomicBoolean started = new AtomicBoolean(false);
-	private final static IdentityHashMap<Object, Component<?>> components = new IdentityHashMap<>();
+public class StaticRegister implements ComponentRegister {
+	private final static StaticRegister instance = new StaticRegister();
 
-	public static Consumer<Component<?>> asConsumer() {
-		return (c) -> registerComponent(c);
+	public static ComponentRegister getInstance() {
+		return instance;
 	}
 
-//	public static BiFunction<Class<?>, Predicate<Map<String, Object>>, Component<?>> asProvider() {
-//
-//	}
+	private final AtomicBoolean started = new AtomicBoolean(false);
+	private final IdentityHashMap<Object, Component<?>> components = new IdentityHashMap<>();
 
-	static synchronized <T> Component<? extends T> find(Class<T> clss, Predicate<Map<String, Object>> filter) {
+	@Override
+	public void accept(Component<?> component) {
+		registerComponent(component);
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Override
+	public synchronized <T> Component<? extends T> find(Class<T> clss, Predicate<Map<String, Object>> filter) {
 		Set<Component<? extends T>> result = new HashSet<>();
 		instances: for (Object instance : components.keySet()) {
 			if (!clss.isAssignableFrom(instance.getClass()))
@@ -40,7 +44,7 @@ public class StaticRegister {
 
 	}
 
-	static synchronized void registerComponent(Component<?> component) {
+	synchronized void registerComponent(Component<?> component) {
 		if (started.get()) // TODO make it really dynamic
 			throw new IllegalStateException("Already activated");
 		if (components.containsKey(component.getInstance()))
@@ -48,13 +52,15 @@ public class StaticRegister {
 		components.put(component.getInstance(), component);
 	}
 
-	static synchronized Component<?> get(Object instance) {
+	@Override
+	public synchronized Component<?> get(Object instance) {
 		if (!components.containsKey(instance))
 			throw new IllegalArgumentException("Not registered as component");
 		return components.get(instance);
 	}
 
-	synchronized static void activate() {
+	@Override
+	public synchronized void activate() {
 		if (started.get())
 			throw new IllegalStateException("Already activated");
 		Set<CompletableFuture<?>> constraints = new HashSet<>();
@@ -67,12 +73,19 @@ public class StaticRegister {
 		try {
 			CompletableFuture.allOf(constraints.toArray(new CompletableFuture[0])).thenRun(() -> started.set(true))
 					.get();
-		} catch (ExecutionException | InterruptedException e) {
-			throw new RuntimeException(e);
+		} catch (InterruptedException e) {
+			throw new RuntimeException("Register activation has been interrupted", e);
+		} catch (ExecutionException e) {
+			if (RuntimeException.class.isAssignableFrom(e.getCause().getClass())) {
+				throw (RuntimeException) e.getCause();
+			} else {
+				throw new IllegalStateException("Cannot activate register", e.getCause());
+			}
 		}
 	}
 
-	synchronized static void deactivate() {
+	@Override
+	public synchronized void deactivate() {
 		if (!started.get())
 			throw new IllegalStateException("Not activated");
 		Set<CompletableFuture<?>> constraints = new HashSet<>();
@@ -85,12 +98,24 @@ public class StaticRegister {
 		try {
 			CompletableFuture.allOf(constraints.toArray(new CompletableFuture[0])).thenRun(() -> started.set(false))
 					.get();
-		} catch (ExecutionException | InterruptedException e) {
-			throw new RuntimeException(e);
+		} catch (InterruptedException e) {
+			throw new RuntimeException("Register deactivation has been interrupted", e);
+		} catch (ExecutionException e) {
+			if (RuntimeException.class.isAssignableFrom(e.getCause().getClass())) {
+				throw (RuntimeException) e.getCause();
+			} else {
+				throw new IllegalStateException("Cannot deactivate register", e.getCause());
+			}
 		}
 	}
 
-	synchronized static void clear() {
+	@Override
+	public synchronized boolean isActive() {
+		return started.get();
+	}
+
+	@Override
+	public synchronized void clear() {
 		components.clear();
 	}
 

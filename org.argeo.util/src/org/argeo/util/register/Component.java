@@ -83,11 +83,11 @@ public class Component<I> {
 				.thenRun(() -> prepareNextActivation());
 	}
 
-	public CompletableFuture<Void> getActivated() {
+	CompletableFuture<Void> getActivated() {
 		return activated;
 	}
 
-	public CompletableFuture<Void> getDeactivated() {
+	CompletableFuture<Void> getDeactivated() {
 		return deactivated;
 	}
 
@@ -130,48 +130,44 @@ public class Component<I> {
 		dependants.add(dependant);
 	}
 
-	I getInstance() {
+	public I getInstance() {
 		return instance;
 	}
 
 	@SuppressWarnings("unchecked")
-	<T> PublishedType<T> getType(Class<T> clss) {
+	public <T> PublishedType<T> getType(Class<T> clss) {
 		if (!types.containsKey(clss))
 			throw new IllegalArgumentException(clss.getName() + " is not a type published by this component");
 		return (PublishedType<T>) types.get(clss);
 	}
 
-	<T> boolean isPublishedType(Class<T> clss) {
+	public <T> boolean isPublishedType(Class<T> clss) {
 		return types.containsKey(clss);
 	}
 
+	/** A type which has been explicitly exposed by a component. */
 	public static class PublishedType<T> {
 		private Component<? extends T> component;
 		private Class<T> clss;
 
-//		private CompletableFuture<Component<? extends T>> publisherAvailable;
 		private CompletableFuture<T> value;
 
 		public PublishedType(Component<? extends T> component, Class<T> clss) {
 			this.clss = clss;
 			this.component = component;
 			value = CompletableFuture.completedFuture((T) component.instance);
-//			value = publisherAvailable.thenApply((c) -> c.getInstance());
 		}
 
-		Component<?> getPublisher() {
+		public Component<?> getPublisher() {
 			return component;
 		}
 
-//		CompletableFuture<Component<? extends T>> publisherAvailable() {
-//			return publisherAvailable;
-//		}
-
-		Class<T> getType() {
+		public Class<T> getType() {
 			return clss;
 		}
 	}
 
+	/** Builds a {@link Component}. */
 	public static class Builder<I> {
 		private final I instance;
 
@@ -211,14 +207,14 @@ public class Component<I> {
 			return this;
 		}
 
-		public Builder<I> addInit(Runnable init) {
+		public Builder<I> addActivation(Runnable init) {
 			if (this.init != null)
 				throw new IllegalArgumentException("init method is already set");
 			this.init = init;
 			return this;
 		}
 
-		public Builder<I> addClose(Runnable close) {
+		public Builder<I> addDeactivation(Runnable close) {
 			if (this.close != null)
 				throw new IllegalArgumentException("close method is already set");
 			this.close = close;
@@ -254,8 +250,10 @@ public class Component<I> {
 		public Dependency(PublishedType<D> types, Consumer<D> set, Consumer<D> unset) {
 			super();
 			this.type = types;
-			this.set = set;
-			this.unset = unset != null ? unset : (v) -> set.accept(null);
+			this.set = set != null ? set : t -> {
+			};
+			this.unset = unset != null ? unset : t -> {
+			};
 		}
 
 		// live
