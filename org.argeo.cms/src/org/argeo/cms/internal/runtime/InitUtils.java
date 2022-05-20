@@ -238,15 +238,17 @@ public class InitUtils {
 				// TODO also uncompress archives
 				if (initDir.exists())
 					try {
-						FileUtils.copyDirectory(initDir, KernelUtils.getOsgiInstanceDir(), new FileFilter() {
+						// TODO use NIO utilities
+						FileUtils.copyDirectory(initDir, KernelUtils.getOsgiInstancePath("").toFile(),
+								new FileFilter() {
 
-							@Override
-							public boolean accept(File pathname) {
-								if (pathname.getName().equals(".svn") || pathname.getName().equals(".git"))
-									return false;
-								return true;
-							}
-						});
+									@Override
+									public boolean accept(File pathname) {
+										if (pathname.getName().equals(".svn") || pathname.getName().equals(".git"))
+											return false;
+										return true;
+									}
+								});
 						log.info("CMS initialized from " + initDir.getCanonicalPath());
 					} catch (IOException e) {
 						throw new RuntimeException("Cannot initialize from " + initDir, e);

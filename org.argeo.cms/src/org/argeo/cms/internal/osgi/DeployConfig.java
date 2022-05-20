@@ -7,7 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -35,6 +37,16 @@ import org.osgi.service.cm.ConfigurationListener;
 
 /** Manages the LDIF-based deployment configuration. */
 public class DeployConfig implements ConfigurationListener {
+	private final static LdapName USER_ADMIN_BASE_DN;
+	static {
+		try {
+			USER_ADMIN_BASE_DN = new LdapName(
+					CmsConstants.OU + "=" + CmsConstants.NODE_USER_ADMIN_PID + "," + CmsConstants.DEPLOY_BASEDN);
+		} catch (InvalidNameException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
 	private final CmsLog log = CmsLog.getLog(getClass());
 //	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
@@ -47,24 +59,6 @@ public class DeployConfig implements ConfigurationListener {
 	private final static String ROLES = "roles";
 
 	private ConfigurationAdmin configurationAdmin;
-
-	public DeployConfig() {
-//		this.dataModels = dataModels;
-		// ConfigurationAdmin configurationAdmin =
-//		// bc.getService(bc.getServiceReference(ConfigurationAdmin.class));
-//		try {
-//			if (!isInitialized()) { // first init
-//				isFirstInit = true;
-//				firstInit();
-//			}
-//			this.configurationAdmin = configurationAdmin;
-////			init(configurationAdmin, isClean, isFirstInit);
-//		} catch (IOException e) {
-//			throw new RuntimeException("Could not init deploy configs", e);
-//		}
-		// FIXME check race conditions during initialization
-		// bc.registerService(ConfigurationListener.class, this, null);
-	}
 
 	private void firstInit() throws IOException {
 		log.info("## FIRST INIT ##");
@@ -140,31 +134,37 @@ public class DeployConfig implements ConfigurationListener {
 //				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT));
 	}
 
-	public void start() throws IOException {
-		if (!isInitialized()) { // first init
-			isFirstInit = true;
-			firstInit();
-		}
-
-		boolean isClean;
+	public void start() {
 		try {
-			Configuration[] confs = configurationAdmin
-					.listConfigurations("(service.factoryPid=" + CmsConstants.NODE_USER_ADMIN_PID + ")");
-			isClean = confs == null || confs.length == 0;
-		} catch (Exception e) {
-			throw new IllegalStateException("Cannot analyse clean state", e);
-		}
+			if (!isInitialized()) { // first init
+				isFirstInit = true;
+				firstInit();
+			}
 
-		try (InputStream in = Files.newInputStream(deployConfigPath)) {
-			deployConfigs = new LdifParser().read(in);
+			boolean isClean = true;
+			if (configurationAdmin != null)
+				try {
+					Configuration[] confs = configurationAdmin
+							.listConfigurations("(service.factoryPid=" + CmsConstants.NODE_USER_ADMIN_PID + ")");
+					isClean = confs == null || confs.length == 0;
+				} catch (Exception e) {
+					throw new IllegalStateException("Cannot analyse clean state", e);
+				}
+
+			try (InputStream in = Files.newInputStream(deployConfigPath)) {
+				deployConfigs = new LdifParser().read(in);
+			}
+			if (isClean) {
+				if (log.isDebugEnabled())
+					log.debug("Clean state, loading from framework properties...");
+				setFromFrameworkProperties(isFirstInit);
+				if (configurationAdmin != null)
+					loadConfigs();
+			}
+			// TODO check consistency if not clean
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot load deploy configuration", e);
 		}
-		if (isClean) {
-			if (log.isDebugEnabled())
-				log.debug("Clean state, loading from framework properties...");
-			setFromFrameworkProperties(isFirstInit);
-			loadConfigs();
-		}
-		// TODO check consistency if not clean
 	}
 
 	public void stop() {
@@ -218,6 +218,17 @@ public class DeployConfig implements ConfigurationListener {
 			throw new IllegalStateException("System roles are not configured.");
 		systemRolesConf.update(new AttributesDictionary(deployConfigs.get(systemRolesDn)));
 
+	}
+
+	public Set<Dictionary<String, Object>> getUserDirectoryConfigs() {
+		Set<Dictionary<String, Object>> res = new HashSet<>();
+		for (LdapName dn : deployConfigs.keySet()) {
+			if (dn.endsWith(USER_ADMIN_BASE_DN)) {
+				Attributes attributes = deployConfigs.get(dn);
+				res.add(new AttributesDictionary(attributes));
+			}
+		}
+		return res;
 	}
 
 	@Override
@@ -312,6 +323,10 @@ public class DeployConfig implements ConfigurationListener {
 	}
 
 	public boolean hasDomain() {
+		// FIXME lookup deploy configs directly
+		if (configurationAdmin == null)
+			return false;
+
 		Configuration[] configs;
 		try {
 			configs = configurationAdmin

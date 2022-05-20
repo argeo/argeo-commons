@@ -63,10 +63,10 @@ public class KernelUtils implements KernelConstants {
 		}
 	}
 
-	static File getOsgiInstanceDir() {
-		return new File(CmsActivator.getBundleContext().getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
-				.getAbsoluteFile();
-	}
+//	static File getOsgiInstanceDir() {
+//		return new File(CmsActivator.getBundleContext().getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
+//				.getAbsoluteFile();
+//	}
 
 	public static Path getOsgiInstancePath(String relativePath) {
 		return Paths.get(getOsgiInstanceUri(relativePath));
@@ -77,12 +77,13 @@ public class KernelUtils implements KernelConstants {
 		if (osgiInstanceBaseUri != null)
 			return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
 		else
-			return Paths.get(System.getProperty("user.dir")).toUri();
+			return Paths.get(System.getProperty("user.dir"), (relativePath != null ? relativePath : "")).toUri();
 	}
 
 	static File getOsgiConfigurationFile(String relativePath) {
 		try {
-			return new File(new URI(CmsActivator.getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
+			return new File(
+					new URI(CmsActivator.getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
 					.getCanonicalFile();
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Cannot get configuration file for " + relativePath, e);
