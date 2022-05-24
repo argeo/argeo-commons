@@ -6,8 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -15,15 +13,12 @@ import javax.xml.xpath.XPathFactory;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentNotFoundException;
-import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 public class DomContentProvider implements ContentProvider, NamespaceContext {
 	private Document document;
@@ -41,7 +36,7 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 			@Override
 			protected XPath initialValue() {
 				// TODO set the document as namespace context?
-				XPath res= xPathFactory.newXPath();
+				XPath res = xPathFactory.newXPath();
 				res.setNamespaceContext(DomContentProvider.this);
 				return res;
 			}
@@ -87,11 +82,17 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 	 */
 	@Override
 	public String getNamespaceURI(String prefix) {
+		String namespaceURI = NamespaceUtils.getStandardNamespaceURI(prefix);
+		if (namespaceURI != null)
+			return namespaceURI;
 		return document.lookupNamespaceURI(prefix);
 	}
 
 	@Override
 	public String getPrefix(String namespaceURI) {
+		String prefix = NamespaceUtils.getStandardPrefix(namespaceURI);
+		if (prefix != null)
+			return prefix;
 		return document.lookupPrefix(namespaceURI);
 	}
 
@@ -102,5 +103,4 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		return Collections.unmodifiableList(res).iterator();
 	}
 
-	
 }

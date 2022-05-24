@@ -55,27 +55,27 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			if (namespaceURI == null) {
 				return toQName(node, node.getLocalName());
 			} else {
-				String contextPrefix = session.getPrefix(namespaceURI);
+				String contextPrefix = provider.getPrefix(namespaceURI);
 				if (contextPrefix == null)
 					throw new IllegalStateException("Namespace " + namespaceURI + " is unbound");
-				return toQName(node, namespaceURI, node.getLocalName(), session);
+				return toQName(node, namespaceURI, node.getLocalName(), provider);
 			}
 		} else {
 			String namespaceURI = node.getNamespaceURI();
 			if (namespaceURI == null)
 				namespaceURI = node.getOwnerDocument().lookupNamespaceURI(prefix);
 			if (namespaceURI == null) {
-				namespaceURI = session.getNamespaceURI(prefix);
+				namespaceURI = provider.getNamespaceURI(prefix);
 				if (XMLConstants.NULL_NS_URI.equals(namespaceURI))
 					throw new IllegalStateException("Prefix " + prefix + " is unbound");
 				// TODO bind the prefix in the document?
 			}
-			return toQName(node, namespaceURI, node.getLocalName(), session);
+			return toQName(node, namespaceURI, node.getLocalName(), provider);
 		}
 	}
 
 	protected QName toQName(Node source, String namespaceURI, String localName, NamespaceContext namespaceContext) {
-		return new ContentName(namespaceURI, localName, session);
+		return new ContentName(namespaceURI, localName, namespaceContext);
 	}
 
 	protected QName toQName(Node source, String localName) {
@@ -98,6 +98,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <A> Optional<A> get(QName key, Class<A> clss) {
 		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(key.getNamespaceURI()) ? null

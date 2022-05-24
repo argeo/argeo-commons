@@ -11,7 +11,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NavigableMap;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -29,7 +28,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.validation.Schema;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
@@ -64,7 +62,7 @@ public class CmsContentRepository implements ProvidedRepository {
 	// TODO synchronize ?
 	private NavigableMap<String, String> prefixes = new TreeMap<>();
 
-	private Schema schema;
+//	private Schema schema;
 
 	private CmsContentSession systemSession;
 
@@ -176,7 +174,7 @@ public class CmsContentRepository implements ProvidedRepository {
 			});
 
 			Document document;
-			if (Files.exists(path)) {
+			if (path != null && Files.exists(path)) {
 				InputSource inputSource = new InputSource(path.toAbsolutePath().toUri().toString());
 				inputSource.setEncoding(StandardCharsets.UTF_8.name());
 				// TODO public id as well?
@@ -194,10 +192,11 @@ public class CmsContentRepository implements ProvidedRepository {
 				TransformerFactory transformerFactory = TransformerFactory.newInstance();
 				Transformer transformer = transformerFactory.newTransformer();
 				DOMSource source = new DOMSource(document);
-				try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-					StreamResult result = new StreamResult(writer);
-					transformer.transform(source, result);
-				}
+				if (path != null)
+					try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+						StreamResult result = new StreamResult(writer);
+						transformer.transform(source, result);
+					}
 			}
 
 			DomContentProvider contentProvider = new DomContentProvider(document);
@@ -240,6 +239,8 @@ public class CmsContentRepository implements ProvidedRepository {
 		@Override
 		public Content get(String path) {
 			Map.Entry<String, ContentProvider> entry = partitions.floorEntry(path);
+			if (entry == null)
+				throw new IllegalArgumentException("No entry provider found for " + path);
 			String mountPath = entry.getKey();
 			ContentProvider provider = entry.getValue();
 			String relativePath = path.substring(mountPath.length());

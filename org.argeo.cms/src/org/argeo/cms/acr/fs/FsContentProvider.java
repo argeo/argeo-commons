@@ -64,9 +64,22 @@ public class FsContentProvider implements ContentProvider {
 			throws IOException {
 		if (!prefixes.containsKey(prefix)) {
 			ByteBuffer bb = ByteBuffer.wrap(namespace.getBytes(StandardCharsets.UTF_8));
-			int size = udfav.write(XMLNS_ + prefix, bb);
+			udfav.write(XMLNS_ + prefix, bb);
 			prefixes.put(prefix, namespace);
 		}
+	}
+
+	public void registerPrefix(String prefix, String namespace) {
+		if (prefixes.containsKey(prefix))
+			prefixes.remove(prefix);
+		try {
+			UserDefinedFileAttributeView udfav = Files.getFileAttributeView(rootPath,
+					UserDefinedFileAttributeView.class);
+			addDefaultNamespace(udfav, prefix, namespace);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot register namespace " + prefix + " " + namespace + " on " + rootPath, e);
+		}
+
 	}
 
 	boolean isRoot(Path path) {

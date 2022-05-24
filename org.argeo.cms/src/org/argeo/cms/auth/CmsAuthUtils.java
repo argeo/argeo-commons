@@ -1,7 +1,6 @@
 package org.argeo.cms.auth;
 
 import java.security.Principal;
-import java.util.Collection;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -11,20 +10,16 @@ import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.api.cms.CmsSession;
-import org.argeo.api.cms.CmsSessionId;
-import org.argeo.api.cms.DataAdminPrincipal;
 import org.argeo.api.cms.AnonymousPrincipal;
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsSessionId;
+import org.argeo.api.cms.DataAdminPrincipal;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.security.NodeSecurityUtils;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
@@ -43,6 +38,8 @@ class CmsAuthUtils {
 	final static String SHARED_STATE_CERTIFICATE_CHAIN = "org.argeo.cms.auth.certificateChain";
 	final static String SHARED_STATE_REMOTE_ADDR = "org.argeo.cms.auth.remote.addr";
 	final static String SHARED_STATE_REMOTE_PORT = "org.argeo.cms.auth.remote.port";
+
+	final static String SINGLE_USER_LOCAL_ID = "single-user";
 
 	static void addAuthorization(Subject subject, Authorization authorization) {
 		assert subject != null;
@@ -182,8 +179,11 @@ class CmsAuthUtils {
 						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
 		} else {
-			CmsSessionImpl cmsSession = new CmsSessionImpl(subject, authorization, locale, "desktop");
-			CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
+			CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(SINGLE_USER_LOCAL_ID);
+			if (cmsSession == null) {
+				cmsSession = new CmsSessionImpl(subject, authorization, locale, SINGLE_USER_LOCAL_ID);
+				CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
+			}
 			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
 			subject.getPrivateCredentials().add(nodeSessionId);
 		}

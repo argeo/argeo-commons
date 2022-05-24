@@ -242,10 +242,18 @@ public class CmsContextImpl implements CmsContext {
 		cmsSessionsByLocalId.remove(cmsSession.getLocalId());
 	}
 
+	/**
+	 * The {@link CmsSession} related to this UUID, or <code>null</null> if not
+	 * registered.
+	 */
 	public synchronized CmsSessionImpl getCmsSessionByUuid(UUID uuid) {
 		return cmsSessionsByUuid.get(uuid);
 	}
 
+	/**
+	 * The {@link CmsSession} related to this local id, or <code>null</null> if not
+	 * registered.
+	 */
 	public synchronized CmsSessionImpl getCmsSessionByLocalId(String localId) {
 		return cmsSessionsByLocalId.get(localId);
 	}
