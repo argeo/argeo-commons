@@ -14,9 +14,9 @@ import org.apache.sshd.client.channel.ClientChannel;
 import org.apache.sshd.client.channel.ClientChannelEvent;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider;
-import org.apache.sshd.common.util.io.NoCloseInputStream;
-import org.apache.sshd.common.util.io.NoCloseOutputStream;
+import org.apache.sshd.common.util.io.input.NoCloseInputStream;
+import org.apache.sshd.common.util.io.output.NoCloseOutputStream;
+import org.apache.sshd.sftp.client.fs.SftpFileSystemProvider;
 import org.argeo.api.cms.CmsLog;
 
 @SuppressWarnings("restriction")

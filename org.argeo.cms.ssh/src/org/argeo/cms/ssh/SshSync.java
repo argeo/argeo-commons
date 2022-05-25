@@ -1,11 +1,13 @@
 package org.argeo.cms.ssh;
 
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.KeyPair;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -15,10 +17,13 @@ import org.apache.sshd.agent.SshAgentFactory;
 import org.apache.sshd.agent.local.LocalAgentFactory;
 import org.apache.sshd.agent.unix.UnixAgentFactory;
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.config.keys.ClientIdentityLoader;
 import org.apache.sshd.client.future.ConnectFuture;
 import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystem;
-import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystemProvider;
+import org.apache.sshd.common.NamedResource;
+import org.apache.sshd.common.config.keys.FilePasswordProvider;
+import org.apache.sshd.sftp.client.fs.SftpFileSystem;
+import org.apache.sshd.sftp.client.fs.SftpFileSystemProvider;
 import org.argeo.api.cms.CmsLog;
 
 public class SshSync {
@@ -28,11 +33,11 @@ public class SshSync {
 
 		try (SshClient client = SshClient.setUpDefaultClient()) {
 			client.start();
-			boolean osAgent = true;
+			boolean osAgent = false;
 			SshAgentFactory agentFactory = osAgent ? new UnixAgentFactory() : new LocalAgentFactory();
 			// SshAgentFactory agentFactory = new LocalAgentFactory();
 			client.setAgentFactory(agentFactory);
-			SshAgent sshAgent = agentFactory.createClient(client);
+			SshAgent sshAgent = agentFactory.createClient(null, client);
 
 			String login = System.getProperty("user.name");
 			String host = "localhost";
@@ -40,12 +45,27 @@ public class SshSync {
 
 			if (!osAgent) {
 				String keyPath = "/home/" + login + "/.ssh/id_rsa";
-				System.out.print(keyPath + ": ");
-				Scanner s = new Scanner(System.in);
-				String password = s.next();
-//				KeyPair keyPair = ClientIdentityLoader.DEFAULT.loadClientIdentity(keyPath,
-//						FilePasswordProvider.of(password));
-//				sshAgent.addIdentity(keyPair, "NO COMMENT");
+
+				String password;
+				Console console = System.console();
+				if (console != null) {
+					password = new String(console.readPassword(keyPath + ": "));
+				} else {
+					System.out.print(keyPath + ": ");
+					try (Scanner s = new Scanner(System.in)) {
+						password = s.next();
+					}
+				}
+				NamedResource namedResource = new NamedResource() {
+
+					@Override
+					public String getName() {
+						return keyPath;
+					}
+				};
+				KeyPair keyPair = ClientIdentityLoader.DEFAULT
+						.loadClientIdentities(null, namedResource, FilePasswordProvider.of(password)).iterator().next();
+				sshAgent.addIdentity(keyPair, "NO COMMENT");
 			}
 
 //			List<? extends Map.Entry<PublicKey, String>> identities = sshAgent.getIdentities();

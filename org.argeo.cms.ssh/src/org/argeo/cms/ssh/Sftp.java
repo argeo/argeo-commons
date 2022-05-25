@@ -5,7 +5,7 @@ import java.net.URI;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
-import org.apache.sshd.client.subsystem.sftp.fs.SftpFileSystem;
+import org.apache.sshd.sftp.client.fs.SftpFileSystem;
 
 /** Create an SFTP {@link FileSystem}. */
 public class Sftp extends AbstractSsh {
