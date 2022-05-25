@@ -20,6 +20,7 @@ org.argeo.api.cms \
 org.argeo.cms \
 org.argeo.cms.pgsql \
 org.argeo.cms.ux \
+eclipse/org.argeo.ext.equinox.jetty \
 eclipse/org.argeo.cms.servlet \
 eclipse/org.argeo.cms.swt \
 eclipse/org.argeo.cms.e4 \
