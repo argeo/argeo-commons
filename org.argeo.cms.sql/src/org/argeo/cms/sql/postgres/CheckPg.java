@@ -1,4 +1,4 @@
-package org.argeo.cms.pgsql.util;
+package org.argeo.cms.sql.postgres;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
