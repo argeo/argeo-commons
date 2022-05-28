@@ -1,6 +1,8 @@
 package org.argeo.init.a2;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,7 +18,6 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 	private final Path base;
 
 	public FsA2Source(Path base) {
-		super();
 		this.base = base;
 	}
 
@@ -73,6 +74,20 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 			}
 		}
 
+	}
+
+	@Override
+	public URI getUri() {
+		URI baseUri = base.toUri();
+		try {
+			if (baseUri.getScheme().equals("file")) {
+				return new URI(SCHEME_A2, null, base.toString(), null);
+			} else {
+				throw new UnsupportedOperationException("Unsupported scheme " + baseUri.getScheme());
+			}
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException("Cannot build URI from " + baseUri, e);
+		}
 	}
 
 	public static void main(String[] args) {

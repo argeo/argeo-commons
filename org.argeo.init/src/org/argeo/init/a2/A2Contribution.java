@@ -30,6 +30,10 @@ public class A2Contribution implements Comparable<A2Contribution> {
 //			context.contributions.put(id, this);
 	}
 
+	public Iterable<A2Component> listComponents(Object filter) {
+		return components.values();
+	}
+
 	A2Component getOrAddComponent(String componentId) {
 		if (components.containsKey(componentId))
 			return components.get(componentId);
