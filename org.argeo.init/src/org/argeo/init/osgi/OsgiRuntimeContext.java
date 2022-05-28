@@ -1,5 +1,6 @@
 package org.argeo.init.osgi;
 
+import java.lang.System.LoggerFinder;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
@@ -55,6 +56,9 @@ public class OsgiRuntimeContext implements RuntimeContext {
 	}
 
 	public void start(BundleContext bundleContext) {
+		// Make sure LoggerFinder has been searched for, since it is lazily loaded
+		LoggerFinder.getLoggerFinder();
+
 		// logging
 		loggingConfigurationSr = bundleContext.registerService(Consumer.class,
 				ThinLoggerFinder.getConfigurationConsumer(),
@@ -111,6 +115,10 @@ public class OsgiRuntimeContext implements RuntimeContext {
 		if (framework != null)
 			framework.stop();
 
+	}
+
+	public Framework getFramework() {
+		return framework;
 	}
 
 }
