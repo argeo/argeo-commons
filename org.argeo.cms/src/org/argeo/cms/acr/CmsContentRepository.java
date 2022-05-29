@@ -183,20 +183,21 @@ public class CmsContentRepository implements ProvidedRepository {
 				document = dBuilder.newDocument();
 //				Element root = document.createElementNS(CrName.ROOT.getNamespaceURI(),
 //						CrName.ROOT.get().toPrefixedString());
-				Element root = document.createElement(CrName.ROOT.get().toPrefixedString());
+				Element root = document.createElementNS(CrName.CR_NAMESPACE_URI, CrName.ROOT.get().toPrefixedString());
 				// root.setAttribute("xmlns", "");
-				root.setAttribute("xmlns:" + CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
+//				root.setAttribute("xmlns:" + CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
 				document.appendChild(root);
 
 				// write it
-				TransformerFactory transformerFactory = TransformerFactory.newInstance();
-				Transformer transformer = transformerFactory.newTransformer();
-				DOMSource source = new DOMSource(document);
-				if (path != null)
+				if (path != null) {
+					TransformerFactory transformerFactory = TransformerFactory.newInstance();
+					Transformer transformer = transformerFactory.newTransformer();
+					DOMSource source = new DOMSource(document);
 					try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
 						StreamResult result = new StreamResult(writer);
 						transformer.transform(source, result);
 					}
+				}
 			}
 
 			DomContentProvider contentProvider = new DomContentProvider(document);
