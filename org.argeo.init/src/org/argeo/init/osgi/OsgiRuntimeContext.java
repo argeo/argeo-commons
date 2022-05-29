@@ -21,7 +21,7 @@ import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 
 /** An OSGi runtime context. */
-public class OsgiRuntimeContext implements RuntimeContext {
+public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 	private Map<String, String> config;
 	private Framework framework;
 	private OsgiBoot osgiBoot;
@@ -31,11 +31,19 @@ public class OsgiRuntimeContext implements RuntimeContext {
 	@SuppressWarnings("rawtypes")
 	private ServiceRegistration<Flow.Publisher> logEntryPublisherSr;
 
+	/**
+	 * Constructor to use when the runtime context will create the OSGi
+	 * {@link Framework}.
+	 */
 	public OsgiRuntimeContext(Map<String, String> config) {
 		this.config = config;
 	}
 
-	public OsgiRuntimeContext(BundleContext bundleContext) {
+	/**
+	 * Constructor to use when the OSGi {@link Framework} has been created by other
+	 * means.
+	 */
+	OsgiRuntimeContext(BundleContext bundleContext) {
 		start(bundleContext);
 	}
 
@@ -68,7 +76,7 @@ public class OsgiRuntimeContext implements RuntimeContext {
 				new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.publisher")));
 
 		osgiBoot = new OsgiBoot(bundleContext);
-		osgiBoot.bootstrap();
+		osgiBoot.bootstrap(config);
 
 	}
 

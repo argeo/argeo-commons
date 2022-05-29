@@ -21,6 +21,8 @@ public class Activator implements BundleActivator {
 	private Logger logger = System.getLogger(Activator.class.getName());
 
 	private Long checkpoint = null;
+
+	/** Not null if we created it ourselves. */
 	private OsgiRuntimeContext runtimeContext;
 
 	public void start(final BundleContext bundleContext) throws Exception {
@@ -45,7 +47,7 @@ public class Activator implements BundleActivator {
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		Objects.requireNonNull(runtimeContext);
+		Objects.nonNull(runtimeContext);
 		runtimeContext.stop(context);
 	}
 }
