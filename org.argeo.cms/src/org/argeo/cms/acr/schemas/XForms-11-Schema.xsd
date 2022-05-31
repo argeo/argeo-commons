@@ -73,8 +73,8 @@ XForms 1.1
 13 JAN 2010 JMB: Put maxOccurs=1 on instance content to limit to one child element in an instance
 16 SEP 2010 JBM: Added xforms:duration datatype (1.1 Erratum #1), added UICommon before ListUICommon on select/select1 (1.1 Erratum #2)
 -->
-	<xsd:import namespace="http://www.w3.org/2001/xml-events" schemaLocation="http://www.w3.org/MarkUp/SCHEMA/xml-events-attribs-1.xsd"/>
-	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="http://www.w3.org/2001/XMLSchema.xsd"/>
+	<xsd:import namespace="http://www.w3.org/2001/xml-events" schemaLocation="xml-events-attribs-1.xsd"/>
+	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="XMLSchema.xsd"/>
 
 	<!--
 structural elements

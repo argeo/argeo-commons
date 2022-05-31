@@ -54,14 +54,14 @@ The declaration of xml:space and xml:lang may need to be commented out because
 of problems processing the schema using various tools
 -->
       
-<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
 
 <!-- 
     An XSLT stylesheet may contain an in-line schema within an xsl:import-schema element,
     so the Schema for schemas needs to be imported
 -->
   
-<xs:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="http://www.w3.org/2001/XMLSchema.xsd"/>
+<xs:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="XMLSchema.xsd"/>
 
 <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 <xs:annotation>
