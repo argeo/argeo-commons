@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -60,20 +61,20 @@ public class CmsContentRepository implements ProvidedRepository {
 	private NavigableMap<String, ContentProvider> partitions = new TreeMap<>();
 
 	// TODO synchronize ?
-	private NavigableMap<String, String> prefixes = new TreeMap<>();
+//	private NavigableMap<String, String> prefixes = new TreeMap<>();
 
 //	private Schema schema;
+	private ContentTypesManager contentTypesManager;
 
 	private CmsContentSession systemSession;
 
 	private Map<CmsSession, CmsContentSession> userSessions = Collections.synchronizedMap(new HashMap<>());
 
 	public CmsContentRepository() {
-		prefixes.put(CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
-		prefixes.put("basic", CrName.CR_NAMESPACE_URI);
-		prefixes.put("owner", CrName.CR_NAMESPACE_URI);
-		prefixes.put("posix", CrName.CR_NAMESPACE_URI);
-
+		contentTypesManager = new ContentTypesManager();
+		contentTypesManager.init();
+		contentTypesManager.listTypes();
+		
 		systemSession = newSystemSession();
 	}
 
@@ -134,15 +135,16 @@ public class CmsContentRepository implements ProvidedRepository {
 		mount.put(CrName.MOUNT.get(), "true");
 	}
 
-	public void registerPrefix(String prefix, String namespaceURI) {
-		String registeredUri = prefixes.get(prefix);
-		if (registeredUri == null) {
-			prefixes.put(prefix, namespaceURI);
-			return;
-		}
-		if (!registeredUri.equals(namespaceURI))
-			throw new IllegalStateException("Prefix " + prefix + " is already registred for " + registeredUri);
-		// do nothing if same namespace is already registered
+	public void registerTypes(String prefix, String namespaceURI, String schemaSystemId) {
+		contentTypesManager.registerTypes(prefix, namespaceURI, schemaSystemId);
+//		String registeredUri = prefixes.get(prefix);
+//		if (registeredUri == null) {
+//			prefixes.put(prefix, namespaceURI);
+//			return;
+//		}
+//		if (!registeredUri.equals(namespaceURI))
+//			throw new IllegalStateException("Prefix " + prefix + " is already registred for " + registeredUri);
+//		// do nothing if same namespace is already registered
 	}
 
 	/*
@@ -154,6 +156,8 @@ public class CmsContentRepository implements ProvidedRepository {
 			factory.setNamespaceAware(true);
 			factory.setXIncludeAware(true);
 			// factory.setSchema(schema);
+
+			factory.setSchema(contentTypesManager.getSchema());
 
 			DocumentBuilder dBuilder = factory.newDocumentBuilder();
 			dBuilder.setErrorHandler(new ErrorHandler() {
@@ -174,36 +178,38 @@ public class CmsContentRepository implements ProvidedRepository {
 			});
 
 			Document document;
-			if (path != null && Files.exists(path)) {
-				InputSource inputSource = new InputSource(path.toAbsolutePath().toUri().toString());
-				inputSource.setEncoding(StandardCharsets.UTF_8.name());
-				// TODO public id as well?
-				document = dBuilder.parse(inputSource);
-			} else {
-				document = dBuilder.newDocument();
-//				Element root = document.createElementNS(CrName.ROOT.getNamespaceURI(),
-//						CrName.ROOT.get().toPrefixedString());
-				Element root = document.createElementNS(CrName.CR_NAMESPACE_URI, CrName.ROOT.get().toPrefixedString());
-				// root.setAttribute("xmlns", "");
-//				root.setAttribute("xmlns:" + CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
-				document.appendChild(root);
+//			if (path != null && Files.exists(path)) {
+//				InputSource inputSource = new InputSource(path.toAbsolutePath().toUri().toString());
+//				inputSource.setEncoding(StandardCharsets.UTF_8.name());
+//				// TODO public id as well?
+//				document = dBuilder.parse(inputSource);
+//			} else {
+			document = dBuilder.newDocument();
+			Element root = document.createElementNS(CrName.CR_NAMESPACE_URI, CrName.ROOT.get().toPrefixedString());
 
-				// write it
-				if (path != null) {
-					TransformerFactory transformerFactory = TransformerFactory.newInstance();
-					Transformer transformer = transformerFactory.newTransformer();
-					DOMSource source = new DOMSource(document);
-					try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-						StreamResult result = new StreamResult(writer);
-						transformer.transform(source, result);
-					}
+			for (String prefix : contentTypesManager.getPrefixes().keySet()) {
+				root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE + ":" + prefix,
+						contentTypesManager.getPrefixes().get(prefix));
+			}
+
+			document.appendChild(root);
+
+			// write it
+			if (path != null) {
+				TransformerFactory transformerFactory = TransformerFactory.newInstance();
+				Transformer transformer = transformerFactory.newTransformer();
+				DOMSource source = new DOMSource(document);
+				try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+					StreamResult result = new StreamResult(writer);
+					transformer.transform(source, result);
 				}
 			}
+//			}
 
 			DomContentProvider contentProvider = new DomContentProvider(document);
 			addProvider("/", contentProvider);
-		} catch (DOMException | ParserConfigurationException | SAXException | IOException
-				| TransformerFactoryConfigurationError | TransformerException e) {
+		} catch (DOMException | ParserConfigurationException | IOException | TransformerFactoryConfigurationError
+				| TransformerException e) {
 			throw new IllegalStateException("Cannot init ACR root " + path, e);
 		}
 
@@ -271,13 +277,15 @@ public class CmsContentRepository implements ProvidedRepository {
 
 		@Override
 		public String getNamespaceURI(String prefix) {
-			return NamespaceUtils.getNamespaceURI((p) -> prefixes.get(p), prefix);
+			return NamespaceUtils.getNamespaceURI((p) -> contentTypesManager.getPrefixes().get(p), prefix);
 		}
 
 		@Override
 		public Iterator<String> getPrefixes(String namespaceURI) {
-			return NamespaceUtils.getPrefixes((ns) -> prefixes.entrySet().stream().filter(e -> e.getValue().equals(ns))
-					.map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet()), namespaceURI);
+			return NamespaceUtils.getPrefixes(
+					(ns) -> contentTypesManager.getPrefixes().entrySet().stream().filter(e -> e.getValue().equals(ns))
+							.map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet()),
+					namespaceURI);
 		}
 
 //		@Override
