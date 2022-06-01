@@ -1,6 +1,9 @@
 package org.argeo.cms.acr.fs;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,9 +24,11 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.ContentResourceException;
+import org.argeo.api.acr.ContentUtils;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.AbstractContent;
+import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.util.FsUtils;
@@ -58,9 +63,15 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		this.path = path;
 		this.isRoot = contentProvider.isRoot(path);
 		// TODO check file names with ':' ?
-		if (isRoot)
-			this.name = CrName.ROOT.get();
-		else {
+		if (isRoot) {
+			String mountPath = provider.getMountPath();
+			if (mountPath != null) {
+				Content mountPoint = session.getMountPoint(mountPath);
+				this.name = mountPoint.getName();
+			} else {
+				this.name = CrName.ROOT.get();
+			}
+		} else {
 			QName providerName = NamespaceUtils.parsePrefixedName(provider, path.getFileName().toString());
 			this.name = new ContentName(providerName, session);
 		}
@@ -169,7 +180,19 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	public Iterator<Content> iterator() {
 		if (Files.isDirectory(path)) {
 			try {
-				return Files.list(path).map((p) -> (Content) new FsContent(this, p)).iterator();
+				return Files.list(path).map((p) -> {
+					FsContent fsContent = new FsContent(this, p);
+					Optional<String> isMount = fsContent.get(CrName.MOUNT.get(), String.class);
+					if (isMount.orElse("false").equals("true")) {
+						QName[] classes = null;
+						ContentProvider contentProvider = session.getRepository().getMountContentProvider(fsContent,
+								false, classes);
+						Content mountedContent = contentProvider.get(session, fsContent.getPath(), "");
+						return mountedContent;
+					} else {
+						return (Content) fsContent;
+					}
+				}).iterator();
 			} catch (IOException e) {
 				throw new ContentResourceException("Cannot list " + path, e);
 			}
@@ -180,6 +203,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 
 	@Override
 	public Content add(QName name, QName... classes) {
+		FsContent fsContent;
 		try {
 			Path newPath = path.resolve(NamespaceUtils.toPrefixedName(provider, name));
 			if (ContentName.contains(classes, CrName.COLLECTION.get()))
@@ -190,9 +214,19 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 //		for(ContentClass clss:classes) {
 //			Files.setAttribute(newPath, name, newPath, null)
 //		}
-			return new FsContent(this, newPath);
+			fsContent = new FsContent(this, newPath);
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot create new content", e);
+		}
+
+		if (session.getRepository().shouldMount(classes)) {
+			ContentProvider contentProvider = session.getRepository().getMountContentProvider(fsContent, true, classes);
+			Content mountedContent = contentProvider.get(session, fsContent.getPath(), "");
+			fsContent.put(CrName.MOUNT.get(), "true");
+			return mountedContent;
+
+		} else {
+			return fsContent;
 		}
 	}
 
@@ -203,9 +237,38 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 
 	@Override
 	public Content getParent() {
-		if (isRoot)
-			return null;// TODO deal with mounts
+		if (isRoot) {
+			String mountPath = provider.getMountPath();
+			if (mountPath == null)
+				return null;
+			String[] parent = ContentUtils.getParentPath(mountPath);
+			return session.get(parent[0]);
+		}
 		return new FsContent(this, path.getParent());
+	}
+
+	@Override
+	public <C extends Closeable> C open(Class<C> clss) throws IOException, IllegalArgumentException {
+		if (InputStream.class.isAssignableFrom(clss)) {
+			if (Files.isDirectory(path))
+				throw new UnsupportedOperationException("Cannot open " + path + " as stream, since it is a directory");
+			return (C) Files.newInputStream(path);
+		} else if (OutputStream.class.isAssignableFrom(clss)) {
+			if (Files.isDirectory(path))
+				throw new UnsupportedOperationException("Cannot open " + path + " as stream, since it is a directory");
+			return (C) Files.newOutputStream(path);
+		}
+		return super.open(clss);
+	}
+
+	/*
+	 * MOUNT MANAGEMENT
+	 */
+	@Override
+	public ProvidedContent getMountPoint(String relativePath) {
+		Path childPath = path.resolve(relativePath);
+		// TODO check that it is a mount
+		return new FsContent(this, childPath);
 	}
 
 	/*

@@ -1,8 +1,8 @@
 package org.argeo.cms.acr;
 
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -11,24 +11,25 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.validation.Validator;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
@@ -36,21 +37,20 @@ import org.argeo.api.acr.ContentUtils;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
+import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.cms.acr.xml.DomContentProvider;
+import org.argeo.cms.acr.xml.DomUtils;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * Base implementation of a {@link ProvidedRepository} integrated with a CMS.
@@ -70,11 +70,19 @@ public class CmsContentRepository implements ProvidedRepository {
 
 	private Map<CmsSession, CmsContentSession> userSessions = Collections.synchronizedMap(new HashMap<>());
 
+	// utilities
+	private TransformerFactory transformerFactory = TransformerFactory.newInstance();
+
+	public final static String ACR_MOUNT_PATH_PROPERTY = "acr.mount.path";
+
 	public CmsContentRepository() {
 		contentTypesManager = new ContentTypesManager();
 		contentTypesManager.init();
-		contentTypesManager.listTypes();
-		
+		Set<QName> types = contentTypesManager.listTypes();
+		for (QName type : types) {
+			log.debug(type);
+		}
+
 		systemSession = newSystemSession();
 	}
 
@@ -152,30 +160,12 @@ public class CmsContentRepository implements ProvidedRepository {
 	 */
 	public void initRootContentProvider(Path path) {
 		try {
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setNamespaceAware(true);
-			factory.setXIncludeAware(true);
-			// factory.setSchema(schema);
-
-			factory.setSchema(contentTypesManager.getSchema());
-
-			DocumentBuilder dBuilder = factory.newDocumentBuilder();
-			dBuilder.setErrorHandler(new ErrorHandler() {
-
-				@Override
-				public void warning(SAXParseException exception) throws SAXException {
-				}
-
-				@Override
-				public void fatalError(SAXParseException exception) throws SAXException {
-				}
-
-				@Override
-				public void error(SAXParseException exception) throws SAXException {
-					log.error(exception);
-
-				}
-			});
+//			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//			factory.setNamespaceAware(true);
+//			factory.setXIncludeAware(true);
+//			factory.setSchema(contentTypesManager.getSchema());
+//
+			DocumentBuilder dBuilder = contentTypesManager.newDocumentBuilder();
 
 			Document document;
 //			if (path != null && Files.exists(path)) {
@@ -188,31 +178,91 @@ public class CmsContentRepository implements ProvidedRepository {
 			Element root = document.createElementNS(CrName.CR_NAMESPACE_URI, CrName.ROOT.get().toPrefixedString());
 
 			for (String prefix : contentTypesManager.getPrefixes().keySet()) {
-				root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE + ":" + prefix,
-						contentTypesManager.getPrefixes().get(prefix));
+//				root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE + ":" + prefix,
+//						contentTypesManager.getPrefixes().get(prefix));
+				DomUtils.addNamespace(root, prefix, contentTypesManager.getPrefixes().get(prefix));
 			}
 
 			document.appendChild(root);
 
 			// write it
 			if (path != null) {
-				TransformerFactory transformerFactory = TransformerFactory.newInstance();
-				Transformer transformer = transformerFactory.newTransformer();
-				DOMSource source = new DOMSource(document);
-				try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-					StreamResult result = new StreamResult(writer);
-					transformer.transform(source, result);
+				try (OutputStream out = Files.newOutputStream(path)) {
+					writeDom(document, out);
 				}
 			}
 //			}
 
-			DomContentProvider contentProvider = new DomContentProvider(document);
+			DomContentProvider contentProvider = new DomContentProvider(null, document);
 			addProvider("/", contentProvider);
-		} catch (DOMException | ParserConfigurationException | IOException | TransformerFactoryConfigurationError
-				| TransformerException e) {
+		} catch (DOMException | IOException e) {
 			throw new IllegalStateException("Cannot init ACR root " + path, e);
 		}
 
+	}
+
+	public void writeDom(Document document, OutputStream out) throws IOException {
+		try {
+			Transformer transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+			DOMSource source = new DOMSource(document);
+			contentTypesManager.validate(source);
+			StreamResult result = new StreamResult(out);
+			transformer.transform(source, result);
+		} catch (TransformerException e) {
+			throw new IOException("Cannot write dom", e);
+		}
+	}
+
+	/*
+	 * MOUNT MANAGEMENT
+	 */
+
+	@Override
+	public ContentProvider getMountContentProvider(Content mountPoint, boolean initialize, QName... types) {
+		String mountPath = mountPoint.getPath();
+		if (partitions.containsKey(mountPath))
+			// TODO check consistency with types
+			return partitions.get(mountPath);
+		DocumentBuilder dBuilder = contentTypesManager.newDocumentBuilder();
+		Document document;
+		if (initialize) {
+			QName firstType = types[0];
+			document = dBuilder.newDocument();
+			String prefix = ((ProvidedContent) mountPoint).getSession().getPrefix(firstType.getNamespaceURI());
+			Element root = document.createElementNS(firstType.getNamespaceURI(),
+					prefix + ":" + firstType.getLocalPart());
+			DomUtils.addNamespace(root, prefix, firstType.getNamespaceURI());
+			document.appendChild(root);
+//			try (OutputStream out = mountPoint.open(OutputStream.class)) {
+//				writeDom(document, out);
+//			} catch (IOException e) {
+//				throw new IllegalStateException("Cannot write mount from " + mountPoint, e);
+//			}
+		} else {
+			try (InputStream in = mountPoint.open(InputStream.class)) {
+				document = dBuilder.parse(in);
+				// TODO check consistency with types
+			} catch (IOException | SAXException e) {
+				throw new IllegalStateException("Cannot load mount from " + mountPoint, e);
+			}
+		}
+		DomContentProvider contentProvider = new DomContentProvider(mountPath, document);
+		partitions.put(mountPath, contentProvider);
+		return contentProvider;
+	}
+
+	@Override
+	public boolean shouldMount(QName... types) {
+		if (types.length == 0)
+			throw new IllegalArgumentException("Types must be provided");
+		QName firstType = types[0];
+		Set<QName> registeredTypes = contentTypesManager.listTypes();
+		if (registeredTypes.contains(firstType))
+			return true;
+		return false;
 	}
 
 	/*
@@ -228,6 +278,8 @@ public class CmsContentRepository implements ProvidedRepository {
 		private Locale locale;
 
 		private CompletableFuture<ProvidedSession> closed = new CompletableFuture<>();
+
+		private CompletableFuture<ContentSession> edition;
 
 		public CmsContentSession(Subject subject, Locale locale) {
 			this.subject = subject;
@@ -272,6 +324,17 @@ public class CmsContentRepository implements ProvidedRepository {
 		}
 
 		/*
+		 * MOUNT MANAGEMENT
+		 */
+		@Override
+		public Content getMountPoint(String path) {
+			String[] parent = ContentUtils.getParentPath(path);
+			ProvidedContent mountParent = (ProvidedContent) get(parent[0]);
+//			Content mountPoint = mountParent.getProvider().get(CmsContentSession.this, null, path);
+			return mountParent.getMountPoint(parent[1]);
+		}
+
+		/*
 		 * NAMESPACE CONTEXT
 		 */
 
@@ -286,6 +349,28 @@ public class CmsContentRepository implements ProvidedRepository {
 					(ns) -> contentTypesManager.getPrefixes().entrySet().stream().filter(e -> e.getValue().equals(ns))
 							.map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet()),
 					namespaceURI);
+		}
+
+		@Override
+		public CompletionStage<ContentSession> edit(Consumer<ContentSession> work) {
+			edition = CompletableFuture.supplyAsync(() -> {
+				work.accept(this);
+				return this;
+			}).thenApply((s) -> {
+				// TODO optimise
+				for (ContentProvider provider : partitions.values()) {
+					if (provider instanceof DomContentProvider) {
+						((DomContentProvider) provider).persist(s);
+					}
+				}
+				return s;
+			});
+			return edition.minimalCompletionStage();
+		}
+
+		@Override
+		public boolean isEditing() {
+			return edition != null && !edition.isDone();
 		}
 
 //		@Override

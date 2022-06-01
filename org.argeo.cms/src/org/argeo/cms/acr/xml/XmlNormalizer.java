@@ -102,10 +102,9 @@ public class XmlNormalizer {
 	}
 
 	public static void main(String[] args) throws IOException {
+		Path dir = Paths.get(args[0]);
 		XmlNormalizer xmlNormalizer = new XmlNormalizer();
-		DirectoryStream<Path> ds = Files.newDirectoryStream(
-				Paths.get("/mnt/mbaudier/dev/git/unstable/argeo-suite/org.argeo.app.theme.default/icons/types/svg"),
-				"*.svg");
+		DirectoryStream<Path> ds = Files.newDirectoryStream(dir, "*.svg");
 		xmlNormalizer.normalizeXmlFiles(ds);
 
 	}

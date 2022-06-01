@@ -1,5 +1,7 @@
 package org.argeo.cms.acr.xml;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -16,18 +18,22 @@ import org.argeo.api.acr.ContentNotFoundException;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.cms.acr.CmsContentRepository;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class DomContentProvider implements ContentProvider, NamespaceContext {
-	private Document document;
+	private final Document document;
 
 	// XPath
 	// TODO centralise in some executor?
 	private final ThreadLocal<XPath> xPath;
 
-	public DomContentProvider(Document document) {
+	private String mountPath;
+
+	public DomContentProvider(String mountPath, Document document) {
+		this.mountPath = mountPath;
 		this.document = document;
 		this.document.normalizeDocument();
 		XPathFactory xPathFactory = XPathFactory.newInstance();
@@ -75,6 +81,23 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		} catch (XPathExpressionException e) {
 			throw new IllegalArgumentException("XPath expression " + xPathExpression + " cannot be evaluated", e);
 		}
+	}
+
+	public void persist(ProvidedSession session) {
+		if (mountPath != null) {
+			Content mountPoint = session.getMountPoint(mountPath);
+			try (OutputStream out = mountPoint.open(OutputStream.class)) {
+				CmsContentRepository contentRepository = (CmsContentRepository) session.getRepository();
+				contentRepository.writeDom(document, out);
+			} catch (IOException e) {
+				throw new IllegalStateException("Cannot persist " + mountPath, e);
+			}
+		}
+	}
+
+	@Override
+	public String getMountPath() {
+		return mountPath;
 	}
 
 	/*

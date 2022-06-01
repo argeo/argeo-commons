@@ -23,12 +23,14 @@ import org.argeo.api.acr.spi.ProvidedSession;
 public class FsContentProvider implements ContentProvider {
 	final static String XMLNS_ = "xmlns:";
 
+	private final String mountPath;
 	private final Path rootPath;
 	private final boolean isRoot;
 
 	private NavigableMap<String, String> prefixes = new TreeMap<>();
 
-	public FsContentProvider(Path rootPath, boolean isRoot) {
+	public FsContentProvider(String mountPath, Path rootPath, boolean isRoot) {
+		this.mountPath = mountPath;
 		this.rootPath = rootPath;
 		this.isRoot = isRoot;
 		initNamespaces();
@@ -80,6 +82,12 @@ public class FsContentProvider implements ContentProvider {
 			throw new RuntimeException("Cannot register namespace " + prefix + " " + namespace + " on " + rootPath, e);
 		}
 
+	}
+	
+	
+@Override
+	public String getMountPath() {
+		return mountPath;
 	}
 
 	boolean isRoot(Path path) {

@@ -3,8 +3,7 @@ package org.argeo.api.acr.spi;
 import java.util.Iterator;
 import java.util.concurrent.CompletionStage;
 
-import javax.xml.namespace.NamespaceContext;
-
+import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
 
 public interface ProvidedSession extends ContentSession {
@@ -12,6 +11,9 @@ public interface ProvidedSession extends ContentSession {
 
 	CompletionStage<ProvidedSession> onClose();
 
+	Content getMountPoint(String path);
+
+	boolean isEditing();
 	/*
 	 * NAMESPACE CONTEXT
 	 */

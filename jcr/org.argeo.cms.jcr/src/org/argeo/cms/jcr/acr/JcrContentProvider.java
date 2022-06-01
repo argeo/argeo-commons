@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -15,6 +16,7 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.cms.acr.CmsContentRepository;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
@@ -24,9 +26,13 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 	private Repository jcrRepository;
 	private Session adminSession;
 
+	private String mountPath;
+
 	private Map<ProvidedSession, JcrSessionAdapter> sessionAdapters = Collections.synchronizedMap(new HashMap<>());
 
-	public void start() {
+	public void start(Map<String, String> properties) {
+		mountPath = properties.get(CmsContentRepository.ACR_MOUNT_PATH_PROPERTY);
+		Objects.requireNonNull(mountPath);
 		adminSession = CmsJcrUtils.openDataAdminSession(jcrRepository, null);
 	}
 
@@ -57,6 +63,11 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 
 		Session jcrSession = sessionAdapter.getSession(jcrWorkspace);
 		return jcrSession;
+	}
+
+	@Override
+	public String getMountPath() {
+		return mountPath;
 	}
 
 	/*

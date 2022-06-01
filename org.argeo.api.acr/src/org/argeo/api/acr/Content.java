@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -50,6 +51,7 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 
 	<A> Optional<List<A>> getMultiple(QName key, Class<A> clss);
 
+	@SuppressWarnings("unchecked")
 	default <A> List<A> getMultiple(QName key) {
 		Class<A> type;
 		try {
@@ -70,6 +72,13 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	/*
 	 * CONTENT OPERATIONS
 	 */
+//	default CompletionStage<Content> edit(Consumer<Content> work) {
+//		return CompletableFuture.supplyAsync(() -> {
+//			work.accept(this);
+//			return this;
+//		}).minimalCompletionStage();
+//	}
+
 	Content add(QName name, QName... classes);
 
 	default Content add(String name, QName... classes) {
@@ -84,11 +93,15 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	 * DEFAULT METHODS
 	 */
 	default <A> A adapt(Class<A> clss) throws IllegalArgumentException {
-		throw new IllegalArgumentException("Cannot adapt content " + this + " to " + clss.getName());
+		throw new UnsupportedOperationException("Cannot adapt content " + this + " to " + clss.getName());
 	}
 
-	default <C extends Closeable> C open(Class<C> clss) throws IOException, IllegalArgumentException {
-		throw new IllegalArgumentException("Cannot open content " + this + " as " + clss.getName());
+	default <C extends Closeable> C open(Class<C> clss) throws IOException {
+		throw new UnsupportedOperationException("Cannot open content " + this + " as " + clss.getName());
+	}
+
+	default <A> CompletableFuture<A> write(Class<A> clss) {
+		throw new UnsupportedOperationException("Cannot write content " + this + " as " + clss.getName());
 	}
 
 	/*

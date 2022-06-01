@@ -116,7 +116,7 @@ public class AcrContentTreeView extends Composite {
 		shell.setText(basePath.toString());
 		shell.setLayout(new FillLayout());
 
-		FsContentProvider contentSession = new FsContentProvider(basePath, true);
+		FsContentProvider contentSession = new FsContentProvider(null, basePath, true);
 //		GcrContentTreeView treeView = new GcrContentTreeView(shell, 0, contentSession.get("/"));
 
 		shell.setSize(shell.computeSize(800, 600));

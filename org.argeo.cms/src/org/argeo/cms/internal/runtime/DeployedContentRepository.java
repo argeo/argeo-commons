@@ -4,14 +4,14 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import org.argeo.api.acr.spi.ContentProvider;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.acr.CmsContentRepository;
+import org.argeo.cms.acr.fs.FsContentProvider;
 import org.argeo.util.LangUtils;
 
 public class DeployedContentRepository extends CmsContentRepository {
 	private final static String ROOT_XML = "cr:root.xml";
-	private final static String ACR_MOUNT_PATH = "acr.mount.path";
-
 	private CmsState cmsState;
 
 	@Override
@@ -20,9 +20,9 @@ public class DeployedContentRepository extends CmsContentRepository {
 		Path rootXml = KernelUtils.getOsgiInstancePath(ROOT_XML);
 		initRootContentProvider(rootXml);
 
-//		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);
-//		FsContentProvider srvContentProvider = new FsContentProvider(srvPath, false);
-//		addProvider("/" + CmsConstants.SRV_WORKSPACE, srvContentProvider);
+		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);
+		FsContentProvider srvContentProvider = new FsContentProvider(CmsConstants.SRV_WORKSPACE, srvPath, false);
+		addProvider("/" + CmsConstants.SRV_WORKSPACE, srvContentProvider);
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class DeployedContentRepository extends CmsContentRepository {
 	}
 
 	public void addContentProvider(ContentProvider provider, Map<String, Object> properties) {
-		String base = LangUtils.get(properties, ACR_MOUNT_PATH);
+		String base = LangUtils.get(properties, CmsContentRepository.ACR_MOUNT_PATH_PROPERTY);
 		addProvider(base, provider);
 	}
 

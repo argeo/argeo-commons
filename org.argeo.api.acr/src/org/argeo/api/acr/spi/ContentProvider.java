@@ -10,6 +10,8 @@ public interface ContentProvider extends NamespaceContext {
 
 	Content get(ProvidedSession session, String mountPath, String relativePath);
 
+	String getMountPath();
+
 	/*
 	 * NAMESPACE CONTEXT
 	 */

@@ -1,9 +1,12 @@
 package org.argeo.cms.acr.xml;
 
+import java.nio.CharBuffer;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -11,9 +14,12 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
+import org.argeo.api.acr.ContentUtils;
+import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.cms.acr.fs.FsContent;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -43,6 +49,13 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 
 	@Override
 	public QName getName() {
+		if (element.getParentNode() == null) {// root
+			String mountPath = provider.getMountPath();
+			if (mountPath != null) {
+				Content mountPoint = session.getMountPoint(mountPath);
+				return mountPoint.getName();
+			}
+		}
 		return toQName(this.element);
 	}
 
@@ -173,14 +186,19 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 
 	@Override
 	public Content getParent() {
-		Node parent = element.getParentNode();
-		if (parent == null)
+		Node parentNode = element.getParentNode();
+		if (parentNode == null) {
+			String mountPath = provider.getMountPath();
+			if (mountPath == null)
+				return null;
+			String[] parent = ContentUtils.getParentPath(mountPath);
+			return session.get(parent[0]);
+		}
+		if (parentNode instanceof Document)
 			return null;
-		if (parent instanceof Document)
-			return null;
-		if (!(parent instanceof Element))
+		if (!(parentNode instanceof Element))
 			throw new IllegalStateException("Parent is not an element");
-		return new DomContent(this, (Element) parent);
+		return new DomContent(this, (Element) parentNode);
 	}
 
 	@Override
@@ -209,6 +227,36 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		element.removeAttributeNS(namespaceUriOrNull,
 				namespaceUriOrNull == null ? key.getLocalPart() : key.getPrefix() + ":" + key.getLocalPart());
 
+	}
+
+	@Override
+	public <A> A adapt(Class<A> clss) throws IllegalArgumentException {
+		if (CharBuffer.class.isAssignableFrom(clss)) {
+			String textContent = element.getTextContent();
+			CharBuffer buf = CharBuffer.wrap(textContent);
+			return (A) buf;
+		}
+		return super.adapt(clss);
+	}
+
+	public <A> CompletableFuture<A> write(Class<A> clss) {
+		if (String.class.isAssignableFrom(clss)) {
+			CompletableFuture<String> res = new CompletableFuture<>();
+			res.thenAccept((s) -> element.setTextContent(s));// .thenRun(() -> provider.persist(session));
+			return (CompletableFuture<A>) res;
+		}
+		return super.write(clss);
+	}
+
+	/*
+	 * MOUNT MANAGEMENT
+	 */
+	@Override
+	public ProvidedContent getMountPoint(String relativePath) {
+		// FIXME use qualified names
+		Element childElement = (Element) element.getElementsByTagName(relativePath).item(0);
+		// TODO check that it is a mount
+		return new DomContent(this, childElement);
 	}
 
 	public ProvidedSession getSession() {

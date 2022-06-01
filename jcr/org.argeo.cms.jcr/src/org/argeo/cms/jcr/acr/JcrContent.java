@@ -27,6 +27,7 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
 import org.argeo.api.acr.Content;
+import org.argeo.api.acr.ContentUtils;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ProvidedSession;
@@ -55,7 +56,9 @@ public class JcrContent extends AbstractContent {
 	public QName getName() {
 		String name = Jcr.getName(getJcrNode());
 		if (name.equals("")) {// root
-			name = Jcr.getWorkspaceName(getJcrNode());
+			String mountPath = provider.getMountPath();
+			name = ContentUtils.getParentPath(mountPath)[1];
+			// name = Jcr.getWorkspaceName(getJcrNode());
 		}
 		return NamespaceUtils.parsePrefixedName(provider, name);
 	}
