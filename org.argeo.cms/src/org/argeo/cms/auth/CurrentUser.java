@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionException;
 
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
@@ -160,6 +162,29 @@ public final class CurrentUser {
 		// if (log.isDebugEnabled())
 		// log.debug("Logged out CMS session " + cmsSession.getUuid());
 		return true;
+	}
+
+	/*
+	 * PREPARE EVOLUTION OF JAVA APIs INTRODUCED IN JDK 18
+	 * The following static methods will be added to Subject 
+	 */
+	public Subject current() {
+		return currentSubject();
+	}
+
+	public static <T> T callAs(Subject subject, Callable<T> action) {
+		try {
+			return Subject.doAs(subject, new PrivilegedExceptionAction<T>() {
+
+				@Override
+				public T run() throws Exception {
+					return action.call();
+				}
+
+			});
+		} catch (PrivilegedActionException e) {
+			throw new CompletionException("Failed to execute action for " + subject, e.getCause());
+		}
 	}
 
 	private CurrentUser() {

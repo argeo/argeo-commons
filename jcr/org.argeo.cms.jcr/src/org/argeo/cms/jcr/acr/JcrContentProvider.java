@@ -54,7 +54,7 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 	public Session getJcrSession(ProvidedSession contentSession, String jcrWorkspace) {
 		JcrSessionAdapter sessionAdapter = sessionAdapters.get(contentSession);
 		if (sessionAdapter == null) {
-			final JcrSessionAdapter newSessionAdapter = new JcrSessionAdapter(jcrRepository,
+			final JcrSessionAdapter newSessionAdapter = new JcrSessionAdapter(jcrRepository, contentSession,
 					contentSession.getSubject());
 			sessionAdapters.put(contentSession, newSessionAdapter);
 			contentSession.onClose().thenAccept((s) -> newSessionAdapter.close());

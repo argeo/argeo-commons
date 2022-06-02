@@ -9,6 +9,7 @@ import java.util.function.BiFunction;
  * are relevant for all created UI part.
  */
 @FunctionalInterface
+@Deprecated
 public interface MvcProvider<V, M, W> extends BiFunction<V, M, W> {
 	W createUiPart(V parent, M context);
 	

@@ -10,6 +10,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.Subject;
 
+import org.apache.jackrabbit.core.SessionImpl;
+import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 
@@ -18,14 +20,17 @@ class JcrSessionAdapter {
 	private Repository repository;
 	private Subject subject;
 
+	private ProvidedSession contentSession;
+
 	private Map<Thread, Map<String, Session>> threadSessions = Collections.synchronizedMap(new HashMap<>());
 
 	private boolean closed = false;
 
 	private Thread lastRetrievingThread = null;
 
-	public JcrSessionAdapter(Repository repository, Subject subject) {
+	public JcrSessionAdapter(Repository repository, ProvidedSession contentSession, Subject subject) {
 		this.repository = repository;
+		this.contentSession = contentSession;
 		this.subject = subject;
 	}
 
@@ -58,7 +63,12 @@ class JcrSessionAdapter {
 		if (session == null) {
 			session = Subject.doAs(subject, (PrivilegedAction<Session>) () -> {
 				try {
+//					String username = CurrentUser.getUsername(subject);
+//					SimpleCredentials credentials = new SimpleCredentials(username, new char[0]);
+//					credentials.setAttribute(ProvidedSession.class.getName(), contentSession);
 					Session sess = repository.login(workspace);
+					// Jackrabbit specific:
+					((SessionImpl)sess).setAttribute(ProvidedSession.class.getName(), contentSession);
 					return sess;
 				} catch (RepositoryException e) {
 					throw new IllegalStateException("Cannot log in to " + workspace, e);

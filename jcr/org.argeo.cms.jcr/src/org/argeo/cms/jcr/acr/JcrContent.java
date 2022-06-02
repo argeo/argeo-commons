@@ -31,6 +31,7 @@ import org.argeo.api.acr.ContentUtils;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
@@ -284,4 +285,22 @@ public class JcrContent extends AbstractContent {
 //		}
 //
 //	}
+	/*
+	 * STATIC UTLITIES
+	 */
+	public static Content nodeToContent(Node node) {
+		if (node == null)
+			return null;
+		try {
+			ProvidedSession contentSession = (ProvidedSession) node.getSession()
+					.getAttribute(ProvidedSession.class.getName());
+			if (contentSession == null)
+				throw new IllegalArgumentException(
+						"Cannot adapt " + node + " to content, because it was not loaded from a content session");
+			return contentSession.get(CmsConstants.SYS_WORKSPACE + node.getPath());
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot adapt " + node + " to a content", e);
+		}
+	}
+
 }
