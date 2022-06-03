@@ -6,6 +6,7 @@ import java.util.concurrent.CompletionStage;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
 
+/** A {@link ContentSession} implementation. */
 public interface ProvidedSession extends ContentSession {
 	ProvidedRepository getRepository();
 
@@ -14,6 +15,9 @@ public interface ProvidedSession extends ContentSession {
 	Content getMountPoint(String path);
 
 	boolean isEditing();
+
+	void notifyModification(ProvidedContent content);
+
 	/*
 	 * NAMESPACE CONTEXT
 	 */

@@ -1,6 +1,7 @@
 package org.argeo.cms.runtime;
 
 import java.util.Dictionary;
+import java.util.concurrent.CompletableFuture;
 
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
@@ -14,8 +15,7 @@ import org.argeo.osgi.transaction.SimpleTransactionManager;
 import org.argeo.osgi.transaction.WorkControl;
 import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.util.register.Component;
-import org.argeo.util.register.ComponentRegister;
-import org.argeo.util.register.StaticRegister;
+import org.argeo.util.register.SimpleRegister;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
@@ -23,10 +23,11 @@ import org.osgi.service.useradmin.UserAdmin;
  * deployment. Useful for testing or AOT compilation.
  */
 public class StaticCms {
+	private static SimpleRegister register = new SimpleRegister();
+
+	private CompletableFuture<Void> stopped = new CompletableFuture<Void>();
 
 	public void start() {
-		ComponentRegister register = StaticRegister.getInstance();
-
 		// CMS State
 		CmsStateImpl cmsState = new CmsStateImpl();
 		Component<CmsStateImpl> cmsStateC = new Component.Builder<>(cmsState) //
@@ -83,21 +84,28 @@ public class StaticCms {
 				.addDependency(cmsDeploymentC.getType(CmsDeployment.class), cmsContext::setCmsDeployment, null) //
 				.addDependency(userAdminC.getType(UserAdmin.class), cmsContext::setUserAdmin, null) //
 				.build(register);
-		assert cmsContextC.getInstance() == cmsContext;
+		assert cmsContextC.get() == cmsContext;
 
 		register.activate();
 	}
 
 	public void stop() {
-		if (StaticRegister.getInstance().isActive())
-			StaticRegister.getInstance().deactivate();
+		if (register.isActive()) {
+			register.deactivate();
+		}
+		register.clear();
+		stopped.complete(null);
+	}
+
+	public void waitForStop() {
+		stopped.join();
 	}
 
 	public static void main(String[] args) {
 		StaticCms staticCms = new StaticCms();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> staticCms.stop(), "Static CMS Shutdown"));
 		staticCms.start();
-
+		staticCms.waitForStop();
 	}
 
 }

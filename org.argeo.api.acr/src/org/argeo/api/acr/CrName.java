@@ -34,6 +34,10 @@ public enum CrName implements ContentNameSupplier {
 	;
 
 	public final static String CR_NAMESPACE_URI = "http://argeo.org/ns/cr";
+//	public final static String CR_BASIC_NAMESPACE_URI = CR_NAMESPACE_URI + "/basic";
+//	public final static String CR_OWNER_NAMESPACE_URI = CR_NAMESPACE_URI + "/owner";
+//	public final static String CR_POSIX_NAMESPACE_URI = CR_NAMESPACE_URI + "/posix";
+
 	public final static String CR_DEFAULT_PREFIX = "cr";
 	private final ContentName value;
 

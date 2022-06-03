@@ -17,6 +17,7 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentNotFoundException;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
+import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.CmsContentRepository;
 import org.w3c.dom.Document;
@@ -60,7 +61,7 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 //	}
 
 	@Override
-	public Content get(ProvidedSession session, String mountPath, String relativePath) {
+	public ProvidedContent get(ProvidedSession session, String mountPath, String relativePath) {
 		if ("".equals(relativePath))
 			return new DomContent(session, this, document.getDocumentElement());
 		if (relativePath.startsWith("/"))

@@ -1,0 +1,15 @@
+dn: ou=org.argeo.api.userAdmin,ou=deploy,ou=node
+ou: org.argeo.api.userAdmin
+
+dn: cn=60a26adcb1499e2b182329e94b7754275caea0b9,ou=org.argeo.api.userAdmin,ou=deploy,ou=node
+baseDn: dc=example,dc=com
+cn: 60a26adcb1499e2b182329e94b7754275caea0b9
+
+dn: cn=f0f04f5ae5246a5678ac2be6245da45b04e623a8,ou=org.argeo.api.userAdmin,ou=deploy,ou=node
+baseDn: ou=tokens,ou=node
+cn: f0f04f5ae5246a5678ac2be6245da45b04e623a8
+
+dn: cn=roles,ou=org.argeo.api.userAdmin,ou=deploy,ou=node
+baseDn: ou=roles,ou=node
+cn: roles
+

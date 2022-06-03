@@ -15,7 +15,8 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
 
-public abstract class AbstractContent extends AbstractMap<QName, Object> implements Content {
+/** Partial reference implementation of a {@link ProvidedContent}. */
+public abstract class AbstractContent extends AbstractMap<QName, Object> implements ProvidedContent {
 
 	/*
 	 * ATTRIBUTES OPERATIONS
@@ -40,6 +41,7 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <A> Optional<List<A>> getMultiple(QName key, Class<A> clss) {
 		Object value = get(key);
@@ -153,8 +155,9 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 
 		@Override
 		public int size() {
+
 			int count = 0;
-			for (QName key : keys()) {
+			for (Iterator<QName> it = keys().iterator(); it.hasNext();) {
 				count++;
 			}
 			return count;

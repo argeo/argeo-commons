@@ -1,14 +1,11 @@
-package org.argeo.api.acr;
+package org.argeo.cms.acr;
 
 import java.io.PrintStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
 import java.util.function.BiConsumer;
 
 import javax.xml.namespace.QName;
+
+import org.argeo.api.acr.Content;
 
 public class ContentUtils {
 	public static void traverse(Content content, BiConsumer<Content, Integer> doIt) {
@@ -40,31 +37,7 @@ public class ContentUtils {
 		}
 	}
 
-	public static URI bytesToDataURI(byte[] arr) {
-		String base64Str = Base64.getEncoder().encodeToString(arr);
-		try {
-			final String PREFIX = "data:application/octet-stream;base64,";
-			return new URI(PREFIX + base64Str);
-		} catch (URISyntaxException e) {
-			throw new IllegalStateException("Cannot serialize bytes a Base64 data URI", e);
-		}
-
-	}
-
-	public static byte[] bytesFromDataURI(URI uri) {
-		if (!"data".equals(uri.getScheme()))
-			throw new IllegalArgumentException("URI must have 'data' as a scheme");
-		String schemeSpecificPart = uri.getSchemeSpecificPart();
-		int commaIndex = schemeSpecificPart.indexOf(',');
-		String prefix = schemeSpecificPart.substring(0, commaIndex);
-		List<String> info = Arrays.asList(prefix.split(";"));
-		if (!info.contains("base64"))
-			throw new IllegalArgumentException("URI must specify base64");
-
-		String base64Str = schemeSpecificPart.substring(commaIndex + 1);
-		return Base64.getDecoder().decode(base64Str);
-
-	}
+	
 
 //	public static <T> boolean isString(T t) {
 //		return t instanceof String;

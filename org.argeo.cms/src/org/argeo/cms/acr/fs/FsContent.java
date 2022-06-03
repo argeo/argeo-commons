@@ -24,13 +24,13 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.ContentResourceException;
-import org.argeo.api.acr.ContentUtils;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.cms.acr.ContentUtils;
 import org.argeo.util.FsUtils;
 
 public class FsContent extends AbstractContent implements ProvidedContent {
@@ -65,7 +65,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		// TODO check file names with ':' ?
 		if (isRoot) {
 			String mountPath = provider.getMountPath();
-			if (mountPath != null) {
+			if (mountPath != null && !mountPath.equals("/")) {
 				Content mountPoint = session.getMountPoint(mountPath);
 				this.name = mountPoint.getName();
 			} else {
@@ -99,7 +99,26 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		Object value;
 		try {
 			// We need to add user: when accessing via Files#getAttribute
-			value = Files.getAttribute(path, toFsAttributeKey(key));
+
+			if (POSIX_KEYS.containsKey(key)) {
+				value = Files.getAttribute(path, toFsAttributeKey(key));
+			} else {
+				UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path,
+						UserDefinedFileAttributeView.class);
+				String prefixedName = NamespaceUtils.toPrefixedName(provider, key);
+				if (!udfav.list().contains(prefixedName))
+					return Optional.empty();
+				ByteBuffer buf = ByteBuffer.allocate(udfav.size(prefixedName));
+				udfav.read(prefixedName, buf);
+				buf.flip();
+				if (buf.hasArray())
+					value = buf.array();
+				else {
+					byte[] arr = new byte[buf.remaining()];
+					buf.get(arr);
+					value = arr;
+				}
+			}
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot retrieve attribute " + key + " for " + path, e);
 		}
@@ -239,7 +258,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	public Content getParent() {
 		if (isRoot) {
 			String mountPath = provider.getMountPath();
-			if (mountPath == null)
+			if (mountPath == null || mountPath.equals("/"))
 				return null;
 			String[] parent = ContentUtils.getParentPath(mountPath);
 			return session.get(parent[0]);

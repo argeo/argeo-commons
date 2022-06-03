@@ -27,11 +27,12 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 
 import org.argeo.api.acr.Content;
-import org.argeo.api.acr.ContentUtils;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.AbstractContent;
+import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.cms.acr.ContentUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
@@ -260,31 +261,16 @@ public class JcrContent extends AbstractContent {
 		return super.open(clss);
 	}
 
-//	class JcrKeyIterator implements Iterator<QName> {
-//		private final PropertyIterator propertyIterator;
-//
-//		protected JcrKeyIterator(PropertyIterator propertyIterator) {
-//			this.propertyIterator = propertyIterator;
-//		}
-//
-//		@Override
-//		public boolean hasNext() {
-//			return propertyIterator.hasNext();
-//		}
-//
-//		@Override
-//		public QName next() {
-//			Property property = null;
-//			try {
-//				property = propertyIterator.nextProperty();
-//				// TODO map standard property names
-//				return NamespaceUtils.parsePrefixedName(provider, property.getName());
-//			} catch (RepositoryException e) {
-//				throw new JcrException("Cannot retrieve property " + property, null);
-//			}
-//		}
-//
-//	}
+	@Override
+	public ProvidedSession getSession() {
+		return session;
+	}
+
+	@Override
+	public ContentProvider getProvider() {
+		return provider;
+	}
+
 	/*
 	 * STATIC UTLITIES
 	 */

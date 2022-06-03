@@ -32,14 +32,14 @@ import org.apache.xerces.xs.XSLoader;
 import org.apache.xerces.xs.XSModel;
 import org.apache.xerces.xs.XSNamedMap;
 import org.apache.xerces.xs.XSTypeDefinition;
-import org.argeo.api.acr.CrName;
 import org.argeo.api.cms.CmsLog;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-public class ContentTypesManager {
-	private final static CmsLog log = CmsLog.getLog(ContentTypesManager.class);
+/** Register content types. */
+class TypesManager {
+	private final static CmsLog log = CmsLog.getLog(TypesManager.class);
 	private Map<String, String> prefixes = new TreeMap<>();
 
 	// immutable factories
@@ -56,7 +56,7 @@ public class ContentTypesManager {
 
 	private boolean validating = true;
 
-	public ContentTypesManager() {
+	public TypesManager() {
 		schemaFactory = SchemaFactory.newDefaultInstance();
 
 		// types
@@ -72,9 +72,9 @@ public class ContentTypesManager {
 
 	public synchronized void init() {
 //		prefixes.put(CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
-		prefixes.put("basic", CrName.CR_NAMESPACE_URI);
-		prefixes.put("owner", CrName.CR_NAMESPACE_URI);
-		prefixes.put("posix", CrName.CR_NAMESPACE_URI);
+//		prefixes.put("basic", CrName.CR_NAMESPACE_URI);
+//		prefixes.put("owner", CrName.CR_NAMESPACE_URI);
+//		prefixes.put("posix", CrName.CR_NAMESPACE_URI);
 
 		for (CmsContentTypes cs : CmsContentTypes.values()) {
 			StreamSource source = new StreamSource(cs.getResource().toExternalForm());

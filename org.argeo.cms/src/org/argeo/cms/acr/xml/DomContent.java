@@ -1,7 +1,6 @@
 package org.argeo.cms.acr.xml;
 
 import java.nio.CharBuffer;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
@@ -14,12 +13,10 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
-import org.argeo.api.acr.ContentUtils;
-import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.cms.acr.fs.FsContent;
+import org.argeo.cms.acr.ContentUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -242,7 +239,10 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	public <A> CompletableFuture<A> write(Class<A> clss) {
 		if (String.class.isAssignableFrom(clss)) {
 			CompletableFuture<String> res = new CompletableFuture<>();
-			res.thenAccept((s) -> element.setTextContent(s));// .thenRun(() -> provider.persist(session));
+			res.thenAccept((s) -> {
+				session.notifyModification(this);
+				element.setTextContent(s);
+			});
 			return (CompletableFuture<A>) res;
 		}
 		return super.write(clss);

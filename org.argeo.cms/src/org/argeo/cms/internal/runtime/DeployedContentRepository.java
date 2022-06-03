@@ -8,7 +8,6 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.acr.CmsContentRepository;
 import org.argeo.cms.acr.fs.FsContentProvider;
-import org.argeo.util.LangUtils;
 
 public class DeployedContentRepository extends CmsContentRepository {
 	private final static String ROOT_XML = "cr:root.xml";
@@ -21,8 +20,8 @@ public class DeployedContentRepository extends CmsContentRepository {
 		initRootContentProvider(rootXml);
 
 		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);
-		FsContentProvider srvContentProvider = new FsContentProvider(CmsConstants.SRV_WORKSPACE, srvPath, false);
-		addProvider("/" + CmsConstants.SRV_WORKSPACE, srvContentProvider);
+		FsContentProvider srvContentProvider = new FsContentProvider("/" + CmsConstants.SRV_WORKSPACE, srvPath, false);
+		addProvider(srvContentProvider);
 	}
 
 	@Override
@@ -31,8 +30,8 @@ public class DeployedContentRepository extends CmsContentRepository {
 	}
 
 	public void addContentProvider(ContentProvider provider, Map<String, Object> properties) {
-		String base = LangUtils.get(properties, CmsContentRepository.ACR_MOUNT_PATH_PROPERTY);
-		addProvider(base, provider);
+//		String base = LangUtils.get(properties, CmsContentRepository.ACR_MOUNT_PATH_PROPERTY);
+		addProvider(provider);
 	}
 
 	public void removeContentProvider(ContentProvider provider, Map<String, Object> properties) {

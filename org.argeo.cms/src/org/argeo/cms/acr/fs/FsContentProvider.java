@@ -17,6 +17,7 @@ import org.argeo.api.acr.ContentResourceException;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
+import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 
 /** Access a file system as a {@link ContentProvider}. */
@@ -99,7 +100,7 @@ public class FsContentProvider implements ContentProvider {
 	}
 
 	@Override
-	public Content get(ProvidedSession session, String mountPath, String relativePath) {
+	public ProvidedContent get(ProvidedSession session, String mountPath, String relativePath) {
 		return new FsContent(session, this, rootPath.resolve(relativePath));
 	}
 

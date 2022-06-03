@@ -4,11 +4,9 @@ import java.util.Iterator;
 
 import javax.xml.namespace.NamespaceContext;
 
-import org.argeo.api.acr.Content;
-
 public interface ContentProvider extends NamespaceContext {
 
-	Content get(ProvidedSession session, String mountPath, String relativePath);
+	ProvidedContent get(ProvidedSession session, String mountPath, String relativePath);
 
 	String getMountPath();
 

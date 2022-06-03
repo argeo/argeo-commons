@@ -12,11 +12,11 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.xml.namespace.NamespaceContext;
 
-import org.argeo.api.acr.Content;
-import org.argeo.api.acr.ContentUtils;
 import org.argeo.api.acr.spi.ContentProvider;
+import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.CmsContentRepository;
+import org.argeo.cms.acr.ContentUtils;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
@@ -32,6 +32,8 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 
 	public void start(Map<String, String> properties) {
 		mountPath = properties.get(CmsContentRepository.ACR_MOUNT_PATH_PROPERTY);
+		if ("/".equals(mountPath))
+			throw new IllegalArgumentException("JCR content provider cannot be root /");
 		Objects.requireNonNull(mountPath);
 		adminSession = CmsJcrUtils.openDataAdminSession(jcrRepository, null);
 	}
@@ -45,7 +47,7 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 	}
 
 	@Override
-	public Content get(ProvidedSession contentSession, String mountPath, String relativePath) {
+	public ProvidedContent get(ProvidedSession contentSession, String mountPath, String relativePath) {
 		String jcrWorkspace = ContentUtils.getParentPath(mountPath)[1];
 		String jcrPath = "/" + relativePath;
 		return new JcrContent(contentSession, this, jcrWorkspace, jcrPath);

@@ -4,6 +4,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import javax.xml.XMLConstants;
@@ -58,6 +61,7 @@ public enum CrAttributeType implements ContentNameSupplier {
 			return XMLConstants.W3C_XML_SCHEMA_NS_URI;
 	}
 
+	/** Default parsing procedure from a String to an object. */
 	public static Object parse(String str) {
 		if (str == null)
 			throw new IllegalArgumentException("String cannot be null");
@@ -111,6 +115,34 @@ public enum CrAttributeType implements ContentNameSupplier {
 
 		// default
 		return STRING.getFormatter().parse(str);
+	}
+
+	/** Utility to convert a data: URI to bytes. */
+	public static byte[] bytesFromDataURI(URI uri) {
+		if (!"data".equals(uri.getScheme()))
+			throw new IllegalArgumentException("URI must have 'data' as a scheme");
+		String schemeSpecificPart = uri.getSchemeSpecificPart();
+		int commaIndex = schemeSpecificPart.indexOf(',');
+		String prefix = schemeSpecificPart.substring(0, commaIndex);
+		List<String> info = Arrays.asList(prefix.split(";"));
+		if (!info.contains("base64"))
+			throw new IllegalArgumentException("URI must specify base64");
+
+		String base64Str = schemeSpecificPart.substring(commaIndex + 1);
+		return Base64.getDecoder().decode(base64Str);
+
+	}
+
+	/** Utility to convert bytes to a data: URI. */
+	public static URI bytesToDataURI(byte[] arr) {
+		String base64Str = Base64.getEncoder().encodeToString(arr);
+		try {
+			final String PREFIX = "data:application/octet-stream;base64,";
+			return new URI(PREFIX + base64Str);
+		} catch (URISyntaxException e) {
+			throw new IllegalStateException("Cannot serialize bytes a Base64 data URI", e);
+		}
+
 	}
 
 	static class BooleanFormatter implements AttributeFormatter<Boolean> {
