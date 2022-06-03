@@ -11,6 +11,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
@@ -19,6 +20,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
@@ -97,6 +99,23 @@ public class CmsSwtUtils {
 		Map<String, Object> properties = new HashMap<>();
 		properties.put(key, value);
 		sendEventOnSelect(control, topic, properties);
+	}
+
+	/*
+	 * LAYOUT INDEPENDENT
+	 */
+	/** Takes the most space possible, depending on parent layout. */
+	public static void fill(Control control) {
+		Layout parentLayout = control.getParent().getLayout();
+		if (parentLayout == null)
+			throw new IllegalStateException("Parent layout is not set");
+		if (parentLayout instanceof GridLayout) {
+			control.setLayoutData(fillAll());
+		} else if (parentLayout instanceof FormLayout) {
+			control.setLayoutData(coverAll());
+		} else {
+			throw new IllegalArgumentException("Unsupported parent layout  " + parentLayout.getClass().getName());
+		}
 	}
 
 	/*
