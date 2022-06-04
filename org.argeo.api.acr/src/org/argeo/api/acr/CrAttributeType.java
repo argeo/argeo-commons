@@ -112,6 +112,9 @@ public enum CrAttributeType implements ContentNameSupplier {
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
+		
+		// TODO support QName as a type? It would require a NamespaceContext
+		// see https://www.oreilly.com/library/view/xml-schema/0596002521/re91.html
 
 		// default
 		return STRING.getFormatter().parse(str);
