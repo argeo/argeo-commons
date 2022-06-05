@@ -142,6 +142,7 @@ class CmsAuthUtils {
 						currentLocalSession.close();
 						// new CMS session
 						cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
+						CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 					} else if (!authorization.getName().equals(currentLocalSession.getAuthorization().getName())) {
 						throw new IllegalStateException("Inconsistent user " + authorization.getName()
 								+ " for existing CMS session " + currentLocalSession);

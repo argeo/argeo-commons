@@ -89,7 +89,9 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 			lc.login();
 		} catch (LoginException e) {
 			try {
-				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS);
+				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS,
+						new RemoteAuthCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
+								new ServletHttpResponse(UiContext.getHttpResponse())));
 				lc.login();
 			} catch (LoginException e1) {
 				throw new IllegalStateException("Cannot log in as anonymous", e1);
@@ -154,7 +156,9 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		try {
 			CurrentUser.logoutCmsSession(loginContext.getSubject());
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS);
+			LoginContext anonymousLc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS,
+					new RemoteAuthCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
+							new ServletHttpResponse(UiContext.getHttpResponse())));
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {

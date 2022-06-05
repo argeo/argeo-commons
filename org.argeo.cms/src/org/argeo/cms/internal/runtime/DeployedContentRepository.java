@@ -17,11 +17,11 @@ public class DeployedContentRepository extends CmsContentRepository {
 	public void start() {
 		super.start();
 		Path rootXml = KernelUtils.getOsgiInstancePath(ROOT_XML);
-		initRootContentProvider(rootXml);
+		initRootContentProvider(null);
 
-		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);
-		FsContentProvider srvContentProvider = new FsContentProvider("/" + CmsConstants.SRV_WORKSPACE, srvPath, false);
-		addProvider(srvContentProvider);
+//		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);
+//		FsContentProvider srvContentProvider = new FsContentProvider("/" + CmsConstants.SRV_WORKSPACE, srvPath, false);
+//		addProvider(srvContentProvider);
 	}
 
 	@Override
