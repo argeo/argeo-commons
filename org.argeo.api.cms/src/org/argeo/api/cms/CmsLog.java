@@ -1,16 +1,17 @@
 package org.argeo.api.cms;
 
 import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.util.Objects;
 import java.util.function.Supplier;
+
+import org.argeo.api.cms.SystemLogger.Level;
 
 /**
  * A Commons Logging / SLF4J style logging utilities wrapping a standard Java
  * platform {@link Logger}.
  */
 public interface CmsLog {
-	Logger getLogger();
+	SystemLogger getLogger();
 
 	default boolean isDebugEnabled() {
 		return getLogger().isLoggable(Level.DEBUG);
@@ -181,23 +182,13 @@ public interface CmsLog {
 	}
 
 	static CmsLog getLog(String name) {
-		Logger logger = System.getLogger(Objects.requireNonNull(name));
+		SystemLogger logger;
+		try {
+			logger = new RealSystemLogger(name);
+		} catch (NoSuchMethodError | NoClassDefFoundError e) {// Android
+			logger = new FallBackSystemLogger();
+		}
 		return new LoggerWrapper(logger);
-	}
-
-	/** A trivial implementation wrapping a platform logger. */
-	static class LoggerWrapper implements CmsLog {
-		private final Logger logger;
-
-		LoggerWrapper(Logger logger) {
-			this.logger = logger;
-		}
-
-		@Override
-		public Logger getLogger() {
-			return logger;
-		}
-
 	}
 
 }
