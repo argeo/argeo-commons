@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.List;
@@ -33,10 +34,9 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
 
 /** Manages the LDIF-based deployment configuration. */
-public class DeployConfig implements ConfigurationListener {
+public class DeployConfig {
 	private final static LdapName USER_ADMIN_BASE_DN;
 	static {
 		try {
@@ -171,6 +171,25 @@ public class DeployConfig implements ConfigurationListener {
 
 	}
 
+	protected void logAllConfigurations() {
+		if (!log.isDebugEnabled())
+			return;
+		try {
+			Configuration[] configurations = configurationAdmin.listConfigurations(null);
+			if (configurations == null) {
+				log.debug("No configuration available");
+				return;
+			}
+			Arrays.sort(configurations, (o1, o2) -> o1.getPid().compareTo(o2.getPid()));
+			for (Configuration configuration : configurations) {
+				log.debug(configuration.getFactoryPid() + " - " + configuration.getPid() + " - "
+						+ configuration.getProperties());
+			}
+		} catch (IOException | InvalidSyntaxException e) {
+			throw new IllegalStateException("Cannot log configurations", e);
+		}
+	}
+
 	public void loadConfigs() throws IOException {
 		// FIXME make it more robust
 		Configuration systemRolesConf = null;
@@ -182,6 +201,7 @@ public class DeployConfig implements ConfigurationListener {
 			throw new IllegalArgumentException(e);
 		}
 		deployConfigs: for (LdapName dn : deployConfigs.keySet()) {
+			Attributes deployConfig = deployConfigs.get(dn);
 			Rdn lastRdn = dn.getRdn(dn.size() - 1);
 			LdapName prefix = (LdapName) dn.getPrefix(dn.size() - 1);
 			if (prefix.toString().equals(CmsConstants.DEPLOY_BASEDN)) {
@@ -189,26 +209,53 @@ public class DeployConfig implements ConfigurationListener {
 					// service
 					String pid = lastRdn.getValue().toString();
 					Configuration conf = configurationAdmin.getConfiguration(pid);
-					AttributesDictionary dico = new AttributesDictionary(deployConfigs.get(dn));
+					AttributesDictionary dico = new AttributesDictionary(deployConfig);
 					conf.update(dico);
 				} else {
 					// service factory definition
 				}
 			} else {
-				Attributes config = deployConfigs.get(dn);
-				Attribute disabled = config.get(UserAdminConf.disabled.name());
+				Attribute disabled = deployConfig.get(UserAdminConf.disabled.name());
 				if (disabled != null)
 					continue deployConfigs;
 				// service factory service
+				if (!lastRdn.getType().equals(CmsConstants.CN))
+					throw new IllegalStateException("Only " + CmsConstants.CN + "= is supported: " + dn);
 				Rdn beforeLastRdn = dn.getRdn(dn.size() - 2);
 				assert beforeLastRdn.getType().equals(CmsConstants.OU);
 				String factoryPid = beforeLastRdn.getValue().toString();
-				Configuration conf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
-				if (systemRolesDn.equals(dn)) {
-					systemRolesConf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
+
+				String cn = lastRdn.getValue().toString();
+				Configuration conf = getSingleServiceConfiguration(factoryPid, cn);
+				if (conf != null) {
+					if (systemRolesDn.equals(dn))
+						systemRolesConf = conf;
+					// TODO deal with modifications
+//					boolean modified = false;
+//					Dictionary<String, Object> currentProperties = conf.getProperties();
+//
+//					attrs: for (NamingEnumeration<? extends Attribute> it = deployConfig.getAll(); it
+//							.hasMoreElements();) {
+//						Attribute attr = (Attribute) it.next();
+//						String key = attr.getID();
+//						Object currentValue = currentProperties.get(key);
+//						if (currentValue == null) {
+//							modified = true;
+//							break attrs;
+//						}
+//					}
+
+//					AttributesDictionary dico = new AttributesDictionary(deployConfig);
+//					conf.update(dico);
 				} else {
-					AttributesDictionary dico = new AttributesDictionary(config);
-					conf.update(dico);
+
+					conf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
+					if (systemRolesDn.equals(dn)) {
+						systemRolesConf = configurationAdmin.createFactoryConfiguration(factoryPid.toString(), null);
+					} else {
+						AttributesDictionary dico = new AttributesDictionary(deployConfig);
+						conf.update(dico);
+					}
 				}
 			}
 		}
@@ -218,6 +265,7 @@ public class DeployConfig implements ConfigurationListener {
 			throw new IllegalStateException("System roles are not configured.");
 		systemRolesConf.update(new AttributesDictionary(deployConfigs.get(systemRolesDn)));
 
+//		logAllConfigurations();
 	}
 
 	public Set<Dictionary<String, Object>> getUserDirectoryConfigs() {
@@ -231,7 +279,7 @@ public class DeployConfig implements ConfigurationListener {
 		return res;
 	}
 
-	@Override
+//	@Override
 	public void configurationEvent(ConfigurationEvent event) {
 		try {
 			if (ConfigurationEvent.CM_UPDATED == event.getType()) {
@@ -327,13 +375,7 @@ public class DeployConfig implements ConfigurationListener {
 		if (configurationAdmin == null)
 			return false;
 
-		Configuration[] configs;
-		try {
-			configs = configurationAdmin
-					.listConfigurations("(service.factoryPid=" + CmsConstants.NODE_USER_ADMIN_PID + ")");
-		} catch (IOException | InvalidSyntaxException e) {
-			throw new IllegalStateException("Cannot list user directories", e);
-		}
+		Configuration[] configs = listConfigurationsByFactory(CmsConstants.NODE_USER_ADMIN_PID);
 
 		boolean hasDomain = false;
 		for (Configuration config : configs) {
@@ -344,6 +386,34 @@ public class DeployConfig implements ConfigurationListener {
 			}
 		}
 		return hasDomain;
+	}
+
+	private Configuration[] listConfigurationsByFactory(String factoryPid) {
+		try {
+			Configuration[] configs = configurationAdmin.listConfigurations("(service.factoryPid=" + factoryPid + ")");
+			if (configs == null)
+				configs = new Configuration[0];
+			return configs;
+		} catch (IOException | InvalidSyntaxException e) {
+			throw new IllegalStateException("Cannot list configurations with factoryPid " + factoryPid, e);
+		}
+
+	}
+
+	private Configuration getSingleServiceConfiguration(String factoryPid, String cn) {
+		Configuration[] configs = listConfigurationsByFactory(factoryPid);
+		List<Configuration> res = new ArrayList<>();
+		for (Configuration config : configs) {
+			Object currentCn = config.getProperties().get(CmsConstants.CN);
+			if (currentCn != null && cn.equals(currentCn.toString()))
+				res.add(config);
+		}
+		if (res.size() == 0)
+			return null;
+		if (res.size() > 1)
+			throw new IllegalStateException(
+					"More than one " + factoryPid + " configuration returned for " + CmsConstants.CN + "=" + cn);
+		return res.get(0);
 	}
 
 	/*
