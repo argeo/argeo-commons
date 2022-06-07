@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,20 +39,23 @@ public class LangUtils {
 		return res;
 	}
 
-	/*
-	 * MAP
-	 */
-	/**
-	 * Creates a new {@link Dictionary} with one key-value pair. Key should not be
-	 * null, but if the value is null, it returns an empty {@link Dictionary}.
-	 */
-	public static Map<String, Object> map(String key, Object value) {
-		assert key != null;
-		HashMap<String, Object> props = new HashMap<>();
-		if (value != null)
-			props.put(key, value);
-		return props;
-	}
+//	/*
+//	 * MAP
+//	 */
+//	/**
+//	 * Creates a new {@link Map} with one key-value pair. Key should not be null,
+//	 * but if the value is null, it returns an empty {@link Map}.
+//	 * 
+//	 * @deprecated Use {@link Collections#singletonMap(Object, Object)} instead.
+//	 */
+//	@Deprecated
+//	public static Map<String, Object> map(String key, Object value) {
+//		assert key != null;
+//		HashMap<String, Object> props = new HashMap<>();
+//		if (value != null)
+//			props.put(key, value);
+//		return props;
+//	}
 
 	/*
 	 * DICTIONARY
