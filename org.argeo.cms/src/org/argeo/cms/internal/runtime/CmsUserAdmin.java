@@ -56,7 +56,7 @@ import org.osgi.service.useradmin.Role;
  * Aggregates multiple {@link UserDirectory} and integrates them with system
  * roles.
  */
-public class CmsUserAdmin extends AggregatingUserAdmin  {
+public class CmsUserAdmin extends AggregatingUserAdmin {
 	private final static CmsLog log = CmsLog.getLog(CmsUserAdmin.class);
 
 	// GSS API
@@ -77,7 +77,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin  {
 
 	public void stop() {
 	}
-	
+
 	public UserDirectory enableUserDirectory(Dictionary<String, ?> properties) {
 		String uri = (String) properties.get(UserAdminConf.uri.name());
 		Object realm = properties.get(UserAdminConf.realm.name());
@@ -113,14 +113,13 @@ public class CmsUserAdmin extends AggregatingUserAdmin  {
 		addUserDirectory(userDirectory);
 		if (isSystemRolesBaseDn(baseDn)) {
 			addStandardSystemRoles();
-		}	
+		}
 		if (log.isDebugEnabled()) {
 			log.debug("User directory " + userDirectory.getBaseDn() + (u != null ? " [" + u.getScheme() + "]" : "")
 					+ " enabled." + (realm != null ? " " + realm + " realm." : ""));
 		}
 		return userDirectory;
 	}
-
 
 	protected void addStandardSystemRoles() {
 		// we assume UserTransaction is already available (TODO make it more robust)
@@ -144,7 +143,6 @@ public class CmsUserAdmin extends AggregatingUserAdmin  {
 			throw new IllegalStateException("Cannot add standard system roles", e);
 		}
 	}
-
 
 	@Override
 	protected void addAbstractSystemRoles(Authorization rawAuthorization, Set<String> sysRoles) {
@@ -229,6 +227,13 @@ public class CmsUserAdmin extends AggregatingUserAdmin  {
 	}
 
 	private GSSCredential logInAsAcceptor(Subject subject, String servicePrincipal) {
+		// not static because class is not supported by Android
+		final Oid KERBEROS_OID;
+		try {
+			KERBEROS_OID = new Oid("1.3.6.1.5.5.2");
+		} catch (GSSException e) {
+			throw new IllegalStateException("Cannot create Kerberos OID", e);
+		}
 		// GSS
 		Iterator<KerberosPrincipal> krb5It = subject.getPrincipals(KerberosPrincipal.class).iterator();
 		if (!krb5It.hasNext())
@@ -288,12 +293,4 @@ public class CmsUserAdmin extends AggregatingUserAdmin  {
 	 * STATIC
 	 */
 
-	public final static Oid KERBEROS_OID;
-	static {
-		try {
-			KERBEROS_OID = new Oid("1.3.6.1.5.5.2");
-		} catch (GSSException e) {
-			throw new IllegalStateException("Cannot create Kerberos OID", e);
-		}
-	}
 }

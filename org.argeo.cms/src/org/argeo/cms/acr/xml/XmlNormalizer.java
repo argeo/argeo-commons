@@ -4,8 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,7 +31,7 @@ import org.xml.sax.SAXException;
  * versioning system).
  */
 public class XmlNormalizer {
-	private final static Logger logger = System.getLogger(XmlNormalizer.class.getName());
+//	private final static Logger logger = System.getLogger(XmlNormalizer.class.getName());
 
 	private DocumentBuilder documentBuilder;
 	private Transformer transformer;
@@ -67,7 +65,7 @@ public class XmlNormalizer {
 		try (ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 				OutputStream out = Files.newOutputStream(path)) {
 			normalizeAndIndent(in, out);
-			logger.log(Level.DEBUG, () -> "Normalized XML " + path);
+//			logger.log(Level.DEBUG, () -> "Normalized XML " + path);
 		}
 	}
 

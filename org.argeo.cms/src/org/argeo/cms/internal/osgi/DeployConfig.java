@@ -37,15 +37,6 @@ import org.osgi.service.cm.ConfigurationEvent;
 
 /** Manages the LDIF-based deployment configuration. */
 public class DeployConfig {
-	private final static LdapName USER_ADMIN_BASE_DN;
-	static {
-		try {
-			USER_ADMIN_BASE_DN = new LdapName(
-					CmsConstants.OU + "=" + CmsConstants.NODE_USER_ADMIN_PID + "," + CmsConstants.DEPLOY_BASEDN);
-		} catch (InvalidNameException e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
 
 	private final CmsLog log = CmsLog.getLog(getClass());
 //	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
@@ -269,6 +260,14 @@ public class DeployConfig {
 	}
 
 	public Set<Dictionary<String, Object>> getUserDirectoryConfigs() {
+		// not static because class is not supported by Android
+		final LdapName USER_ADMIN_BASE_DN;
+		try {
+			USER_ADMIN_BASE_DN = new LdapName(
+					CmsConstants.OU + "=" + CmsConstants.NODE_USER_ADMIN_PID + "," + CmsConstants.DEPLOY_BASEDN);
+		} catch (InvalidNameException e) {
+			throw new IllegalArgumentException(e);
+		}
 		Set<Dictionary<String, Object>> res = new HashSet<>();
 		for (LdapName dn : deployConfigs.keySet()) {
 			if (dn.endsWith(USER_ADMIN_BASE_DN)) {
