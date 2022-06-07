@@ -1,9 +1,5 @@
 package org.argeo.api.uuid;
 
-import static java.lang.System.Logger.Level.DEBUG;
-import static java.lang.System.Logger.Level.WARNING;
-
-import java.lang.System.Logger;
 import java.security.DrbgParameters;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -17,10 +13,15 @@ import java.util.UUID;
  * @see https://datatracker.ietf.org/doc/html/rfc4122
  */
 public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory implements TypedUuidFactory {
-	private final static Logger logger = System.getLogger(ConcurrentUuidFactory.class.getName());
+//	private final static Logger logger = System.getLogger(ConcurrentUuidFactory.class.getName());
 
 	public ConcurrentUuidFactory(long initialClockRange, byte[] nodeId) {
 		this(initialClockRange, nodeId, 0);
+	}
+
+	/** With a random node id. */
+	public ConcurrentUuidFactory(long initialClockRange) {
+		this(initialClockRange, NodeIdSupplier.randomNodeId());
 	}
 
 	public ConcurrentUuidFactory(long initialClockRange, byte[] nodeId, int offset) {
@@ -67,12 +68,14 @@ public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory implements T
 					DrbgParameters.instantiation(256, DrbgParameters.Capability.PR_AND_RESEED, "UUID".getBytes()));
 		} catch (NoSuchAlgorithmException e) {
 			try {
-				logger.log(DEBUG, "DRBG secure random not found, using strong");
+//				logger.log(DEBUG, "DRBG secure random not found, using strong");
 				secureRandom = SecureRandom.getInstanceStrong();
 			} catch (NoSuchAlgorithmException e1) {
-				logger.log(WARNING, "No strong secure random was found, using default");
+//				logger.log(WARNING, "No strong secure random was found, using default");
 				secureRandom = new SecureRandom();
 			}
+		} catch (java.lang.NoClassDefFoundError e) {// Android
+			secureRandom = new SecureRandom();
 		}
 		return secureRandom;
 	}

@@ -1,9 +1,5 @@
 package org.argeo.api.uuid;
 
-import static java.lang.System.Logger.Level.DEBUG;
-import static java.lang.System.Logger.Level.WARNING;
-
-import java.lang.System.Logger;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.time.Duration;
@@ -29,7 +25,7 @@ import org.argeo.api.uuid.UuidFactory.TimeUuidState;
  * and that such reallocation won't have to happen too often.
  */
 public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
-	private final static Logger logger = System.getLogger(ConcurrentTimeUuidState.class.getName());
+//	private final static Logger logger = System.getLogger(ConcurrentTimeUuidState.class.getName());
 
 	/** The maximum possible value of the clocksequence. */
 	private final static int MAX_CLOCKSEQUENCE = 0x3F00;
@@ -275,11 +271,11 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 
 				}
 				assert holderToRemove != null;
-				long oldClockSequence = holderToRemove.clockSequence;
+//				long oldClockSequence = holderToRemove.clockSequence;
 				holderToRemove.clockSequence = -1;
 				activeHolders.remove(holderToRemove);
-				if (logger.isLoggable(WARNING))
-					logger.log(WARNING, "Removed " + holderToRemove + ", oldClockSequence=" + oldClockSequence);
+//				if (logger.isLoggable(WARNING))
+//					logger.log(WARNING, "Removed " + holderToRemove + ", oldClockSequence=" + oldClockSequence);
 			}
 
 			long newClockSequence = -1;
@@ -300,13 +296,13 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 			// TODO use an iterator to check the values
 			holder.setClockSequence(newClockSequence);
 			activeHolders.put(holder, newClockSequence);
-			if (logger.isLoggable(DEBUG)) {
-				String clockDesc = range >= 0 ? Long.toHexString(newClockSequence & 0x00FF)
-						: Long.toHexString(newClockSequence | 0x8000);
-				String rangeDesc = Long.toHexString(min | 0x8000) + "-" + Long.toHexString(max | 0x8000);
-				logger.log(DEBUG, "New clocksequence " + clockDesc + " for thread " + Thread.currentThread().getId()
-						+ " (in range " + rangeDesc + ")");
-			}
+//			if (logger.isLoggable(DEBUG)) {
+//				String clockDesc = range >= 0 ? Long.toHexString(newClockSequence & 0x00FF)
+//						: Long.toHexString(newClockSequence | 0x8000);
+//				String rangeDesc = Long.toHexString(min | 0x8000) + "-" + Long.toHexString(max | 0x8000);
+//				logger.log(DEBUG, "New clocksequence " + clockDesc + " for thread " + Thread.currentThread().getId()
+//						+ " (in range " + rangeDesc + ")");
+//			}
 		}
 
 		private synchronized int getRangeSize() {
