@@ -63,9 +63,9 @@ public class CmsContentRepository implements ProvidedRepository {
 		typesManager = new TypesManager();
 		typesManager.init();
 		Set<QName> types = typesManager.listTypes();
-		for (QName type : types) {
-			log.debug(type + " - " + typesManager.getAttributeTypes(type));
-		}
+//		for (QName type : types) {
+//			log.debug(type + " - " + typesManager.getAttributeTypes(type));
+//		}
 
 		systemSession = newSystemSession();
 
