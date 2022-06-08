@@ -28,10 +28,10 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.NamespaceUtils;
-import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;

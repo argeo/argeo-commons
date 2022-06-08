@@ -23,7 +23,7 @@ import org.argeo.cms.acr.xml.DomContentProvider;
 
 /** Implements {@link ProvidedSession}. */
 class CmsContentSession implements ProvidedSession {
-	final private CmsContentRepository contentRepository;
+	final private AbstractContentRepository contentRepository;
 
 	private Subject subject;
 	private Locale locale;
@@ -34,7 +34,7 @@ class CmsContentSession implements ProvidedSession {
 
 	private Set<ContentProvider> modifiedProviders = new TreeSet<>();
 
-	public CmsContentSession(CmsContentRepository contentRepository, Subject subject, Locale locale) {
+	public CmsContentSession(AbstractContentRepository contentRepository, Subject subject, Locale locale) {
 		this.contentRepository = contentRepository;
 		this.subject = subject;
 		this.locale = locale;

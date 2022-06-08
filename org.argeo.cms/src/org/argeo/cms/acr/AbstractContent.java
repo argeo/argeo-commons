@@ -1,4 +1,4 @@
-package org.argeo.api.acr.spi;
+package org.argeo.cms.acr;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -14,6 +14,7 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.spi.ProvidedContent;
 
 /** Partial reference implementation of a {@link ProvidedContent}. */
 public abstract class AbstractContent extends AbstractMap<QName, Object> implements ProvidedContent {
@@ -107,10 +108,10 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 		return clss.isAssignableFrom(Object.class);
 	}
 
-	@Override
-	public String toString() {
-		return "content " + getPath();
-	}
+//	@Override
+//	public String toString() {
+//		return "content " + getPath();
+//	}
 
 	/*
 	 * SUB CLASSES

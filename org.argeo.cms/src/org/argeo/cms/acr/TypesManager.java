@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,6 +23,7 @@ import javax.xml.validation.Validator;
 
 import org.apache.xerces.impl.xs.XSImplementationImpl;
 import org.apache.xerces.impl.xs.util.StringListImpl;
+import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.apache.xerces.xs.StringList;
 import org.apache.xerces.xs.XSAttributeDeclaration;
 import org.apache.xerces.xs.XSAttributeUse;
@@ -58,14 +60,16 @@ class TypesManager {
 
 	// cached
 	private Schema schema;
-	DocumentBuilderFactory documentBuilderFactory;
+	private DocumentBuilderFactory documentBuilderFactory;
 	private XSModel xsModel;
 	private SortedMap<QName, Map<QName, CrAttributeType>> types;
 
 	private boolean validating = true;
 
+	private final static boolean limited = true;
+
 	public TypesManager() {
-		schemaFactory = SchemaFactory.newDefaultInstance();
+		schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
 		// types
 		types = new TreeMap<>((qn1, qn2) -> {
@@ -122,11 +126,14 @@ class TypesManager {
 			schema = schemaFactory.newSchema(sources.toArray(new Source[sources.size()]));
 
 			// document builder factory
-			documentBuilderFactory = DocumentBuilderFactory.newInstance();
+			// we force usage of Xerces for predictability
+			documentBuilderFactory = limited ? DocumentBuilderFactory.newInstance() : new DocumentBuilderFactoryImpl();
 			documentBuilderFactory.setNamespaceAware(true);
-			documentBuilderFactory.setXIncludeAware(true);
-			documentBuilderFactory.setSchema(getSchema());
-			documentBuilderFactory.setValidating(validating);
+			if (!limited) {
+				documentBuilderFactory.setXIncludeAware(true);
+				documentBuilderFactory.setSchema(getSchema());
+				documentBuilderFactory.setValidating(validating);
+			}
 
 			// XS model
 			// TODO use JVM implementation?

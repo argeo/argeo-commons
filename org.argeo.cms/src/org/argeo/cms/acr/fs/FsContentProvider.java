@@ -12,7 +12,6 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentResourceException;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
@@ -41,6 +40,8 @@ public class FsContentProvider implements ContentProvider {
 		try {
 			UserDefinedFileAttributeView udfav = Files.getFileAttributeView(rootPath,
 					UserDefinedFileAttributeView.class);
+			if(udfav==null)
+				return;
 			for (String name : udfav.list()) {
 				if (name.startsWith(XMLNS_)) {
 					ByteBuffer buf = ByteBuffer.allocate(udfav.size(name));

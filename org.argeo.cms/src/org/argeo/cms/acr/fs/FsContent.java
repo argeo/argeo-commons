@@ -26,10 +26,10 @@ import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.ContentResourceException;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
-import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
 import org.argeo.util.FsUtils;
 

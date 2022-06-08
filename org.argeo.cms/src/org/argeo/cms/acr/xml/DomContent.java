@@ -13,9 +13,9 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
-import org.argeo.api.acr.spi.AbstractContent;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
