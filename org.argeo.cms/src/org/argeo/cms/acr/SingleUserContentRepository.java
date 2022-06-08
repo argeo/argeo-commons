@@ -1,12 +1,17 @@
 package org.argeo.cms.acr;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Objects;
 
 import javax.security.auth.Subject;
+import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.spi.ProvidedRepository;
+import org.argeo.cms.acr.fs.FsContentProvider;
+import org.argeo.util.naming.LdapAttrs;
 
 /**
  * A standalone {@link ProvidedRepository} with a single {@link Subject} (which
@@ -69,4 +74,22 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 		return new CmsContentSession(this, subject, Locale.getDefault());
 	}
 
+	public static void main(String... args) {
+		Path homePath = Paths.get(System.getProperty("user.home"));
+		String username = System.getProperty("user.name");
+		X500Principal principal = new X500Principal(LdapAttrs.uid + "=" + username + ",dc=localhost");
+		Subject subject = new Subject();
+		subject.getPrincipals().add(principal);
+
+		SingleUserContentRepository contentRepository = new SingleUserContentRepository(subject);
+		FsContentProvider homeContentProvider = new FsContentProvider("/home", homePath);
+		contentRepository.addProvider(homeContentProvider);
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> contentRepository.stop(), "Shutdown content repository"));
+		contentRepository.start();
+
+		ContentSession contentSession = contentRepository.get();
+		ContentUtils.traverse(contentSession.get("/"), (c, depth) -> ContentUtils.print(c, System.out, depth, false),
+				2);
+
+	}
 }

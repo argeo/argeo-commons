@@ -9,6 +9,7 @@ import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -25,22 +26,33 @@ public class FsContentProvider implements ContentProvider {
 
 	private final String mountPath;
 	private final Path rootPath;
-	private final boolean isRoot;
+//	private final boolean isRoot;
 
 	private NavigableMap<String, String> prefixes = new TreeMap<>();
 
-	public FsContentProvider(String mountPath, Path rootPath, boolean isRoot) {
+	public FsContentProvider(String mountPath, Path rootPath) {
+		Objects.requireNonNull(mountPath);
+		Objects.requireNonNull(rootPath);
+		
 		this.mountPath = mountPath;
 		this.rootPath = rootPath;
-		this.isRoot = isRoot;
+		// FIXME make it more robust
 		initNamespaces();
 	}
 
-	protected void initNamespaces() {
+//	@Deprecated
+//	public FsContentProvider(String mountPath, Path rootPath, boolean isRoot) {
+//		this.mountPath = mountPath;
+//		this.rootPath = rootPath;
+////		this.isRoot = isRoot;
+////		initNamespaces();
+//	}
+
+	private void initNamespaces() {
 		try {
 			UserDefinedFileAttributeView udfav = Files.getFileAttributeView(rootPath,
 					UserDefinedFileAttributeView.class);
-			if(udfav==null)
+			if (udfav == null)
 				return;
 			for (String name : udfav.list()) {
 				if (name.startsWith(XMLNS_)) {
@@ -85,16 +97,15 @@ public class FsContentProvider implements ContentProvider {
 		}
 
 	}
-	
-	
-@Override
+
+	@Override
 	public String getMountPath() {
 		return mountPath;
 	}
 
-	boolean isRoot(Path path) {
+	boolean isMountRoot(Path path) {
 		try {
-			return isRoot && Files.isSameFile(rootPath, path);
+			return Files.isSameFile(rootPath, path);
 		} catch (IOException e) {
 			throw new ContentResourceException(e);
 		}

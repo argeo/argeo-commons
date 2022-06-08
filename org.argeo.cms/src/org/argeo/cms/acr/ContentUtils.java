@@ -7,16 +7,24 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 
+/** Utilities and routines around {@link Content}. */
 public class ContentUtils {
 	public static void traverse(Content content, BiConsumer<Content, Integer> doIt) {
-		traverse(content, doIt, 0);
+		traverse(content, doIt, (Integer) null);
 	}
 
-	public static void traverse(Content content, BiConsumer<Content, Integer> doIt, int currentDepth) {
+	public static void traverse(Content content, BiConsumer<Content, Integer> doIt, Integer maxDepth) {
+		doTraverse(content, doIt, 0, maxDepth);
+	}
+
+	private static void doTraverse(Content content, BiConsumer<Content, Integer> doIt, int currentDepth,
+			Integer maxDepth) {
 		doIt.accept(content, currentDepth);
+		if (maxDepth != null && currentDepth == maxDepth)
+			return;
 		int nextDepth = currentDepth + 1;
 		for (Content child : content) {
-			traverse(child, doIt, nextDepth);
+			doTraverse(child, doIt, nextDepth, maxDepth);
 		}
 	}
 
@@ -36,8 +44,6 @@ public class ContentUtils {
 			}
 		}
 	}
-
-	
 
 //	public static <T> boolean isString(T t) {
 //		return t instanceof String;

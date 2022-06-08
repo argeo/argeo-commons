@@ -33,6 +33,7 @@ import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
 import org.argeo.util.FsUtils;
 
+/** Content persisted as a filesystem {@link Path}. */
 public class FsContent extends AbstractContent implements ProvidedContent {
 	final static String USER_ = "user:";
 
@@ -61,7 +62,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		this.session = session;
 		this.provider = contentProvider;
 		this.path = path;
-		this.isRoot = contentProvider.isRoot(path);
+		this.isRoot = contentProvider.isMountRoot(path);
 		// TODO check file names with ':' ?
 		if (isRoot) {
 			String mountPath = provider.getMountPath();
@@ -72,7 +73,12 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 				this.name = CrName.ROOT.get();
 			}
 		} else {
-			QName providerName = NamespaceUtils.parsePrefixedName(provider, path.getFileName().toString());
+
+			// TODO should we support prefixed name for known types?
+			// QName providerName = NamespaceUtils.parsePrefixedName(provider,
+			// path.getFileName().toString());
+			QName providerName = new QName(path.getFileName().toString());
+			// TODO remove extension if mounted?
 			this.name = new ContentName(providerName, session);
 		}
 	}
@@ -94,6 +100,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	 * ATTRIBUTES
 	 */
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <A> Optional<A> get(QName key, Class<A> clss) {
 		Object value;
@@ -178,7 +185,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
 		ByteBuffer bb = ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
 		try {
-			int size = udfav.write(NamespaceUtils.toPrefixedName(provider, key), bb);
+			udfav.write(NamespaceUtils.toPrefixedName(provider, key), bb);
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot delete attribute " + key + " for " + path, e);
 		}
@@ -266,6 +273,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		return new FsContent(this, path.getParent());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Closeable> C open(Class<C> clss) throws IOException, IllegalArgumentException {
 		if (InputStream.class.isAssignableFrom(clss)) {

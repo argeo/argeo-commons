@@ -101,6 +101,10 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		return mountPath;
 	}
 
+	public void registerPrefix(String prefix, String namespace) {
+		DomUtils.addNamespace(document.getDocumentElement(), prefix, namespace);
+	}
+
 	/*
 	 * NAMESPACE CONTEXT
 	 */

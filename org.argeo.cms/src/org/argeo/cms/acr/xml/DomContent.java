@@ -25,6 +25,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+/** Content persisted as a DOM element. */
 public class DomContent extends AbstractContent implements ProvidedContent {
 
 	private final ProvidedSession session;
@@ -128,10 +129,29 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		Object previous = get(key);
 		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(key.getNamespaceURI()) ? null
 				: key.getNamespaceURI();
+		String prefixToUse = registerPrefixIfNeeded(key);
 		element.setAttributeNS(namespaceUriOrNull,
-				namespaceUriOrNull == null ? key.getLocalPart() : key.getPrefix() + ":" + key.getLocalPart(),
+				namespaceUriOrNull == null ? key.getLocalPart() : prefixToUse + ":" + key.getLocalPart(),
 				value.toString());
 		return previous;
+	}
+
+	protected String registerPrefixIfNeeded(QName name) {
+		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI()) ? null
+				: name.getNamespaceURI();
+		String prefixToUse;
+		if (namespaceUriOrNull != null) {
+			String registeredPrefix = provider.getPrefix(namespaceUriOrNull);
+			if (registeredPrefix != null) {
+				prefixToUse = registeredPrefix;
+			} else {
+				provider.registerPrefix(name.getPrefix(), namespaceUriOrNull);
+				prefixToUse = name.getPrefix();
+			}
+		} else {
+			prefixToUse = null;
+		}
+		return prefixToUse;
 	}
 
 	@Override
@@ -204,8 +224,9 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		Document document = this.element.getOwnerDocument();
 		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI()) ? null
 				: name.getNamespaceURI();
+		String prefixToUse = registerPrefixIfNeeded(name);
 		Element child = document.createElementNS(namespaceUriOrNull,
-				namespaceUriOrNull == null ? name.getLocalPart() : name.getPrefix() + ":" + name.getLocalPart());
+				namespaceUriOrNull == null ? name.getLocalPart() : prefixToUse + ":" + name.getLocalPart());
 		element.appendChild(child);
 		return new DomContent(this, child);
 	}
@@ -226,6 +247,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <A> A adapt(Class<A> clss) throws IllegalArgumentException {
 		if (CharBuffer.class.isAssignableFrom(clss)) {
@@ -236,6 +258,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		return super.adapt(clss);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <A> CompletableFuture<A> write(Class<A> clss) {
 		if (String.class.isAssignableFrom(clss)) {
 			CompletableFuture<String> res = new CompletableFuture<>();

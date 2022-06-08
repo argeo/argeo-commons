@@ -8,9 +8,6 @@ import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.concurrent.Callable;
 
-import org.argeo.cms.acr.fs.SyncFileVisitor;
-import org.argeo.cms.acr.fs.SyncResult;
-
 /** Synchronises two paths. */
 public class PathSync implements Callable<SyncResult<Path>> {
 	private final URI sourceUri, targetUri;
