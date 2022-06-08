@@ -1,9 +1,0 @@
-dn: ou=node
-objectClass: organizationalUnit
-objectClass: top
-ou: node
-
-dn: ou=roles,ou=node
-objectClass: organizationalUnit
-objectClass: top
-ou: roles
