@@ -5,14 +5,19 @@ import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.concurrent.CompletableFuture;
 
+import org.argeo.api.acr.ContentRepository;
+import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsState;
+import org.argeo.api.uuid.UuidFactory;
+import org.argeo.cms.acr.CmsUuidFactory;
 import org.argeo.cms.internal.osgi.DeployConfig;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.internal.runtime.CmsDeploymentImpl;
 import org.argeo.cms.internal.runtime.CmsStateImpl;
 import org.argeo.cms.internal.runtime.CmsUserAdmin;
+import org.argeo.cms.internal.runtime.DeployedContentRepository;
 import org.argeo.osgi.transaction.SimpleTransactionManager;
 import org.argeo.osgi.transaction.WorkControl;
 import org.argeo.osgi.transaction.WorkTransaction;
@@ -87,6 +92,23 @@ public class StaticCms {
 				.addDependency(userAdminC.getType(UserAdmin.class), cmsContext::setUserAdmin, null) //
 				.build(register);
 		assert cmsContextC.get() == cmsContext;
+
+		// UID factory
+		CmsUuidFactory uuidFactory = new CmsUuidFactory();
+		Component<CmsUuidFactory> uuidFactoryC = new Component.Builder<>(uuidFactory) //
+				.addType(UuidFactory.class) //
+				.build(register);
+
+		// Content Repository
+		DeployedContentRepository contentRepository = new DeployedContentRepository();
+		Component<DeployedContentRepository> contentRepositoryC = new Component.Builder<>(contentRepository) //
+				.addType(ProvidedRepository.class) //
+				.addType(ContentRepository.class) //
+				.addActivation(contentRepository::start) //
+				.addDeactivation(contentRepository::stop) //
+				.addDependency(cmsStateC.getType(CmsState.class), contentRepository::setCmsState, null) //
+				.addDependency(uuidFactoryC.getType(UuidFactory.class), contentRepository::setUuidFactory, null) //
+				.build(register);
 
 		register.activate();
 	}

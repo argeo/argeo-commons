@@ -7,4 +7,5 @@
       <provide interface="org.argeo.api.acr.spi.ProvidedRepository"/>
    </service>
    <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
+   <reference bind="setUuidFactory" cardinality="1..1" interface="org.argeo.api.uuid.UuidFactory" name="UuidFactory" policy="static"/>
 </scr:component>

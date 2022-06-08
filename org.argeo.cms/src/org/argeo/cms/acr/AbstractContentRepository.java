@@ -22,6 +22,7 @@ import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.acr.xml.DomContentProvider;
 import org.argeo.cms.acr.xml.DomUtils;
 import org.w3c.dom.DOMException;
@@ -35,8 +36,10 @@ import org.xml.sax.SAXException;
 public abstract class AbstractContentRepository implements ProvidedRepository {
 	private final static CmsLog log = CmsLog.getLog(AbstractContentRepository.class);
 
-	private final MountManager mountManager;
-	private final TypesManager typesManager;
+	private UuidFactory uuidFactory;
+
+	private MountManager mountManager;
+	private TypesManager typesManager;
 
 	private CmsContentSession systemSession;
 
@@ -56,20 +59,19 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 				log.trace(type + " - " + typesManager.getAttributeTypes(type));
 			}
 
-		systemSession = newSystemSession();
-
-		// mounts
-		mountManager = new MountManager(systemSession);
-
 	}
 
 	protected abstract CmsContentSession newSystemSession();
 
 	public void start() {
+		systemSession = newSystemSession();
+		// mounts
+		mountManager = new MountManager(systemSession);
 	}
 
 	public void stop() {
-
+		systemSession.close();
+		systemSession = null;
 	}
 
 	/*
@@ -196,6 +198,10 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 
 	TypesManager getTypesManager() {
 		return typesManager;
+	}
+
+	public void setUuidFactory(UuidFactory uuidFactory) {
+		this.uuidFactory = uuidFactory;
 	}
 
 }

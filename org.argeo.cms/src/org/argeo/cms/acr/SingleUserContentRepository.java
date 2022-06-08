@@ -26,8 +26,6 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 
 	public SingleUserContentRepository(Subject subject) {
 		this(subject, Locale.getDefault());
-
-		initRootContentProvider(null);
 	}
 
 	public SingleUserContentRepository(Subject subject, Locale locale) {
@@ -44,6 +42,7 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 		Objects.requireNonNull(locale);
 
 		super.start();
+		initRootContentProvider(null);
 		if (contentSession != null)
 			throw new IllegalStateException("Repository is already started, stop it first.");
 		contentSession = new CmsContentSession(this, subject, locale);
@@ -82,10 +81,10 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 		subject.getPrincipals().add(principal);
 
 		SingleUserContentRepository contentRepository = new SingleUserContentRepository(subject);
+		contentRepository.start();
 		FsContentProvider homeContentProvider = new FsContentProvider("/home", homePath);
 		contentRepository.addProvider(homeContentProvider);
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> contentRepository.stop(), "Shutdown content repository"));
-		contentRepository.start();
 
 		ContentSession contentSession = contentRepository.get();
 		ContentUtils.traverse(contentSession.get("/"), (c, depth) -> ContentUtils.print(c, System.out, depth, false),
