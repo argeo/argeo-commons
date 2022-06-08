@@ -2,63 +2,17 @@
   "resources":{
   "includes":[
     {
-      "pattern":"\\QMETA-INF/services/javax.xml.validation.SchemaFactory\\E"
+      "pattern":"\\Qorg/argeo/cms/internal/runtime/dc=example,dc=com.ldif\\E"
     }, 
     {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/DSMLv2.xsd\\E"
+      "pattern":"\\Qorg/argeo/cms/internal/runtime/jaas.cfg\\E"
     }, 
     {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/SVG.xsd\\E"
+      "pattern":"\\Qorg/argeo/cms/internal/runtime/ou=roles,ou=node.ldif\\E"
     }, 
     {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/XForms-11-Schema.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/XMLSchema.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/cr.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/docbook.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/schema-for-xslt20.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/xlink.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/xml-events-attribs-1.xsd\\E"
-    }, 
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/xml.xsd\\E"
-    },
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/datatypes.dtd\\E"
-    },
-    {
-      "pattern":"\\Qorg/argeo/cms/acr/schemas/XMLSchema.dtd\\E"
+      "pattern":"\\Qorg/argeo/cms/internal/runtime/ou=tokens,ou=node.ldif\\E"
     }
   ]},
-  "bundles":[
-    {
-      "name":"org.apache.xerces.impl.xpath.regex.message",
-      "locales":[
-        "", 
-        "en"
-      ]
-    }, 
-    {
-      "name":"org.apache.xerces.impl.msg.XMLSchemaMessages",
-      "locales":[
-        "", 
-        "en"
-      ]
-    }, 
-    {
-      "name":"sun.security.util.Resources",
-      "classNames":["sun.security.util.Resources"]
-    }
-  ]
+  "bundles":[]
 }

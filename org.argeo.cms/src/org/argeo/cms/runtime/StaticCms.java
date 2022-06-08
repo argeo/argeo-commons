@@ -1,5 +1,7 @@
 package org.argeo.cms.runtime;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.concurrent.CompletableFuture;
 
@@ -102,6 +104,13 @@ public class StaticCms {
 	}
 
 	public static void main(String[] args) {
+		if (args.length == 0) {
+			System.err.println("Usage: <data path>");
+			System.exit(1);
+		}
+		Path instancePath = Paths.get(args[0]);
+		System.setProperty("osgi.instance.area", instancePath.toUri().toString());
+
 		StaticCms staticCms = new StaticCms();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> staticCms.stop(), "Static CMS Shutdown"));
 		staticCms.start();
