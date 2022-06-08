@@ -66,7 +66,7 @@ class TypesManager {
 
 	private boolean validating = true;
 
-	private final static boolean limited = true;
+	private final static boolean limited = false;
 
 	public TypesManager() {
 		schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -157,7 +157,7 @@ class TypesManager {
 //			}
 			collectTypes();
 		} catch (XSException | SAXException e) {
-			throw new IllegalStateException("Cannot relaod types");
+			throw new IllegalStateException("Cannot reload types", e);
 		}
 	}
 
