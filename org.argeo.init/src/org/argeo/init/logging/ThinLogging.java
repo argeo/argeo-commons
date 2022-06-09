@@ -16,11 +16,9 @@ import java.util.ResourceBundle;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.Flow.Subscription;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,24 +49,33 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	private NavigableMap<String, Level> levels = new TreeMap<>();
 	private volatile boolean updatingConfiguration = false;
 
-	private final ExecutorService executor;
+//	private final ExecutorService executor;
 	private final LogEntryPublisher publisher;
+	private PrintStreamSubscriber synchronousSubscriber;
 
 	private final boolean journald;
 	private final Level callLocationLevel;
 
+	private boolean synchronous = true;
+
 	ThinLogging() {
-		executor = Executors.newCachedThreadPool((r) -> {
-			Thread t = new Thread(r);
-			t.setDaemon(true);
-			return t;
-		});
-		publisher = new LogEntryPublisher(executor, Flow.defaultBufferSize());
+//		executor = Executors.newCachedThreadPool((r) -> {
+//			Thread t = new Thread(r);
+//			t.setDaemon(true);
+//			return t;
+//		});
+		if (synchronous) {
+			publisher = new LogEntryPublisher();
+			synchronousSubscriber = new PrintStreamSubscriber();
+		} else {
+			publisher = new LogEntryPublisher();
 
-		PrintStreamSubscriber subscriber = new PrintStreamSubscriber();
-		publisher.subscribe(subscriber);
+			PrintStreamSubscriber subscriber = new PrintStreamSubscriber();
+			publisher.subscribe(subscriber);
 
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> close(), "Log shutdown"));
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> close(), "Log shutdown"));
+
+		}
 
 		// initial default level
 		levels.put("", Level.WARNING);
@@ -131,7 +138,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		try {
 			// we ait a bit in order to make sure all messages are flushed
 			// TODO synchronize more efficiently
-			executor.awaitTermination(300, TimeUnit.MILLISECONDS);
+			// executor.awaitTermination(300, TimeUnit.MILLISECONDS);
+			ForkJoinPool.commonPool().awaitTermination(300, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// silent
 		}
@@ -342,8 +350,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 	private class LogEntryPublisher extends SubmissionPublisher<Map<String, Serializable>> {
 
-		private LogEntryPublisher(Executor executor, int maxBufferCapacity) {
-			super(executor, maxBufferCapacity);
+		private LogEntryPublisher() {
+			super();
 		}
 
 		private void log(ThinLogger logger, Level level, ResourceBundle bundle, String msg, Instant instant,
@@ -372,8 +380,13 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			logEntry.put(KEY_THREAD, thread.getName());
 
 			// should be unmodifiable for security reasons
-			if (!isClosed())
-				submit(Collections.unmodifiableMap(logEntry));
+			if (synchronous) {
+				assert synchronousSubscriber != null;
+				synchronousSubscriber.onNext(logEntry);
+			} else {
+				if (!isClosed())
+					submit(Collections.unmodifiableMap(logEntry));
+			}
 		}
 
 	}
@@ -559,6 +572,16 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		logger.log(Logger.Level.INFO, "Log info");
 		logger.log(Logger.Level.WARNING, "Log warning");
 		logger.log(Logger.Level.ERROR, "Log exception", new Throwable());
+
+		try {
+			// we ait a bit in order to make sure all messages are flushed
+			// TODO synchronize more efficiently
+			// executor.awaitTermination(300, TimeUnit.MILLISECONDS);
+			ForkJoinPool.commonPool().awaitTermination(300, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// silent
+		}
+
 	}
 
 }

@@ -21,11 +21,12 @@ public class ThinLoggerFinder extends LoggerFinder {
 	public ThinLoggerFinder() {
 		if (logging != null)
 			throw new IllegalStateException("Only one logging can be initialised.");
-		init();
+//		init();
 	}
 
 	@Override
 	public Logger getLogger(String name, Module module) {
+		lazyInit();
 		return logging.getLogger(name, module);
 	}
 
