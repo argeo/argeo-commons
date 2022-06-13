@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.runtime.CmsUserAdmin;
@@ -27,22 +24,17 @@ public class NodeUserAdmin extends CmsUserAdmin implements ManagedServiceFactory
 	private final static CmsLog log = CmsLog.getLog(NodeUserAdmin.class);
 
 	// OSGi
-	private Map<String, LdapName> pidToBaseDn = new HashMap<>();
+	private Map<String, String> pidToBaseDn = new HashMap<>();
 
 	@Override
 	public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
 
-		LdapName baseDn;
-		try {
-			baseDn = new LdapName((String) properties.get(UserAdminConf.baseDn.name()));
-		} catch (InvalidNameException e) {
-			throw new IllegalArgumentException(e);
-		}
+		String basePath = (String) properties.get(UserAdminConf.baseDn.name());
 
 		// FIXME make updates more robust
-		if (pidToBaseDn.containsValue(baseDn)) {
+		if (pidToBaseDn.containsValue(basePath)) {
 			if (log.isDebugEnabled())
-				log.debug("Ignoring user directory update of " + baseDn);
+				log.debug("Ignoring user directory update of " + basePath);
 			return;
 		}
 
@@ -50,14 +42,14 @@ public class NodeUserAdmin extends CmsUserAdmin implements ManagedServiceFactory
 		// OSGi
 		Hashtable<String, Object> regProps = new Hashtable<>();
 		regProps.put(Constants.SERVICE_PID, pid);
-		if (isSystemRolesBaseDn(baseDn))
+		if (isSystemRolesBaseDn(basePath))
 			regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-		regProps.put(UserAdminConf.baseDn.name(), baseDn);
+		regProps.put(UserAdminConf.baseDn.name(), basePath);
 
 		CmsActivator.getBundleContext().registerService(UserDirectory.class, userDirectory, regProps);
-		pidToBaseDn.put(pid, baseDn);
+		pidToBaseDn.put(pid, basePath);
 
-		if (isSystemRolesBaseDn(baseDn)) {
+		if (isSystemRolesBaseDn(basePath)) {
 			// publishes itself as user admin only when system roles are available
 			Dictionary<String, Object> userAdminregProps = new Hashtable<>();
 			userAdminregProps.put(CmsConstants.CN, CmsConstants.DEFAULT);
@@ -71,8 +63,8 @@ public class NodeUserAdmin extends CmsUserAdmin implements ManagedServiceFactory
 		// assert pidToServiceRegs.get(pid) != null;
 		assert pidToBaseDn.get(pid) != null;
 		// pidToServiceRegs.remove(pid).unregister();
-		LdapName baseDn = pidToBaseDn.remove(pid);
-		removeUserDirectory(baseDn);
+		String basePath = pidToBaseDn.remove(pid);
+		removeUserDirectory(basePath);
 	}
 
 	@Override

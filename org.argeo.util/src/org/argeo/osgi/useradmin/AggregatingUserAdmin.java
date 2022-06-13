@@ -1,5 +1,7 @@
 package org.argeo.osgi.useradmin;
 
+import static org.argeo.osgi.useradmin.AbstractUserDirectory.toLdapName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,9 +77,9 @@ public class AggregatingUserAdmin implements UserAdmin {
 	public User getUser(String key, String value) {
 		List<User> res = new ArrayList<User>();
 		for (UserAdmin userAdmin : businessRoles.values()) {
-				User u = userAdmin.getUser(key, value);
-				if (u != null)
-					res.add(u);
+			User u = userAdmin.getUser(key, value);
+			if (u != null)
+				res.add(u);
 		}
 		// Note: node roles cannot contain users, so it is not searched
 		return res.size() == 1 ? res.get(0) : null;
@@ -153,15 +155,19 @@ public class AggregatingUserAdmin implements UserAdmin {
 	//
 	// USER ADMIN AGGREGATOR
 	//
-	protected void addUserDirectory(AbstractUserDirectory userDirectory) {
-		LdapName baseDn = userDirectory.getBaseDn();
-		if (isSystemRolesBaseDn(baseDn)) {
+	protected void addUserDirectory(UserDirectory ud) {
+		if (!(ud instanceof AbstractUserDirectory))
+			throw new IllegalArgumentException("Only " + AbstractUserDirectory.class.getName() + " is supported");
+		AbstractUserDirectory userDirectory = (AbstractUserDirectory) ud;
+		String basePath = userDirectory.getBasePath();
+		if (isSystemRolesBaseDn(basePath)) {
 			this.systemRoles = userDirectory;
 			systemRoles.setExternalRoles(this);
-		} else if (isTokensBaseDn(baseDn)) {
+		} else if (isTokensBaseDn(basePath)) {
 			this.tokens = userDirectory;
 			tokens.setExternalRoles(this);
 		} else {
+			LdapName baseDn = toLdapName(basePath);
 			if (businessRoles.containsKey(baseDn))
 				throw new UserDirectoryException("There is already a user admin for " + baseDn);
 			businessRoles.put(baseDn, userDirectory);
@@ -171,19 +177,8 @@ public class AggregatingUserAdmin implements UserAdmin {
 	}
 
 	/** Called after a new user directory has been added */
-	protected void postAdd(AbstractUserDirectory userDirectory) {
+	protected void postAdd(UserDirectory userDirectory) {
 	}
-
-//	private UserAdmin findUserAdmin(User user) {
-//		if (user == null)
-//			throw new IllegalArgumentException("User should not be null");
-//		AbstractUserDirectory userAdmin = findUserAdmin(user.getName());
-//		if (user instanceof DirectoryUser) {
-//			return userAdmin;
-//		} else {
-//			return userAdmin.scope(user);
-//		}
-//	}
 
 	private AbstractUserDirectory findUserAdmin(String name) {
 		try {
@@ -223,12 +218,12 @@ public class AggregatingUserAdmin implements UserAdmin {
 		return res.get(0);
 	}
 
-	protected boolean isSystemRolesBaseDn(LdapName baseDn) {
-		return baseDn.equals(systemRolesBaseDn);
+	protected boolean isSystemRolesBaseDn(String basePath) {
+		return toLdapName(basePath).equals(systemRolesBaseDn);
 	}
 
-	protected boolean isTokensBaseDn(LdapName baseDn) {
-		return tokensBaseDn != null && baseDn.equals(tokensBaseDn);
+	protected boolean isTokensBaseDn(String basePath) {
+		return tokensBaseDn != null && toLdapName(basePath).equals(tokensBaseDn);
 	}
 
 //	protected Dictionary<String, Object> currentState() {
@@ -258,9 +253,10 @@ public class AggregatingUserAdmin implements UserAdmin {
 		userDirectory.destroy();
 	}
 
-	protected void removeUserDirectory(LdapName baseDn) {
-		if (isSystemRolesBaseDn(baseDn))
+	protected void removeUserDirectory(String basePath) {
+		if (isSystemRolesBaseDn(basePath))
 			throw new UserDirectoryException("System roles cannot be removed ");
+		LdapName baseDn = toLdapName(basePath);
 		if (!businessRoles.containsKey(baseDn))
 			throw new UserDirectoryException("No user directory registered for " + baseDn);
 		AbstractUserDirectory userDirectory = businessRoles.remove(baseDn);
@@ -271,7 +267,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 	 * Called before each user directory is destroyed, so that additional actions
 	 * can be performed.
 	 */
-	protected void preDestroy(AbstractUserDirectory userDirectory) {
+	protected void preDestroy(UserDirectory userDirectory) {
 	}
 
 }

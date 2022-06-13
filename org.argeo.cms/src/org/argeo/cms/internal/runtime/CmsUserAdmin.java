@@ -11,9 +11,9 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
-import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -35,7 +35,6 @@ import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
 import org.argeo.osgi.transaction.WorkControl;
 import org.argeo.osgi.transaction.WorkTransaction;
-import org.argeo.osgi.useradmin.AbstractUserDirectory;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
@@ -96,7 +95,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		}
 
 		// Create
-		AbstractUserDirectory userDirectory;
+		UserDirectory userDirectory;
 		if (realm != null || UserAdminConf.SCHEME_LDAP.equals(u.getScheme())
 				|| UserAdminConf.SCHEME_LDAPS.equals(u.getScheme())) {
 			userDirectory = new LdapUserAdmin(properties);
@@ -108,14 +107,14 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		} else {
 			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
 		}
-		LdapName baseDn = userDirectory.getBaseDn();
+		String basePath = userDirectory.getBasePath();
 
 		addUserDirectory(userDirectory);
-		if (isSystemRolesBaseDn(baseDn)) {
+		if (isSystemRolesBaseDn(basePath)) {
 			addStandardSystemRoles();
 		}
 		if (log.isDebugEnabled()) {
-			log.debug("User directory " + userDirectory.getBaseDn() + (u != null ? " [" + u.getScheme() + "]" : "")
+			log.debug("User directory " + userDirectory.getBasePath() + (u != null ? " [" + u.getScheme() + "]" : "")
 					+ " enabled." + (realm != null ? " " + realm + " realm." : ""));
 		}
 		return userDirectory;
@@ -153,13 +152,14 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		}
 	}
 
-	protected void postAdd(AbstractUserDirectory userDirectory) {
+	@Override
+	protected void postAdd(UserDirectory userDirectory) {
 		userDirectory.setTransactionControl(transactionManager);
 
-		Object realm = userDirectory.getProperties().get(UserAdminConf.realm.name());
-		if (realm != null) {
+		Optional<String> realm = userDirectory.getRealm();
+		if (realm.isPresent()) {
 			if (Files.exists(nodeKeyTab)) {
-				String servicePrincipal = getKerberosServicePrincipal(realm.toString());
+				String servicePrincipal = getKerberosServicePrincipal(realm.get());
 				if (servicePrincipal != null) {
 					CallbackHandler callbackHandler = new CallbackHandler() {
 						@Override
@@ -193,9 +193,10 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		}
 	}
 
-	protected void preDestroy(AbstractUserDirectory userDirectory) {
-		Object realm = userDirectory.getProperties().get(UserAdminConf.realm.name());
-		if (realm != null) {
+	@Override
+	protected void preDestroy(UserDirectory userDirectory) {
+		Optional<String> realm = userDirectory.getRealm();
+		if (realm.isPresent()) {
 			if (acceptorCredentials != null) {
 				try {
 					acceptorCredentials.dispose();

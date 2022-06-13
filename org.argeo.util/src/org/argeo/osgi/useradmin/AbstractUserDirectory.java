@@ -17,10 +17,12 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
@@ -39,7 +41,7 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /** Base class for a {@link UserDirectory}. */
-public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
+abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
 	static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
 
@@ -99,7 +101,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			userBaseDn = new LdapName(userBase + "," + baseDn);
 			groupBaseDn = new LdapName(groupBase + "," + baseDn);
 		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Badly formated base DN " + UserAdminConf.baseDn.getValue(properties), e);
+			throw new IllegalArgumentException("Badly formated base DN " + UserAdminConf.baseDn.getValue(properties),
+					e);
 		}
 		String readOnlyStr = UserAdminConf.readOnly.getValue(properties);
 		if (readOnlyStr == null) {
@@ -133,6 +136,19 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	}
 
+	@Override
+	public String getBasePath() {
+		return getBaseDn().toString();
+	}
+
+	@Override
+	public Optional<String> getRealm() {
+		Object realm = getProperties().get(UserAdminConf.realm.name());
+		if (realm == null)
+			return Optional.empty();
+		return Optional.of(realm.toString());
+	}
+
 	protected boolean isEditing() {
 		return xaResource.wc() != null;
 	}
@@ -145,20 +161,11 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	}
 
 	protected void checkEdit() {
-//		Transaction transaction;
-//		try {
-//			transaction = transactionManager.getTransaction();
-//		} catch (SystemException e) {
-//			throw new UserDirectoryException("Cannot get transaction", e);
-//		}
-//		if (transaction == null)
-//			throw new UserDirectoryException("A transaction needs to be active in order to edit");
 		if (xaResource.wc() == null) {
 			try {
-//				transaction.enlistResource(xaResource);
 				transactionControl.getWorkContext().registerXAResource(xaResource, null);
 			} catch (Exception e) {
-				throw new UserDirectoryException("Cannot enlist " + xaResource, e);
+				throw new IllegalStateException("Cannot enlist " + xaResource, e);
 			}
 		} else {
 		}
@@ -189,8 +196,8 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 					if (group != null)
 						allRoles.add(group);
 				}
-			} catch (Exception e) {
-				throw new UserDirectoryException("Cannot get memberOf groups for " + user, e);
+			} catch (NamingException e) {
+				throw new IllegalStateException("Cannot get memberOf groups for " + user, e);
 			}
 		} else {
 			for (LdapName groupDn : getDirectGroups(user.getDn())) {
@@ -211,7 +218,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	// USER ADMIN
 	@Override
 	public Role getRole(String name) {
-		return doGetRole(toDn(name));
+		return doGetRole(toLdapName(name));
 	}
 
 	protected DirectoryUser doGetRole(LdapName dn) {
@@ -260,7 +267,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		if (key != null) {
 			doGetUser(key, value, collectedUsers);
 		} else {
-			throw new UserDirectoryException("Key cannot be null");
+			throw new IllegalArgumentException("Key cannot be null");
 		}
 
 		if (collectedUsers.size() == 1) {
@@ -278,7 +285,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			List<DirectoryUser> users = doGetRoles(f);
 			collectedUsers.addAll(users);
 		} catch (InvalidSyntaxException e) {
-			throw new UserDirectoryException("Cannot get user with " + key + "=" + value, e);
+			throw new IllegalArgumentException("Cannot get user with " + key + "=" + value, e);
 		}
 	}
 
@@ -292,7 +299,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			try {
 				DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
 				if (directoryUser == null)
-					throw new UserDirectoryException("No scoped user found for " + user);
+					throw new IllegalStateException("No scoped user found for " + user);
 				LdifAuthorization authorization = new LdifAuthorization(directoryUser,
 						scopedUserAdmin.getAllRoles(directoryUser));
 				return authorization;
@@ -306,9 +313,9 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	public Role createRole(String name, int type) {
 		checkEdit();
 		UserDirectoryWorkingCopy wc = getWorkingCopy();
-		LdapName dn = toDn(name);
+		LdapName dn = toLdapName(name);
 		if ((daoHasRole(dn) && !wc.getDeletedUsers().containsKey(dn)) || wc.getNewUsers().containsKey(dn))
-			throw new UserDirectoryException("Already a role " + name);
+			throw new IllegalArgumentException("Already a role " + name);
 		BasicAttributes attrs = new BasicAttributes(true);
 		// attrs.put(LdifName.dn.name(), dn.toString());
 		Rdn nameRdn = dn.getRdn(dn.size() - 1);
@@ -350,7 +357,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 			attrs.put(objClass);
 			newRole = new LdifGroup(this, dn, attrs);
 		} else
-			throw new UserDirectoryException("Unsupported type " + type);
+			throw new IllegalArgumentException("Unsupported type " + type);
 		return newRole;
 	}
 
@@ -358,7 +365,7 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 	public boolean removeRole(String name) {
 		checkEdit();
 		UserDirectoryWorkingCopy wc = getWorkingCopy();
-		LdapName dn = toDn(name);
+		LdapName dn = toLdapName(name);
 		boolean actuallyDeleted;
 		if (daoHasRole(dn) || wc.getNewUsers().containsKey(dn)) {
 			DirectoryUser user = (DirectoryUser) getRole(name);
@@ -385,15 +392,6 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 
 	protected void rollback(UserDirectoryWorkingCopy wc) {
 
-	}
-
-	// UTILITIES
-	protected LdapName toDn(String name) {
-		try {
-			return new LdapName(name);
-		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Badly formatted name", e);
-		}
 	}
 
 	// GETTERS
@@ -514,4 +512,14 @@ public abstract class AbstractUserDirectory implements UserAdmin, UserDirectory 
 		return scoped;
 	}
 
+	/*
+	 * STATIC UTILITIES
+	 */
+	static LdapName toLdapName(String name) {
+		try {
+			return new LdapName(name);
+		} catch (InvalidNameException e) {
+			throw new IllegalArgumentException(name + " is not an LDAP name", e);
+		}
+	}
 }
