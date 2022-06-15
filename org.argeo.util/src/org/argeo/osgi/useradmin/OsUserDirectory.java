@@ -51,7 +51,7 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<DirectoryUser> doGetRoles(Filter f) {
+	protected List<DirectoryUser> doGetRoles(LdapName searchBase, Filter f, boolean deep) {
 		List<DirectoryUser> res = new ArrayList<>();
 		if (f == null || f.match(osUser.getProperties()))
 			res.add(osUser);

@@ -95,16 +95,17 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<DirectoryUser> doGetRoles(Filter f) {
+	protected List<DirectoryUser> doGetRoles(LdapName searchBase, Filter f, boolean deep) {
 		ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
 		try {
 			String searchFilter = f != null ? f.toString()
 					: "(|(" + objectClass + "=" + getUserObjectClass() + ")(" + objectClass + "="
 							+ getGroupObjectClass() + "))";
 			SearchControls searchControls = new SearchControls();
-			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+			// FIXME make one level consistent with deep
+			searchControls.setSearchScope(deep ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE);
 
-			LdapName searchBase = getBaseDn();
+			// LdapName searchBase = getBaseDn();
 			NamingEnumeration<SearchResult> results = ldapConnection.search(searchBase, searchFilter, searchControls);
 
 			results: while (results.hasMoreElements()) {

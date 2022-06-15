@@ -269,6 +269,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	@Override
 	public CmsSession getCmsSession() {
 		CmsSession cmsSession = cmsWebApp.getCmsApp().getCmsContext().getCmsSession(getSubject());
+		if (cmsSession == null)
+			throw new IllegalStateException("No CMS session available for " + getSubject());
 		return cmsSession;
 	}
 

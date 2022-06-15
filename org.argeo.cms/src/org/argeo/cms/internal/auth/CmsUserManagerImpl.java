@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import javax.naming.InvalidNameException;
@@ -241,6 +242,12 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 		}
 		return dns;
+	}
+
+	public Set<UserDirectory> getUserDirectories() {
+		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getBasePath().compareTo(o2.getBasePath()));
+		res.addAll(userDirectories.keySet());
+		return res;
 	}
 
 	public String buildDistinguishedName(String localId, String baseDn, int type) {

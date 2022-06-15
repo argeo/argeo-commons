@@ -182,7 +182,8 @@ public class InitUtils {
 			// TODO downgrade security level
 		}
 		for (String userAdminUri : userAdminUris.split(" "))
-			uris.add(userAdminUri);
+			if (!userAdminUri.trim().equals(""))
+				uris.add(userAdminUri);
 
 		// Interprets URIs
 		for (String uri : uris) {

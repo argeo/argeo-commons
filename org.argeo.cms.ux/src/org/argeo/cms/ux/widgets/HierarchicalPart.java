@@ -1,5 +1,5 @@
 package org.argeo.cms.ux.widgets;
 
-public interface HierarchicalPart {
+public interface HierarchicalPart extends ColumnsPart {
 
 }

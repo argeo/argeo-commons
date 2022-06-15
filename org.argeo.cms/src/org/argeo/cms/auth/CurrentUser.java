@@ -6,6 +6,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -125,7 +126,12 @@ public final class CurrentUser {
 
 	public static CmsSession getCmsSession() {
 		Subject subject = currentSubject();
-		CmsSessionId cmsSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next();
+		Iterator<CmsSessionId> it = subject.getPrivateCredentials(CmsSessionId.class).iterator();
+		if (!it.hasNext())
+			throw new IllegalStateException("No CMS session id available for " + subject);
+		CmsSessionId cmsSessionId = it.next();
+		if (it.hasNext())
+			throw new IllegalStateException("More than one CMS session id available for " + subject);
 		return CmsContextImpl.getCmsContext().getCmsSessionByUuid(cmsSessionId.getUuid());
 	}
 
@@ -165,8 +171,8 @@ public final class CurrentUser {
 	}
 
 	/*
-	 * PREPARE EVOLUTION OF JAVA APIs INTRODUCED IN JDK 18
-	 * The following static methods will be added to Subject 
+	 * PREPARE EVOLUTION OF JAVA APIs INTRODUCED IN JDK 18 The following static
+	 * methods will be added to Subject
 	 */
 	public Subject current() {
 		return currentSubject();

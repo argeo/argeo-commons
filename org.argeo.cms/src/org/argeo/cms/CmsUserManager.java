@@ -2,10 +2,12 @@ package org.argeo.cms;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.Subject;
 
+import org.argeo.osgi.useradmin.UserDirectory;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -15,7 +17,9 @@ import org.osgi.service.useradmin.User;
  * the userAdmin.
  */
 public interface CmsUserManager {
-
+	public Map<String, String> getKnownBaseDns(boolean onlyWritable);
+	public Set<UserDirectory> getUserDirectories();
+	
 	// CurrentUser
 	/** Returns the e-mail of the current logged in user */
 	public String getMyMail();

@@ -124,7 +124,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	protected abstract DirectoryUser daoGetRole(LdapName key) throws NameNotFoundException;
 
-	protected abstract List<DirectoryUser> doGetRoles(Filter f);
+	protected abstract List<DirectoryUser> doGetRoles(LdapName searchBase, Filter f, boolean deep);
 
 	protected abstract AbstractUserDirectory scope(User user);
 
@@ -240,9 +240,31 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	@Override
 	public Role[] getRoles(String filter) throws InvalidSyntaxException {
+//		UserDirectoryWorkingCopy wc = getWorkingCopy();
+//		Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
+//		List<DirectoryUser> res = doGetRoles(getBaseDn(), f, true);
+//		if (wc != null) {
+//			for (Iterator<DirectoryUser> it = res.iterator(); it.hasNext();) {
+//				DirectoryUser user = it.next();
+//				LdapName dn = user.getDn();
+//				if (wc.getDeletedUsers().containsKey(dn))
+//					it.remove();
+//			}
+//			for (DirectoryUser user : wc.getNewUsers().values()) {
+//				if (f == null || f.match(user.getProperties()))
+//					res.add(user);
+//			}
+//			// no need to check modified users,
+//			// since doGetRoles was already based on the modified attributes
+//		}
+		List<? extends Role> res = getRoles(getBaseDn(), filter, true);
+		return res.toArray(new Role[res.size()]);
+	}
+
+	List<DirectoryUser> getRoles(LdapName searchBase, String filter, boolean deep) throws InvalidSyntaxException {
 		UserDirectoryWorkingCopy wc = getWorkingCopy();
 		Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
-		List<DirectoryUser> res = doGetRoles(f);
+		List<DirectoryUser> res = doGetRoles(searchBase, f, deep);
 		if (wc != null) {
 			for (Iterator<DirectoryUser> it = res.iterator(); it.hasNext();) {
 				DirectoryUser user = it.next();
@@ -257,7 +279,22 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			// no need to check modified users,
 			// since doGetRoles was already based on the modified attributes
 		}
-		return res.toArray(new Role[res.size()]);
+
+		// if non deep we also search users and groups
+		if (!deep) {
+			try {
+				if (!(searchBase.endsWith(new LdapName(getUserBase()))
+						|| searchBase.endsWith(new LdapName(getGroupBase())))) {
+					LdapName usersBase = (LdapName) ((LdapName) searchBase.clone()).add(getUserBase());
+					res.addAll(getRoles(usersBase, filter, false));
+					LdapName groupsBase = (LdapName) ((LdapName) searchBase.clone()).add(getGroupBase());
+					res.addAll(getRoles(groupsBase, filter, false));
+				}
+			} catch (InvalidNameException e) {
+				throw new IllegalStateException("Cannot search users and groups", e);
+			}
+		}
+		return res;
 	}
 
 	@Override
@@ -282,7 +319,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	protected void doGetUser(String key, String value, List<DirectoryUser> collectedUsers) {
 		try {
 			Filter f = FrameworkUtil.createFilter("(" + key + "=" + value + ")");
-			List<DirectoryUser> users = doGetRoles(f);
+			List<DirectoryUser> users = doGetRoles(getBaseDn(), f, true);
 			collectedUsers.addAll(users);
 		} catch (InvalidSyntaxException e) {
 			throw new IllegalArgumentException("Cannot get user with " + key + "=" + value, e);
@@ -392,6 +429,40 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	protected void rollback(UserDirectoryWorkingCopy wc) {
 
+	}
+
+	/*
+	 * HIERARCHY
+	 */
+	@Override
+	public int getHierarchyChildCount() {
+		return 0;
+	}
+
+	@Override
+	public HierarchyUnit getHierarchyChild(int i) {
+		throw new IllegalArgumentException("No child hierarchy unit available");
+	}
+
+	@Override
+	public int getHierarchyUnitType() {
+		return 0;
+	}
+
+	@Override
+	public String getHierarchyUnitName() {
+		String name = baseDn.getRdn(baseDn.size() - 1).getValue().toString();
+		// TODO check ou, o, etc.
+		return name;
+	}
+
+	@Override
+	public List<? extends Role> getRoles(String filter, boolean deep) {
+		try {
+			return getRoles(getBaseDn(), filter, deep);
+		} catch (InvalidSyntaxException e) {
+			throw new IllegalArgumentException("Cannot filter " + filter + " " + getBaseDn(), e);
+		}
 	}
 
 	// GETTERS
@@ -510,6 +581,16 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	public boolean isScoped() {
 		return scoped;
+	}
+
+	@Override
+	public int hashCode() {
+		return baseDn.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "User Directory " + baseDn.toString();
 	}
 
 	/*

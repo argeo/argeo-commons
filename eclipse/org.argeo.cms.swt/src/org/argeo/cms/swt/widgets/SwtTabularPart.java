@@ -3,47 +3,42 @@ package org.argeo.cms.swt.widgets;
 import java.util.function.Consumer;
 
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.ux.widgets.HierarchicalPart;
+import org.argeo.cms.ux.widgets.TabularPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 
-/** {@link HierarchicalPart} implementation based on a {@link Tree}. */
-public class SwtHierarchicalPart implements HierarchicalPart {
+/** {@link TabularPart} implementation based on a {@link Table}. */
+public class SwtTabularPart implements TabularPart {
 	private Composite area;
-	private final Tree tree;
+
+	private final Table table;
 
 	private Consumer<Object> onSelected;
 	private Consumer<Object> onAction;
 
-	public SwtHierarchicalPart(Composite parent, int style) {
+	public SwtTabularPart(Composite parent, int style) {
 		area = new Composite(parent, style);
 		area.setLayout(CmsSwtUtils.noSpaceGridLayout());
-		tree = new Tree(area, SWT.VIRTUAL | SWT.BORDER);
+		table = new Table(area, SWT.VIRTUAL | SWT.BORDER);
 	}
 
 	@Override
 	public void refresh() {
 		// TODO optimise
-		tree.clearAll(true);
-		tree.addListener(SWT.SetData, event -> {
-			TreeItem item = (TreeItem) event.item;
-			TreeItem parentItem = item.getParentItem();
-			if (parentItem == null) {
-				refreshRootItem(item);
-			} else {
-				refreshItem(parentItem, item);
-			}
+		table.clearAll();
+		table.addListener(SWT.SetData, event -> {
+			TableItem item = (TableItem) event.item;
+			refreshItem(item);
 		});
-		tree.setItemCount(getRootItemCount());
-		CmsSwtUtils.fill(tree);
+		table.setItemCount(getItemCount());
+		CmsSwtUtils.fill(table);
 
-		tree.addSelectionListener(new SelectionListener() {
-
-			private static final long serialVersionUID = 4334785560035009330L;
+		table.addSelectionListener(new SelectionListener() {
+			private static final long serialVersionUID = -5225905921522775948L;
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -71,20 +66,16 @@ public class SwtHierarchicalPart implements HierarchicalPart {
 		return area.getData();
 	}
 
-	protected void refreshRootItem(TreeItem item) {
+	protected void refreshItem(TableItem item) {
 
 	}
 
-	protected void refreshItem(TreeItem parentItem, TreeItem item) {
-
-	}
-
-	protected int getRootItemCount() {
+	protected int getItemCount() {
 		return 0;
 	}
 
-	protected Tree getTree() {
-		return tree;
+	protected Table getTable() {
+		return table;
 	}
 
 	public void onSelected(Consumer<Object> onSelected) {

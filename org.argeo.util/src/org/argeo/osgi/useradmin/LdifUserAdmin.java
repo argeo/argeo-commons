@@ -16,6 +16,7 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -25,6 +26,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.naming.LdapObjs;
 import org.argeo.util.naming.LdifParser;
 import org.argeo.util.naming.LdifWriter;
 import org.osgi.framework.Filter;
@@ -33,8 +35,11 @@ import org.osgi.service.useradmin.User;
 
 /** A user admin based on a LDIF files. */
 public class LdifUserAdmin extends AbstractUserDirectory {
-	private SortedMap<LdapName, DirectoryUser> users = new TreeMap<LdapName, DirectoryUser>();
-	private SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<LdapName, DirectoryGroup>();
+	private SortedMap<LdapName, DirectoryUser> users = new TreeMap<>();
+	private SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<>();
+
+	private SortedMap<LdapName, LdifHierarchyUnit> hierarchy = new TreeMap<>();
+	private List<HierarchyUnit> rootHierarchyUnits = new ArrayList<>();
 
 	public LdifUserAdmin(String uri, String baseDn) {
 		this(fromUri(uri, baseDn), false);
@@ -113,6 +118,8 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	public void save(OutputStream out) throws IOException {
 		try {
 			LdifWriter ldifWriter = new LdifWriter(out);
+			for (LdapName name : hierarchy.keySet())
+				ldifWriter.writeEntry(name, hierarchy.get(name).getAttributes());
 			for (LdapName name : groups.keySet())
 				ldifWriter.writeEntry(name, groups.get(name).getAttributes());
 			for (LdapName name : users.keySet())
@@ -126,6 +133,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		try {
 			users.clear();
 			groups.clear();
+			hierarchy.clear();
 
 			LdifParser ldifParser = new LdifParser();
 			SortedMap<LdapName, Attributes> allEntries = ldifParser.read(in);
@@ -153,8 +161,33 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 					} else if (objectClass.toLowerCase().equals(getGroupObjectClass().toLowerCase())) {
 						groups.put(key, new LdifGroup(this, key, attributes));
 						break objectClasses;
+					} else if (objectClass.equalsIgnoreCase(LdapObjs.organization.name())) {
+						// we only consider organizations which are not groups
+						hierarchy.put(key, new LdifHierarchyUnit(this, key, HierarchyUnit.ORGANIZATION, attributes));
+						break objectClasses;
+					} else if (objectClass.equalsIgnoreCase(LdapObjs.organizationalUnit.name())) {
+						String name = key.getRdn(key.size() - 1).toString();
+						if (getUserBase().equalsIgnoreCase(name) || getGroupBase().equalsIgnoreCase(name))
+							break objectClasses; // skip
+						// TODO skip if it does not contain groups or users
+						hierarchy.put(key, new LdifHierarchyUnit(this, key, HierarchyUnit.OU, attributes));
+						break objectClasses;
 					}
 				}
+			}
+
+			// link hierarchy
+			hierachyUnits: for (LdapName dn : hierarchy.keySet()) {
+				LdifHierarchyUnit unit = hierarchy.get(dn);
+				LdapName parentDn = (LdapName) dn.getPrefix(dn.size() - 1);
+				LdifHierarchyUnit parent = hierarchy.get(parentDn);
+				if (parent == null) {
+					rootHierarchyUnits.add(unit);
+					unit.parent = this;
+					continue hierachyUnits;
+				}
+				parent.children.add(unit);
+				unit.parent = parent;
 			}
 		} catch (Exception e) {
 			throw new UserDirectoryException("Cannot load user admin service from LDIF", e);
@@ -167,6 +200,10 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		users = null;
 		groups = null;
 	}
+
+	/*
+	 * USER ADMIN
+	 */
 
 	@Override
 	protected DirectoryUser daoGetRole(LdapName key) throws NameNotFoundException {
@@ -182,21 +219,35 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		return users.containsKey(dn) || groups.containsKey(dn);
 	}
 
-	protected List<DirectoryUser> doGetRoles(Filter f) {
+	@Override
+	protected List<DirectoryUser> doGetRoles(LdapName searchBase, Filter f, boolean deep) {
+		Objects.requireNonNull(searchBase);
 		ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
-		if (f == null) {
+		if (f == null && deep && getBaseDn().equals(searchBase)) {
 			res.addAll(users.values());
 			res.addAll(groups.values());
 		} else {
-			for (DirectoryUser user : users.values()) {
-				if (f.match(user.getProperties()))
-					res.add(user);
-			}
-			for (DirectoryUser group : groups.values())
-				if (f.match(group.getProperties()))
-					res.add(group);
+			filterRoles(users, searchBase, f, deep, res);
+			filterRoles(groups, searchBase, f, deep, res);
 		}
 		return res;
+	}
+
+	private void filterRoles(SortedMap<LdapName, ? extends DirectoryUser> map, LdapName searchBase, Filter f,
+			boolean deep, List<DirectoryUser> res) {
+		// TODO reduce map with search base ?
+		roles: for (DirectoryUser user : map.values()) {
+			LdapName dn = user.getDn();
+			if (dn.startsWith(searchBase)) {
+				if (!deep && dn.size() != (searchBase.size() + 1))
+					continue roles;
+				if (f == null)
+					res.add(user);
+				else if (f.match(user.getProperties()))
+					res.add(user);
+			}
+		}
+
 	}
 
 	@Override
@@ -256,5 +307,19 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	protected void rollback(UserDirectoryWorkingCopy wc) {
 		init();
 	}
+
+	@Override
+	public int getHierarchyChildCount() {
+		return rootHierarchyUnits.size();
+	}
+
+	@Override
+	public HierarchyUnit getHierarchyChild(int i) {
+		return rootHierarchyUnits.get(i);
+	}
+
+	/*
+	 * HIERARCHY
+	 */
 
 }

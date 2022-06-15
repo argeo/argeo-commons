@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.argeo.osgi.transaction.WorkControl;
 
 /** Information about a user directory. */
-public interface UserDirectory {
+public interface UserDirectory extends HierarchyUnit {
 	/**
 	 * The base of the hierarchy defined by this directory. This could typically be
 	 * an LDAP base DN.
@@ -31,7 +31,7 @@ public interface UserDirectory {
 	String getGroupBase();
 
 	Optional<String> getRealm();
-
+	
 	@Deprecated
 	void setTransactionControl(WorkControl transactionControl);
 }
