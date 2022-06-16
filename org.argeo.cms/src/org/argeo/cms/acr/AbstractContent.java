@@ -100,6 +100,18 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 		collectAncestors(ancestors, content.getParent());
 	}
 
+	@Override
+	public int getDepth() {
+		List<Content> ancestors = new ArrayList<>();
+		collectAncestors(ancestors, this);
+		return ancestors.size();
+	}
+	
+	@Override
+	public String getSessionLocalId() {
+		return getPath();
+	}
+
 	/*
 	 * UTILITIES
 	 */

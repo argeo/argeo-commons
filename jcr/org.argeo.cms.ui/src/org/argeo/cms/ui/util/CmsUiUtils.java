@@ -4,9 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.StringTokenizer;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -83,21 +80,7 @@ public class CmsUiUtils {
 
 	/** Clean reserved URL characters for use in HTTP links. */
 	public static String getDataPathForUrl(Node node) {
-		return cleanPathForUrl(getDataPath(node));
-	}
-
-	/** Clean reserved URL characters for use in HTTP links. */
-	public static String cleanPathForUrl(String path) {
-		StringTokenizer st = new StringTokenizer(path, "/");
-		StringBuilder sb = new StringBuilder();
-		while (st.hasMoreElements()) {
-			sb.append('/');
-			String encoded = URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8);
-			encoded = encoded.replace("+", "%20");
-			sb.append(encoded);
-
-		}
-		return sb.toString();
+		return CmsSwtUtils.cleanPathForUrl(getDataPath(node));
 	}
 
 	/** @deprecated Use rowData16px() instead. GridData should not be reused. */

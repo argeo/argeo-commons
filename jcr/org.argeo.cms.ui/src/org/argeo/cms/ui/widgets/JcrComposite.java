@@ -207,7 +207,7 @@ public class JcrComposite extends Composite {
 		layout();
 	}
 
-	public Session getSession() {
-		return session;
-	}
+//	public Session getSession() {
+//		return session;
+//	}
 }

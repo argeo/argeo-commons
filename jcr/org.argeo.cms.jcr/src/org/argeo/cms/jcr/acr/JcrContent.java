@@ -180,6 +180,8 @@ public class JcrContent extends AbstractContent {
 
 	@Override
 	public Content getParent() {
+		if (Jcr.isRoot(getJcrNode())) // root
+			return null;
 		return new JcrContent(session, provider, jcrWorkspace, Jcr.getParentPath(getJcrNode()));
 	}
 
@@ -223,6 +225,7 @@ public class JcrContent extends AbstractContent {
 	/*
 	 * ADAPTERS
 	 */
+	@SuppressWarnings("unchecked")
 	public <A> A adapt(Class<A> clss) {
 		if (Source.class.isAssignableFrom(clss)) {
 //			try {
@@ -246,6 +249,7 @@ public class JcrContent extends AbstractContent {
 			return super.adapt(clss);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <C extends Closeable> C open(Class<C> clss) throws IOException, IllegalArgumentException {
 		if (InputStream.class.isAssignableFrom(clss)) {
@@ -269,6 +273,15 @@ public class JcrContent extends AbstractContent {
 	@Override
 	public ContentProvider getProvider() {
 		return provider;
+	}
+
+	@Override
+	public String getSessionLocalId() {
+		try {
+			return getJcrNode().getIdentifier();
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot get identifier for " + getJcrNode(), e);
+		}
 	}
 
 	/*

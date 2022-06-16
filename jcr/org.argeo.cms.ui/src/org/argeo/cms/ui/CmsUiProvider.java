@@ -31,6 +31,8 @@ public interface CmsUiProvider extends SwtUiProvider {
 
 	@Override
 	default Control createUiPart(Composite parent, Content context) {
+		if (context == null)
+			return createUiPart(parent, (Node) null);
 		if (context instanceof JcrContent) {
 			Node node = ((JcrContent) context).getJcrNode();
 			return createUiPart(parent, node);
