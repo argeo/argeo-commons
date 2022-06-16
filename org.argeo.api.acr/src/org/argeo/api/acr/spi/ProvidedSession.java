@@ -1,6 +1,7 @@
 package org.argeo.api.acr.spi;
 
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 
 import org.argeo.api.acr.Content;
@@ -17,6 +18,10 @@ public interface ProvidedSession extends ContentSession {
 	boolean isEditing();
 
 	void notifyModification(ProvidedContent content);
+
+	UUID getUuid();
+
+	Content getSessionRunDir();
 
 	/*
 	 * NAMESPACE CONTEXT

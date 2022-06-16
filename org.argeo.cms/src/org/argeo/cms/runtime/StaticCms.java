@@ -35,12 +35,19 @@ public class StaticCms {
 	private CompletableFuture<Void> stopped = new CompletableFuture<Void>();
 
 	public void start() {
+		// UID factory
+		CmsUuidFactory uuidFactory = new CmsUuidFactory();
+		Component<CmsUuidFactory> uuidFactoryC = new Component.Builder<>(uuidFactory) //
+				.addType(UuidFactory.class) //
+				.build(register);
+
 		// CMS State
 		CmsStateImpl cmsState = new CmsStateImpl();
 		Component<CmsStateImpl> cmsStateC = new Component.Builder<>(cmsState) //
 				.addType(CmsState.class) //
 				.addActivation(cmsState::start) //
 				.addDeactivation(cmsState::stop) //
+				.addDependency(uuidFactoryC.getType(UuidFactory.class), cmsState::setUuidFactory, null) //
 				.build(register);
 
 		// Deployment Configuration
@@ -81,24 +88,6 @@ public class StaticCms {
 				}, null) //
 				.build(register);
 
-		// CMS Context
-		CmsContextImpl cmsContext = new CmsContextImpl();
-		Component<CmsContextImpl> cmsContextC = new Component.Builder<>(cmsContext) //
-				.addType(CmsContext.class) //
-				.addActivation(cmsContext::start) //
-				.addDeactivation(cmsContext::stop) //
-				.addDependency(cmsStateC.getType(CmsState.class), cmsContext::setCmsState, null) //
-				.addDependency(cmsDeploymentC.getType(CmsDeployment.class), cmsContext::setCmsDeployment, null) //
-				.addDependency(userAdminC.getType(UserAdmin.class), cmsContext::setUserAdmin, null) //
-				.build(register);
-		assert cmsContextC.get() == cmsContext;
-
-		// UID factory
-		CmsUuidFactory uuidFactory = new CmsUuidFactory();
-		Component<CmsUuidFactory> uuidFactoryC = new Component.Builder<>(uuidFactory) //
-				.addType(UuidFactory.class) //
-				.build(register);
-
 		// Content Repository
 		DeployedContentRepository contentRepository = new DeployedContentRepository();
 		Component<DeployedContentRepository> contentRepositoryC = new Component.Builder<>(contentRepository) //
@@ -109,6 +98,21 @@ public class StaticCms {
 				.addDependency(cmsStateC.getType(CmsState.class), contentRepository::setCmsState, null) //
 				.addDependency(uuidFactoryC.getType(UuidFactory.class), contentRepository::setUuidFactory, null) //
 				.build(register);
+
+		// CMS Context
+		CmsContextImpl cmsContext = new CmsContextImpl();
+		Component<CmsContextImpl> cmsContextC = new Component.Builder<>(cmsContext) //
+				.addType(CmsContext.class) //
+				.addActivation(cmsContext::start) //
+				.addDeactivation(cmsContext::stop) //
+				.addDependency(cmsStateC.getType(CmsState.class), cmsContext::setCmsState, null) //
+				.addDependency(cmsDeploymentC.getType(CmsDeployment.class), cmsContext::setCmsDeployment, null) //
+				.addDependency(userAdminC.getType(UserAdmin.class), cmsContext::setUserAdmin, null) //
+				.addDependency(uuidFactoryC.getType(UuidFactory.class), cmsContext::setUuidFactory, null) //
+				.addDependency(contentRepositoryC.getType(ProvidedRepository.class), cmsContext::setContentRepository,
+						null) //
+				.build(register);
+		assert cmsContextC.get() == cmsContext;
 
 		register.activate();
 	}

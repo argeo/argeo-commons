@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 /** Stateless factory building an SWT user interface given a JCR context. */
-@FunctionalInterface
 public interface CmsUiProvider extends SwtUiProvider {
 	/**
 	 * Initialises a user interface.
@@ -19,7 +18,10 @@ public interface CmsUiProvider extends SwtUiProvider {
 	 * @param parent  the parent composite
 	 * @param context a context node (holding the JCR underlying session), or null
 	 */
-	Control createUi(Composite parent, Node context) throws RepositoryException;
+	default Control createUi(Composite parent, Node context) throws RepositoryException {
+		// does nothing by default
+		return null;
+	}
 
 	default Control createUiPart(Composite parent, Node context) {
 		try {
@@ -37,7 +39,12 @@ public interface CmsUiProvider extends SwtUiProvider {
 			Node node = ((JcrContent) context).getJcrNode();
 			return createUiPart(parent, node);
 		} else {
-			throw new IllegalArgumentException("Content " + context + " is not compatible with JCR");
+//			CmsLog.getLog(CmsUiProvider.class)
+//					.warn("In " + getClass() + ", content " + context + " is not compatible with JCR.");
+//			return createUiPart(parent, (Node) null);
+
+			throw new IllegalArgumentException(
+					"In " + getClass() + ", content " + context + " is not compatible with JCR");
 		}
 	}
 

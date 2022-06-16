@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
+import org.argeo.api.cms.CmsSession;
 
 /** Utilities and routines around {@link Content}. */
 public class ContentUtils {

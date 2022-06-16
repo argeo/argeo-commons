@@ -13,6 +13,8 @@ public interface ContentSession extends NamespaceContext {
 	Locale getLocale();
 
 	Content get(String path);
+	
+	boolean exists(String path);
 
 	CompletionStage<ContentSession> edit(Consumer<ContentSession> work);
 }

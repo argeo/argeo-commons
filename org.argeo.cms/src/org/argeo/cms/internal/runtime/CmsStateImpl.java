@@ -3,13 +3,14 @@ package org.argeo.cms.internal.runtime;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.UUID;
 
 import javax.security.auth.login.Configuration;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
+import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.auth.ident.IdentClient;
-import org.osgi.framework.Constants;
 
 /**
  * Implementation of a {@link CmsState}, initialising the required services.
@@ -20,9 +21,11 @@ public class CmsStateImpl implements CmsState {
 	// REFERENCES
 	private Long availableSince;
 
-	private String stateUuid;
+	private UUID uuid;
 //	private final boolean cleanState;
 	private String hostname;
+
+	private UuidFactory uuidFactory;
 
 	public void start() {
 //		Runtime.getRuntime().addShutdownHook(new CmsShutdown());
@@ -34,7 +37,9 @@ public class CmsStateImpl implements CmsState {
 			if (log.isTraceEnabled())
 				log.trace("CMS State started");
 
-			this.stateUuid = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
+//			String stateUuidStr = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
+//			this.uuid = UUID.fromString(stateUuidStr);
+			this.uuid = uuidFactory.timeUUID();
 //		this.cleanState = stateUuid.equals(frameworkUuid);
 			try {
 				this.hostname = InetAddress.getLocalHost().getHostName();
@@ -46,7 +51,7 @@ public class CmsStateImpl implements CmsState {
 			if (log.isDebugEnabled())
 				// log.debug("## CMS starting... stateUuid=" + this.stateUuid + (cleanState ? "
 				// (clean state) " : " "));
-				log.debug("## CMS starting... (" + stateUuid + ")");
+				log.debug("## CMS starting... (" + uuid + ")");
 
 //		initI18n();
 //		initServices();
@@ -70,12 +75,11 @@ public class CmsStateImpl implements CmsState {
 
 	public void stop() {
 		if (log.isDebugEnabled())
-			log.debug("CMS stopping...  (" + this.stateUuid + ")");
+			log.debug("CMS stopping...  (" + this.uuid + ")");
 
 		long duration = ((System.currentTimeMillis() - availableSince) / 1000) / 60;
 		log.info("## ARGEO CMS STOPPED after " + (duration / 60) + "h " + (duration % 60) + "min uptime ##");
 	}
-
 
 	@Override
 	public Long getAvailableSince() {
@@ -87,6 +91,15 @@ public class CmsStateImpl implements CmsState {
 	 */
 	public String getHostname() {
 		return hostname;
+	}
+
+	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuidFactory(UuidFactory uuidFactory) {
+		this.uuidFactory = uuidFactory;
 	}
 
 	/*

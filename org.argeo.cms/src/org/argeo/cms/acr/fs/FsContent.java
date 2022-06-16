@@ -213,7 +213,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 						QName[] classes = null;
 						ContentProvider contentProvider = session.getRepository().getMountContentProvider(fsContent,
 								false, classes);
-						Content mountedContent = contentProvider.get(session, fsContent.getPath(), "");
+						Content mountedContent = contentProvider.get(session, "");
 						return mountedContent;
 					} else {
 						return (Content) fsContent;
@@ -247,7 +247,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 
 		if (session.getRepository().shouldMount(classes)) {
 			ContentProvider contentProvider = session.getRepository().getMountContentProvider(fsContent, true, classes);
-			Content mountedContent = contentProvider.get(session, fsContent.getPath(), "");
+			Content mountedContent = contentProvider.get(session, "");
 			fsContent.put(CrName.MOUNT.get(), "true");
 			return mountedContent;
 

@@ -6,7 +6,9 @@ import javax.xml.namespace.NamespaceContext;
 
 public interface ContentProvider extends NamespaceContext {
 
-	ProvidedContent get(ProvidedSession session, String mountPath, String relativePath);
+	ProvidedContent get(ProvidedSession session, String relativePath);
+
+	boolean exists(ProvidedSession session, String relativePath);
 
 	String getMountPath();
 

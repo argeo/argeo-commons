@@ -22,7 +22,6 @@ import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.acr.xml.DomContentProvider;
 import org.argeo.cms.acr.xml.DomUtils;
 import org.w3c.dom.DOMException;
@@ -35,8 +34,6 @@ import org.xml.sax.SAXException;
  */
 public abstract class AbstractContentRepository implements ProvidedRepository {
 	private final static CmsLog log = CmsLog.getLog(AbstractContentRepository.class);
-
-	private UuidFactory uuidFactory;
 
 	private MountManager mountManager;
 	private TypesManager typesManager;
@@ -199,9 +196,4 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	TypesManager getTypesManager() {
 		return typesManager;
 	}
-
-	public void setUuidFactory(UuidFactory uuidFactory) {
-		this.uuidFactory = uuidFactory;
-	}
-
 }

@@ -1,6 +1,7 @@
 package org.argeo.cms.internal.http;
 
 import java.util.Locale;
+import java.util.UUID;
 
 import javax.security.auth.Subject;
 
@@ -14,9 +15,9 @@ public class WebCmsSessionImpl extends CmsSessionImpl {
 	private static final long serialVersionUID = -5178883380637048025L;
 	private RemoteAuthSession httpSession;
 
-	public WebCmsSessionImpl(Subject initialSubject, Authorization authorization, Locale locale,
+	public WebCmsSessionImpl(UUID uuid, Subject initialSubject, Authorization authorization, Locale locale,
 			RemoteAuthRequest request) {
-		super(initialSubject, authorization, locale, request.getSession().getId());
+		super(uuid, initialSubject, authorization, locale, request.getSession().getId());
 		httpSession = request.getSession();
 	}
 
@@ -26,8 +27,4 @@ public class WebCmsSessionImpl extends CmsSessionImpl {
 			return false;
 		return httpSession.isValid();
 	}
-
-//	public static CmsSessionImpl getCmsSession(RemoteAuthRequest request) {
-//		return CmsSessionImpl.getByLocalId(request.getSession().getId());
-//	}
 }

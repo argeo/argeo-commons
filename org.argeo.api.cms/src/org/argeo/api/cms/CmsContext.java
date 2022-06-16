@@ -27,4 +27,6 @@ public interface CmsContext {
 
 	/** Get the CMS session of this subject. */
 	CmsSession getCmsSession(Subject subject);
+	
+	CmsState getCmsState();
 }

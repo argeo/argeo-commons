@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
@@ -21,6 +22,8 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 	private final Subject subject;
 	private final Locale locale;
 
+	private UUID uuid;
+
 	// the single session
 	private CmsContentSession contentSession;
 
@@ -34,6 +37,9 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 
 		this.subject = subject;
 		this.locale = locale;
+
+		// TODO use an UUID factory
+		this.uuid = UUID.randomUUID();
 	}
 
 	@Override
@@ -45,7 +51,7 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 		initRootContentProvider(null);
 		if (contentSession != null)
 			throw new IllegalStateException("Repository is already started, stop it first.");
-		contentSession = new CmsContentSession(this, subject, locale);
+		contentSession = new CmsContentSession(this, uuid, subject, locale);
 	}
 
 	@Override
@@ -70,7 +76,7 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 
 	@Override
 	protected CmsContentSession newSystemSession() {
-		return new CmsContentSession(this, subject, Locale.getDefault());
+		return new CmsContentSession(this, uuid, subject, Locale.getDefault());
 	}
 
 	public static void main(String... args) {

@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.security.auth.Subject;
 
+import org.argeo.api.acr.spi.ProvidedContent;
+import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
@@ -20,6 +22,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsSessionId;
 import org.argeo.api.cms.CmsState;
+import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.ietf.jgss.GSSCredential;
@@ -35,6 +38,8 @@ public class CmsContextImpl implements CmsContext {
 	private CmsState cmsState;
 	private CmsDeployment cmsDeployment;
 	private UserAdmin userAdmin;
+	private UuidFactory uuidFactory;
+	private ProvidedRepository contentRepository;
 
 	// i18n
 	private Locale defaultLocale;
@@ -152,6 +157,22 @@ public class CmsContextImpl implements CmsContext {
 		this.userAdmin = userAdmin;
 	}
 
+	public UuidFactory getUuidFactory() {
+		return uuidFactory;
+	}
+
+	public void setUuidFactory(UuidFactory uuidFactory) {
+		this.uuidFactory = uuidFactory;
+	}
+
+	public ProvidedRepository getContentRepository() {
+		return contentRepository;
+	}
+
+	public void setContentRepository(ProvidedRepository contentRepository) {
+		this.contentRepository = contentRepository;
+	}
+
 	@Override
 	public Locale getDefaultLocale() {
 		return defaultLocale;
@@ -169,6 +190,11 @@ public class CmsContextImpl implements CmsContext {
 
 	public synchronized boolean isAvailable() {
 		return availableSince != null;
+	}
+
+	@Override
+	public CmsState getCmsState() {
+		return cmsState;
 	}
 
 	/*

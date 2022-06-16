@@ -222,6 +222,14 @@ public class JcrContent extends AbstractContent {
 
 	}
 
+	boolean exists() {
+		try {
+			return provider.getJcrSession(session, jcrWorkspace).itemExists(jcrPath);
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot check whether " + jcrPath + " exists", e);
+		}
+	}
+
 	/*
 	 * ADAPTERS
 	 */

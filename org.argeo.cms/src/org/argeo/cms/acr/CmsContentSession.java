@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
@@ -14,6 +15,7 @@ import javax.security.auth.Subject;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
+import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
@@ -25,6 +27,7 @@ import org.argeo.cms.acr.xml.DomContentProvider;
 class CmsContentSession implements ProvidedSession {
 	final private AbstractContentRepository contentRepository;
 
+	private final UUID uuid;
 	private Subject subject;
 	private Locale locale;
 
@@ -34,14 +37,21 @@ class CmsContentSession implements ProvidedSession {
 
 	private Set<ContentProvider> modifiedProviders = new TreeSet<>();
 
-	public CmsContentSession(AbstractContentRepository contentRepository, Subject subject, Locale locale) {
+	private Content sessionRunDir;
+
+	public CmsContentSession(AbstractContentRepository contentRepository, UUID uuid, Subject subject, Locale locale) {
 		this.contentRepository = contentRepository;
 		this.subject = subject;
 		this.locale = locale;
+		this.uuid = uuid;
+
 	}
 
 	public void close() {
 		closed.complete(this);
+
+		if (sessionRunDir != null)
+			sessionRunDir.remove();
 	}
 
 	@Override
@@ -53,11 +63,24 @@ class CmsContentSession implements ProvidedSession {
 	public Content get(String path) {
 		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
 		String mountPath = contentProvider.getMountPath();
+		String relativePath = extractRelativePath(mountPath, path);
+		ProvidedContent content = contentProvider.get(CmsContentSession.this, relativePath);
+		return content;
+	}
+
+	@Override
+	public boolean exists(String path) {
+		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
+		String mountPath = contentProvider.getMountPath();
+		String relativePath = extractRelativePath(mountPath, path);
+		return contentProvider.exists(this, relativePath);
+	}
+
+	private String extractRelativePath(String mountPath, String path) {
 		String relativePath = path.substring(mountPath.length());
 		if (relativePath.length() > 0 && relativePath.charAt(0) == '/')
 			relativePath = relativePath.substring(1);
-		ProvidedContent content = contentProvider.get(CmsContentSession.this, mountPath, relativePath);
-		return content;
+		return relativePath;
 	}
 
 	@Override
@@ -128,6 +151,26 @@ class CmsContentSession implements ProvidedSession {
 	public void notifyModification(ProvidedContent content) {
 		ContentProvider contentProvider = content.getProvider();
 		modifiedProviders.add(contentProvider);
+	}
+
+	@Override
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	@Override
+	public Content getSessionRunDir() {
+		if (sessionRunDir == null) {
+			String runDirPath = CmsContentRepository.RUN_BASE + '/' + uuid.toString();
+			if (exists(runDirPath))
+				sessionRunDir = get(runDirPath);
+			else {
+				Content runDir = get(CmsContentRepository.RUN_BASE);
+				// TODO deal with no run dir available?
+				sessionRunDir = runDir.add(uuid.toString(), CrName.COLLECTION.get());
+			}
+		}
+		return sessionRunDir;
 	}
 
 //		@Override

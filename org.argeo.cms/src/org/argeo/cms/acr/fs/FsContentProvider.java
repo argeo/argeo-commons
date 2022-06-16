@@ -33,7 +33,7 @@ public class FsContentProvider implements ContentProvider {
 	public FsContentProvider(String mountPath, Path rootPath) {
 		Objects.requireNonNull(mountPath);
 		Objects.requireNonNull(rootPath);
-		
+
 		this.mountPath = mountPath;
 		this.rootPath = rootPath;
 		// FIXME make it more robust
@@ -112,13 +112,18 @@ public class FsContentProvider implements ContentProvider {
 	}
 
 	@Override
-	public ProvidedContent get(ProvidedSession session, String mountPath, String relativePath) {
+	public ProvidedContent get(ProvidedSession session, String relativePath) {
 		return new FsContent(session, this, rootPath.resolve(relativePath));
 	}
 
 	/*
 	 * NAMESPACE CONTEXT
 	 */
+
+	@Override
+	public boolean exists(ProvidedSession session, String relativePath) {
+		return Files.exists(rootPath.resolve(relativePath));
+	}
 
 	@Override
 	public String getNamespaceURI(String prefix) {

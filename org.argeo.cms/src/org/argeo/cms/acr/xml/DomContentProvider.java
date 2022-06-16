@@ -61,27 +61,40 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 //	}
 
 	@Override
-	public ProvidedContent get(ProvidedSession session, String mountPath, String relativePath) {
+	public ProvidedContent get(ProvidedSession session, String relativePath) {
 		if ("".equals(relativePath))
 			return new DomContent(session, this, document.getDocumentElement());
+
+		NodeList nodes = findContent(relativePath);
+		if (nodes.getLength() > 1)
+			throw new IllegalArgumentException("Multiple content found for " + relativePath + " under " + mountPath);
+		if (nodes.getLength() == 0)
+			throw new ContentNotFoundException("Path " + relativePath + " under " + mountPath + " was not found");
+		Element element = (Element) nodes.item(0);
+		return new DomContent(session, this, element);
+	}
+
+	protected NodeList findContent(String relativePath) {
 		if (relativePath.startsWith("/"))
 			throw new IllegalArgumentException("Relative path cannot start with /");
-
 		String xPathExpression = '/' + relativePath;
 		if ("/".equals(mountPath))
 			xPathExpression = "/cr:root" + xPathExpression;
 		try {
 			NodeList nodes = (NodeList) xPath.get().evaluate(xPathExpression, document, XPathConstants.NODESET);
-			if (nodes.getLength() > 1)
-				throw new IllegalArgumentException(
-						"Multiple content found for " + relativePath + " under " + mountPath);
-			if (nodes.getLength() == 0)
-				throw new ContentNotFoundException("Path " + relativePath + " under " + mountPath + " was not found");
-			Element element = (Element) nodes.item(0);
-			return new DomContent(session, this, element);
+			return nodes;
 		} catch (XPathExpressionException e) {
 			throw new IllegalArgumentException("XPath expression " + xPathExpression + " cannot be evaluated", e);
 		}
+
+	}
+
+	@Override
+	public boolean exists(ProvidedSession session, String relativePath) {
+		if ("".equals(relativePath))
+			return true;
+		NodeList nodes = findContent(relativePath);
+		return nodes.getLength() != 0;
 	}
 
 	public void persist(ProvidedSession session) {

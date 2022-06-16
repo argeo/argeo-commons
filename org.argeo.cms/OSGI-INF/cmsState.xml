@@ -4,4 +4,5 @@
    <service>
       <provide interface="org.argeo.api.cms.CmsState"/>
    </service>
+   <reference bind="setUuidFactory" cardinality="1..1" interface="org.argeo.api.uuid.UuidFactory" name="UuidFactory" policy="static"/>
 </scr:component>

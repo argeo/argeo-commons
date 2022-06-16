@@ -141,7 +141,8 @@ class CmsAuthUtils {
 					if (currentLocalSessionAnonymous) {
 						currentLocalSession.close();
 						// new CMS session
-						cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
+						UUID cmsSessionUuid = CmsContextImpl.getCmsContext().getUuidFactory().timeUUID();
+						cmsSession = new WebCmsSessionImpl(cmsSessionUuid, subject, authorization, locale, request);
 						CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 					} else if (!authorization.getName().equals(currentLocalSession.getAuthorization().getName())) {
 						throw new IllegalStateException("Inconsistent user " + authorization.getName()
@@ -163,7 +164,8 @@ class CmsAuthUtils {
 				}
 			} else {
 				// new CMS session
-				cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
+				UUID cmsSessionUuid = CmsContextImpl.getCmsContext().getUuidFactory().timeUUID();
+				cmsSession = new WebCmsSessionImpl(cmsSessionUuid, subject, authorization, locale, request);
 				CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 			}
 
@@ -182,7 +184,8 @@ class CmsAuthUtils {
 		} else {
 			CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(SINGLE_USER_LOCAL_ID);
 			if (cmsSession == null) {
-				cmsSession = new CmsSessionImpl(subject, authorization, locale, SINGLE_USER_LOCAL_ID);
+				UUID cmsSessionUuid = CmsContextImpl.getCmsContext().getUuidFactory().timeUUID();
+				cmsSession = new CmsSessionImpl(cmsSessionUuid, subject, authorization, locale, SINGLE_USER_LOCAL_ID);
 				CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 			}
 			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());

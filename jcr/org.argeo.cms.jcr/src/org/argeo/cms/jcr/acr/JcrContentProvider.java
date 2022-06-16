@@ -12,6 +12,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.xml.namespace.NamespaceContext;
 
+import org.argeo.api.acr.Content;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
@@ -47,10 +48,17 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 	}
 
 	@Override
-	public ProvidedContent get(ProvidedSession contentSession, String mountPath, String relativePath) {
+	public ProvidedContent get(ProvidedSession contentSession, String relativePath) {
 		String jcrWorkspace = ContentUtils.getParentPath(mountPath)[1];
 		String jcrPath = "/" + relativePath;
 		return new JcrContent(contentSession, this, jcrWorkspace, jcrPath);
+	}
+
+	@Override
+	public boolean exists(ProvidedSession contentSession, String relativePath) {
+		String jcrWorkspace = ContentUtils.getParentPath(mountPath)[1];
+		String jcrPath = "/" + relativePath;
+		return new JcrContent(contentSession, this, jcrWorkspace, jcrPath).exists();
 	}
 
 	public Session getJcrSession(ProvidedSession contentSession, String jcrWorkspace) {
@@ -65,6 +73,10 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 
 		Session jcrSession = sessionAdapter.getSession(jcrWorkspace);
 		return jcrSession;
+	}
+
+	public Session getJcrSession(Content content, String jcrWorkspace) {
+		return getJcrSession(((ProvidedContent) content).getSession(), jcrWorkspace);
 	}
 
 	@Override
