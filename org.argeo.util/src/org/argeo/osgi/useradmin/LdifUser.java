@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -156,7 +157,7 @@ class LdifUser implements DirectoryUser {
 	byte[] sha1hash(char[] password) {
 		byte[] hashedPassword = ("{SHA}"
 				+ Base64.getEncoder().encodeToString(DigestUtils.sha1(DigestUtils.charsToBytes(password))))
-						.getBytes(StandardCharsets.UTF_8);
+				.getBytes(StandardCharsets.UTF_8);
 		return hashedPassword;
 	}
 
@@ -307,24 +308,25 @@ class LdifUser implements DirectoryUser {
 				}
 				if (attr.size() == 1)
 					return value;
-				if (!attr.getID().equals(LdapAttrs.objectClass.name()))
-					return value;
+//				if (!attr.getID().equals(LdapAttrs.objectClass.name()))
+//					return value;
 				// special case for object class
 				NamingEnumeration<?> en = attr.getAll();
-				Set<String> objectClasses = new HashSet<String>();
+				StringJoiner values = new StringJoiner("\n");
+				// Set<String> values = new HashSet<String>();
 				while (en.hasMore()) {
-					String objectClass = en.next().toString();
-					objectClasses.add(objectClass);
+					String v = en.next().toString();
+					values.add(v);
 				}
-
-				if (objectClasses.contains(userAdmin.getUserObjectClass()))
-					return userAdmin.getUserObjectClass();
-				else if (objectClasses.contains(userAdmin.getGroupObjectClass()))
-					return userAdmin.getGroupObjectClass();
-				else
-					return value;
+				return values.toString();
+//				if (objectClasses.contains(userAdmin.getUserObjectClass()))
+//					return userAdmin.getUserObjectClass();
+//				else if (objectClasses.contains(userAdmin.getGroupObjectClass()))
+//					return userAdmin.getGroupObjectClass();
+//				else
+//					return value;
 			} catch (NamingException e) {
-				throw new UserDirectoryException("Cannot get value for attribute " + key, e);
+				throw new IllegalStateException("Cannot get value for attribute " + key, e);
 			}
 		}
 

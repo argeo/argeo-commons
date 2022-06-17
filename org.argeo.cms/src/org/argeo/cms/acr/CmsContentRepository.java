@@ -22,6 +22,7 @@ import org.argeo.cms.internal.runtime.CmsContextImpl;
  */
 public class CmsContentRepository extends AbstractContentRepository {
 	public final static String RUN_BASE = "/run";
+	public final static String DIRECTORY_BASE = "/directory";
 
 	private Map<CmsSession, CmsContentSession> userSessions = Collections.synchronizedMap(new HashMap<>());
 

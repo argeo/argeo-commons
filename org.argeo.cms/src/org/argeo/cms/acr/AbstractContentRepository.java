@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -39,6 +40,8 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	private TypesManager typesManager;
 
 	private CmsContentSession systemSession;
+
+	private Set<ContentProvider> providersToAdd = new HashSet<>();
 
 	// utilities
 	/** Should be used only to copy source and results. */
@@ -76,7 +79,10 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	 */
 
 	public void addProvider(ContentProvider provider) {
-		mountManager.addStructuralContentProvider(provider);
+		if (mountManager == null)
+			providersToAdd.add(provider);
+		else
+			mountManager.addStructuralContentProvider(provider);
 	}
 
 	public void registerTypes(String prefix, String namespaceURI, String schemaSystemId) {
@@ -128,6 +134,10 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 			throw new IllegalStateException("Cannot init ACR root " + path, e);
 		}
 
+		// add content providers already notified
+		for (ContentProvider contentProvider : providersToAdd)
+			addProvider(contentProvider);
+		providersToAdd.clear();
 	}
 
 	public void writeDom(Document document, OutputStream out) throws IOException {

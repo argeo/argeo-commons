@@ -95,4 +95,8 @@ public class SwtHierarchicalPart implements HierarchicalPart {
 		this.onAction = onAction;
 	}
 
+	public Composite getArea() {
+		return area;
+	}
+
 }

@@ -445,15 +445,30 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	@Override
+	public HierarchyUnit getParent() {
+		return null;
+	}
+
+	@Override
 	public int getHierarchyUnitType() {
 		return 0;
 	}
 
 	@Override
 	public String getHierarchyUnitName() {
-		String name = baseDn.getRdn(baseDn.size() - 1).getValue().toString();
+		String name = LdapNameUtils.getLastRdnAsString(baseDn);
 		// TODO check ou, o, etc.
 		return name;
+	}
+
+	@Override
+	public HierarchyUnit getHierarchyUnit(String path) {
+		return null;
+	}
+
+	@Override
+	public HierarchyUnit getHierarchyUnit(Role role) {
+		return null;
 	}
 
 	@Override

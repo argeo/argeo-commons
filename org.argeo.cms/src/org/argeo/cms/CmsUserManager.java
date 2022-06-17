@@ -80,6 +80,8 @@ public interface CmsUserManager {
 	void expireAuthToken(String token);
 
 	void expireAuthTokens(Subject subject);
+	
+	UserDirectory getUserDirectory(User user);
 
 //	User createUserFromPerson(Node person);
 

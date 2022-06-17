@@ -187,4 +187,11 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		// prepare not impacting
 	}
 
+//	@Override
+//	public HierarchyUnit getHierarchyUnit(String path) {
+//		LdapName dn = LdapNameUtils.toLdapName(path);
+//		Attributes attrs = ldapConnection.getAttributes(dn);
+//		
+//	}
+
 }

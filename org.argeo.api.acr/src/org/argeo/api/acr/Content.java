@@ -90,9 +90,14 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	void remove();
 
 	/*
+	 * TYPING
+	 */
+	List<QName> getTypes();
+
+	/*
 	 * DEFAULT METHODS
 	 */
-	default <A> A adapt(Class<A> clss) throws IllegalArgumentException {
+	default <A> A adapt(Class<A> clss) {
 		throw new UnsupportedOperationException("Cannot adapt content " + this + " to " + clss.getName());
 	}
 

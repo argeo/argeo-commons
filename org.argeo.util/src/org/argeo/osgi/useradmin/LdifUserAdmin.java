@@ -308,6 +308,9 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		init();
 	}
 
+	/*
+	 * HIERARCHY
+	 */
 	@Override
 	public int getHierarchyChildCount() {
 		return rootHierarchyUnits.size();
@@ -318,8 +321,21 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 		return rootHierarchyUnits.get(i);
 	}
 
-	/*
-	 * HIERARCHY
-	 */
+	@Override
+	public HierarchyUnit getHierarchyUnit(String path) {
+		LdapName dn = LdapNameUtils.toLdapName(path);
+		return hierarchy.get(dn);
+	}
+
+	@Override
+	public HierarchyUnit getHierarchyUnit(Role role) {
+		LdapName dn = LdapNameUtils.toLdapName(role.getName());
+		// 2 levels
+		LdapName huDn = LdapNameUtils.getParent(LdapNameUtils.getParent(dn));
+		HierarchyUnit hierarchyUnit = hierarchy.get(huDn);
+		if (hierarchyUnit == null)
+			throw new IllegalStateException("No hierarchy unit found for " + role);
+		return hierarchyUnit;
+	}
 
 }

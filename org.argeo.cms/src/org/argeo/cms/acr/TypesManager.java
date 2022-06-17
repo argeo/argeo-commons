@@ -42,6 +42,7 @@ import org.apache.xerces.xs.XSSimpleTypeDefinition;
 import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
 import org.argeo.api.acr.CrAttributeType;
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.cms.CmsLog;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -72,13 +73,7 @@ class TypesManager {
 		schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
 		// types
-		types = new TreeMap<>((qn1, qn2) -> {
-			if (Objects.equals(qn1.getNamespaceURI(), qn2.getNamespaceURI())) {// same namespace
-				return qn1.getLocalPart().compareTo(qn2.getLocalPart());
-			} else {
-				return qn1.getNamespaceURI().compareTo(qn2.getNamespaceURI());
-			}
-		});
+		types = new TreeMap<>(NamespaceUtils.QNAME_COMPARATOR);
 
 	}
 

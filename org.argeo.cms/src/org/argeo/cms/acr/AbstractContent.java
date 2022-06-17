@@ -15,16 +15,22 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedContent;
+import org.argeo.api.acr.spi.ProvidedSession;
 
 /** Partial reference implementation of a {@link ProvidedContent}. */
 public abstract class AbstractContent extends AbstractMap<QName, Object> implements ProvidedContent {
+	private final ProvidedSession session;
+
+	public AbstractContent(ProvidedSession session) {
+		this.session = session;
+	}
 
 	/*
 	 * ATTRIBUTES OPERATIONS
 	 */
-	protected abstract Iterable<QName> keys();
-
-	protected abstract void removeAttr(QName key);
+//	protected abstract Iterable<QName> keys();
+//
+//	protected abstract void removeAttr(QName key);
 
 	@Override
 	public Set<Entry<QName, Object>> entrySet() {
@@ -106,10 +112,28 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 		collectAncestors(ancestors, this);
 		return ancestors.size();
 	}
-	
+
 	@Override
 	public String getSessionLocalId() {
 		return getPath();
+	}
+
+	/*
+	 * SESSION
+	 */
+
+	@Override
+	public ProvidedSession getSession() {
+		return session;
+	}
+
+	/*
+	 * TYPING
+	 */
+
+	@Override
+	public List<QName> getTypes() {
+		return new ArrayList<>();
 	}
 
 	/*
@@ -124,6 +148,40 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 //	public String toString() {
 //		return "content " + getPath();
 //	}
+
+	/*
+	 * DEFAULTS
+	 */
+	//	- no children
+	//	- no attributes
+	//	- cannot be modified
+	@Override
+	public Iterator<Content> iterator() {
+		return Collections.emptyIterator();
+	}
+
+	@Override
+	public Content add(QName name, QName... classes) {
+		throw new UnsupportedOperationException("Content cannot be added.");
+	}
+
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException("Content cannot be removed.");
+	}
+
+	protected Iterable<QName> keys() {
+		return Collections.emptySet();
+	}
+
+	@Override
+	public <A> Optional<A> get(QName key, Class<A> clss) {
+		return null;
+	}
+
+	protected void removeAttr(QName key) {
+		throw new UnsupportedOperationException("Attributes cannot be removed.");
+	}
 
 	/*
 	 * SUB CLASSES

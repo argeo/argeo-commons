@@ -2,6 +2,7 @@ package org.argeo.osgi.useradmin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.naming.directory.Attributes;
@@ -37,6 +38,11 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	}
 
 	@Override
+	public HierarchyUnit getParent() {
+		return parent;
+	}
+
+	@Override
 	public HierarchyUnit getHierarchyChild(int i) {
 		return children.get(i);
 	}
@@ -48,7 +54,7 @@ class LdifHierarchyUnit implements HierarchyUnit {
 
 	@Override
 	public String getHierarchyUnitName() {
-		String name = dn.getRdn(dn.size() - 1).getValue().toString();
+		String name = LdapNameUtils.getLastRdnAsString(dn);
 		// TODO check ou, o, etc.
 		return name;
 	}

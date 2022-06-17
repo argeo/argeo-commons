@@ -16,7 +16,9 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 
@@ -436,6 +438,20 @@ public class CmsUserManagerImpl implements CmsUserManager {
 			}
 			throw new RuntimeException("Cannot add token", e1);
 		}
+	}
+
+	@Override
+	public UserDirectory getUserDirectory(User user) {
+		String name = user.getName();
+		NavigableMap<String, UserDirectory> possible = new TreeMap<>();
+		for (UserDirectory userDirectory : userDirectories.keySet()) {
+			if (name.endsWith(userDirectory.getBasePath())) {
+				possible.put(userDirectory.getBasePath(), userDirectory);
+			}
+		}
+		if (possible.size() == 0)
+			throw new IllegalStateException("No user directory found for user " + name);
+		return possible.lastEntry().getValue();
 	}
 
 //	public User createUserFromPerson(Node person) {

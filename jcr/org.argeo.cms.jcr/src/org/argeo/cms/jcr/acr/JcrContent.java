@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ForkJoinPool;
 
 import javax.jcr.Node;
@@ -42,13 +43,12 @@ public class JcrContent extends AbstractContent {
 //	private Node jcrNode;
 
 	private JcrContentProvider provider;
-	private ProvidedSession session;
 
 	private String jcrWorkspace;
 	private String jcrPath;
 
 	protected JcrContent(ProvidedSession session, JcrContentProvider provider, String jcrWorkspace, String jcrPath) {
-		this.session = session;
+		super(session);
 		this.provider = provider;
 		this.jcrWorkspace = jcrWorkspace;
 		this.jcrPath = jcrPath;
@@ -103,7 +103,7 @@ public class JcrContent extends AbstractContent {
 	public Node getJcrNode() {
 		try {
 			// TODO caching?
-			return provider.getJcrSession(session, jcrWorkspace).getNode(jcrPath);
+			return provider.getJcrSession(getSession(), jcrWorkspace).getNode(jcrPath);
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot retrieve " + jcrPath + " from workspace " + jcrWorkspace, e);
 		}
@@ -165,7 +165,7 @@ public class JcrContent extends AbstractContent {
 
 		@Override
 		public Content next() {
-			current = new JcrContent(session, provider, jcrWorkspace, Jcr.getPath(nodeIterator.nextNode()));
+			current = new JcrContent(getSession(), provider, jcrWorkspace, Jcr.getPath(nodeIterator.nextNode()));
 			return current;
 		}
 
@@ -182,7 +182,7 @@ public class JcrContent extends AbstractContent {
 	public Content getParent() {
 		if (Jcr.isRoot(getJcrNode())) // root
 			return null;
-		return new JcrContent(session, provider, jcrWorkspace, Jcr.getParentPath(getJcrNode()));
+		return new JcrContent(getSession(), provider, jcrWorkspace, Jcr.getParentPath(getJcrNode()));
 	}
 
 	@Override
@@ -224,7 +224,7 @@ public class JcrContent extends AbstractContent {
 
 	boolean exists() {
 		try {
-			return provider.getJcrSession(session, jcrWorkspace).itemExists(jcrPath);
+			return provider.getJcrSession(getSession(), jcrWorkspace).itemExists(jcrPath);
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot check whether " + jcrPath + " exists", e);
 		}
@@ -241,7 +241,7 @@ public class JcrContent extends AbstractContent {
 
 			ForkJoinPool.commonPool().execute(() -> {
 				try (PipedOutputStream out = new PipedOutputStream(in)) {
-					provider.getJcrSession(session, jcrWorkspace).exportDocumentView(jcrPath, out, true, false);
+					provider.getJcrSession(getSession(), jcrWorkspace).exportDocumentView(jcrPath, out, true, false);
 					out.flush();
 				} catch (IOException | RepositoryException e) {
 					throw new RuntimeException("Cannot export " + jcrPath + " in workspace " + jcrWorkspace, e);
@@ -274,11 +274,6 @@ public class JcrContent extends AbstractContent {
 	}
 
 	@Override
-	public ProvidedSession getSession() {
-		return session;
-	}
-
-	@Override
 	public ContentProvider getProvider() {
 		return provider;
 	}
@@ -290,6 +285,60 @@ public class JcrContent extends AbstractContent {
 		} catch (RepositoryException e) {
 			throw new JcrException("Cannot get identifier for " + getJcrNode(), e);
 		}
+	}
+
+	/*
+	 * TYPING
+	 */
+	@Override
+	public List<QName> getTypes() {
+		try {
+//			Node node = getJcrNode();
+//			List<QName> res = new ArrayList<>();
+//			res.add(nodeTypeToQName(node.getPrimaryNodeType()));
+//			for (NodeType mixin : node.getMixinNodeTypes()) {
+//				res.add(nodeTypeToQName(mixin));
+//			}
+//			return res;
+			Node context = getJcrNode();
+
+			List<QName> res = new ArrayList<>();
+			// primary node type
+			NodeType primaryType = context.getPrimaryNodeType();
+			res.add(nodeTypeToQName(primaryType));
+
+			Set<QName> secondaryTypes = new TreeSet<>();
+			for (NodeType mixinType : context.getMixinNodeTypes()) {
+				secondaryTypes.add(nodeTypeToQName(mixinType));
+			}
+			for (NodeType superType : primaryType.getDeclaredSupertypes()) {
+				secondaryTypes.add(nodeTypeToQName(superType));
+			}
+			// mixins
+			for (NodeType mixinType : context.getMixinNodeTypes()) {
+				for (NodeType superType : mixinType.getDeclaredSupertypes()) {
+					secondaryTypes.add(nodeTypeToQName(superType));
+				}
+			}
+//		// entity type
+//		if (context.isNodeType(EntityType.entity.get())) {
+//			if (context.hasProperty(EntityNames.ENTITY_TYPE)) {
+//				String entityTypeName = context.getProperty(EntityNames.ENTITY_TYPE).getString();
+//				if (byType.containsKey(entityTypeName)) {
+//					types.add(entityTypeName);
+//				}
+//			}
+//		}
+			res.addAll(secondaryTypes);
+			return res;
+		} catch (RepositoryException e) {
+			throw new JcrException("Cannot list node types from " + getJcrNode(), e);
+		}
+	}
+
+	private QName nodeTypeToQName(NodeType nodeType) {
+		String name = nodeType.getName();
+		return QName.valueOf(name);
 	}
 
 	/*

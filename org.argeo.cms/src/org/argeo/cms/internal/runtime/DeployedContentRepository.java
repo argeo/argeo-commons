@@ -6,12 +6,15 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import org.argeo.api.acr.spi.ContentProvider;
+import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.acr.CmsContentRepository;
+import org.argeo.cms.acr.directory.DirectoryContentProvider;
 import org.argeo.cms.acr.fs.FsContentProvider;
-import org.argeo.util.OS;
 
 public class DeployedContentRepository extends CmsContentRepository {
 	private final static String ROOT_XML = "cr:root.xml";
+
+	private CmsUserManager userManager;
 
 	@Override
 	public void start() {
@@ -24,10 +27,16 @@ public class DeployedContentRepository extends CmsContentRepository {
 //		FsContentProvider srvContentProvider = new FsContentProvider("/" + CmsConstants.SRV_WORKSPACE, srvPath, false);
 //		addProvider(srvContentProvider);
 
-			Path runDirPath =  KernelUtils.getOsgiInstancePath(CmsContentRepository.RUN_BASE);
+			// run dir
+			Path runDirPath = KernelUtils.getOsgiInstancePath(CmsContentRepository.RUN_BASE);
 			Files.createDirectories(runDirPath);
 			FsContentProvider runContentProvider = new FsContentProvider(CmsContentRepository.RUN_BASE, runDirPath);
 			addProvider(runContentProvider);
+
+			// users
+			DirectoryContentProvider directoryContentProvider = new DirectoryContentProvider(
+					CmsContentRepository.DIRECTORY_BASE, userManager);
+			addProvider(directoryContentProvider);
 		} catch (IOException e) {
 			throw new IllegalStateException("Cannot start content repository", e);
 		}
@@ -44,6 +53,10 @@ public class DeployedContentRepository extends CmsContentRepository {
 	}
 
 	public void removeContentProvider(ContentProvider provider, Map<String, Object> properties) {
+	}
+
+	public void setUserManager(CmsUserManager userManager) {
+		this.userManager = userManager;
 	}
 
 }

@@ -11,10 +11,12 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -52,14 +54,13 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		POSIX_KEYS.put(CrName.PERMISSIONS.get(), "posix:permissions");
 	}
 
-	private final ProvidedSession session;
 	private final FsContentProvider provider;
 	private final Path path;
 	private final boolean isRoot;
 	private final QName name;
 
 	protected FsContent(ProvidedSession session, FsContentProvider contentProvider, Path path) {
-		this.session = session;
+		super(session);
 		this.provider = contentProvider;
 		this.path = path;
 		this.isRoot = contentProvider.isMountRoot(path);
@@ -159,7 +160,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			try {
 				for (String name : udfav.list()) {
 					QName providerName = NamespaceUtils.parsePrefixedName(provider, name);
-					QName sessionName = new ContentName(providerName, session);
+					QName sessionName = new ContentName(providerName, getSession());
 					result.add(sessionName);
 				}
 			} catch (IOException e) {
@@ -211,9 +212,9 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 					Optional<String> isMount = fsContent.get(CrName.MOUNT.get(), String.class);
 					if (isMount.orElse("false").equals("true")) {
 						QName[] classes = null;
-						ContentProvider contentProvider = session.getRepository().getMountContentProvider(fsContent,
-								false, classes);
-						Content mountedContent = contentProvider.get(session, "");
+						ContentProvider contentProvider = getSession().getRepository()
+								.getMountContentProvider(fsContent, false, classes);
+						Content mountedContent = contentProvider.get(getSession(), "");
 						return mountedContent;
 					} else {
 						return (Content) fsContent;
@@ -245,9 +246,10 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			throw new ContentResourceException("Cannot create new content", e);
 		}
 
-		if (session.getRepository().shouldMount(classes)) {
-			ContentProvider contentProvider = session.getRepository().getMountContentProvider(fsContent, true, classes);
-			Content mountedContent = contentProvider.get(session, "");
+		if (getSession().getRepository().shouldMount(classes)) {
+			ContentProvider contentProvider = getSession().getRepository().getMountContentProvider(fsContent, true,
+					classes);
+			Content mountedContent = contentProvider.get(getSession(), "");
 			fsContent.put(CrName.MOUNT.get(), "true");
 			return mountedContent;
 
@@ -268,7 +270,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			if (mountPath == null || mountPath.equals("/"))
 				return null;
 			String[] parent = ContentUtils.getParentPath(mountPath);
-			return session.get(parent[0]);
+			return getSession().get(parent[0]);
 		}
 		return new FsContent(this, path.getParent());
 	}
@@ -299,12 +301,21 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	}
 
 	/*
+	 * TYPING
+	 */
+
+	@Override
+	public List<QName> getTypes() {
+		List<QName> res = new ArrayList<>();
+		if (Files.isDirectory(path))
+			res.add(CrName.COLLECTION.get());
+		// TODO add other types
+		return res;
+	}
+
+	/*
 	 * ACCESSORS
 	 */
-	@Override
-	public ProvidedSession getSession() {
-		return session;
-	}
 
 	@Override
 	public FsContentProvider getProvider() {

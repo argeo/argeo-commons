@@ -1,6 +1,7 @@
 package org.argeo.api.acr;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
@@ -38,6 +39,19 @@ public class NamespaceUtils {
 			throw new IllegalStateException("Namespace " + name.getNamespaceURI() + " is unbound.");
 		return prefix + ":" + name.getLocalPart();
 	}
+
+	public final static Comparator<QName> QNAME_COMPARATOR = new Comparator<QName>() {
+	
+		@Override
+		public int compare(QName qn1, QName qn2) {
+			if (Objects.equals(qn1.getNamespaceURI(), qn2.getNamespaceURI())) {// same namespace
+				return qn1.getLocalPart().compareTo(qn2.getLocalPart());
+			} else {
+				return qn1.getNamespaceURI().compareTo(qn2.getNamespaceURI());
+			}
+		}
+	
+	};
 
 	/** singleton */
 	private NamespaceUtils() {

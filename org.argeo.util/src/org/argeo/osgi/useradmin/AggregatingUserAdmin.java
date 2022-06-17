@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -270,4 +271,9 @@ public class AggregatingUserAdmin implements UserAdmin {
 	protected void preDestroy(UserDirectory userDirectory) {
 	}
 
+	public Set<UserDirectory> getUserDirectories() {
+		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getBasePath().compareTo(o2.getBasePath()));
+		res.addAll(businessRoles.values());
+		return res;
+	}
 }

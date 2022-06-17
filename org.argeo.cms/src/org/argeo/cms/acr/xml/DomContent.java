@@ -1,8 +1,11 @@
 package org.argeo.cms.acr.xml;
 
 import java.nio.CharBuffer;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -13,6 +16,7 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
+import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
@@ -28,7 +32,6 @@ import org.w3c.dom.Text;
 /** Content persisted as a DOM element. */
 public class DomContent extends AbstractContent implements ProvidedContent {
 
-	private final ProvidedSession session;
 	private final DomContentProvider provider;
 	private final Element element;
 
@@ -36,7 +39,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	private Boolean hasText = null;
 
 	public DomContent(ProvidedSession session, DomContentProvider contentProvider, Element element) {
-		this.session = session;
+		super(session);
 		this.provider = contentProvider;
 		this.element = element;
 	}
@@ -50,7 +53,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		if (element.getParentNode() == null) {// root
 			String mountPath = provider.getMountPath();
 			if (mountPath != null) {
-				Content mountPoint = session.getMountPoint(mountPath);
+				Content mountPoint = getSession().getMountPoint(mountPath);
 				return mountPoint.getName();
 			}
 		}
@@ -198,7 +201,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	@Override
 	public Iterator<Content> iterator() {
 		NodeList nodeList = element.getChildNodes();
-		return new ElementIterator(this, session, provider, nodeList);
+		return new ElementIterator(this, getSession(), provider, nodeList);
 	}
 
 	@Override
@@ -209,7 +212,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			if (mountPath == null)
 				return null;
 			String[] parent = ContentUtils.getParentPath(mountPath);
-			return session.get(parent[0]);
+			return getSession().get(parent[0]);
 		}
 		if (parentNode instanceof Document)
 			return null;
@@ -263,12 +266,22 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		if (String.class.isAssignableFrom(clss)) {
 			CompletableFuture<String> res = new CompletableFuture<>();
 			res.thenAccept((s) -> {
-				session.notifyModification(this);
+				getSession().notifyModification(this);
 				element.setTextContent(s);
 			});
 			return (CompletableFuture<A>) res;
 		}
 		return super.write(clss);
+	}
+
+	/*
+	 * TYPING
+	 */
+	@Override
+	public List<QName> getTypes() {
+		List<QName> res = new ArrayList<>();
+		res.add(getName());
+		return res;
 	}
 
 	/*
@@ -282,10 +295,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		return new DomContent(this, childElement);
 	}
 
-	public ProvidedSession getSession() {
-		return session;
-	}
-
+	@Override
 	public DomContentProvider getProvider() {
 		return provider;
 	}

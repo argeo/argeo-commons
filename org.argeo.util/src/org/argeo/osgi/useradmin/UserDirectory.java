@@ -3,6 +3,7 @@ package org.argeo.osgi.useradmin;
 import java.util.Optional;
 
 import org.argeo.osgi.transaction.WorkControl;
+import org.osgi.service.useradmin.Role;
 
 /** Information about a user directory. */
 public interface UserDirectory extends HierarchyUnit {
@@ -31,7 +32,11 @@ public interface UserDirectory extends HierarchyUnit {
 	String getGroupBase();
 
 	Optional<String> getRealm();
-	
+
+	HierarchyUnit getHierarchyUnit(String path);
+
+	HierarchyUnit getHierarchyUnit(Role role);
+
 	@Deprecated
 	void setTransactionControl(WorkControl transactionControl);
 }
