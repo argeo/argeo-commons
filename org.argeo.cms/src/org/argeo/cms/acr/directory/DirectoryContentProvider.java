@@ -39,16 +39,16 @@ public class DirectoryContentProvider implements ContentProvider {
 		List<String> segments = ContentUtils.toPathSegments(relativePath);
 		if (segments.size() == 0)
 			return new UserManagerContent(session);
-		String userDirectoryDn = segments.get(0);
+		String userDirectoryName = segments.get(0);
 		UserDirectory userDirectory = null;
 		userDirectories: for (UserDirectory ud : userManager.getUserDirectories()) {
-			if (userDirectoryDn.equals(ud.getGlobalId())) {
+			if (userDirectoryName.equals(ud.getName())) {
 				userDirectory = ud;
 				break userDirectories;
 			}
 		}
 		if (userDirectory == null)
-			throw new ContentNotFoundException("Cannot find user directory " + userDirectoryDn);
+			throw new ContentNotFoundException("Cannot find user directory " + userDirectoryName);
 		if (segments.size() == 1) {
 			return new DirectoryContent(session, this, userDirectory);
 		} else {
@@ -72,7 +72,7 @@ public class DirectoryContentProvider implements ContentProvider {
 			HierarchyUnit hierarchyUnit = userDirectory.getHierarchyUnit(pathWithinUserDirectory);
 			if (hierarchyUnit == null)
 				throw new ContentNotFoundException(
-						"Cannot find " + pathWithinUserDirectory + " within " + userDirectoryDn);
+						"Cannot find " + pathWithinUserDirectory + " within " + userDirectoryName);
 			return new HierarchyUnitContent(session, this, hierarchyUnit);
 		}
 	}
