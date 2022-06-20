@@ -243,21 +243,23 @@ class LdifUser implements DirectoryUser {
 		private final List<String> attrFilter;
 		private final Boolean includeFilter;
 
-		public AttributeDictionary(Boolean includeFilter) {
+		public AttributeDictionary(Boolean credentials) {
 			this.attrFilter = userAdmin.getCredentialAttributeIds();
-			this.includeFilter = includeFilter;
+			this.includeFilter = credentials;
 			try {
 				NamingEnumeration<String> ids = getAttributes().getIDs();
 				while (ids.hasMore()) {
 					String id = ids.next();
-					if (includeFilter && attrFilter.contains(id))
+					if (credentials && attrFilter.contains(id))
 						effectiveKeys.add(id);
-					else if (!includeFilter && !attrFilter.contains(id))
+					else if (!credentials && !attrFilter.contains(id))
 						effectiveKeys.add(id);
 				}
 			} catch (NamingException e) {
 				throw new UserDirectoryException("Cannot initialise attribute dictionary", e);
 			}
+			if (!credentials)
+				effectiveKeys.add(LdapAttrs.objectClasses.name());
 		}
 
 		@Override
@@ -297,7 +299,8 @@ class LdifUser implements DirectoryUser {
 		@Override
 		public Object get(Object key) {
 			try {
-				Attribute attr = getAttributes().get(key.toString());
+				Attribute attr = !key.equals(LdapAttrs.objectClasses.name()) ? getAttributes().get(key.toString())
+						: getAttributes().get(LdapAttrs.objectClass.name());
 				if (attr == null)
 					return null;
 				Object value = attr.get();
@@ -310,7 +313,7 @@ class LdifUser implements DirectoryUser {
 				if (attr.size() == 1)
 					return value;
 				// special case for object class
-				if (attr.getID().equals(LdapAttrs.objectClass.name())) {
+				if (key.equals(LdapAttrs.objectClass.name())) {
 					// TODO support multiple object classes
 					NamingEnumeration<?> en = attr.getAll();
 					String first = null;

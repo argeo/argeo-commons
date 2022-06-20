@@ -79,17 +79,16 @@ class RoleContent extends AbstractContent {
 	@Override
 	public List<QName> getTypes() {
 		List<QName> contentClasses = new ArrayList<>();
-		keys: for (Enumeration<String> it = role.getProperties().keys(); it.hasMoreElements();) {
-			String key = it.nextElement();
-			if (key.equalsIgnoreCase(LdapAttrs.objectClass.name())) {
-				String[] objectClasses = role.getProperties().get(key).toString().split("\\n");
-				objectClasses: for (String objectClass : objectClasses) {
-					if (LdapObjs.top.name().equalsIgnoreCase(objectClass))
-						continue objectClasses;
-					contentClasses.add(new ContentName(CrName.LDAP_NAMESPACE_URI, objectClass, provider));
-				}
-				break keys;
-			}
+		String objectClass = role.getProperties().get(LdapAttrs.objectClass.name()).toString();
+		contentClasses.add(new ContentName(CrName.LDAP_NAMESPACE_URI, objectClass, provider));
+
+		String[] objectClasses = role.getProperties().get(LdapAttrs.objectClasses.name()).toString().split("\\n");
+		objectClasses: for (String oc : objectClasses) {
+			if (LdapObjs.top.name().equalsIgnoreCase(oc))
+				continue objectClasses;
+			if (objectClass.equalsIgnoreCase(oc))
+				continue objectClasses;
+			contentClasses.add(new ContentName(CrName.LDAP_NAMESPACE_URI, oc, provider));
 		}
 		return contentClasses;
 	}

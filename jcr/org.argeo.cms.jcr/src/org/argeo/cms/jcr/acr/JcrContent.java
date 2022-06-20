@@ -307,7 +307,7 @@ public class JcrContent extends AbstractContent {
 			NodeType primaryType = context.getPrimaryNodeType();
 			res.add(nodeTypeToQName(primaryType));
 
-			Set<QName> secondaryTypes = new TreeSet<>();
+			Set<QName> secondaryTypes = new TreeSet<>(NamespaceUtils.QNAME_COMPARATOR);
 			for (NodeType mixinType : context.getMixinNodeTypes()) {
 				secondaryTypes.add(nodeTypeToQName(mixinType));
 			}

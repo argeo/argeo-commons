@@ -16,6 +16,7 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.util.LangUtils;
 
 /** Partial reference implementation of a {@link ProvidedContent}. */
 public abstract class AbstractContent extends AbstractMap<QName, Object> implements ProvidedContent {
@@ -152,9 +153,9 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	/*
 	 * DEFAULTS
 	 */
-	//	- no children
-	//	- no attributes
-	//	- cannot be modified
+	// - no children
+	// - no attributes
+	// - cannot be modified
 	@Override
 	public Iterator<Content> iterator() {
 		return Collections.emptyIterator();
@@ -226,12 +227,7 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 
 		@Override
 		public int size() {
-
-			int count = 0;
-			for (Iterator<QName> it = keys().iterator(); it.hasNext();) {
-				count++;
-			}
-			return count;
+			return LangUtils.size(keys());
 		}
 
 	}

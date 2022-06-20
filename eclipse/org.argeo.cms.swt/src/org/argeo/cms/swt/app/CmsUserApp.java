@@ -11,7 +11,6 @@ import org.argeo.api.cms.CmsView;
 import org.argeo.cms.AbstractCmsApp;
 import org.argeo.cms.swt.CmsSwtUi;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.acr.AcrContentTreeView;
 import org.argeo.cms.swt.auth.CmsLogin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
