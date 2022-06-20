@@ -3,6 +3,7 @@ package org.argeo.cms.acr;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
 import javax.xml.namespace.QName;
@@ -76,6 +77,13 @@ public class ContentUtils {
 
 		return new String[] { parentIndex != 0 ? path.substring(0, parentIndex) : "" + SLASH,
 				path.substring(parentIndex + 1) };
+	}
+
+	public static String toPath(List<String> segments) {
+		// TODO checks
+		StringJoiner sj = new StringJoiner("/");
+		segments.forEach((s) -> sj.add(s));
+		return sj.toString();
 	}
 
 	public static List<String> toPathSegments(String path) {

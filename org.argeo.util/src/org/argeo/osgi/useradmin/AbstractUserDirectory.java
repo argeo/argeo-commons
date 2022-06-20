@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
@@ -104,12 +105,16 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			throw new IllegalArgumentException("Badly formated base DN " + UserAdminConf.baseDn.getValue(properties),
 					e);
 		}
+
+		// read only
 		String readOnlyStr = UserAdminConf.readOnly.getValue(properties);
 		if (readOnlyStr == null) {
 			readOnly = readOnlyDefault(uri);
 			properties.put(UserAdminConf.readOnly.name(), Boolean.toString(readOnly));
 		} else
 			readOnly = Boolean.parseBoolean(readOnlyStr);
+
+		// disabled
 		String disabledStr = UserAdminConf.disabled.getValue(properties);
 		if (disabledStr != null)
 			disabled = Boolean.parseBoolean(disabledStr);
@@ -136,9 +141,75 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	}
 
+	/*
+	 * PATHS
+	 */
+
 	@Override
-	public String getBasePath() {
+	public String getGlobalId() {
 		return getBaseDn().toString();
+	}
+
+	@Override
+	public String getName() {
+		return nameToSimple(getBaseDn(), ".");
+	}
+
+	@Override
+	public String getRolePath(Role role) {
+		return nameToRelativePath(((DirectoryUser) role).getDn());
+	}
+
+	@Override
+	public String getRoleSimpleName(Role role) {
+		LdapName dn = LdapNameUtils.toLdapName(role.getName());
+		String name = LdapNameUtils.getLastRdnValue(dn);
+		return name;
+	}
+
+	protected String nameToRelativePath(LdapName dn) {
+		LdapName name = LdapNameUtils.relativeName(getBaseDn(), dn);
+		return nameToSimple(name, "/");
+	}
+
+	protected String nameToSimple(LdapName name, String separator) {
+		StringJoiner path = new StringJoiner(separator);
+		for (int i = 0; i < name.size(); i++) {
+			path.add(name.getRdn(i).getValue().toString());
+		}
+		return path.toString();
+
+	}
+
+	protected LdapName pathToName(String path) {
+		try {
+			LdapName name = (LdapName) getBaseDn().clone();
+			String[] segments = path.split("/");
+			String parentSegment = null;
+			for (String segment : segments) {
+				String attr = "ou";
+				if (parentSegment != null) {
+					if (getUserBase().equals(parentSegment))
+						attr = "uid";
+					else if (getGroupBase().equals(parentSegment))
+						attr = "cn";
+				}
+				Rdn rdn = new Rdn(attr, segment);
+				name.add(rdn);
+
+				// TODO make it more robust using RDNs
+				parentSegment = rdn.toString();
+			}
+			return name;
+		} catch (InvalidNameException e) {
+			throw new IllegalStateException("Cannot get role " + path, e);
+		}
+
+	}
+
+	@Override
+	public Role getRoleByPath(String path) {
+		return doGetRole(pathToName(path));
 	}
 
 	@Override
@@ -148,6 +219,10 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			return Optional.empty();
 		return Optional.of(realm.toString());
 	}
+
+	/*
+	 * EDITION
+	 */
 
 	protected boolean isEditing() {
 		return xaResource.wc() != null;
@@ -240,23 +315,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	@Override
 	public Role[] getRoles(String filter) throws InvalidSyntaxException {
-//		UserDirectoryWorkingCopy wc = getWorkingCopy();
-//		Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
-//		List<DirectoryUser> res = doGetRoles(getBaseDn(), f, true);
-//		if (wc != null) {
-//			for (Iterator<DirectoryUser> it = res.iterator(); it.hasNext();) {
-//				DirectoryUser user = it.next();
-//				LdapName dn = user.getDn();
-//				if (wc.getDeletedUsers().containsKey(dn))
-//					it.remove();
-//			}
-//			for (DirectoryUser user : wc.getNewUsers().values()) {
-//				if (f == null || f.match(user.getProperties()))
-//					res.add(user);
-//			}
-//			// no need to check modified users,
-//			// since doGetRoles was already based on the modified attributes
-//		}
 		List<? extends Role> res = getRoles(getBaseDn(), filter, true);
 		return res.toArray(new Role[res.size()]);
 	}
@@ -281,19 +339,19 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		}
 
 		// if non deep we also search users and groups
-		if (!deep) {
-			try {
-				if (!(searchBase.endsWith(new LdapName(getUserBase()))
-						|| searchBase.endsWith(new LdapName(getGroupBase())))) {
-					LdapName usersBase = (LdapName) ((LdapName) searchBase.clone()).add(getUserBase());
-					res.addAll(getRoles(usersBase, filter, false));
-					LdapName groupsBase = (LdapName) ((LdapName) searchBase.clone()).add(getGroupBase());
-					res.addAll(getRoles(groupsBase, filter, false));
-				}
-			} catch (InvalidNameException e) {
-				throw new IllegalStateException("Cannot search users and groups", e);
-			}
-		}
+//		if (!deep) {
+//			try {
+//				if (!(searchBase.endsWith(new LdapName(getUserBase()))
+//						|| searchBase.endsWith(new LdapName(getGroupBase())))) {
+//					LdapName usersBase = (LdapName) ((LdapName) searchBase.clone()).add(getUserBase());
+//					res.addAll(getRoles(usersBase, filter, false));
+//					LdapName groupsBase = (LdapName) ((LdapName) searchBase.clone()).add(getGroupBase());
+//					res.addAll(getRoles(groupsBase, filter, false));
+//				}
+//			} catch (InvalidNameException e) {
+//				throw new IllegalStateException("Cannot search users and groups", e);
+//			}
+//		}
 		return res;
 	}
 
@@ -434,50 +492,55 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	/*
 	 * HIERARCHY
 	 */
-	@Override
-	public int getHierarchyChildCount() {
-		return 0;
-	}
-
-	@Override
-	public HierarchyUnit getHierarchyChild(int i) {
-		throw new IllegalArgumentException("No child hierarchy unit available");
-	}
-
-	@Override
-	public HierarchyUnit getParent() {
-		return null;
-	}
-
-	@Override
-	public int getHierarchyUnitType() {
-		return 0;
-	}
-
-	@Override
-	public String getHierarchyUnitName() {
-		String name = LdapNameUtils.getLastRdnAsString(baseDn);
-		// TODO check ou, o, etc.
-		return name;
-	}
+//	@Override
+//	public int getHierarchyChildCount() {
+//		return 0;
+//	}
+//
+//	@Override
+//	public HierarchyUnit getHierarchyChild(int i) {
+//		throw new IllegalArgumentException("No child hierarchy unit available");
+//	}
+//
+//	@Override
+//	public HierarchyUnit getParent() {
+//		return null;
+//	}
+//
+//	@Override
+//	public int getHierarchyUnitType() {
+//		return 0;
+//	}
+//
+//	@Override
+//	public String getHierarchyUnitName() {
+//		String name = LdapNameUtils.getLastRdnValue(baseDn);
+//		// TODO check ou, o, etc.
+//		return name;
+//	}
 
 	@Override
 	public HierarchyUnit getHierarchyUnit(String path) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public HierarchyUnit getHierarchyUnit(Role role) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
+//	@Override
+//	public List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep) {
+//		try {
+//			return getRoles(getBaseDn(), filter, deep);
+//		} catch (InvalidSyntaxException e) {
+//			throw new IllegalArgumentException("Cannot filter " + filter + " " + getBaseDn(), e);
+//		}
+//	}
+
 	@Override
-	public List<? extends Role> getRoles(String filter, boolean deep) {
-		try {
-			return getRoles(getBaseDn(), filter, deep);
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Cannot filter " + filter + " " + getBaseDn(), e);
-		}
+	public Iterable<HierarchyUnit> getRootHierarchyUnits() {
+		throw new UnsupportedOperationException();
 	}
 
 	// GETTERS
@@ -562,7 +625,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return groupBase;
 	}
 
-	public LdapName getBaseDn() {
+	LdapName getBaseDn() {
 		return (LdapName) baseDn.clone();
 	}
 

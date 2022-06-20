@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
@@ -20,7 +18,6 @@ import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
 import org.argeo.osgi.useradmin.HierarchyUnit;
-import org.argeo.osgi.useradmin.LdapNameUtils;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.osgi.service.useradmin.User;
 
@@ -45,7 +42,7 @@ public class DirectoryContentProvider implements ContentProvider {
 		String userDirectoryDn = segments.get(0);
 		UserDirectory userDirectory = null;
 		userDirectories: for (UserDirectory ud : userManager.getUserDirectories()) {
-			if (userDirectoryDn.equals(ud.getBasePath())) {
+			if (userDirectoryDn.equals(ud.getGlobalId())) {
 				userDirectory = ud;
 				break userDirectories;
 			}
@@ -53,25 +50,29 @@ public class DirectoryContentProvider implements ContentProvider {
 		if (userDirectory == null)
 			throw new ContentNotFoundException("Cannot find user directory " + userDirectoryDn);
 		if (segments.size() == 1) {
-			return new HierarchyUnitContent(session, this, userDirectory);
+			return new DirectoryContent(session, this, userDirectory);
 		} else {
-			LdapName dn;
-			try {
-				dn = LdapNameUtils.toLdapName(userDirectoryDn);
-				for (int i = 1; i < segments.size(); i++) {
-					dn.add(segments.get(i));
-				}
-			} catch (InvalidNameException e) {
-				throw new IllegalStateException("Cannot interpret " + segments + " as DN", e);
-			}
-			User user = userManager.getUser(dn.toString());
+			List<String> relSegments = new ArrayList<>(segments);
+			relSegments.remove(0);
+			String pathWithinUserDirectory = ContentUtils.toPath(relSegments);
+//			LdapName dn;
+//			try {
+//				dn = LdapNameUtils.toLdapName(userDirectoryDn);
+//				for (int i = 1; i < segments.size(); i++) {
+//					dn.add(segments.get(i));
+//				}
+//			} catch (InvalidNameException e) {
+//				throw new IllegalStateException("Cannot interpret " + segments + " as DN", e);
+//			}
+			User user = (User) userDirectory.getRoleByPath(pathWithinUserDirectory);
 			if (user != null) {
 				HierarchyUnit parent = userDirectory.getHierarchyUnit(user);
 				return new RoleContent(session, this, new HierarchyUnitContent(session, this, parent), user);
 			}
-			HierarchyUnit hierarchyUnit = userDirectory.getHierarchyUnit(dn.toString());
+			HierarchyUnit hierarchyUnit = userDirectory.getHierarchyUnit(pathWithinUserDirectory);
 			if (hierarchyUnit == null)
-				throw new ContentNotFoundException("Cannot find " + dn);
+				throw new ContentNotFoundException(
+						"Cannot find " + pathWithinUserDirectory + " within " + userDirectoryDn);
 			return new HierarchyUnitContent(session, this, hierarchyUnit);
 		}
 	}
@@ -104,7 +105,7 @@ public class DirectoryContentProvider implements ContentProvider {
 	public void setUserManager(CmsUserManager userManager) {
 		this.userManager = userManager;
 	}
-	
+
 	UserManagerContent getRootContent(ProvidedSession session) {
 		return new UserManagerContent(session);
 	}
@@ -134,7 +135,7 @@ public class DirectoryContentProvider implements ContentProvider {
 		public Iterator<Content> iterator() {
 			List<Content> res = new ArrayList<>();
 			for (UserDirectory userDirectory : userManager.getUserDirectories()) {
-				HierarchyUnitContent content = new HierarchyUnitContent(getSession(), DirectoryContentProvider.this,
+				DirectoryContent content = new DirectoryContent(getSession(), DirectoryContentProvider.this,
 						userDirectory);
 				res.add(content);
 			}

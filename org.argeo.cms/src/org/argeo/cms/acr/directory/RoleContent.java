@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.naming.ldap.LdapName;
 import javax.swing.GroupLayout.Group;
 import javax.xml.namespace.QName;
 
@@ -18,13 +17,12 @@ import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
-import org.argeo.osgi.useradmin.LdapNameUtils;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
-public class RoleContent extends AbstractContent {
+class RoleContent extends AbstractContent {
 
 	private DirectoryContentProvider provider;
 	private HierarchyUnitContent parent;
@@ -45,8 +43,7 @@ public class RoleContent extends AbstractContent {
 
 	@Override
 	public QName getName() {
-		LdapName dn = LdapNameUtils.toLdapName(role.getName());
-		String name = LdapNameUtils.getLastRdnAsString(dn);
+		String name = parent.getHierarchyUnit().getDirectory().getRoleSimpleName(role);
 		return new ContentName(name);
 	}
 

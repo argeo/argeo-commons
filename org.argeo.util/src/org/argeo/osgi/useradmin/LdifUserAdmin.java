@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -161,14 +162,14 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 					} else if (objectClass.toLowerCase().equals(getGroupObjectClass().toLowerCase())) {
 						groups.put(key, new LdifGroup(this, key, attributes));
 						break objectClasses;
-					} else if (objectClass.equalsIgnoreCase(LdapObjs.organization.name())) {
-						// we only consider organizations which are not groups
-						hierarchy.put(key, new LdifHierarchyUnit(this, key, HierarchyUnit.ORGANIZATION, attributes));
-						break objectClasses;
+//					} else if (objectClass.equalsIgnoreCase(LdapObjs.organization.name())) {
+//						// we only consider organizations which are not groups
+//						hierarchy.put(key, new LdifHierarchyUnit(this, key, HierarchyUnit.ORGANIZATION, attributes));
+//						break objectClasses;
 					} else if (objectClass.equalsIgnoreCase(LdapObjs.organizationalUnit.name())) {
-						String name = key.getRdn(key.size() - 1).toString();
-						if (getUserBase().equalsIgnoreCase(name) || getGroupBase().equalsIgnoreCase(name))
-							break objectClasses; // skip
+//						String name = key.getRdn(key.size() - 1).toString();
+//						if (getUserBase().equalsIgnoreCase(name) || getGroupBase().equalsIgnoreCase(name))
+//							break objectClasses; // skip
 						// TODO skip if it does not contain groups or users
 						hierarchy.put(key, new LdifHierarchyUnit(this, key, HierarchyUnit.OU, attributes));
 						break objectClasses;
@@ -183,7 +184,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 				LdifHierarchyUnit parent = hierarchy.get(parentDn);
 				if (parent == null) {
 					rootHierarchyUnits.add(unit);
-					unit.parent = this;
+					unit.parent = null;
 					continue hierachyUnits;
 				}
 				parent.children.add(unit);
@@ -311,27 +312,32 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	/*
 	 * HIERARCHY
 	 */
-	@Override
-	public int getHierarchyChildCount() {
-		return rootHierarchyUnits.size();
-	}
 
-	@Override
-	public HierarchyUnit getHierarchyChild(int i) {
-		return rootHierarchyUnits.get(i);
-	}
+//	@Override
+//	public int getHierarchyChildCount() {
+//		return rootHierarchyUnits.size();
+//	}
+//
+//	@Override
+//	public HierarchyUnit getHierarchyChild(int i) {
+//		return rootHierarchyUnits.get(i);
+//	}
 
 	@Override
 	public HierarchyUnit getHierarchyUnit(String path) {
-		LdapName dn = LdapNameUtils.toLdapName(path);
+		LdapName dn = pathToName(path);
 		return hierarchy.get(dn);
+	}
+
+	@Override
+	public Iterable<HierarchyUnit> getRootHierarchyUnits() {
+		return rootHierarchyUnits;
 	}
 
 	@Override
 	public HierarchyUnit getHierarchyUnit(Role role) {
 		LdapName dn = LdapNameUtils.toLdapName(role.getName());
-		// 2 levels
-		LdapName huDn = LdapNameUtils.getParent(LdapNameUtils.getParent(dn));
+		LdapName huDn = LdapNameUtils.getParent(dn);
 		HierarchyUnit hierarchyUnit = hierarchy.get(huDn);
 		if (hierarchyUnit == null)
 			throw new IllegalStateException("No hierarchy unit found for " + role);

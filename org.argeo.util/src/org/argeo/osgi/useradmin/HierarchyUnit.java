@@ -1,7 +1,6 @@
 package org.argeo.osgi.useradmin;
 
 import java.util.List;
-import java.util.Map;
 
 import org.osgi.service.useradmin.Role;
 
@@ -13,17 +12,17 @@ public interface HierarchyUnit {
 
 	String getHierarchyUnitName();
 
-	int getHierarchyChildCount();
-
 	HierarchyUnit getParent();
 
-	HierarchyUnit getHierarchyChild(int i);
+	Iterable<HierarchyUnit> getDirectHierachyUnits();
 
 	int getHierarchyUnitType();
 
 	String getBasePath();
 
-	List<? extends Role> getRoles(String filter, boolean deep);
-	
+	List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep);
+
+	UserDirectory getDirectory();
+
 //	Map<String,Object> getHierarchyProperties();
 }

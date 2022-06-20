@@ -25,6 +25,7 @@ import javax.naming.ldap.LdapName;
 
 import org.argeo.util.naming.AuthPassword;
 import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.LdapObjs;
 import org.argeo.util.naming.SharedSecret;
 
 /** Directory user implementation */
@@ -308,21 +309,34 @@ class LdifUser implements DirectoryUser {
 				}
 				if (attr.size() == 1)
 					return value;
-//				if (!attr.getID().equals(LdapAttrs.objectClass.name()))
-//					return value;
 				// special case for object class
-				NamingEnumeration<?> en = attr.getAll();
-				StringJoiner values = new StringJoiner("\n");
-				// Set<String> values = new HashSet<String>();
-				while (en.hasMore()) {
-					String v = en.next().toString();
-					values.add(v);
+				if (attr.getID().equals(LdapAttrs.objectClass.name())) {
+					// TODO support multiple object classes
+					NamingEnumeration<?> en = attr.getAll();
+					String first = null;
+					attrs: while (en.hasMore()) {
+						String v = en.next().toString();
+						if (v.equalsIgnoreCase(LdapObjs.top.name()))
+							continue attrs;
+						if (first == null)
+							first = v;
+						if (v.equalsIgnoreCase(userAdmin.getUserObjectClass()))
+							return userAdmin.getUserObjectClass();
+						else if (v.equalsIgnoreCase(userAdmin.getGroupObjectClass()))
+							return userAdmin.getGroupObjectClass();
+					}
+					if (first != null)
+						return first;
+					throw new IllegalStateException("Cannot find objectClass in " + value);
+				} else {
+					NamingEnumeration<?> en = attr.getAll();
+					StringJoiner values = new StringJoiner("\n");
+					while (en.hasMore()) {
+						String v = en.next().toString();
+						values.add(v);
+					}
+					return values.toString();
 				}
-				return values.toString();
-//				if (objectClasses.contains(userAdmin.getUserObjectClass()))
-//					return userAdmin.getUserObjectClass();
-//				else if (objectClasses.contains(userAdmin.getGroupObjectClass()))
-//					return userAdmin.getGroupObjectClass();
 //				else
 //					return value;
 			} catch (NamingException e) {

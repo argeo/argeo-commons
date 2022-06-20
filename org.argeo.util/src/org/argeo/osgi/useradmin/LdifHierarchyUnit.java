@@ -33,18 +33,13 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	}
 
 	@Override
-	public int getHierarchyChildCount() {
-		return children.size();
-	}
-
-	@Override
 	public HierarchyUnit getParent() {
 		return parent;
 	}
 
 	@Override
-	public HierarchyUnit getHierarchyChild(int i) {
-		return children.get(i);
+	public Iterable<HierarchyUnit> getDirectHierachyUnits() {
+		return children;
 	}
 
 	@Override
@@ -54,7 +49,7 @@ class LdifHierarchyUnit implements HierarchyUnit {
 
 	@Override
 	public String getHierarchyUnitName() {
-		String name = LdapNameUtils.getLastRdnAsString(dn);
+		String name = LdapNameUtils.getLastRdnValue(dn);
 		// TODO check ou, o, etc.
 		return name;
 	}
@@ -69,12 +64,17 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	}
 
 	@Override
-	public List<? extends Role> getRoles(String filter, boolean deep) {
+	public List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep) {
 		try {
 			return directory.getRoles(dn, filter, deep);
 		} catch (InvalidSyntaxException e) {
 			throw new IllegalArgumentException("Cannot filter " + filter + " " + dn, e);
 		}
+	}
+
+	@Override
+	public UserDirectory getDirectory() {
+		return directory;
 	}
 
 	@Override

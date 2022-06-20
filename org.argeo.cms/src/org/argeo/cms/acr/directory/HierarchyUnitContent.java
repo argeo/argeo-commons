@@ -16,7 +16,7 @@ import org.argeo.cms.acr.AbstractContent;
 import org.argeo.osgi.useradmin.HierarchyUnit;
 import org.osgi.service.useradmin.Role;
 
-public class HierarchyUnitContent extends AbstractContent {
+class HierarchyUnitContent extends AbstractContent {
 	private HierarchyUnit hierarchyUnit;
 
 	private DirectoryContentProvider provider;
@@ -36,10 +36,10 @@ public class HierarchyUnitContent extends AbstractContent {
 
 	@Override
 	public QName getName() {
-		if (hierarchyUnit.getParent() == null) {// base DN
-			String baseDn = hierarchyUnit.getBasePath();
-			return new ContentName(baseDn);
-		}
+//		if (hierarchyUnit.getParent() == null) {// base DN
+//			String baseDn = hierarchyUnit.getBasePath();
+//			return new ContentName(baseDn);
+//		}
 		String name = hierarchyUnit.getHierarchyUnitName();
 		return new ContentName(name);
 	}
@@ -48,7 +48,7 @@ public class HierarchyUnitContent extends AbstractContent {
 	public Content getParent() {
 		HierarchyUnit parentHu = hierarchyUnit.getParent();
 		if (parentHu == null) {
-			return provider.getRootContent(getSession());
+			return new DirectoryContent(getSession(), provider, hierarchyUnit.getDirectory());
 		}
 		return new HierarchyUnitContent(getSession(), provider, parentHu);
 	}
@@ -56,10 +56,10 @@ public class HierarchyUnitContent extends AbstractContent {
 	@Override
 	public Iterator<Content> iterator() {
 		List<Content> lst = new ArrayList<>();
-		for (int i = 0; i < hierarchyUnit.getHierarchyChildCount(); i++)
-			lst.add(new HierarchyUnitContent(getSession(), provider, hierarchyUnit.getHierarchyChild(i)));
+		for (HierarchyUnit hu : hierarchyUnit.getDirectHierachyUnits())
+			lst.add(new HierarchyUnitContent(getSession(), provider, hu));
 
-		for (Role role : hierarchyUnit.getRoles(null, false))
+		for (Role role : hierarchyUnit.getHierarchyUnitRoles(null, false))
 			lst.add(new RoleContent(getSession(), provider, this, role));
 		return lst.iterator();
 	}
@@ -75,4 +75,12 @@ public class HierarchyUnitContent extends AbstractContent {
 		return res;
 	}
 
+	/*
+	 * ACCESSOR
+	 */
+	HierarchyUnit getHierarchyUnit() {
+		return hierarchyUnit;
+	}
+
+	
 }
