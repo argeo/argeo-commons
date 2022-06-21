@@ -33,6 +33,7 @@ import javax.naming.ldap.Rdn;
 
 import org.argeo.osgi.transaction.WorkControl;
 import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.LdapObjs;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -47,7 +48,9 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
 
 	private final Hashtable<String, Object> properties;
-	private final LdapName baseDn, userBaseDn, groupBaseDn;
+	private final LdapName baseDn;
+	// private final LdapName userBaseDn, groupBaseDn;
+	private final Rdn userBaseRdn, groupBaseRdn;
 	private final String userObjectClass, userBase, groupObjectClass, groupBase;
 
 	private final boolean readOnly;
@@ -99,8 +102,10 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		groupBase = UserAdminConf.groupBase.getValue(properties);
 		try {
 			baseDn = new LdapName(UserAdminConf.baseDn.getValue(properties));
-			userBaseDn = new LdapName(userBase + "," + baseDn);
-			groupBaseDn = new LdapName(groupBase + "," + baseDn);
+			userBaseRdn = new Rdn(userBase);
+//			userBaseDn = new LdapName(userBase + "," + baseDn);
+			groupBaseRdn = new Rdn(groupBase);
+//			groupBaseDn = new LdapName(groupBase + "," + baseDn);
 		} catch (InvalidNameException e) {
 			throw new IllegalArgumentException("Badly formated base DN " + UserAdminConf.baseDn.getValue(properties),
 					e);
@@ -429,7 +434,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	protected DirectoryUser newRole(LdapName dn, int type, Attributes attrs) {
-		LdifUser newRole;
+		DirectoryUser newRole;
 		BasicAttribute objClass = new BasicAttribute(objectClass.name());
 		if (type == Role.USER) {
 			String userObjClass = newUserObjectClass(dn);
@@ -443,14 +448,14 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			objClass.add(top.name());
 			objClass.add(extensibleObject.name());
 			attrs.put(objClass);
-			newRole = new LdifUser(this, dn, attrs);
+			newRole = newUser(dn, attrs);
 		} else if (type == Role.GROUP) {
 			String groupObjClass = getGroupObjectClass();
 			objClass.add(groupObjClass);
 			// objClass.add(LdifName.extensibleObject.name());
 			objClass.add(top.name());
 			attrs.put(objClass);
-			newRole = new LdifGroup(this, dn, attrs);
+			newRole = newGroup(dn, attrs);
 		} else
 			throw new IllegalArgumentException("Unsupported type " + type);
 		return newRole;
@@ -529,6 +534,10 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		throw new UnsupportedOperationException();
 	}
 
+	void isFunctionalHierarchyUnit(HierarchyUnit hu) {
+
+	}
+
 //	@Override
 //	public List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep) {
 //		try {
@@ -539,8 +548,40 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 //	}
 
 	@Override
-	public Iterable<HierarchyUnit> getRootHierarchyUnits() {
+	public Iterable<HierarchyUnit> getRootHierarchyUnits(boolean functionalOnly) {
 		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * ROLES CREATION
+	 */
+	protected DirectoryUser newUser(LdapName name, Attributes attrs) {
+		// TODO support devices, applications, etc.
+		return new LdifUser.LdifPerson(this, name, attrs);
+	}
+
+	protected DirectoryGroup newGroup(LdapName name, Attributes attrs) {
+		if (hasObjectClass(attrs, LdapObjs.organization))
+			return new LdifGroup.LdifOrganization(this, name, attrs);
+		else
+			return new LdifGroup.LdifFunctionalGroup(this, name, attrs);
+
+	}
+
+	private boolean hasObjectClass(Attributes attrs, LdapObjs objectClass) {
+		try {
+			Attribute attr = attrs.get(LdapAttrs.objectClass.name());
+			NamingEnumeration<?> en = attr.getAll();
+			while (en.hasMore()) {
+				String v = en.next().toString();
+				if (v.equalsIgnoreCase(objectClass.name()))
+					return true;
+
+			}
+			return false;
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot search for objectClass " + objectClass.name(), e);
+		}
 	}
 
 	// GETTERS
@@ -596,12 +637,14 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	protected int roleType(LdapName dn) {
-		if (dn.startsWith(groupBaseDn))
+		Rdn technicalRdn = LdapNameUtils.getParentRdn(dn);
+		if (groupBaseRdn.equals(technicalRdn))
 			return Role.GROUP;
-		else if (dn.startsWith(userBaseDn))
+		else if (userBaseRdn.equals(technicalRdn))
 			return Role.USER;
 		else
-			return Role.GROUP;
+			throw new IllegalArgumentException(
+					"Cannot dind role type, " + technicalRdn + " is not a technical RDN for " + dn);
 	}
 
 	/** dn can be null, in that case a default should be returned. */
@@ -609,8 +652,13 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return userObjectClass;
 	}
 
-	public String getUserBase() {
+	@Deprecated
+	String getUserBase() {
 		return userBase;
+	}
+
+	Rdn getUserBaseRdn() {
+		return userBaseRdn;
 	}
 
 	protected String newUserObjectClass(LdapName dn) {
@@ -621,8 +669,13 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return groupObjectClass;
 	}
 
-	public String getGroupBase() {
+	@Deprecated
+	String getGroupBase() {
 		return groupBase;
+	}
+
+	Rdn getGroupBaseRdn() {
+		return groupBaseRdn;
 	}
 
 	LdapName getBaseDn() {

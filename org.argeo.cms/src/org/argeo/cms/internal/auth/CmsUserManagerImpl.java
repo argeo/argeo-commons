@@ -441,7 +441,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public UserDirectory getUserDirectory(User user) {
+	public UserDirectory getDirectory(Role user) {
 		String name = user.getName();
 		NavigableMap<String, UserDirectory> possible = new TreeMap<>();
 		for (UserDirectory userDirectory : userDirectories.keySet()) {

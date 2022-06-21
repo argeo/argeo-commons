@@ -79,11 +79,11 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			if (attrs.size() == 0)
 				return null;
 			int roleType = roleType(name);
-			LdifUser res;
+			DirectoryUser res;
 			if (roleType == Role.GROUP)
-				res = new LdifGroup(this, name, attrs);
+				res = newGroup( name, attrs);
 			else if (roleType == Role.USER)
-				res = new LdifUser(this, name, attrs);
+				res = newUser( name, attrs);
 			else
 				throw new UserDirectoryException("Unsupported LDAP type for " + name);
 			return res;
@@ -113,13 +113,13 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				Attributes attrs = searchResult.getAttributes();
 				Attribute objectClassAttr = attrs.get(objectClass.name());
 				LdapName dn = toDn(searchBase, searchResult);
-				LdifUser role;
+				DirectoryUser role;
 				if (objectClassAttr.contains(getGroupObjectClass())
 						|| objectClassAttr.contains(getGroupObjectClass().toLowerCase()))
-					role = new LdifGroup(this, dn, attrs);
+					role = newGroup( dn, attrs);
 				else if (objectClassAttr.contains(getUserObjectClass())
 						|| objectClassAttr.contains(getUserObjectClass().toLowerCase()))
-					role = new LdifUser(this, dn, attrs);
+					role = newUser( dn, attrs);
 				else {
 //					log.warn("Unsupported LDAP type for " + searchResult.getName());
 					continue results;

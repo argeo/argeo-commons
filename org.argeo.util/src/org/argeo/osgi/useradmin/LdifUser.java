@@ -10,10 +10,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.StringJoiner;
 
 import javax.naming.NamingEnumeration;
@@ -29,7 +27,7 @@ import org.argeo.util.naming.LdapObjs;
 import org.argeo.util.naming.SharedSecret;
 
 /** Directory user implementation */
-class LdifUser implements DirectoryUser {
+abstract class LdifUser implements DirectoryUser {
 	private final AbstractUserDirectory userAdmin;
 
 	private final LdapName dn;
@@ -209,9 +207,9 @@ class LdifUser implements DirectoryUser {
 		publishedAttributes = modifiedAttributes;
 	}
 
-	public DirectoryUser getPublished() {
-		return new LdifUser(userAdmin, dn, publishedAttributes, true);
-	}
+//	public DirectoryUser getPublished() {
+//		return new LdifUser(userAdmin, dn, publishedAttributes, true);
+//	}
 
 	@Override
 	public int hashCode() {
@@ -429,4 +427,11 @@ class LdifUser implements DirectoryUser {
 		return ch >= 32 && ch < 127;
 	}
 
+	static class LdifPerson extends LdifUser implements Person {
+
+		public LdifPerson(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
+			super(userAdmin, dn, attributes);
+		}
+
+	}
 }

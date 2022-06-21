@@ -31,6 +31,13 @@ class LdapNameUtils {
 		}
 	}
 
+	static Rdn getParentRdn(LdapName dn) {
+		if (dn.size() < 2)
+			throw new IllegalArgumentException(dn + " has no parent");
+		Rdn parentRdn = dn.getRdn(dn.size() - 2);
+		return parentRdn;
+	}
+
 	static LdapName toLdapName(String distinguishedName) {
 		try {
 			return new LdapName(distinguishedName);

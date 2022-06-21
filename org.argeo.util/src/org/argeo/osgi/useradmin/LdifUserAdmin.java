@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -157,10 +156,10 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 					String objectClass = objectClasses.next().toString();
 					// System.out.println(" " + objectClass);
 					if (objectClass.toLowerCase().equals(inetOrgPerson.name().toLowerCase())) {
-						users.put(key, new LdifUser(this, key, attributes));
+						users.put(key, newUser(key, attributes));
 						break objectClasses;
 					} else if (objectClass.toLowerCase().equals(getGroupObjectClass().toLowerCase())) {
-						groups.put(key, new LdifGroup(this, key, attributes));
+						groups.put(key, newGroup(key, attributes));
 						break objectClasses;
 //					} else if (objectClass.equalsIgnoreCase(LdapObjs.organization.name())) {
 //						// we only consider organizations which are not groups
@@ -171,7 +170,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 //						if (getUserBase().equalsIgnoreCase(name) || getGroupBase().equalsIgnoreCase(name))
 //							break objectClasses; // skip
 						// TODO skip if it does not contain groups or users
-						hierarchy.put(key, new LdifHierarchyUnit(this, key, HierarchyUnit.OU, attributes));
+						hierarchy.put(key, new LdifHierarchyUnit(this, key, attributes));
 						break objectClasses;
 					}
 				}
@@ -330,8 +329,18 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	public Iterable<HierarchyUnit> getRootHierarchyUnits() {
-		return rootHierarchyUnits;
+	public Iterable<HierarchyUnit> getRootHierarchyUnits(boolean functionalOnly) {
+		if (functionalOnly) {
+			List<HierarchyUnit> res = new ArrayList<>();
+			for (HierarchyUnit hu : rootHierarchyUnits) {
+				if (hu.isFunctional())
+					res.add(hu);
+			}
+			return res;
+
+		} else {
+			return rootHierarchyUnits;
+		}
 	}
 
 	@Override

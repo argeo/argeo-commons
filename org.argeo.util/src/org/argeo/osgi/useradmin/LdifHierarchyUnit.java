@@ -2,11 +2,11 @@ package org.argeo.osgi.useradmin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
@@ -16,20 +16,22 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	private final AbstractUserDirectory directory;
 
 	private final LdapName dn;
-	private final int type;
+	private final boolean functional;
 	private final Attributes attributes;
 
 	HierarchyUnit parent;
 	List<HierarchyUnit> children = new ArrayList<>();
 
-	LdifHierarchyUnit(AbstractUserDirectory directory, LdapName dn, int type, Attributes attributes) {
+	LdifHierarchyUnit(AbstractUserDirectory directory, LdapName dn, Attributes attributes) {
 		Objects.requireNonNull(directory);
 		Objects.requireNonNull(dn);
 
 		this.directory = directory;
 		this.dn = dn;
-		this.type = type;
 		this.attributes = attributes;
+
+		Rdn rdn = LdapNameUtils.getLastRdn(dn);
+		functional = !(directory.getUserBaseRdn().equals(rdn) || directory.getGroupBaseRdn().equals(rdn));
 	}
 
 	@Override
@@ -43,8 +45,18 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	}
 
 	@Override
-	public int getHierarchyUnitType() {
-		return type;
+	public Iterable<HierarchyUnit> getFunctionalHierachyUnits() {
+		List<HierarchyUnit> res = new ArrayList<>();
+		for (HierarchyUnit hu : children) {
+			if (hu.isFunctional())
+				res.add(hu);
+		}
+		return res;
+	}
+
+	@Override
+	public boolean isFunctional() {
+		return functional;
 	}
 
 	@Override

@@ -27,15 +27,15 @@ public interface UserDirectory {
 
 	String getUserObjectClass();
 
-	String getUserBase();
+//	String getUserBase();
 
 	String getGroupObjectClass();
 
-	String getGroupBase();
+//	String getGroupBase();
 
 	Optional<String> getRealm();
 
-	Iterable<HierarchyUnit> getRootHierarchyUnits();
+	Iterable<HierarchyUnit> getRootHierarchyUnits(boolean functionalOnly);
 
 	HierarchyUnit getHierarchyUnit(String path);
 

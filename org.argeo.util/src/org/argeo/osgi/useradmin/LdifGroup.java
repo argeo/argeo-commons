@@ -12,7 +12,7 @@ import javax.naming.ldap.LdapName;
 import org.osgi.service.useradmin.Role;
 
 /** Directory group implementation */
-class LdifGroup extends LdifUser implements DirectoryGroup {
+abstract class LdifGroup extends LdifUser implements DirectoryGroup {
 	private final String memberAttributeId;
 
 	LdifGroup(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
@@ -120,5 +120,32 @@ class LdifGroup extends LdifUser implements DirectoryGroup {
 	@Override
 	public int getType() {
 		return GROUP;
+	}
+
+	/*
+	 * KIND
+	 */
+	static class LdifFunctionalGroup extends LdifGroup implements FunctionalGroup {
+
+		public LdifFunctionalGroup(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
+			super(userAdmin, dn, attributes);
+		}
+
+	}
+
+	static class LdifOrganization extends LdifGroup implements Organization {
+
+		public LdifOrganization(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
+			super(userAdmin, dn, attributes);
+		}
+
+	}
+
+	static class LdifSystemPermissions extends LdifGroup implements SystemPermissions {
+
+		public LdifSystemPermissions(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
+			super(userAdmin, dn, attributes);
+		}
+
 	}
 }

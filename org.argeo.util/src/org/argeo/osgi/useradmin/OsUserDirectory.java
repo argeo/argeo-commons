@@ -18,7 +18,7 @@ import org.osgi.service.useradmin.User;
 public class OsUserDirectory extends AbstractUserDirectory {
 	private final String osUsername = System.getProperty("user.name");
 	private final LdapName osUserDn;
-	private final LdifUser osUser;
+	private final DirectoryUser osUser;
 
 	public OsUserDirectory(URI uriArg, Dictionary<String, ?> props) {
 		super(uriArg, props, false);
@@ -26,7 +26,7 @@ public class OsUserDirectory extends AbstractUserDirectory {
 			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + getUserBase() + "," + getBaseDn());
 			Attributes attributes = new BasicAttributes();
 			attributes.put(LdapAttrs.uid.name(), osUsername);
-			osUser = new LdifUser(this, osUserDn, attributes);
+			osUser = newUser(osUserDn, attributes);
 		} catch (NamingException e) {
 			throw new UserDirectoryException("Cannot create system user", e);
 		}

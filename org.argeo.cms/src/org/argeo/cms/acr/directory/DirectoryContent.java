@@ -32,7 +32,7 @@ class DirectoryContent extends AbstractContent {
 	@Override
 	public Iterator<Content> iterator() {
 		List<Content> res = new ArrayList<>();
-		for (Iterator<HierarchyUnit> it = directory.getRootHierarchyUnits().iterator(); it.hasNext();) {
+		for (Iterator<HierarchyUnit> it = directory.getRootHierarchyUnits(false).iterator(); it.hasNext();) {
 			res.add(new HierarchyUnitContent(getSession(), provider, it.next()));
 		}
 		return res.iterator();
