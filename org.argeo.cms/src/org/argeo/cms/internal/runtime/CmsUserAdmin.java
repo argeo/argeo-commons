@@ -107,14 +107,14 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		} else {
 			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
 		}
-		String basePath = userDirectory.getGlobalId();
+		String basePath = userDirectory.getContext();
 
 		addUserDirectory(userDirectory);
 		if (isSystemRolesBaseDn(basePath)) {
 			addStandardSystemRoles();
 		}
 		if (log.isDebugEnabled()) {
-			log.debug("User directory " + userDirectory.getGlobalId() + (u != null ? " [" + u.getScheme() + "]" : "")
+			log.debug("User directory " + userDirectory.getContext() + (u != null ? " [" + u.getScheme() + "]" : "")
 					+ " enabled." + (realm != null ? " " + realm + " realm." : ""));
 		}
 		return userDirectory;

@@ -1,12 +1,20 @@
 package org.argeo.cms.auth;
 
+import static org.argeo.api.cms.CmsConstants.ROLE_ADMIN;
+import static org.argeo.api.cms.CmsConstants.ROLE_ANONYMOUS;
+import static org.argeo.api.cms.CmsConstants.ROLE_USER;
+import static org.argeo.api.cms.CmsConstants.ROLE_USER_ADMIN;
+
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
+//import javax.naming.InvalidNameException;
+//import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
@@ -18,7 +26,6 @@ import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.cms.security.NodeSecurityUtils;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
@@ -41,6 +48,9 @@ class CmsAuthUtils {
 
 	final static String SINGLE_USER_LOCAL_ID = "single-user";
 
+	private final static List<String> RESERVED_ROLES = Collections
+			.unmodifiableList(Arrays.asList(new String[] { ROLE_ADMIN, ROLE_ANONYMOUS, ROLE_USER, ROLE_USER_ADMIN }));
+
 	static void addAuthorization(Subject subject, Authorization authorization) {
 		assert subject != null;
 		checkSubjectEmpty(subject);
@@ -52,46 +62,46 @@ class CmsAuthUtils {
 		boolean singleUser = authorization instanceof SingleUserAuthorization;
 
 		Set<Principal> principals = subject.getPrincipals();
-		try {
-			String authName = authorization.getName();
+//		try {
+		String authName = authorization.getName();
 
-			// determine user's principal
-			final LdapName name;
-			final Principal userPrincipal;
-			if (authName == null) {
-				name = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
-				userPrincipal = new AnonymousPrincipal();
-				principals.add(userPrincipal);
-			} else {
-				name = new LdapName(authName);
-				NodeSecurityUtils.checkUserName(name);
-				userPrincipal = new X500Principal(name.toString());
-				principals.add(userPrincipal);
+		// determine user's principal
+//			final LdapName name;
+		final Principal userPrincipal;
+		if (authName == null) {
+//				name = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
+			userPrincipal = new AnonymousPrincipal();
+			principals.add(userPrincipal);
+		} else {
+//				name = new LdapName(authName);
+			checkUserName(authName);
+			userPrincipal = new X500Principal(authName.toString());
+			principals.add(userPrincipal);
 
-				if (singleUser) {
-					principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_ADMIN_NAME, userPrincipal));
-					principals.add(new DataAdminPrincipal());
-				}
+			if (singleUser) {
+				principals.add(new ImpliedByPrincipal(CmsConstants.ROLE_ADMIN, userPrincipal));
+				principals.add(new DataAdminPrincipal());
 			}
-
-			// Add roles provided by authorization
-			for (String role : authorization.getRoles()) {
-				LdapName roleName = new LdapName(role);
-				if (roleName.equals(name)) {
-					// skip
-				} else if (roleName.equals(NodeSecurityUtils.ROLE_ANONYMOUS_NAME)) {
-					// skip
-				} else {
-					NodeSecurityUtils.checkImpliedPrincipalName(roleName);
-					principals.add(new ImpliedByPrincipal(roleName.toString(), userPrincipal));
-					if (roleName.equals(NodeSecurityUtils.ROLE_ADMIN_NAME))
-						principals.add(new DataAdminPrincipal());
-				}
-			}
-
-		} catch (InvalidNameException e) {
-			throw new IllegalArgumentException("Cannot commit", e);
 		}
+
+		// Add roles provided by authorization
+		for (String role : authorization.getRoles()) {
+//				LdapName roleName = new LdapName(role);
+			if (role.equals(authName)) {
+				// skip
+			} else if (role.equals(CmsConstants.ROLE_ANONYMOUS)) {
+				// skip
+			} else {
+//					NodeSecurityUtils.checkImpliedPrincipalName(role);
+				principals.add(new ImpliedByPrincipal(role, userPrincipal));
+				if (role.equals(CmsConstants.ROLE_ADMIN))
+					principals.add(new DataAdminPrincipal());
+			}
+		}
+
+//		} catch (InvalidNameException e) {
+//			throw new IllegalArgumentException("Cannot commit", e);
+//		}
 	}
 
 	private static void checkSubjectEmpty(Subject subject) {
@@ -223,6 +233,11 @@ class CmsAuthUtils {
 		if (principals.size() > 1)
 			throw new IllegalStateException("Only one " + clss + " principal expected in " + subject);
 		return principals.iterator().next();
+	}
+
+	private static void checkUserName(String name) throws IllegalArgumentException {
+		if (RESERVED_ROLES.contains(name))
+			throw new IllegalArgumentException(name + " is a reserved name");
 	}
 
 	private CmsAuthUtils() {

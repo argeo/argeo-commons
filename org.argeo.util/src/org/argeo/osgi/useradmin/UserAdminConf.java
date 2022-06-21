@@ -34,6 +34,9 @@ public enum UserAdminConf {
 	/** Relative base DN for users */
 	groupBase("ou=Groups"),
 
+	/** Relative base DN for users */
+	systemRoleBase("ou=Roles"),
+
 	/** Read-only source */
 	readOnly(null),
 

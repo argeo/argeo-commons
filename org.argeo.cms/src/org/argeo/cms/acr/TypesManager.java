@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -43,6 +42,7 @@ import org.apache.xerces.xs.XSTerm;
 import org.apache.xerces.xs.XSTypeDefinition;
 import org.argeo.api.acr.CrAttributeType;
 import org.argeo.api.acr.NamespaceUtils;
+import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.cms.CmsLog;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -51,7 +51,7 @@ import org.xml.sax.SAXParseException;
 /** Register content types. */
 class TypesManager {
 	private final static CmsLog log = CmsLog.getLog(TypesManager.class);
-	private Map<String, String> prefixes = new TreeMap<>();
+//	private Map<String, String> prefixes = new TreeMap<>();
 
 	// immutable factories
 	private SchemaFactory schemaFactory;
@@ -86,20 +86,22 @@ class TypesManager {
 		for (CmsContentTypes cs : CmsContentTypes.values()) {
 			StreamSource source = new StreamSource(cs.getResource().toExternalForm());
 			sources.add(source);
-			if (prefixes.containsKey(cs.getDefaultPrefix()))
-				throw new IllegalStateException("Prefix " + cs.getDefaultPrefix() + " is already mapped with "
-						+ prefixes.get(cs.getDefaultPrefix()));
-			prefixes.put(cs.getDefaultPrefix(), cs.getNamespace());
+//			if (prefixes.containsKey(cs.getDefaultPrefix()))
+//				throw new IllegalStateException("Prefix " + cs.getDefaultPrefix() + " is already mapped with "
+//						+ prefixes.get(cs.getDefaultPrefix()));
+//			prefixes.put(cs.getDefaultPrefix(), cs.getNamespace());
+			RuntimeNamespaceContext.register(cs.getNamespace(), cs.getDefaultPrefix());
 		}
 
 		reload();
 	}
 
 	public synchronized void registerTypes(String defaultPrefix, String namespace, String xsdSystemId) {
-		if (prefixes.containsKey(defaultPrefix))
-			throw new IllegalStateException(
-					"Prefix " + defaultPrefix + " is already mapped with " + prefixes.get(defaultPrefix));
-		prefixes.put(defaultPrefix, namespace);
+//		if (prefixes.containsKey(defaultPrefix))
+//			throw new IllegalStateException(
+//					"Prefix " + defaultPrefix + " is already mapped with " + prefixes.get(defaultPrefix));
+//		prefixes.put(defaultPrefix, namespace);
+		RuntimeNamespaceContext.register(namespace, defaultPrefix);
 
 		sources.add(new StreamSource(xsdSystemId));
 		reload();
@@ -459,9 +461,9 @@ class TypesManager {
 		}
 	}
 
-	public Map<String, String> getPrefixes() {
-		return prefixes;
-	}
+//	public Map<String, String> getPrefixes() {
+//		return prefixes;
+//	}
 
 	public List<Source> getSources() {
 		return sources;

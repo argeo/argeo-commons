@@ -1,6 +1,7 @@
 package org.argeo.osgi.useradmin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,7 +32,8 @@ class LdifHierarchyUnit implements HierarchyUnit {
 		this.attributes = attributes;
 
 		Rdn rdn = LdapNameUtils.getLastRdn(dn);
-		functional = !(directory.getUserBaseRdn().equals(rdn) || directory.getGroupBaseRdn().equals(rdn));
+		functional = !(directory.getUserBaseRdn().equals(rdn) || directory.getGroupBaseRdn().equals(rdn)
+				|| directory.getSystemRoleBaseRdn().equals(rdn));
 	}
 
 	@Override
@@ -40,18 +42,16 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	}
 
 	@Override
-	public Iterable<HierarchyUnit> getDirectHierachyUnits() {
-		return children;
-	}
-
-	@Override
-	public Iterable<HierarchyUnit> getFunctionalHierachyUnits() {
+	public Iterable<HierarchyUnit> getDirectHierachyUnits(boolean functionalOnly) {
 		List<HierarchyUnit> res = new ArrayList<>();
-		for (HierarchyUnit hu : children) {
-			if (hu.isFunctional())
-				res.add(hu);
-		}
-		return res;
+		if (functionalOnly)
+			for (HierarchyUnit hu : children) {
+				if (hu.isFunctional())
+					res.add(hu);
+			}
+		else
+			res.addAll(children);
+		return Collections.unmodifiableList(res);
 	}
 
 	@Override
@@ -71,7 +71,7 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	}
 
 	@Override
-	public String getBasePath() {
+	public String getContext() {
 		return dn.toString();
 	}
 

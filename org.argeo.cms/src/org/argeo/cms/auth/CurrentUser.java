@@ -71,6 +71,11 @@ public final class CurrentUser {
 		return roles.contains(role);
 	}
 
+	/** Implies this {@link SystemRole} in this context. */
+	public final static boolean implies(SystemRole role, String context) {
+		return role.implied(currentSubject(), context);
+	}
+
 	/** Executes as the current user */
 	public final static <T> T doAs(PrivilegedAction<T> action) {
 		return Subject.doAs(currentSubject(), action);

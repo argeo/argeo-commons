@@ -10,13 +10,11 @@ public interface HierarchyUnit {
 
 	HierarchyUnit getParent();
 
-	Iterable<HierarchyUnit> getDirectHierachyUnits();
-
-	Iterable<HierarchyUnit> getFunctionalHierachyUnits();
+	Iterable<HierarchyUnit> getDirectHierachyUnits(boolean functionalOnly);
 
 	boolean isFunctional();
 
-	String getBasePath();
+	String getContext();
 
 	List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep);
 

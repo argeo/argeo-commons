@@ -34,16 +34,15 @@ public enum CrName implements ContentNameSupplier {
 	;
 
 	public final static String CR_NAMESPACE_URI = "http://argeo.org/ns/cr";
-//	public final static String CR_BASIC_NAMESPACE_URI = CR_NAMESPACE_URI + "/basic";
-//	public final static String CR_OWNER_NAMESPACE_URI = CR_NAMESPACE_URI + "/owner";
-//	public final static String CR_POSIX_NAMESPACE_URI = CR_NAMESPACE_URI + "/posix";
 
 	public final static String CR_DEFAULT_PREFIX = "cr";
 
 	public final static String LDAP_NAMESPACE_URI = "http://argeo.org/ns/ldap";
 	public final static String LDAP_DEFAULT_PREFIX = "ldap";
 
-	
+	public final static String ROLE_NAMESPACE_URI = "http://argeo.org/ns/role";
+	public final static String ROLE_DEFAULT_PREFIX = "role";
+
 	private final ContentName value;
 
 	CrName() {

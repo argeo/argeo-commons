@@ -329,7 +329,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	public Iterable<HierarchyUnit> getRootHierarchyUnits(boolean functionalOnly) {
+	public Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly) {
 		if (functionalOnly) {
 			List<HierarchyUnit> res = new ArrayList<>();
 			for (HierarchyUnit hu : rootHierarchyUnits) {

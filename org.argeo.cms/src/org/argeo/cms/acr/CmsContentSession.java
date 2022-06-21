@@ -17,6 +17,7 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
+import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
@@ -113,17 +114,19 @@ class CmsContentSession implements ProvidedSession {
 	 * NAMESPACE CONTEXT
 	 */
 
-	@Override
-	public String getNamespaceURI(String prefix) {
-		return NamespaceUtils.getNamespaceURI((p) -> contentRepository.getTypesManager().getPrefixes().get(p), prefix);
-	}
-
-	@Override
-	public Iterator<String> getPrefixes(String namespaceURI) {
-		return NamespaceUtils.getPrefixes((ns) -> contentRepository.getTypesManager().getPrefixes().entrySet().stream()
-				.filter(e -> e.getValue().equals(ns)).map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet()),
-				namespaceURI);
-	}
+//	@Override
+//	public String getNamespaceURI(String prefix) {
+//		return RuntimeNamespaceContext.getNamespaceContext().getNamespaceURI(prefix);
+////		return NamespaceUtils.getNamespaceURI((p) -> contentRepository.getTypesManager().getPrefixes().get(p), prefix);
+//	}
+//
+//	@Override
+//	public Iterator<String> getPrefixes(String namespaceURI) {
+//		return RuntimeNamespaceContext.getNamespaceContext().getPrefixes(namespaceURI);
+////		return NamespaceUtils.getPrefixes((ns) -> contentRepository.getTypesManager().getPrefixes().entrySet().stream()
+////				.filter(e -> e.getValue().equals(ns)).map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet()),
+////				namespaceURI);
+//	}
 
 	@Override
 	public CompletionStage<ContentSession> edit(Consumer<ContentSession> work) {

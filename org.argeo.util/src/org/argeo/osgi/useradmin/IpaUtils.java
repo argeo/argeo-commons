@@ -20,6 +20,7 @@ import org.argeo.util.naming.LdapAttrs;
 public class IpaUtils {
 	public final static String IPA_USER_BASE = "cn=users,cn=accounts";
 	public final static String IPA_GROUP_BASE = "cn=groups,cn=accounts";
+	public final static String IPA_ROLE_BASE = "cn=roles,cn=accounts";
 	public final static String IPA_SERVICE_BASE = "cn=services,cn=accounts";
 
 	private final static String KRB_PRINCIPAL_NAME = LdapAttrs.krbPrincipalName.name().toLowerCase();
@@ -37,6 +38,7 @@ public class IpaUtils {
 		properties.put(UserAdminConf.realm.name(), realm);
 		properties.put(UserAdminConf.userBase.name(), IPA_USER_BASE);
 		properties.put(UserAdminConf.groupBase.name(), IPA_GROUP_BASE);
+		properties.put(UserAdminConf.systemRoleBase.name(), IPA_ROLE_BASE);
 		properties.put(UserAdminConf.readOnly.name(), Boolean.TRUE.toString());
 	}
 

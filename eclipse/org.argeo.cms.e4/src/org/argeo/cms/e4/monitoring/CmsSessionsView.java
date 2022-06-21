@@ -8,9 +8,9 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.naming.ldap.LdapName;
 
 import org.argeo.api.cms.CmsSession;
+import org.argeo.cms.auth.RoleNameUtils;
 import org.argeo.eclipse.ui.ColumnViewerComparator;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.argeo.util.LangUtils;
@@ -88,8 +88,8 @@ public class CmsSessionsView {
 			private static final long serialVersionUID = -5234573509093747505L;
 
 			public String getText(Object element) {
-				LdapName userDn = ((CmsSession) element).getUserDn();
-				return userDn.getRdn(userDn.size() - 1).getValue().toString();
+				String userDn = ((CmsSession) element).getUserDn();
+				return RoleNameUtils.getLastRdnValue(userDn);
 			}
 
 			public String getToolTipText(Object element) {

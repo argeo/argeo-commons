@@ -50,8 +50,8 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	private final Hashtable<String, Object> properties;
 	private final LdapName baseDn;
 	// private final LdapName userBaseDn, groupBaseDn;
-	private final Rdn userBaseRdn, groupBaseRdn;
-	private final String userObjectClass, userBase, groupObjectClass, groupBase;
+	private final Rdn userBaseRdn, groupBaseRdn, systemRoleBaseRdn;
+	private final String userObjectClass, groupObjectClass;
 
 	private final boolean readOnly;
 	private final boolean disabled;
@@ -97,15 +97,17 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		forcedPassword = UserAdminConf.forcedPassword.getValue(properties);
 
 		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
-		userBase = UserAdminConf.userBase.getValue(properties);
+		String userBase = UserAdminConf.userBase.getValue(properties);
 		groupObjectClass = UserAdminConf.groupObjectClass.getValue(properties);
-		groupBase = UserAdminConf.groupBase.getValue(properties);
+		String groupBase = UserAdminConf.groupBase.getValue(properties);
+		String systemRoleBase = UserAdminConf.systemRoleBase.getValue(properties);
 		try {
 			baseDn = new LdapName(UserAdminConf.baseDn.getValue(properties));
 			userBaseRdn = new Rdn(userBase);
 //			userBaseDn = new LdapName(userBase + "," + baseDn);
 			groupBaseRdn = new Rdn(groupBase);
 //			groupBaseDn = new LdapName(groupBase + "," + baseDn);
+			systemRoleBaseRdn = new Rdn(systemRoleBase);
 		} catch (InvalidNameException e) {
 			throw new IllegalArgumentException("Badly formated base DN " + UserAdminConf.baseDn.getValue(properties),
 					e);
@@ -151,7 +153,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	 */
 
 	@Override
-	public String getGlobalId() {
+	public String getContext() {
 		return getBaseDn().toString();
 	}
 
@@ -190,20 +192,21 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		try {
 			LdapName name = (LdapName) getBaseDn().clone();
 			String[] segments = path.split("/");
-			String parentSegment = null;
+			Rdn parentRdn = null;
 			for (String segment : segments) {
-				String attr = "ou";
-				if (parentSegment != null) {
-					if (getUserBase().equals(parentSegment))
-						attr = "uid";
-					else if (getGroupBase().equals(parentSegment))
-						attr = "cn";
+				// TODO make attr names configurable ?
+				String attr = LdapAttrs.ou.name();
+				if (parentRdn != null) {
+					if (getUserBaseRdn().equals(parentRdn))
+						attr = LdapAttrs.uid.name();
+					else if (getGroupBaseRdn().equals(parentRdn))
+						attr = LdapAttrs.cn.name();
+					else if (getSystemRoleBaseRdn().equals(parentRdn))
+						attr = LdapAttrs.cn.name();
 				}
 				Rdn rdn = new Rdn(attr, segment);
 				name.add(rdn);
-
-				// TODO make it more robust using RDNs
-				parentSegment = rdn.toString();
+				parentRdn = rdn;
 			}
 			return name;
 		} catch (InvalidNameException e) {
@@ -534,10 +537,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		throw new UnsupportedOperationException();
 	}
 
-	void isFunctionalHierarchyUnit(HierarchyUnit hu) {
-
-	}
-
 //	@Override
 //	public List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep) {
 //		try {
@@ -548,7 +547,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 //	}
 
 	@Override
-	public Iterable<HierarchyUnit> getRootHierarchyUnits(boolean functionalOnly) {
+	public Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -561,6 +560,9 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	protected DirectoryGroup newGroup(LdapName name, Attributes attrs) {
+		if (LdapNameUtils.getParentRdn(name).equals(getSystemRoleBaseRdn()))
+			return new LdifGroup.LdifSystemPermissions(this, name, attrs);
+		
 		if (hasObjectClass(attrs, LdapObjs.organization))
 			return new LdifGroup.LdifOrganization(this, name, attrs);
 		else
@@ -638,7 +640,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 
 	protected int roleType(LdapName dn) {
 		Rdn technicalRdn = LdapNameUtils.getParentRdn(dn);
-		if (groupBaseRdn.equals(technicalRdn))
+		if (getGroupBaseRdn().equals(technicalRdn) || getSystemRoleBaseRdn().equals(technicalRdn))
 			return Role.GROUP;
 		else if (userBaseRdn.equals(technicalRdn))
 			return Role.USER;
@@ -650,11 +652,6 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	/** dn can be null, in that case a default should be returned. */
 	public String getUserObjectClass() {
 		return userObjectClass;
-	}
-
-	@Deprecated
-	String getUserBase() {
-		return userBase;
 	}
 
 	Rdn getUserBaseRdn() {
@@ -669,13 +666,12 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return groupObjectClass;
 	}
 
-	@Deprecated
-	String getGroupBase() {
-		return groupBase;
-	}
-
 	Rdn getGroupBaseRdn() {
 		return groupBaseRdn;
+	}
+
+	Rdn getSystemRoleBaseRdn() {
+		return systemRoleBaseRdn;
 	}
 
 	LdapName getBaseDn() {

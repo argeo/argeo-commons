@@ -41,6 +41,10 @@ public class ContentName extends QName {
 
 //	private final UUID uuid;
 
+	public ContentName(String namespaceURI, String localPart) {
+		super(namespaceURI, localPart, checkPrefix(RuntimeNamespaceContext.getNamespaceContext(), namespaceURI));
+	}
+
 	public ContentName(String namespaceURI, String localPart, NamespaceContext nsContext) {
 		super(namespaceURI, localPart, checkPrefix(nsContext, namespaceURI));
 	}

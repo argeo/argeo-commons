@@ -19,6 +19,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
@@ -111,10 +112,11 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 			document = dBuilder.newDocument();
 			Element root = document.createElementNS(CrName.CR_NAMESPACE_URI, CrName.ROOT.get().toPrefixedString());
 
-			for (String prefix : typesManager.getPrefixes().keySet()) {
+			for (String prefix : RuntimeNamespaceContext.getPrefixes().keySet()) {
 //				root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE + ":" + prefix,
 //						contentTypesManager.getPrefixes().get(prefix));
-				DomUtils.addNamespace(root, prefix, typesManager.getPrefixes().get(prefix));
+				DomUtils.addNamespace(root, prefix,
+						RuntimeNamespaceContext.getNamespaceContext().getNamespaceURI(prefix));
 			}
 
 			document.appendChild(root);

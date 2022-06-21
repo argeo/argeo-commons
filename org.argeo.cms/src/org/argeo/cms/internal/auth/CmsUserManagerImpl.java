@@ -232,7 +232,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		Map<String, String> dns = new HashMap<String, String>();
 		for (UserDirectory userDirectory : userDirectories.keySet()) {
 			Boolean readOnly = userDirectory.isReadOnly();
-			String baseDn = userDirectory.getGlobalId();
+			String baseDn = userDirectory.getContext();
 
 			if (onlyWritable && readOnly)
 				continue;
@@ -247,7 +247,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	public Set<UserDirectory> getUserDirectories() {
-		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getGlobalId().compareTo(o2.getGlobalId()));
+		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getContext().compareTo(o2.getContext()));
 		res.addAll(userDirectories.keySet());
 		return res;
 	}
@@ -445,8 +445,8 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		String name = user.getName();
 		NavigableMap<String, UserDirectory> possible = new TreeMap<>();
 		for (UserDirectory userDirectory : userDirectories.keySet()) {
-			if (name.endsWith(userDirectory.getGlobalId())) {
-				possible.put(userDirectory.getGlobalId(), userDirectory);
+			if (name.endsWith(userDirectory.getContext())) {
+				possible.put(userDirectory.getContext(), userDirectory);
 			}
 		}
 		if (possible.size() == 0)

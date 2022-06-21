@@ -56,7 +56,7 @@ class HierarchyUnitContent extends AbstractContent {
 	@Override
 	public Iterator<Content> iterator() {
 		List<Content> lst = new ArrayList<>();
-		for (HierarchyUnit hu : hierarchyUnit.getDirectHierachyUnits())
+		for (HierarchyUnit hu : hierarchyUnit.getDirectHierachyUnits(false))
 			lst.add(new HierarchyUnitContent(getSession(), provider, hu));
 
 		for (Role role : hierarchyUnit.getHierarchyUnitRoles(null, false))

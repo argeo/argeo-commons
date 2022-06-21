@@ -17,18 +17,16 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import javax.crypto.SecretKey;
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.cms.security.NodeSecurityUtils;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.Authorization;
 
@@ -43,7 +41,8 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 	private final UUID uuid;
 	private final String localSessionId;
 	private Authorization authorization;
-	private final LdapName userDn;
+//	private final LdapName userDn;
+	private final String userDn;
 	private final boolean anonymous;
 
 	private final ZonedDateTime creationTime;
@@ -73,15 +72,11 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		// this.initialSubject = initialSubject;
 		this.localSessionId = localSessionId;
 		this.authorization = authorization;
-		if (authorization.getName() != null)
-			try {
-				this.userDn = new LdapName(authorization.getName());
-				this.anonymous = false;
-			} catch (InvalidNameException e) {
-				throw new IllegalArgumentException("Invalid user name " + authorization.getName(), e);
-			}
-		else {
-			this.userDn = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
+		if (authorization.getName() != null) {
+			this.userDn = authorization.getName();
+			this.anonymous = false;
+		} else {
+			this.userDn = CmsConstants.ROLE_ANONYMOUS;
 			this.anonymous = true;
 		}
 		this.uuid = uuid;
@@ -156,7 +151,7 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 	}
 
 	@Override
-	public LdapName getUserDn() {
+	public String getUserDn() {
 		return userDn;
 	}
 

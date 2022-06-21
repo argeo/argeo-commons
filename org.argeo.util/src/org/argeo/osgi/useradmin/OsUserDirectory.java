@@ -23,7 +23,7 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	public OsUserDirectory(URI uriArg, Dictionary<String, ?> props) {
 		super(uriArg, props, false);
 		try {
-			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + getUserBase() + "," + getBaseDn());
+			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + getUserBaseRdn() + "," + getBaseDn());
 			Attributes attributes = new BasicAttributes();
 			attributes.put(LdapAttrs.uid.name(), osUsername);
 			osUser = newUser(osUserDn, attributes);

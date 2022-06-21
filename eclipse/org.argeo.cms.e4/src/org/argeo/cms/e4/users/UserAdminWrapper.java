@@ -91,7 +91,7 @@ public class UserAdminWrapper {
 		Map<String, String> dns = new HashMap<String, String>();
 		for (UserDirectory userDirectory : userDirectories.keySet()) {
 			Boolean readOnly = userDirectory.isReadOnly();
-			String baseDn = userDirectory.getGlobalId();
+			String baseDn = userDirectory.getContext();
 
 			if (onlyWritable && readOnly)
 				continue;

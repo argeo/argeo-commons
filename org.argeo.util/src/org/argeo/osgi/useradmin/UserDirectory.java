@@ -11,7 +11,7 @@ public interface UserDirectory {
 	 * The base of the hierarchy defined by this directory. This could typically be
 	 * an LDAP base DN.
 	 */
-	String getGlobalId();
+	String getContext();
 	
 	String getName();
 
@@ -35,7 +35,7 @@ public interface UserDirectory {
 
 	Optional<String> getRealm();
 
-	Iterable<HierarchyUnit> getRootHierarchyUnits(boolean functionalOnly);
+	Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly);
 
 	HierarchyUnit getHierarchyUnit(String path);
 
