@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import org.argeo.util.naming.ldap.AuthPassword;
+
 public class SharedSecret extends AuthPassword {
 	public final static String X_SHARED_SECRET = "X-SharedSecret";
 	private final Instant expiry;

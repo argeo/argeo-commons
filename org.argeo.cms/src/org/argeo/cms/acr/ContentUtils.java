@@ -9,6 +9,10 @@ import java.util.function.BiConsumer;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
+import org.argeo.api.acr.ContentSession;
+import org.argeo.cms.CmsUserManager;
+import org.argeo.osgi.useradmin.UserDirectory;
+import org.osgi.service.useradmin.Role;
 
 /** Utilities and routines around {@link Content}. */
 public class ContentUtils {
@@ -112,6 +116,14 @@ public class ContentUtils {
 	/** Singleton. */
 	private ContentUtils() {
 
+	}
+
+	public static Content roleToContent(CmsUserManager userManager, ContentSession contentSession, Role role) {
+		UserDirectory userDirectory = userManager.getDirectory(role);
+		String path = CmsContentRepository.DIRECTORY_BASE + SLASH + userDirectory.getName() + SLASH
+				+ userDirectory.getRolePath(role);
+		Content content = contentSession.get(path);
+		return content;
 	}
 
 }

@@ -41,7 +41,7 @@ import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.OsUserDirectory;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
-import org.argeo.util.naming.DnsBrowser;
+import org.argeo.util.naming.dns.DnsBrowser;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;

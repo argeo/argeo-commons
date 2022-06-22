@@ -1,4 +1,4 @@
-package org.argeo.util.naming;
+package org.argeo.util.naming.ldap;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,6 +13,8 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
+
+import org.argeo.util.naming.LdapAttrs;
 
 /** LDAP authPassword field according to RFC 3112 */
 public class AuthPassword implements CallbackHandler {

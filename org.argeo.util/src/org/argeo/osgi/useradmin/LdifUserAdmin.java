@@ -29,8 +29,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.util.naming.LdapObjs;
-import org.argeo.util.naming.LdifParser;
-import org.argeo.util.naming.LdifWriter;
+import org.argeo.util.naming.ldap.LdifParser;
+import org.argeo.util.naming.ldap.LdifWriter;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;

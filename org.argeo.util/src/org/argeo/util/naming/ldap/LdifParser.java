@@ -1,4 +1,4 @@
-package org.argeo.util.naming;
+package org.argeo.util.naming.ldap;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,6 +21,8 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+
+import org.argeo.util.naming.LdapAttrs;
 
 /** Basic LDIF parser. */
 public class LdifParser {

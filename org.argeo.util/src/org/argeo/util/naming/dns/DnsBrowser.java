@@ -1,4 +1,4 @@
-package org.argeo.util.naming;
+package org.argeo.util.naming.dns;
 
 import java.io.Closeable;
 import java.io.IOException;

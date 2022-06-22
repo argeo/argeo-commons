@@ -13,8 +13,8 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.util.naming.DnsBrowser;
 import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.naming.dns.DnsBrowser;
 
 /** Free IPA specific conventions. */
 public class IpaUtils {

@@ -21,10 +21,10 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.util.naming.AuthPassword;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
 import org.argeo.util.naming.SharedSecret;
+import org.argeo.util.naming.ldap.AuthPassword;
 
 /** Directory user implementation */
 abstract class LdifUser implements DirectoryUser {

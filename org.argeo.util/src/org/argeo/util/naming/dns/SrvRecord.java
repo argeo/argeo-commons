@@ -1,4 +1,4 @@
-package org.argeo.util.naming;
+package org.argeo.util.naming.dns;
 
 class SrvRecord implements Comparable<SrvRecord> {
 	private final Integer priority;

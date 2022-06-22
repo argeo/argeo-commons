@@ -1,4 +1,4 @@
-package org.argeo.util.naming;
+package org.argeo.util.naming.ldap;
 
 import static org.argeo.util.naming.LdapAttrs.DN;
 import static org.argeo.util.naming.LdapAttrs.member;
