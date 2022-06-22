@@ -1,4 +1,4 @@
-package org.argeo.osgi.transaction;
+package org.argeo.util.transaction;
 
 /** Abstract the various approaches to represent transaction status. */
 public interface TransactionStatusAdapter<T> {

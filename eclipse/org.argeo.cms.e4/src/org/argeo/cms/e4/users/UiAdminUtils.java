@@ -1,6 +1,6 @@
 package org.argeo.cms.e4.users;
 
-import org.argeo.osgi.transaction.WorkTransaction;
+import org.argeo.util.transaction.WorkTransaction;
 
 /** First effort to centralize back end methods used by the user admin UI */
 public class UiAdminUtils {

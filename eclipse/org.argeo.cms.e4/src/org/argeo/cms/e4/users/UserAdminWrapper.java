@@ -10,9 +10,9 @@ import java.util.Map;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.CmsException;
-import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.transaction.WorkTransaction;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
 import org.osgi.service.useradmin.UserAdminListener;

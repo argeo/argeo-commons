@@ -31,9 +31,9 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.osgi.transaction.WorkControl;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
+import org.argeo.util.transaction.WorkControl;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;

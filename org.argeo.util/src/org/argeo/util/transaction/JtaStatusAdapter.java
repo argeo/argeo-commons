@@ -1,4 +1,4 @@
-package org.argeo.osgi.transaction;
+package org.argeo.util.transaction;
 
 /** JTA transaction status. */
 public class JtaStatusAdapter implements TransactionStatusAdapter<Integer> {

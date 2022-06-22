@@ -8,7 +8,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.osgi.transaction.WorkTransaction;
+import org.argeo.util.transaction.WorkTransaction;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
 

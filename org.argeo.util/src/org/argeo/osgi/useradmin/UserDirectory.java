@@ -2,7 +2,7 @@ package org.argeo.osgi.useradmin;
 
 import java.util.Optional;
 
-import org.argeo.osgi.transaction.WorkControl;
+import org.argeo.util.transaction.WorkControl;
 import org.osgi.service.useradmin.Role;
 
 /** Information about a user directory. */

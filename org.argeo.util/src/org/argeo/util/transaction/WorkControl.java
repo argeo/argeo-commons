@@ -1,4 +1,4 @@
-package org.argeo.osgi.transaction;
+package org.argeo.util.transaction;
 
 import java.util.concurrent.Callable;
 

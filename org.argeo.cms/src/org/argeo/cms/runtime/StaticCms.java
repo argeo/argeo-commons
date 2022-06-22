@@ -21,12 +21,12 @@ import org.argeo.cms.internal.runtime.CmsDeploymentImpl;
 import org.argeo.cms.internal.runtime.CmsStateImpl;
 import org.argeo.cms.internal.runtime.CmsUserAdmin;
 import org.argeo.cms.internal.runtime.DeployedContentRepository;
-import org.argeo.osgi.transaction.SimpleTransactionManager;
-import org.argeo.osgi.transaction.WorkControl;
-import org.argeo.osgi.transaction.WorkTransaction;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.register.Component;
 import org.argeo.util.register.SimpleRegister;
+import org.argeo.util.transaction.SimpleTransactionManager;
+import org.argeo.util.transaction.WorkControl;
+import org.argeo.util.transaction.WorkTransaction;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
