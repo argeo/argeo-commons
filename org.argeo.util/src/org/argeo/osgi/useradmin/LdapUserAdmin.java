@@ -208,8 +208,12 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				LdapName dn = toDn(searchBase, searchResult);
 				Attributes attrs = searchResult.getAttributes();
 				LdifHierarchyUnit hierarchyUnit = new LdifHierarchyUnit(this, dn, attrs);
-				if (hierarchyUnit.isFunctional())
+				if (functionalOnly) {
+					if (hierarchyUnit.isFunctional())
+						res.add(hierarchyUnit);
+				} else {
 					res.add(hierarchyUnit);
+				}
 			}
 			return res;
 		} catch (NamingException e) {
