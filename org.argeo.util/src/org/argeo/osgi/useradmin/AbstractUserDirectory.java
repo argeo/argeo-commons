@@ -7,18 +7,11 @@ import static org.argeo.util.naming.LdapObjs.organizationalPerson;
 import static org.argeo.util.naming.LdapObjs.person;
 import static org.argeo.util.naming.LdapObjs.top;
 
-import java.io.File;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
-import java.util.StringJoiner;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
@@ -30,14 +23,14 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import javax.transaction.xa.XAResource;
 
+import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.util.directory.ldap.AbstractLdapDirectory;
+import org.argeo.util.directory.ldap.LdapEntry;
+import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
+import org.argeo.util.directory.ldap.LdapNameUtils;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
-import org.argeo.util.transaction.WorkControl;
-import org.argeo.util.transaction.WorkingCopyProcessor;
-import org.argeo.util.transaction.WorkingCopyXaResource;
-import org.argeo.util.transaction.XAResourceProvider;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -47,111 +40,27 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /** Base class for a {@link UserDirectory}. */
-abstract class AbstractUserDirectory
-		implements UserAdmin, UserDirectory, WorkingCopyProcessor<DirectoryUserWorkingCopy>, XAResourceProvider {
-	static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
-	static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
-
-	private final Hashtable<String, Object> properties;
-	private final LdapName baseDn;
-	// private final LdapName userBaseDn, groupBaseDn;
-	private final Rdn userBaseRdn, groupBaseRdn, systemRoleBaseRdn;
-	private final String userObjectClass, groupObjectClass;
-
-	private final boolean readOnly;
-	private final boolean disabled;
-	private final String uri;
+abstract class AbstractUserDirectory extends AbstractLdapDirectory implements UserAdmin, UserDirectory {
 
 	private UserAdmin externalRoles;
 	// private List<String> indexedUserProperties = Arrays
 	// .asList(new String[] { LdapAttrs.uid.name(), LdapAttrs.mail.name(),
 	// LdapAttrs.cn.name() });
 
-	private final boolean scoped;
-
-	private String memberAttributeId = "member";
-	private List<String> credentialAttributeIds = Arrays
-			.asList(new String[] { LdapAttrs.userPassword.name(), LdapAttrs.authPassword.name() });
-
 	// Transaction
 //	private TransactionManager transactionManager;
-	private WorkControl transactionControl;
-	private WorkingCopyXaResource<DirectoryUserWorkingCopy> xaResource = new WorkingCopyXaResource<>(this);
-
-	private String forcedPassword;
-
 	AbstractUserDirectory(URI uriArg, Dictionary<String, ?> props, boolean scoped) {
-		this.scoped = scoped;
-		properties = new Hashtable<String, Object>();
-		for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
-			String key = keys.nextElement();
-			properties.put(key, props.get(key));
-		}
-
-		if (uriArg != null) {
-			uri = uriArg.toString();
-			// uri from properties is ignored
-		} else {
-			String uriStr = UserAdminConf.uri.getValue(properties);
-			if (uriStr == null)
-				uri = null;
-			else
-				uri = uriStr;
-		}
-
-		forcedPassword = UserAdminConf.forcedPassword.getValue(properties);
-
-		userObjectClass = UserAdminConf.userObjectClass.getValue(properties);
-		String userBase = UserAdminConf.userBase.getValue(properties);
-		groupObjectClass = UserAdminConf.groupObjectClass.getValue(properties);
-		String groupBase = UserAdminConf.groupBase.getValue(properties);
-		String systemRoleBase = UserAdminConf.systemRoleBase.getValue(properties);
-		try {
-			baseDn = new LdapName(UserAdminConf.baseDn.getValue(properties));
-			userBaseRdn = new Rdn(userBase);
-//			userBaseDn = new LdapName(userBase + "," + baseDn);
-			groupBaseRdn = new Rdn(groupBase);
-//			groupBaseDn = new LdapName(groupBase + "," + baseDn);
-			systemRoleBaseRdn = new Rdn(systemRoleBase);
-		} catch (InvalidNameException e) {
-			throw new IllegalArgumentException("Badly formated base DN " + UserAdminConf.baseDn.getValue(properties),
-					e);
-		}
-
-		// read only
-		String readOnlyStr = UserAdminConf.readOnly.getValue(properties);
-		if (readOnlyStr == null) {
-			readOnly = readOnlyDefault(uri);
-			properties.put(UserAdminConf.readOnly.name(), Boolean.toString(readOnly));
-		} else
-			readOnly = Boolean.parseBoolean(readOnlyStr);
-
-		// disabled
-		String disabledStr = UserAdminConf.disabled.getValue(properties);
-		if (disabledStr != null)
-			disabled = Boolean.parseBoolean(disabledStr);
-		else
-			disabled = false;
+		super(uriArg, props, scoped);
 	}
 
 	/*
 	 * ABSTRACT METHODS
 	 */
 
+	protected abstract AbstractLdapDirectory scope(User user);
+
 	/** Returns the groups this user is a direct member of. */
 	protected abstract List<LdapName> getDirectGroups(LdapName dn);
-
-	protected abstract Boolean daoHasRole(LdapName dn);
-
-	protected abstract DirectoryUser daoGetRole(LdapName key) throws NameNotFoundException;
-
-	protected abstract List<DirectoryUser> doGetRoles(LdapName searchBase, Filter f, boolean deep);
-
-	protected abstract AbstractUserDirectory scope(User user);
-
-	protected abstract HierarchyUnit doGetHierarchyUnit(LdapName dn);
-
-	protected abstract Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly);
 
 	/*
 	 * INITIALIZATION
@@ -163,20 +72,6 @@ abstract class AbstractUserDirectory
 
 	public void destroy() {
 
-	}
-
-	/*
-	 * PATHS
-	 */
-
-	@Override
-	public String getContext() {
-		return getBaseDn().toString();
-	}
-
-	@Override
-	public String getName() {
-		return nameToSimple(getBaseDn(), ".");
 	}
 
 	@Override
@@ -191,84 +86,9 @@ abstract class AbstractUserDirectory
 		return name;
 	}
 
-	protected String nameToRelativePath(LdapName dn) {
-		LdapName name = LdapNameUtils.relativeName(getBaseDn(), dn);
-		return nameToSimple(name, "/");
-	}
-
-	protected String nameToSimple(LdapName name, String separator) {
-		StringJoiner path = new StringJoiner(separator);
-		for (int i = 0; i < name.size(); i++) {
-			path.add(name.getRdn(i).getValue().toString());
-		}
-		return path.toString();
-
-	}
-
-	protected LdapName pathToName(String path) {
-		try {
-			LdapName name = (LdapName) getBaseDn().clone();
-			String[] segments = path.split("/");
-			Rdn parentRdn = null;
-			for (String segment : segments) {
-				// TODO make attr names configurable ?
-				String attr = LdapAttrs.ou.name();
-				if (parentRdn != null) {
-					if (getUserBaseRdn().equals(parentRdn))
-						attr = LdapAttrs.uid.name();
-					else if (getGroupBaseRdn().equals(parentRdn))
-						attr = LdapAttrs.cn.name();
-					else if (getSystemRoleBaseRdn().equals(parentRdn))
-						attr = LdapAttrs.cn.name();
-				}
-				Rdn rdn = new Rdn(attr, segment);
-				name.add(rdn);
-				parentRdn = rdn;
-			}
-			return name;
-		} catch (InvalidNameException e) {
-			throw new IllegalStateException("Cannot get role " + path, e);
-		}
-
-	}
-
 	@Override
 	public Role getRoleByPath(String path) {
 		return doGetRole(pathToName(path));
-	}
-
-	@Override
-	public Optional<String> getRealm() {
-		Object realm = getProperties().get(UserAdminConf.realm.name());
-		if (realm == null)
-			return Optional.empty();
-		return Optional.of(realm.toString());
-	}
-
-	/*
-	 * EDITION
-	 */
-
-	protected boolean isEditing() {
-		return xaResource.wc() != null;
-	}
-
-	protected DirectoryUserWorkingCopy getWorkingCopy() {
-		DirectoryUserWorkingCopy wc = xaResource.wc();
-		if (wc == null)
-			return null;
-		return wc;
-	}
-
-	protected void checkEdit() {
-		if (xaResource.wc() == null) {
-			try {
-				transactionControl.getWorkContext().registerXAResource(xaResource, null);
-			} catch (Exception e) {
-				throw new IllegalStateException("Cannot enlist " + xaResource, e);
-			}
-		} else {
-		}
 	}
 
 	protected List<Role> getAllRoles(DirectoryUser user) {
@@ -322,16 +142,16 @@ abstract class AbstractUserDirectory
 	}
 
 	protected DirectoryUser doGetRole(LdapName dn) {
-		DirectoryUserWorkingCopy wc = getWorkingCopy();
+		LdapEntryWorkingCopy wc = getWorkingCopy();
 		DirectoryUser user;
 		try {
-			user = daoGetRole(dn);
+			user = (DirectoryUser) daoGetEntry(dn);
 		} catch (NameNotFoundException e) {
 			user = null;
 		}
 		if (wc != null) {
 			if (user == null && wc.getNewData().containsKey(dn))
-				user = wc.getNewData().get(dn);
+				user = (DirectoryUser) wc.getNewData().get(dn);
 			else if (wc.getDeletedData().containsKey(dn))
 				user = null;
 		}
@@ -345,17 +165,21 @@ abstract class AbstractUserDirectory
 	}
 
 	List<DirectoryUser> getRoles(LdapName searchBase, String filter, boolean deep) throws InvalidSyntaxException {
-		DirectoryUserWorkingCopy wc = getWorkingCopy();
+		LdapEntryWorkingCopy wc = getWorkingCopy();
 		Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
-		List<DirectoryUser> res = doGetRoles(searchBase, f, deep);
+		List<LdapEntry> searchRes = doGetEntries(searchBase, f, deep);
+		List<DirectoryUser> res = new ArrayList<>();
+		for (LdapEntry entry : searchRes)
+			res.add((DirectoryUser) entry);
 		if (wc != null) {
 			for (Iterator<DirectoryUser> it = res.iterator(); it.hasNext();) {
-				DirectoryUser user = it.next();
+				DirectoryUser user = (DirectoryUser) it.next();
 				LdapName dn = user.getDn();
 				if (wc.getDeletedData().containsKey(dn))
 					it.remove();
 			}
-			for (DirectoryUser user : wc.getNewData().values()) {
+			for (LdapEntry ldapEntry : wc.getNewData().values()) {
+				DirectoryUser user = (DirectoryUser) ldapEntry;
 				if (f == null || f.match(user.getProperties()))
 					res.add(user);
 			}
@@ -402,8 +226,9 @@ abstract class AbstractUserDirectory
 	protected void doGetUser(String key, String value, List<DirectoryUser> collectedUsers) {
 		try {
 			Filter f = FrameworkUtil.createFilter("(" + key + "=" + value + ")");
-			List<DirectoryUser> users = doGetRoles(getBaseDn(), f, true);
-			collectedUsers.addAll(users);
+			List<LdapEntry> users = doGetEntries(getBaseDn(), f, true);
+			for (LdapEntry entry : users)
+				collectedUsers.add((DirectoryUser) entry);
 		} catch (InvalidSyntaxException e) {
 			throw new IllegalArgumentException("Cannot get user with " + key + "=" + value, e);
 		}
@@ -415,7 +240,7 @@ abstract class AbstractUserDirectory
 			return new LdifAuthorization(user, getAllRoles((DirectoryUser) user));
 		} else {
 			// bind
-			AbstractUserDirectory scopedUserAdmin = scope(user);
+			AbstractUserDirectory scopedUserAdmin = (AbstractUserDirectory) scope(user);
 			try {
 				DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
 				if (directoryUser == null)
@@ -432,9 +257,9 @@ abstract class AbstractUserDirectory
 	@Override
 	public Role createRole(String name, int type) {
 		checkEdit();
-		DirectoryUserWorkingCopy wc = getWorkingCopy();
+		LdapEntryWorkingCopy wc = getWorkingCopy();
 		LdapName dn = toLdapName(name);
-		if ((daoHasRole(dn) && !wc.getDeletedData().containsKey(dn)) || wc.getNewData().containsKey(dn))
+		if ((daoHasEntry(dn) && !wc.getDeletedData().containsKey(dn)) || wc.getNewData().containsKey(dn))
 			throw new IllegalArgumentException("Already a role " + name);
 		BasicAttributes attrs = new BasicAttributes(true);
 		// attrs.put(LdifName.dn.name(), dn.toString());
@@ -484,10 +309,10 @@ abstract class AbstractUserDirectory
 	@Override
 	public boolean removeRole(String name) {
 		checkEdit();
-		DirectoryUserWorkingCopy wc = getWorkingCopy();
+		LdapEntryWorkingCopy wc = getWorkingCopy();
 		LdapName dn = toLdapName(name);
 		boolean actuallyDeleted;
-		if (daoHasRole(dn) || wc.getNewData().containsKey(dn)) {
+		if (daoHasEntry(dn) || wc.getNewData().containsKey(dn)) {
 			DirectoryUser user = (DirectoryUser) getRole(name);
 			wc.getDeletedData().put(dn, user);
 			actuallyDeleted = true;
@@ -502,22 +327,8 @@ abstract class AbstractUserDirectory
 	}
 
 	/*
-	 * TRANSACTION
-	 */
-	@Override
-	public DirectoryUserWorkingCopy newWorkingCopy() {
-		return new DirectoryUserWorkingCopy();
-	}
-
-	/*
 	 * HIERARCHY
 	 */
-	@Override
-	public HierarchyUnit getHierarchyUnit(String path) {
-		LdapName dn = pathToName(path);
-		return doGetHierarchyUnit(dn);
-	}
-
 	@Override
 	public HierarchyUnit getHierarchyUnit(Role role) {
 		LdapName dn = LdapNameUtils.toLdapName(role.getName());
@@ -529,8 +340,13 @@ abstract class AbstractUserDirectory
 	}
 
 	@Override
-	public Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly) {
-		return doGetDirectHierarchyUnits(baseDn, functionalOnly);
+	public Iterable<? extends Role> getHierarchyUnitRoles(HierarchyUnit hierarchyUnit, String filter, boolean deep) {
+		LdapName dn = LdapNameUtils.toLdapName(hierarchyUnit.getContext());
+		try {
+			return getRoles(dn, filter, deep);
+		} catch (InvalidSyntaxException e) {
+			throw new IllegalArgumentException("Cannot filter " + filter + " " + dn, e);
+		}
 	}
 
 	/*
@@ -552,70 +368,7 @@ abstract class AbstractUserDirectory
 
 	}
 
-	private boolean hasObjectClass(Attributes attrs, LdapObjs objectClass) {
-		try {
-			Attribute attr = attrs.get(LdapAttrs.objectClass.name());
-			NamingEnumeration<?> en = attr.getAll();
-			while (en.hasMore()) {
-				String v = en.next().toString();
-				if (v.equalsIgnoreCase(objectClass.name()))
-					return true;
-
-			}
-			return false;
-		} catch (NamingException e) {
-			throw new IllegalStateException("Cannot search for objectClass " + objectClass.name(), e);
-		}
-	}
-
 	// GETTERS
-	protected String getMemberAttributeId() {
-		return memberAttributeId;
-	}
-
-	protected List<String> getCredentialAttributeIds() {
-		return credentialAttributeIds;
-	}
-
-	protected String getUri() {
-		return uri;
-	}
-
-	private static boolean readOnlyDefault(String uriStr) {
-		if (uriStr == null)
-			return true;
-		/// TODO make it more generic
-		URI uri;
-		try {
-			uri = new URI(uriStr.split(" ")[0]);
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException(e);
-		}
-		if (uri.getScheme() == null)
-			return false;// assume relative file to be writable
-		if (uri.getScheme().equals(UserAdminConf.SCHEME_FILE)) {
-			File file = new File(uri);
-			if (file.exists())
-				return !file.canWrite();
-			else
-				return !file.getParentFile().canWrite();
-		} else if (uri.getScheme().equals(UserAdminConf.SCHEME_LDAP)) {
-			if (uri.getAuthority() != null)// assume writable if authenticated
-				return false;
-		} else if (uri.getScheme().equals(UserAdminConf.SCHEME_OS)) {
-			return true;
-		}
-		return true;// read only by default
-	}
-
-	public boolean isReadOnly() {
-		return readOnly;
-	}
-
-	public boolean isDisabled() {
-		return disabled;
-	}
-
 	protected UserAdmin getExternalRoles() {
 		return externalRoles;
 	}
@@ -624,48 +377,11 @@ abstract class AbstractUserDirectory
 		Rdn technicalRdn = LdapNameUtils.getParentRdn(dn);
 		if (getGroupBaseRdn().equals(technicalRdn) || getSystemRoleBaseRdn().equals(technicalRdn))
 			return Role.GROUP;
-		else if (userBaseRdn.equals(technicalRdn))
+		else if (getUserBaseRdn().equals(technicalRdn))
 			return Role.USER;
 		else
 			throw new IllegalArgumentException(
 					"Cannot dind role type, " + technicalRdn + " is not a technical RDN for " + dn);
-	}
-
-	/** dn can be null, in that case a default should be returned. */
-	public String getUserObjectClass() {
-		return userObjectClass;
-	}
-
-	Rdn getUserBaseRdn() {
-		return userBaseRdn;
-	}
-
-	protected String newUserObjectClass(LdapName dn) {
-		return getUserObjectClass();
-	}
-
-	public String getGroupObjectClass() {
-		return groupObjectClass;
-	}
-
-	Rdn getGroupBaseRdn() {
-		return groupBaseRdn;
-	}
-
-	Rdn getSystemRoleBaseRdn() {
-		return systemRoleBaseRdn;
-	}
-
-	LdapName getBaseDn() {
-		return (LdapName) baseDn.clone();
-	}
-
-	public Dictionary<String, Object> getProperties() {
-		return properties;
-	}
-
-	public Dictionary<String, Object> cloneProperties() {
-		return new Hashtable<>(properties);
 	}
 
 	public void setExternalRoles(UserAdmin externalRoles) {
@@ -675,32 +391,6 @@ abstract class AbstractUserDirectory
 //	public void setTransactionManager(TransactionManager transactionManager) {
 //		this.transactionManager = transactionManager;
 //	}
-
-	public String getForcedPassword() {
-		return forcedPassword;
-	}
-
-	public void setTransactionControl(WorkControl transactionControl) {
-		this.transactionControl = transactionControl;
-	}
-
-	public XAResource getXaResource() {
-		return xaResource;
-	}
-
-	public boolean isScoped() {
-		return scoped;
-	}
-
-	@Override
-	public int hashCode() {
-		return baseDn.hashCode();
-	}
-
-	@Override
-	public String toString() {
-		return "User Directory " + baseDn.toString();
-	}
 
 	/*
 	 * STATIC UTILITIES

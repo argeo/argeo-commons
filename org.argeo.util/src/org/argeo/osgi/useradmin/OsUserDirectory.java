@@ -11,6 +11,9 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.util.directory.ldap.LdapEntry;
+import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
 import org.argeo.util.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.User;
@@ -40,12 +43,12 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected Boolean daoHasRole(LdapName dn) {
+	protected Boolean daoHasEntry(LdapName dn) {
 		return osUserDn.equals(dn);
 	}
 
 	@Override
-	protected DirectoryUser daoGetRole(LdapName key) throws NameNotFoundException {
+	protected DirectoryUser daoGetEntry(LdapName key) throws NameNotFoundException {
 		if (osUserDn.equals(key))
 			return osUser;
 		else
@@ -53,8 +56,8 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<DirectoryUser> doGetRoles(LdapName searchBase, Filter f, boolean deep) {
-		List<DirectoryUser> res = new ArrayList<>();
+	protected List<LdapEntry> doGetEntries(LdapName searchBase, Filter f, boolean deep) {
+		List<LdapEntry> res = new ArrayList<>();
 		if (f == null || f.match(osUser.getProperties()))
 			res.add(osUser);
 		return res;
@@ -66,26 +69,25 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected HierarchyUnit doGetHierarchyUnit(LdapName dn) {
+	public HierarchyUnit doGetHierarchyUnit(LdapName dn) {
 		return null;
 	}
 
 	@Override
-	protected Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
+	public Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
 		return new ArrayList<>();
 	}
 
-	public void prepare(DirectoryUserWorkingCopy wc) {
+	public void prepare(LdapEntryWorkingCopy wc) {
 
 	}
 
-	public void commit(DirectoryUserWorkingCopy wc) {
+	public void commit(LdapEntryWorkingCopy wc) {
 
 	}
 
-	public void rollback(DirectoryUserWorkingCopy wc) {
+	public void rollback(LdapEntryWorkingCopy wc) {
 
 	}
-
 
 }

@@ -1,4 +1,4 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -14,11 +14,11 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 /** Utilities around digests, mostly those related to passwords. */
-class DigestUtils {
-	final static String PASSWORD_SCHEME_SHA = "SHA";
-	final static String PASSWORD_SCHEME_PBKDF2_SHA256 = "PBKDF2_SHA256";
+public class DirectoryDigestUtils {
+	public final static String PASSWORD_SCHEME_SHA = "SHA";
+	public final static String PASSWORD_SCHEME_PBKDF2_SHA256 = "PBKDF2_SHA256";
 
-	static byte[] sha1(byte[] bytes) {
+	public static byte[] sha1(byte[] bytes) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA1");
 			digest.update(bytes);
@@ -29,7 +29,7 @@ class DigestUtils {
 		}
 	}
 
-	static byte[] toPasswordScheme(String passwordScheme, char[] password, byte[] salt, Integer iterations,
+	public static byte[] toPasswordScheme(String passwordScheme, char[] password, byte[] salt, Integer iterations,
 			Integer keyLength) {
 		try {
 			if (PASSWORD_SCHEME_SHA.equals(passwordScheme)) {
@@ -63,7 +63,7 @@ class DigestUtils {
 		}
 	}
 
-	static char[] bytesToChars(Object obj) {
+	public static char[] bytesToChars(Object obj) {
 		if (obj instanceof char[])
 			return (char[]) obj;
 		if (!(obj instanceof byte[]))
@@ -77,7 +77,7 @@ class DigestUtils {
 		return res;
 	}
 
-	static byte[] charsToBytes(char[] chars) {
+	public static byte[] charsToBytes(char[] chars) {
 		CharBuffer charBuffer = CharBuffer.wrap(chars);
 		ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
 		byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
@@ -86,7 +86,7 @@ class DigestUtils {
 		return bytes;
 	}
 
-	static String sha1str(String str) {
+	public static String sha1str(String str) {
 		byte[] hash = sha1(str.getBytes(StandardCharsets.UTF_8));
 		return encodeHexString(hash);
 	}
@@ -108,6 +108,7 @@ class DigestUtils {
 		return new String(hexChars);
 	}
 
-	private DigestUtils() {
+	/** singleton */
+	private DirectoryDigestUtils() {
 	}
 }

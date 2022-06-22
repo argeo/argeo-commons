@@ -1,4 +1,4 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory.ldap;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -16,13 +16,14 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.util.naming.LdapAttrs;
+import org.argeo.util.transaction.WorkingCopy;
 
 /** A synchronized wrapper for a single {@link InitialLdapContext}. */
 // TODO implement multiple contexts and connection pooling.
-class LdapConnection {
+public class LdapConnection {
 	private InitialLdapContext initialLdapContext = null;
 
-	LdapConnection(String url, Dictionary<String, ?> properties) {
+	public LdapConnection(String url, Dictionary<String, ?> properties) {
 		try {
 			Hashtable<String, Object> connEnv = new Hashtable<String, Object>();
 			connEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -98,7 +99,7 @@ class LdapConnection {
 		}
 	}
 
-	synchronized void prepareChanges(DirectoryUserWorkingCopy wc) throws NamingException {
+	public synchronized void prepareChanges(WorkingCopy<?, ?, LdapName> wc) throws NamingException {
 		// make sure connection will work
 		reconnect();
 
@@ -128,14 +129,14 @@ class LdapConnection {
 		}
 	}
 
-	synchronized void commitChanges(DirectoryUserWorkingCopy wc) throws NamingException {
+	public synchronized void commitChanges(LdapEntryWorkingCopy wc) throws NamingException {
 		// delete
 		for (LdapName dn : wc.getDeletedData().keySet()) {
 			getLdapContext().destroySubcontext(dn);
 		}
 		// add
 		for (LdapName dn : wc.getNewData().keySet()) {
-			DirectoryUser user = wc.getNewData().get(dn);
+			LdapEntry user = wc.getNewData().get(dn);
 			getLdapContext().createSubcontext(dn, user.getAttributes());
 		}
 		// modify

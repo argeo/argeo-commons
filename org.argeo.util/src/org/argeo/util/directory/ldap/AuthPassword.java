@@ -1,4 +1,4 @@
-package org.argeo.util.naming.ldap;
+package org.argeo.util.directory.ldap;
 
 import java.io.IOException;
 import java.util.Arrays;

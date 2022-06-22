@@ -1,52 +1,19 @@
 package org.argeo.osgi.useradmin;
 
-import java.util.Optional;
-
-import org.argeo.util.transaction.WorkControl;
+import org.argeo.util.directory.Directory;
+import org.argeo.util.directory.HierarchyUnit;
 import org.osgi.service.useradmin.Role;
 
 /** Information about a user directory. */
-public interface UserDirectory {
-	/**
-	 * The base of the hierarchy defined by this directory. This could typically be
-	 * an LDAP base DN.
-	 */
-	String getContext();
-	
-	String getName();
-
-//	/** The base DN of all entries in this user directory */
-//	LdapName getBaseDn();
-
-//	/** The related {@link XAResource} */
-//	XAResource getXaResource();
-
-	boolean isReadOnly();
-
-	boolean isDisabled();
-
-	String getUserObjectClass();
-
-//	String getUserBase();
-
-	String getGroupObjectClass();
-
-//	String getGroupBase();
-
-	Optional<String> getRealm();
-
-	Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly);
-
-	HierarchyUnit getHierarchyUnit(String path);
+public interface UserDirectory extends Directory {
 
 	HierarchyUnit getHierarchyUnit(Role role);
+
+	Iterable<? extends Role> getHierarchyUnitRoles(HierarchyUnit hierarchyUnit, String filter, boolean deep);
 
 	String getRolePath(Role role);
 
 	String getRoleSimpleName(Role role);
 
 	Role getRoleByPath(String path);
-
-	@Deprecated
-	void setTransactionControl(WorkControl transactionControl);
 }

@@ -1,18 +1,17 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory.ldap;
 
-import java.util.List;
 import java.util.Objects;
 
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.useradmin.Role;
+import org.argeo.util.directory.Directory;
+import org.argeo.util.directory.HierarchyUnit;
 
 /** LDIF/LDAP based implementation of {@link HierarchyUnit}. */
-class LdifHierarchyUnit implements HierarchyUnit {
-	private final AbstractUserDirectory directory;
+public class LdapHierarchyUnit implements HierarchyUnit {
+	private final AbstractLdapDirectory directory;
 
 	private final LdapName dn;
 	private final boolean functional;
@@ -21,7 +20,7 @@ class LdifHierarchyUnit implements HierarchyUnit {
 //	HierarchyUnit parent;
 //	List<HierarchyUnit> children = new ArrayList<>();
 
-	LdifHierarchyUnit(AbstractUserDirectory directory, LdapName dn, Attributes attributes) {
+	public LdapHierarchyUnit(AbstractLdapDirectory directory, LdapName dn, Attributes attributes) {
 		Objects.requireNonNull(directory);
 		Objects.requireNonNull(dn);
 
@@ -75,16 +74,7 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	}
 
 	@Override
-	public List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep) {
-		try {
-			return directory.getRoles(dn, filter, deep);
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Cannot filter " + filter + " " + dn, e);
-		}
-	}
-
-	@Override
-	public UserDirectory getDirectory() {
+	public Directory getDirectory() {
 		return directory;
 	}
 
@@ -95,9 +85,9 @@ class LdifHierarchyUnit implements HierarchyUnit {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof LdifHierarchyUnit))
+		if (!(obj instanceof LdapHierarchyUnit))
 			return false;
-		return ((LdifHierarchyUnit) obj).dn.equals(dn);
+		return ((LdapHierarchyUnit) obj).dn.equals(dn);
 	}
 
 	@Override

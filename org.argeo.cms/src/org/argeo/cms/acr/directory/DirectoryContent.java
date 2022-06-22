@@ -11,14 +11,14 @@ import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
-import org.argeo.osgi.useradmin.HierarchyUnit;
-import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.Directory;
+import org.argeo.util.directory.HierarchyUnit;
 
 class DirectoryContent extends AbstractContent {
-	private UserDirectory directory;
+	private Directory directory;
 	private DirectoryContentProvider provider;
 
-	public DirectoryContent(ProvidedSession session, DirectoryContentProvider provider, UserDirectory directory) {
+	public DirectoryContent(ProvidedSession session, DirectoryContentProvider provider, Directory directory) {
 		super(session);
 		this.provider = provider;
 		this.directory = directory;

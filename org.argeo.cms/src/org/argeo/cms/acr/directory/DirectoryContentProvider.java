@@ -17,8 +17,8 @@ import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
-import org.argeo.osgi.useradmin.HierarchyUnit;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.HierarchyUnit;
 import org.osgi.service.useradmin.User;
 
 public class DirectoryContentProvider implements ContentProvider {

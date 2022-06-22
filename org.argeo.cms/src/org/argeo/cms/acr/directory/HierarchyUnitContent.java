@@ -13,7 +13,8 @@ import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
-import org.argeo.osgi.useradmin.HierarchyUnit;
+import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.HierarchyUnit;
 import org.osgi.service.useradmin.Role;
 
 class HierarchyUnitContent extends AbstractContent {
@@ -59,7 +60,8 @@ class HierarchyUnitContent extends AbstractContent {
 		for (HierarchyUnit hu : hierarchyUnit.getDirectHierachyUnits(false))
 			lst.add(new HierarchyUnitContent(getSession(), provider, hu));
 
-		for (Role role : hierarchyUnit.getHierarchyUnitRoles(null, false))
+		for (Role role : ((UserDirectory) hierarchyUnit.getDirectory()).getHierarchyUnitRoles(hierarchyUnit, null,
+				false))
 			lst.add(new RoleContent(getSession(), provider, this, role));
 		return lst.iterator();
 	}
@@ -82,5 +84,4 @@ class HierarchyUnitContent extends AbstractContent {
 		return hierarchyUnit;
 	}
 
-	
 }

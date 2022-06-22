@@ -5,6 +5,7 @@ import java.util.Hashtable;
 
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.DirectoryDigestUtils;
 import org.osgi.service.useradmin.User;
 
 /**
@@ -38,7 +39,7 @@ public class AuthenticatingUser implements User {
 		this.name = name;
 		credentials = new Hashtable<>();
 		credentials.put(SHARED_STATE_NAME, name);
-		byte[] pwd = DigestUtils.charsToBytes(password);
+		byte[] pwd = DirectoryDigestUtils.charsToBytes(password);
 		credentials.put(SHARED_STATE_PWD, pwd);
 	}
 

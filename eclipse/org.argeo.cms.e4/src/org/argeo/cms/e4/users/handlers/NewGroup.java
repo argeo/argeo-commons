@@ -9,7 +9,7 @@ import org.argeo.cms.CmsException;
 import org.argeo.cms.e4.users.UserAdminWrapper;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.osgi.useradmin.UserAdminConf;
+import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.LdapAttrs;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.jface.wizard.Wizard;
@@ -179,8 +179,8 @@ public class NewGroup {
 			Map<String, String> dns = getDns();
 			String bdn = baseDnCmb.getText();
 			if (EclipseUiUtils.notEmpty(bdn)) {
-				Dictionary<String, ?> props = UserAdminConf.uriAsProperties(dns.get(bdn));
-				String dn = LdapAttrs.cn.name() + "=" + cn + "," + UserAdminConf.groupBase.getValue(props) + "," + bdn;
+				Dictionary<String, ?> props = DirectoryConf.uriAsProperties(dns.get(bdn));
+				String dn = LdapAttrs.cn.name() + "=" + cn + "," + DirectoryConf.groupBase.getValue(props) + "," + bdn;
 				return dn;
 			}
 			return null;

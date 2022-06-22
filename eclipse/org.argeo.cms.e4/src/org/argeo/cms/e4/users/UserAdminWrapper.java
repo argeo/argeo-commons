@@ -10,8 +10,8 @@ import java.util.Map;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.CmsException;
-import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.transaction.WorkTransaction;
 import org.osgi.service.useradmin.UserAdmin;
 import org.osgi.service.useradmin.UserAdminEvent;
@@ -99,7 +99,7 @@ public class UserAdminWrapper {
 				continue;
 			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;
-			dns.put(baseDn, UserAdminConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
+			dns.put(baseDn, DirectoryConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
 
 		}
 //		for (String uri : uris) {

@@ -15,7 +15,7 @@ import org.argeo.cms.e4.users.UiAdminUtils;
 import org.argeo.cms.e4.users.UserAdminWrapper;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.osgi.useradmin.UserAdminConf;
+import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.LdapAttrs;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.jface.wizard.Wizard;
@@ -241,8 +241,8 @@ public class NewUser {
 			Map<String, String> dns = getDns();
 			String bdn = baseDnCmb.getText();
 			if (EclipseUiUtils.notEmpty(bdn)) {
-				Dictionary<String, ?> props = UserAdminConf.uriAsProperties(dns.get(bdn));
-				String dn = LdapAttrs.uid.name() + "=" + uid + "," + UserAdminConf.userBase.getValue(props) + "," + bdn;
+				Dictionary<String, ?> props = DirectoryConf.uriAsProperties(dns.get(bdn));
+				String dn = LdapAttrs.uid.name() + "=" + uid + "," + DirectoryConf.userBase.getValue(props) + "," + bdn;
 				return dn;
 			}
 			return null;

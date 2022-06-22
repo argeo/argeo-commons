@@ -21,40 +21,28 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.DirectoryDigestUtils;
 import org.argeo.util.directory.Person;
+import org.argeo.util.directory.ldap.AbstractLdapEntry;
+import org.argeo.util.directory.ldap.AuthPassword;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
 import org.argeo.util.naming.SharedSecret;
-import org.argeo.util.naming.ldap.AuthPassword;
 
 /** Directory user implementation */
-abstract class LdifUser implements DirectoryUser {
-	private final AbstractUserDirectory userAdmin;
-
-	private final LdapName dn;
-
-	private final boolean frozen;
-	private Attributes publishedAttributes;
-
+abstract class LdifUser extends AbstractLdapEntry implements DirectoryUser {
 	private final AttributeDictionary properties;
 	private final AttributeDictionary credentials;
 
 	LdifUser(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
-		this(userAdmin, dn, attributes, false);
-	}
-
-	private LdifUser(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes, boolean frozen) {
-		this.userAdmin = userAdmin;
-		this.dn = dn;
-		this.publishedAttributes = attributes;
+		super(userAdmin, dn, attributes);
 		properties = new AttributeDictionary(false);
 		credentials = new AttributeDictionary(true);
-		this.frozen = frozen;
 	}
 
 	@Override
 	public String getName() {
-		return dn.toString();
+		return getDn().toString();
 	}
 
 	@Override
@@ -78,9 +66,10 @@ abstract class LdifUser implements DirectoryUser {
 			// TODO check other sources (like PKCS12)
 			// String pwd = new String((char[]) value);
 			// authPassword (RFC 312 https://tools.ietf.org/html/rfc3112)
-			char[] password = DigestUtils.bytesToChars(value);
+			char[] password = DirectoryDigestUtils.bytesToChars(value);
 
-			if (userAdmin.getForcedPassword() != null && userAdmin.getForcedPassword().equals(new String(password)))
+			if (getDirectory().getForcedPassword() != null
+					&& getDirectory().getForcedPassword().equals(new String(password)))
 				return true;
 
 			AuthPassword authPassword = AuthPassword.matchAuthValue(getAttributes(), password);
@@ -104,7 +93,7 @@ abstract class LdifUser implements DirectoryUser {
 
 			// Regular password
 //			byte[] hashedPassword = hash(password, DigestUtils.PASSWORD_SCHEME_PBKDF2_SHA256);
-			if (hasCredential(LdapAttrs.userPassword.name(), DigestUtils.charsToBytes(password)))
+			if (hasCredential(LdapAttrs.userPassword.name(), DirectoryDigestUtils.charsToBytes(password)))
 				return true;
 			return false;
 		}
@@ -125,11 +114,12 @@ abstract class LdifUser implements DirectoryUser {
 					passwordScheme = storedBase64.substring(1, index);
 					String storedValueBase64 = storedBase64.substring(index + 1);
 					byte[] storedValueBytes = Base64.getDecoder().decode(storedValueBase64);
-					char[] passwordValue = DigestUtils.bytesToChars((byte[]) value);
+					char[] passwordValue = DirectoryDigestUtils.bytesToChars((byte[]) value);
 					byte[] valueBytes;
-					if (DigestUtils.PASSWORD_SCHEME_SHA.equals(passwordScheme)) {
-						valueBytes = DigestUtils.toPasswordScheme(passwordScheme, passwordValue, null, null, null);
-					} else if (DigestUtils.PASSWORD_SCHEME_PBKDF2_SHA256.equals(passwordScheme)) {
+					if (DirectoryDigestUtils.PASSWORD_SCHEME_SHA.equals(passwordScheme)) {
+						valueBytes = DirectoryDigestUtils.toPasswordScheme(passwordScheme, passwordValue, null, null,
+								null);
+					} else if (DirectoryDigestUtils.PASSWORD_SCHEME_PBKDF2_SHA256.equals(passwordScheme)) {
 						// see https://www.thesubtlety.com/post/a-389-ds-pbkdf2-password-checker/
 						byte[] iterationsArr = Arrays.copyOfRange(storedValueBytes, 0, 4);
 						BigInteger iterations = new BigInteger(iterationsArr);
@@ -138,7 +128,7 @@ abstract class LdifUser implements DirectoryUser {
 						byte[] keyArr = Arrays.copyOfRange(storedValueBytes, iterationsArr.length + salt.length,
 								storedValueBytes.length);
 						int keyLengthBits = keyArr.length * 8;
-						valueBytes = DigestUtils.toPasswordScheme(passwordScheme, passwordValue, salt,
+						valueBytes = DirectoryDigestUtils.toPasswordScheme(passwordScheme, passwordValue, salt,
 								iterations.intValue(), keyLengthBits);
 					} else {
 						throw new UnsupportedOperationException("Unknown password scheme " + passwordScheme);
@@ -155,8 +145,8 @@ abstract class LdifUser implements DirectoryUser {
 
 	/** Hash the password */
 	byte[] sha1hash(char[] password) {
-		byte[] hashedPassword = ("{SHA}"
-				+ Base64.getEncoder().encodeToString(DigestUtils.sha1(DigestUtils.charsToBytes(password))))
+		byte[] hashedPassword = ("{SHA}" + Base64.getEncoder()
+				.encodeToString(DirectoryDigestUtils.sha1(DirectoryDigestUtils.charsToBytes(password))))
 				.getBytes(StandardCharsets.UTF_8);
 		return hashedPassword;
 	}
@@ -170,71 +160,8 @@ abstract class LdifUser implements DirectoryUser {
 //		return hashedPassword;
 //	}
 
-	@Override
-	public LdapName getDn() {
-		return dn;
-	}
-
-	@Override
-	public synchronized Attributes getAttributes() {
-		return isEditing() ? getModifiedAttributes() : publishedAttributes;
-	}
-
-	/** Should only be called from working copy thread. */
-	private synchronized Attributes getModifiedAttributes() {
-		assert getWc() != null;
-		return getWc().getModifiedData().get(getDn());
-	}
-
-	protected synchronized boolean isEditing() {
-		return getWc() != null && getModifiedAttributes() != null;
-	}
-
-	private synchronized DirectoryUserWorkingCopy getWc() {
-		return userAdmin.getWorkingCopy();
-	}
-
-	protected synchronized void startEditing() {
-		if (frozen)
-			throw new IllegalStateException("Cannot edit frozen view");
-		if (getUserAdmin().isReadOnly())
-			throw new IllegalStateException("User directory is read-only");
-		assert getModifiedAttributes() == null;
-		getWc().startEditing(this);
-		// modifiedAttributes = (Attributes) publishedAttributes.clone();
-	}
-
-	public synchronized void publishAttributes(Attributes modifiedAttributes) {
-		publishedAttributes = modifiedAttributes;
-	}
-
-//	public DirectoryUser getPublished() {
-//		return new LdifUser(userAdmin, dn, publishedAttributes, true);
-//	}
-
-	@Override
-	public int hashCode() {
-		return dn.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj instanceof LdifUser) {
-			LdifUser that = (LdifUser) obj;
-			return this.dn.equals(that.dn);
-		}
-		return false;
-	}
-
-	@Override
-	public String toString() {
-		return dn.toString();
-	}
-
 	protected AbstractUserDirectory getUserAdmin() {
-		return userAdmin;
+		return (AbstractUserDirectory) getDirectory();
 	}
 
 	private class AttributeDictionary extends Dictionary<String, Object> {
@@ -243,7 +170,7 @@ abstract class LdifUser implements DirectoryUser {
 		private final Boolean includeFilter;
 
 		public AttributeDictionary(Boolean credentials) {
-			this.attrFilter = userAdmin.getCredentialAttributeIds();
+			this.attrFilter = getDirectory().getCredentialAttributeIds();
 			this.includeFilter = credentials;
 			try {
 				NamingEnumeration<String> ids = getAttributes().getIDs();
@@ -322,10 +249,10 @@ abstract class LdifUser implements DirectoryUser {
 							continue attrs;
 						if (first == null)
 							first = v;
-						if (v.equalsIgnoreCase(userAdmin.getUserObjectClass()))
-							return userAdmin.getUserObjectClass();
-						else if (v.equalsIgnoreCase(userAdmin.getGroupObjectClass()))
-							return userAdmin.getGroupObjectClass();
+						if (v.equalsIgnoreCase(getDirectory().getUserObjectClass()))
+							return getDirectory().getUserObjectClass();
+						else if (v.equalsIgnoreCase(getDirectory().getGroupObjectClass()))
+							return getDirectory().getGroupObjectClass();
 					}
 					if (first != null)
 						return first;
@@ -350,7 +277,7 @@ abstract class LdifUser implements DirectoryUser {
 		public Object put(String key, Object value) {
 			if (key == null) {
 				// TODO persist to other sources (like PKCS12)
-				char[] password = DigestUtils.bytesToChars(value);
+				char[] password = DirectoryDigestUtils.bytesToChars(value);
 				byte[] hashedPassword = sha1hash(password);
 				return put(LdapAttrs.userPassword.name(), hashedPassword);
 			}
@@ -358,7 +285,7 @@ abstract class LdifUser implements DirectoryUser {
 				return put(LdapAttrs.authPassword.name(), value);
 			}
 
-			userAdmin.checkEdit();
+			getDirectory().checkEdit();
 			if (!isEditing())
 				startEditing();
 
@@ -390,7 +317,7 @@ abstract class LdifUser implements DirectoryUser {
 
 		@Override
 		public Object remove(Object key) {
-			userAdmin.checkEdit();
+			getDirectory().checkEdit();
 			if (!isEditing())
 				startEditing();
 

@@ -19,6 +19,12 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.DirectoryDigestUtils;
+import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.util.directory.ldap.LdapConnection;
+import org.argeo.util.directory.ldap.LdapEntry;
+import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
+import org.argeo.util.directory.ldap.LdapHierarchyUnit;
 import org.argeo.util.naming.LdapObjs;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
@@ -52,7 +58,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
 		byte[] pwd = (byte[]) pwdCred;
 		if (pwd != null) {
-			char[] password = DigestUtils.bytesToChars(pwd);
+			char[] password = DirectoryDigestUtils.bytesToChars(pwd);
 			properties.put(Context.SECURITY_CREDENTIALS, new String(password));
 		} else {
 			properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
@@ -65,16 +71,16 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 //	}
 
 	@Override
-	protected Boolean daoHasRole(LdapName dn) {
+	protected Boolean daoHasEntry(LdapName dn) {
 		try {
-			return daoGetRole(dn) != null;
+			return daoGetEntry(dn) != null;
 		} catch (NameNotFoundException e) {
 			return false;
 		}
 	}
 
 	@Override
-	protected DirectoryUser daoGetRole(LdapName name) throws NameNotFoundException {
+	protected DirectoryUser daoGetEntry(LdapName name) throws NameNotFoundException {
 		try {
 			Attributes attrs = ldapConnection.getAttributes(name);
 			if (attrs.size() == 0)
@@ -96,8 +102,8 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<DirectoryUser> doGetRoles(LdapName searchBase, Filter f, boolean deep) {
-		ArrayList<DirectoryUser> res = new ArrayList<DirectoryUser>();
+	protected List<LdapEntry> doGetEntries(LdapName searchBase, Filter f, boolean deep) {
+		ArrayList<LdapEntry> res = new ArrayList<>();
 		try {
 			String searchFilter = f != null ? f.toString()
 					: "(|(" + objectClass + "=" + getUserObjectClass() + ")(" + objectClass + "="
@@ -165,7 +171,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	public void prepare(DirectoryUserWorkingCopy wc) {
+	public void prepare(LdapEntryWorkingCopy wc) {
 		try {
 			ldapConnection.prepareChanges(wc);
 		} catch (NamingException e) {
@@ -174,7 +180,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	public void commit(DirectoryUserWorkingCopy wc) {
+	public void commit(LdapEntryWorkingCopy wc) {
 		try {
 			ldapConnection.commitChanges(wc);
 		} catch (NamingException e) {
@@ -183,7 +189,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	public void rollback(DirectoryUserWorkingCopy wc) {
+	public void rollback(LdapEntryWorkingCopy wc) {
 		// prepare not impacting
 	}
 
@@ -192,7 +198,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	 */
 
 	@Override
-	protected Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
+	public Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
 		List<HierarchyUnit> res = new ArrayList<>();
 		try {
 			String searchFilter = "(|(" + objectClass + "=" + LdapObjs.organizationalUnit.name() + ")(" + objectClass
@@ -207,7 +213,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				SearchResult searchResult = (SearchResult) results.nextElement();
 				LdapName dn = toDn(searchBase, searchResult);
 				Attributes attrs = searchResult.getAttributes();
-				LdifHierarchyUnit hierarchyUnit = new LdifHierarchyUnit(this, dn, attrs);
+				LdapHierarchyUnit hierarchyUnit = new LdapHierarchyUnit(this, dn, attrs);
 				if (functionalOnly) {
 					if (hierarchyUnit.isFunctional())
 						res.add(hierarchyUnit);
@@ -222,10 +228,10 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected HierarchyUnit doGetHierarchyUnit(LdapName dn) {
+	public HierarchyUnit doGetHierarchyUnit(LdapName dn) {
 		try {
 			Attributes attrs = ldapConnection.getAttributes(dn);
-			return new LdifHierarchyUnit(this, dn, attrs);
+			return new LdapHierarchyUnit(this, dn, attrs);
 		} catch (NamingException e) {
 			throw new IllegalStateException("Cannot get hierarchy unit " + dn, e);
 		}

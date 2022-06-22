@@ -14,8 +14,8 @@ import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.osgi.useradmin.IpaUtils;
 import org.argeo.osgi.useradmin.OsUserUtils;
+import org.argeo.util.directory.ldap.IpaUtils;
 import org.argeo.util.naming.LdapAttrs;
 import org.osgi.service.useradmin.Authorization;
 

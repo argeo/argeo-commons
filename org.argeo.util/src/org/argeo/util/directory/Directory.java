@@ -1,0 +1,36 @@
+package org.argeo.util.directory;
+
+import java.util.Optional;
+
+import org.argeo.util.transaction.WorkControl;
+
+public interface Directory {
+	/**
+	 * The base of the hierarchy defined by this directory. This could typically be
+	 * an LDAP base DN.
+	 */
+	String getContext();
+
+	String getName();
+
+	boolean isReadOnly();
+
+	boolean isDisabled();
+
+	String getUserObjectClass();
+
+	String getGroupObjectClass();
+
+	Optional<String> getRealm();
+
+	void setTransactionControl(WorkControl transactionControl);
+
+	/*
+	 * HIERARCHY
+	 */
+
+	Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly);
+
+	HierarchyUnit getHierarchyUnit(String path);
+
+}

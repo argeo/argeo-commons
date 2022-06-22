@@ -32,8 +32,8 @@ import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.osgi.useradmin.TokenUtils;
-import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.NamingUtils;
 import org.argeo.util.naming.SharedSecret;
@@ -240,7 +240,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 				continue;
 			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;
-			dns.put(baseDn, UserAdminConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
+			dns.put(baseDn, DirectoryConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
 
 		}
 		return dns;
@@ -254,12 +254,12 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	public String buildDistinguishedName(String localId, String baseDn, int type) {
 		Map<String, String> dns = getKnownBaseDns(true);
-		Dictionary<String, ?> props = UserAdminConf.uriAsProperties(dns.get(baseDn));
+		Dictionary<String, ?> props = DirectoryConf.uriAsProperties(dns.get(baseDn));
 		String dn = null;
 		if (Role.GROUP == type)
-			dn = LdapAttrs.cn.name() + "=" + localId + "," + UserAdminConf.groupBase.getValue(props) + "," + baseDn;
+			dn = LdapAttrs.cn.name() + "=" + localId + "," + DirectoryConf.groupBase.getValue(props) + "," + baseDn;
 		else if (Role.USER == type)
-			dn = LdapAttrs.uid.name() + "=" + localId + "," + UserAdminConf.userBase.getValue(props) + "," + baseDn;
+			dn = LdapAttrs.uid.name() + "=" + localId + "," + DirectoryConf.userBase.getValue(props) + "," + baseDn;
 		else
 			throw new IllegalStateException("Unknown role type. " + "Cannot deduce dn for " + localId);
 		return dn;

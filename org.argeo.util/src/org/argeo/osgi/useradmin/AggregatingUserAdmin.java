@@ -117,7 +117,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 		if (user instanceof DirectoryUser) {
 			userAdminToUse = userReferentialOfThisUser;
 		} else if (user instanceof AuthenticatingUser) {
-			userAdminToUse = userReferentialOfThisUser.scope(user);
+			userAdminToUse = (AbstractUserDirectory) userReferentialOfThisUser.scope(user);
 		} else {
 			throw new IllegalArgumentException("Unsupported user type " + user.getClass());
 		}

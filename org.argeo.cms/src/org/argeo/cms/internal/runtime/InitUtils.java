@@ -24,7 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.http.InternalHttpConstants;
-import org.argeo.osgi.useradmin.UserAdminConf;
+import org.argeo.util.directory.DirectoryConf;
 
 /**
  * Interprets framework properties in order to generate the initial deploy
@@ -201,13 +201,13 @@ public class InitUtils {
 						u = new URI(uri);
 					} else
 						throw new IllegalArgumentException("Cannot interpret " + uri + " as an uri");
-				} else if (u.getScheme().equals(UserAdminConf.SCHEME_FILE)) {
+				} else if (u.getScheme().equals(DirectoryConf.SCHEME_FILE)) {
 					u = new File(u).getCanonicalFile().toURI();
 				}
 			} catch (Exception e) {
 				throw new RuntimeException("Cannot interpret " + uri + " as an uri", e);
 			}
-			Dictionary<String, Object> properties = UserAdminConf.uriAsProperties(u.toString());
+			Dictionary<String, Object> properties = DirectoryConf.uriAsProperties(u.toString());
 			res.add(properties);
 		}
 

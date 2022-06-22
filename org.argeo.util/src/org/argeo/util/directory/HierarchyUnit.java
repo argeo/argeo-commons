@@ -1,8 +1,4 @@
-package org.argeo.osgi.useradmin;
-
-import java.util.List;
-
-import org.osgi.service.useradmin.Role;
+package org.argeo.util.directory;
 
 /** A unit within the high-level organisational structure of a directory. */
 public interface HierarchyUnit {
@@ -16,9 +12,7 @@ public interface HierarchyUnit {
 
 	String getContext();
 
-	List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep);
-
-	UserDirectory getDirectory();
+	Directory getDirectory();
 
 //	Map<String,Object> getHierarchyProperties();
 }

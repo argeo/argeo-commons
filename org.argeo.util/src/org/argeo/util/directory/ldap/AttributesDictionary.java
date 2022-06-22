@@ -1,4 +1,4 @@
-package org.argeo.util.naming.ldap;
+package org.argeo.util.directory.ldap;
 
 import java.util.Dictionary;
 import java.util.Enumeration;

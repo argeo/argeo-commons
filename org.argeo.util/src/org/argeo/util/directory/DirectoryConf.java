@@ -1,4 +1,4 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -9,14 +9,11 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-
+import org.argeo.util.directory.ldap.IpaUtils;
 import org.argeo.util.naming.NamingUtils;
 
 /** Properties used to configure user admins. */
-public enum UserAdminConf {
+public enum DirectoryConf {
 	/** Base DN (cannot be configured externally) */
 	baseDn("dc=example,dc=com"),
 
@@ -58,10 +55,13 @@ public enum UserAdminConf {
 	public final static String SCHEME_OS = "os";
 	public final static String SCHEME_IPA = "ipa";
 
+	private final static String SECURITY_PRINCIPAL = "java.naming.security.principal";
+	private final static String SECURITY_CREDENTIALS = "java.naming.security.credentials";
+
 	/** The default value. */
 	private Object def;
 
-	UserAdminConf(Object def) {
+	DirectoryConf(Object def) {
 		this.def = def;
 	}
 
@@ -96,8 +96,8 @@ public enum UserAdminConf {
 
 	/** @deprecated use {@link #valueOf(String)} instead */
 	@Deprecated
-	public static UserAdminConf local(String property) {
-		return UserAdminConf.valueOf(property);
+	public static DirectoryConf local(String property) {
+		return DirectoryConf.valueOf(property);
 	}
 
 	/** Hides host and credentials. */
@@ -121,7 +121,7 @@ public enum UserAdminConf {
 //			}
 //		}
 
-		keys: for (UserAdminConf key : UserAdminConf.values()) {
+		keys: for (DirectoryConf key : DirectoryConf.values()) {
 			if (key.equals(baseDn) || key.equals(uri))
 				continue keys;
 			Object value = properties.get(key.name());
@@ -166,7 +166,7 @@ public enum UserAdminConf {
 				bDn = bDn.substring(0, bDn.length() - ".ldif".length());
 
 			// Normalize base DN as LDAP name
-			bDn = new LdapName(bDn).toString();
+//			bDn = new LdapName(bDn).toString();
 
 			String principal = null;
 			String credentials = null;
@@ -185,7 +185,7 @@ public enum UserAdminConf {
 					throw new IllegalArgumentException("Unsupported scheme " + scheme);
 			Map<String, List<String>> query = NamingUtils.queryToMap(u);
 			for (String key : query.keySet()) {
-				UserAdminConf ldapProp = UserAdminConf.valueOf(key);
+				DirectoryConf ldapProp = DirectoryConf.valueOf(key);
 				List<String> values = query.get(key);
 				if (values.size() == 1) {
 					res.put(ldapProp.name(), values.get(0));
@@ -197,9 +197,9 @@ public enum UserAdminConf {
 			if (SCHEME_OS.equals(scheme))
 				res.put(readOnly.name(), "true");
 			if (principal != null)
-				res.put(Context.SECURITY_PRINCIPAL, principal);
+				res.put(SECURITY_PRINCIPAL, principal);
 			if (credentials != null)
-				res.put(Context.SECURITY_CREDENTIALS, credentials);
+				res.put(SECURITY_CREDENTIALS, credentials);
 			if (scheme != null) {// relative URIs are dealt with externally
 				if (SCHEME_OS.equals(scheme)) {
 					res.put(uri.name(), SCHEME_OS + ":///");
@@ -210,7 +210,7 @@ public enum UserAdminConf {
 				}
 			}
 			return res;
-		} catch (URISyntaxException | InvalidNameException e) {
+		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException("Cannot convert " + uri + " to properties", e);
 		}
 	}
@@ -241,6 +241,6 @@ public enum UserAdminConf {
 		String bDn = (String) properties.get(baseDn.name());
 		if (bDn == null)
 			throw new IllegalStateException("No baseDn in " + properties);
-		return DigestUtils.sha1str(bDn);
+		return DirectoryDigestUtils.sha1str(bDn);
 	}
 }

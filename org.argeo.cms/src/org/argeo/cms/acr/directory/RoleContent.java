@@ -17,6 +17,7 @@ import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
+import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
 import org.osgi.service.useradmin.Role;
@@ -43,7 +44,7 @@ class RoleContent extends AbstractContent {
 
 	@Override
 	public QName getName() {
-		String name = parent.getHierarchyUnit().getDirectory().getRoleSimpleName(role);
+		String name = ((UserDirectory) parent.getHierarchyUnit().getDirectory()).getRoleSimpleName(role);
 		return new ContentName(name);
 	}
 

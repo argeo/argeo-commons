@@ -28,7 +28,7 @@ import org.argeo.cms.ArgeoLogger;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.internal.runtime.KernelConstants;
-import org.argeo.osgi.useradmin.UserAdminConf;
+import org.argeo.util.directory.DirectoryConf;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -218,9 +218,9 @@ public class CmsOsgiLogger implements ArgeoLogger, LogListener {
 				sb.append(" " + KernelConstants.CONTEXT_NAME_PROP + ": " + contextName);
 
 			// user directories
-			Object baseDn = sr.getProperty(UserAdminConf.baseDn.name());
+			Object baseDn = sr.getProperty(DirectoryConf.baseDn.name());
 			if (baseDn != null)
-				sb.append(" " + UserAdminConf.baseDn.name() + ": " + baseDn);
+				sb.append(" " + DirectoryConf.baseDn.name() + ": " + baseDn);
 
 		}
 		return sb.toString();

@@ -1,13 +1,13 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory.ldap;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 /** Utilities to simplify using {@link LdapName}. */
-class LdapNameUtils {
+public class LdapNameUtils {
 
-	static LdapName relativeName(LdapName prefix, LdapName dn) {
+	public static LdapName relativeName(LdapName prefix, LdapName dn) {
 		try {
 			if (!dn.startsWith(prefix))
 				throw new IllegalArgumentException("Prefix " + prefix + " not consistent with " + dn);
@@ -21,7 +21,7 @@ class LdapNameUtils {
 		}
 	}
 
-	static LdapName getParent(LdapName dn) {
+	public static LdapName getParent(LdapName dn) {
 		try {
 			LdapName parent = (LdapName) dn.clone();
 			parent.remove(parent.size() - 1);
@@ -31,14 +31,14 @@ class LdapNameUtils {
 		}
 	}
 
-	static Rdn getParentRdn(LdapName dn) {
+	public static Rdn getParentRdn(LdapName dn) {
 		if (dn.size() < 2)
 			throw new IllegalArgumentException(dn + " has no parent");
 		Rdn parentRdn = dn.getRdn(dn.size() - 2);
 		return parentRdn;
 	}
 
-	static LdapName toLdapName(String distinguishedName) {
+	public static LdapName toLdapName(String distinguishedName) {
 		try {
 			return new LdapName(distinguishedName);
 		} catch (InvalidNameException e) {
@@ -46,15 +46,15 @@ class LdapNameUtils {
 		}
 	}
 
-	static Rdn getLastRdn(LdapName dn) {
+	public static Rdn getLastRdn(LdapName dn) {
 		return dn.getRdn(dn.size() - 1);
 	}
 
-	static String getLastRdnAsString(LdapName dn) {
+	public static String getLastRdnAsString(LdapName dn) {
 		return getLastRdn(dn).toString();
 	}
 
-	static String getLastRdnValue(LdapName dn) {
+	public static String getLastRdnValue(LdapName dn) {
 		return getLastRdn(dn).getValue().toString();
 	}
 

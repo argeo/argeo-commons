@@ -26,10 +26,10 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.runtime.InitUtils;
 import org.argeo.cms.internal.runtime.KernelConstants;
 import org.argeo.cms.internal.runtime.KernelUtils;
-import org.argeo.osgi.useradmin.UserAdminConf;
-import org.argeo.util.naming.ldap.AttributesDictionary;
-import org.argeo.util.naming.ldap.LdifParser;
-import org.argeo.util.naming.ldap.LdifWriter;
+import org.argeo.util.directory.DirectoryConf;
+import org.argeo.util.directory.ldap.AttributesDictionary;
+import org.argeo.util.directory.ldap.LdifParser;
+import org.argeo.util.directory.ldap.LdifWriter;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -75,12 +75,12 @@ public class DeployConfig {
 			List<String> activeCns = new ArrayList<>();
 			for (int i = 0; i < userDirectoryConfigs.size(); i++) {
 				Dictionary<String, Object> userDirectoryConfig = userDirectoryConfigs.get(i);
-				String baseDn = (String) userDirectoryConfig.get(UserAdminConf.baseDn.name());
+				String baseDn = (String) userDirectoryConfig.get(DirectoryConf.baseDn.name());
 				String cn;
 				if (CmsConstants.ROLES_BASEDN.equals(baseDn))
 					cn = ROLES;
 				else
-					cn = UserAdminConf.baseDnHash(userDirectoryConfig);
+					cn = DirectoryConf.baseDnHash(userDirectoryConfig);
 				activeCns.add(cn);
 				userDirectoryConfig.put(CmsConstants.CN, cn);
 				putFactoryDeployConfig(CmsConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
@@ -93,7 +93,7 @@ public class DeployConfig {
 					Attributes attrs = deployConfigs.get(name);
 					String cn = name.getRdn(name.size() - 1).getValue().toString();
 					if (!activeCns.contains(cn)) {
-						attrs.put(UserAdminConf.disabled.name(), "true");
+						attrs.put(DirectoryConf.disabled.name(), "true");
 					}
 //					} catch (Exception e) {
 //						throw new CmsException("Cannot disable user directory " + name, e);
@@ -206,7 +206,7 @@ public class DeployConfig {
 					// service factory definition
 				}
 			} else {
-				Attribute disabled = deployConfig.get(UserAdminConf.disabled.name());
+				Attribute disabled = deployConfig.get(DirectoryConf.disabled.name());
 				if (disabled != null)
 					continue deployConfigs;
 				// service factory service
@@ -378,7 +378,7 @@ public class DeployConfig {
 
 		boolean hasDomain = false;
 		for (Configuration config : configs) {
-			Object realm = config.getProperties().get(UserAdminConf.realm.name());
+			Object realm = config.getProperties().get(DirectoryConf.realm.name());
 			if (realm != null) {
 				log.debug("Found realm: " + realm);
 				hasDomain = true;

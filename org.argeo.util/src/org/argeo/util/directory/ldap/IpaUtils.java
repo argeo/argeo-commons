@@ -1,4 +1,4 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory.ldap;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -13,6 +13,7 @@ import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.dns.DnsBrowser;
 
@@ -25,21 +26,21 @@ public class IpaUtils {
 
 	private final static String KRB_PRINCIPAL_NAME = LdapAttrs.krbPrincipalName.name().toLowerCase();
 
-	public final static String IPA_USER_DIRECTORY_CONFIG = UserAdminConf.userBase + "=" + IPA_USER_BASE + "&"
-			+ UserAdminConf.groupBase + "=" + IPA_GROUP_BASE + "&" + UserAdminConf.readOnly + "=true";
+	public final static String IPA_USER_DIRECTORY_CONFIG = DirectoryConf.userBase + "=" + IPA_USER_BASE + "&"
+			+ DirectoryConf.groupBase + "=" + IPA_GROUP_BASE + "&" + DirectoryConf.readOnly + "=true";
 
 	@Deprecated
 	static String domainToUserDirectoryConfigPath(String realm) {
-		return domainToBaseDn(realm) + "?" + IPA_USER_DIRECTORY_CONFIG + "&" + UserAdminConf.realm.name() + "=" + realm;
+		return domainToBaseDn(realm) + "?" + IPA_USER_DIRECTORY_CONFIG + "&" + DirectoryConf.realm.name() + "=" + realm;
 	}
 
 	public static void addIpaConfig(String realm, Dictionary<String, Object> properties) {
-		properties.put(UserAdminConf.baseDn.name(), domainToBaseDn(realm));
-		properties.put(UserAdminConf.realm.name(), realm);
-		properties.put(UserAdminConf.userBase.name(), IPA_USER_BASE);
-		properties.put(UserAdminConf.groupBase.name(), IPA_GROUP_BASE);
-		properties.put(UserAdminConf.systemRoleBase.name(), IPA_ROLE_BASE);
-		properties.put(UserAdminConf.readOnly.name(), Boolean.TRUE.toString());
+		properties.put(DirectoryConf.baseDn.name(), domainToBaseDn(realm));
+		properties.put(DirectoryConf.realm.name(), realm);
+		properties.put(DirectoryConf.userBase.name(), IPA_USER_BASE);
+		properties.put(DirectoryConf.groupBase.name(), IPA_GROUP_BASE);
+		properties.put(DirectoryConf.systemRoleBase.name(), IPA_ROLE_BASE);
+		properties.put(DirectoryConf.readOnly.name(), Boolean.TRUE.toString());
 	}
 
 	public static String domainToBaseDn(String domain) {
@@ -101,13 +102,13 @@ public class IpaUtils {
 			throw new IllegalStateException("No Kerberos domain available for " + uri);
 		// TODO intergrate CA certificate in truststore
 		// String schemeToUse = SCHEME_LDAPS;
-		String schemeToUse = UserAdminConf.SCHEME_LDAP;
+		String schemeToUse = DirectoryConf.SCHEME_LDAP;
 		List<String> ldapHosts;
 		String ldapHostsStr = uri.getHost();
 		if (ldapHostsStr == null || ldapHostsStr.trim().equals("")) {
 			try (DnsBrowser dnsBrowser = new DnsBrowser()) {
 				ldapHosts = dnsBrowser.getSrvRecordsAsHosts("_ldap._tcp." + kerberosRealm.toLowerCase(),
-						schemeToUse.equals(UserAdminConf.SCHEME_LDAP) ? true : false);
+						schemeToUse.equals(DirectoryConf.SCHEME_LDAP) ? true : false);
 				if (ldapHosts == null || ldapHosts.size() == 0) {
 					throw new IllegalStateException("Cannot configure LDAP for IPA " + uri);
 				} else {
@@ -132,7 +133,7 @@ public class IpaUtils {
 		}
 
 		Hashtable<String, Object> res = new Hashtable<>();
-		res.put(UserAdminConf.uri.name(), uriStr.toString());
+		res.put(DirectoryConf.uri.name(), uriStr.toString());
 		addIpaConfig(kerberosRealm, res);
 		return res;
 	}

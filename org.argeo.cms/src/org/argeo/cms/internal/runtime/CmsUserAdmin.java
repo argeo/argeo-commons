@@ -37,8 +37,8 @@ import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.LdapUserAdmin;
 import org.argeo.osgi.useradmin.LdifUserAdmin;
 import org.argeo.osgi.useradmin.OsUserDirectory;
-import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.dns.DnsBrowser;
 import org.argeo.util.transaction.WorkControl;
 import org.argeo.util.transaction.WorkTransaction;
@@ -78,12 +78,12 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 	}
 
 	public UserDirectory enableUserDirectory(Dictionary<String, ?> properties) {
-		String uri = (String) properties.get(UserAdminConf.uri.name());
-		Object realm = properties.get(UserAdminConf.realm.name());
+		String uri = (String) properties.get(DirectoryConf.uri.name());
+		Object realm = properties.get(DirectoryConf.realm.name());
 		URI u;
 		try {
 			if (uri == null) {
-				String baseDn = (String) properties.get(UserAdminConf.baseDn.name());
+				String baseDn = (String) properties.get(DirectoryConf.baseDn.name());
 				u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + baseDn + ".ldif");
 			} else if (realm != null) {
 				u = null;
@@ -96,12 +96,12 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 
 		// Create
 		UserDirectory userDirectory;
-		if (realm != null || UserAdminConf.SCHEME_LDAP.equals(u.getScheme())
-				|| UserAdminConf.SCHEME_LDAPS.equals(u.getScheme())) {
+		if (realm != null || DirectoryConf.SCHEME_LDAP.equals(u.getScheme())
+				|| DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
 			userDirectory = new LdapUserAdmin(properties);
-		} else if (UserAdminConf.SCHEME_FILE.equals(u.getScheme())) {
+		} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
 			userDirectory = new LdifUserAdmin(u, properties);
-		} else if (UserAdminConf.SCHEME_OS.equals(u.getScheme())) {
+		} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
 			userDirectory = new OsUserDirectory(u, properties);
 			singleUser = true;
 		} else {

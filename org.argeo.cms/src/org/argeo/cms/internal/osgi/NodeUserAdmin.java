@@ -9,8 +9,8 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.runtime.CmsUserAdmin;
 import org.argeo.cms.internal.runtime.KernelConstants;
-import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.DirectoryConf;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
@@ -29,7 +29,7 @@ public class NodeUserAdmin extends CmsUserAdmin implements ManagedServiceFactory
 	@Override
 	public void updated(String pid, Dictionary<String, ?> properties) throws ConfigurationException {
 
-		String basePath = (String) properties.get(UserAdminConf.baseDn.name());
+		String basePath = (String) properties.get(DirectoryConf.baseDn.name());
 
 		// FIXME make updates more robust
 		if (pidToBaseDn.containsValue(basePath)) {
@@ -44,7 +44,7 @@ public class NodeUserAdmin extends CmsUserAdmin implements ManagedServiceFactory
 		regProps.put(Constants.SERVICE_PID, pid);
 		if (isSystemRolesBaseDn(basePath))
 			regProps.put(Constants.SERVICE_RANKING, Integer.MAX_VALUE);
-		regProps.put(UserAdminConf.baseDn.name(), basePath);
+		regProps.put(DirectoryConf.baseDn.name(), basePath);
 
 		CmsActivator.getBundleContext().registerService(UserDirectory.class, userDirectory, regProps);
 		pidToBaseDn.put(pid, basePath);
