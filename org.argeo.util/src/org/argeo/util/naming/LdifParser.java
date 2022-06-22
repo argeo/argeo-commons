@@ -22,8 +22,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.osgi.useradmin.UserDirectoryException;
-
 /** Basic LDIF parser. */
 public class LdifParser {
 	private final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
@@ -36,13 +34,13 @@ public class LdifParser {
 			if (nameAttr == null)
 				currentAttributes.put(nameRdn.getType(), nameRdn.getValue());
 			else if (!nameAttr.get().equals(nameRdn.getValue()))
-				throw new UserDirectoryException(
+				throw new IllegalStateException(
 						"Attribute " + nameAttr.getID() + "=" + nameAttr.get() + " not consistent with DN " + currentDn
 								+ " (shortly before line " + lineNumber + " in LDIF file)");
 			Attributes previous = res.put(currentDn, currentAttributes);
 			return previous;
 		} catch (NamingException e) {
-			throw new UserDirectoryException("Cannot add " + currentDn, e);
+			throw new IllegalStateException("Cannot add " + currentDn, e);
 		}
 	}
 

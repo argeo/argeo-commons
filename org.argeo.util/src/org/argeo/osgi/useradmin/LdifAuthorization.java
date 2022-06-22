@@ -79,7 +79,7 @@ class LdifAuthorization implements Authorization {
 		if (displayName == null)
 			displayName = user.getName();
 		if (displayName == null)
-			throw new UserDirectoryException("Cannot set display name for " + user);
+			throw new IllegalStateException("Cannot set display name for " + user);
 		return displayName.toString();
 	}
 }

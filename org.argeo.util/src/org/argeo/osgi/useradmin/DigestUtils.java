@@ -5,6 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 
@@ -22,8 +24,8 @@ class DigestUtils {
 			digest.update(bytes);
 			byte[] checksum = digest.digest();
 			return checksum;
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot SHA1 digest", e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new IllegalStateException("Cannot SHA1 digest", e);
 		}
 	}
 
@@ -56,8 +58,8 @@ class DigestUtils {
 			} else {
 				throw new UnsupportedOperationException("Unkown password scheme " + passwordScheme);
 			}
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot digest", e);
+		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+			throw new IllegalStateException("Cannot digest", e);
 		}
 	}
 

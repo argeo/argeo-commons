@@ -49,8 +49,8 @@ class LdapConnection {
 					initialLdapContext.addToEnvironment(Context.SECURITY_CREDENTIALS, creds.toString());
 				}
 			}
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot connect to LDAP", e);
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot connect to LDAP", e);
 		}
 
 	}
@@ -105,17 +105,17 @@ class LdapConnection {
 		// delete
 		for (LdapName dn : wc.getDeletedUsers().keySet()) {
 			if (!entryExists(dn))
-				throw new UserDirectoryException("User to delete no found " + dn);
+				throw new IllegalStateException("User to delete no found " + dn);
 		}
 		// add
 		for (LdapName dn : wc.getNewUsers().keySet()) {
 			if (entryExists(dn))
-				throw new UserDirectoryException("User to create found " + dn);
+				throw new IllegalStateException("User to create found " + dn);
 		}
 		// modify
 		for (LdapName dn : wc.getModifiedUsers().keySet()) {
 			if (!wc.getNewUsers().containsKey(dn) && !entryExists(dn))
-				throw new UserDirectoryException("User to modify not found " + dn);
+				throw new IllegalStateException("User to modify not found " + dn);
 		}
 
 	}

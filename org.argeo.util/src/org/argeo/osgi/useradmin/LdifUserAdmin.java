@@ -16,6 +16,7 @@ import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
@@ -23,6 +24,7 @@ import java.util.TreeMap;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
@@ -35,11 +37,11 @@ import org.osgi.service.useradmin.User;
 
 /** A user admin based on a LDIF files. */
 public class LdifUserAdmin extends AbstractUserDirectory {
-	private SortedMap<LdapName, DirectoryUser> users = new TreeMap<>();
-	private SortedMap<LdapName, DirectoryGroup> groups = new TreeMap<>();
+	private NavigableMap<LdapName, DirectoryUser> users = new TreeMap<>();
+	private NavigableMap<LdapName, DirectoryGroup> groups = new TreeMap<>();
 
-	private SortedMap<LdapName, LdifHierarchyUnit> hierarchy = new TreeMap<>();
-	private List<HierarchyUnit> rootHierarchyUnits = new ArrayList<>();
+	private NavigableMap<LdapName, LdifHierarchyUnit> hierarchy = new TreeMap<>();
+//	private List<HierarchyUnit> rootHierarchyUnits = new ArrayList<>();
 
 	public LdifUserAdmin(String uri, String baseDn) {
 		this(fromUri(uri, baseDn), false);
@@ -69,15 +71,15 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			char[] password = DigestUtils.bytesToChars(pwd);
 			User directoryUser = (User) getRole(username);
 			if (!directoryUser.hasCredential(null, password))
-				throw new UserDirectoryException("Invalid credentials");
+				throw new IllegalStateException("Invalid credentials");
 		} else {
-			throw new UserDirectoryException("Password is required");
+			throw new IllegalStateException("Password is required");
 		}
 		Dictionary<String, Object> properties = cloneProperties();
 		properties.put(UserAdminConf.readOnly.name(), "true");
 		LdifUserAdmin scopedUserAdmin = new LdifUserAdmin(properties, true);
-		scopedUserAdmin.groups = Collections.unmodifiableSortedMap(groups);
-		scopedUserAdmin.users = Collections.unmodifiableSortedMap(users);
+		scopedUserAdmin.groups = Collections.unmodifiableNavigableMap(groups);
+		scopedUserAdmin.users = Collections.unmodifiableNavigableMap(users);
 		return scopedUserAdmin;
 	}
 
@@ -98,20 +100,20 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 					return;
 			}
 			load(u.toURL().openStream());
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot open URL " + getUri(), e);
+		} catch (IOException | URISyntaxException e) {
+			throw new IllegalStateException("Cannot open URL " + getUri(), e);
 		}
 	}
 
 	public void save() {
 		if (getUri() == null)
-			throw new UserDirectoryException("Cannot save LDIF user admin: no URI is set");
+			throw new IllegalStateException("Cannot save LDIF user admin: no URI is set");
 		if (isReadOnly())
-			throw new UserDirectoryException("Cannot save LDIF user admin: " + getUri() + " is read-only");
+			throw new IllegalStateException("Cannot save LDIF user admin: " + getUri() + " is read-only");
 		try (FileOutputStream out = new FileOutputStream(new File(new URI(getUri())))) {
 			save(out);
 		} catch (IOException | URISyntaxException e) {
-			throw new UserDirectoryException("Cannot save user admin to " + getUri(), e);
+			throw new IllegalStateException("Cannot save user admin to " + getUri(), e);
 		}
 	}
 
@@ -145,7 +147,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 				while (ids.hasMoreElements()) {
 					String id = ids.nextElement().toLowerCase();
 					if (lowerCase.contains(id))
-						throw new UserDirectoryException(key + " has duplicate id " + id);
+						throw new IllegalStateException(key + " has duplicate id " + id);
 					lowerCase.add(id);
 				}
 
@@ -177,26 +179,26 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			}
 
 			// link hierarchy
-			hierachyUnits: for (LdapName dn : hierarchy.keySet()) {
-				LdifHierarchyUnit unit = hierarchy.get(dn);
-				LdapName parentDn = (LdapName) dn.getPrefix(dn.size() - 1);
-				LdifHierarchyUnit parent = hierarchy.get(parentDn);
-				if (parent == null) {
-					rootHierarchyUnits.add(unit);
-					unit.parent = null;
-					continue hierachyUnits;
-				}
-				parent.children.add(unit);
-				unit.parent = parent;
-			}
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot load user admin service from LDIF", e);
+//			hierachyUnits: for (LdapName dn : hierarchy.keySet()) {
+//				LdifHierarchyUnit unit = hierarchy.get(dn);
+//				LdapName parentDn = (LdapName) dn.getPrefix(dn.size() - 1);
+//				LdifHierarchyUnit parent = hierarchy.get(parentDn);
+//				if (parent == null) {
+//					rootHierarchyUnits.add(unit);
+//					unit.parent = null;
+//					continue hierachyUnits;
+//				}
+//				parent.children.add(unit);
+//				unit.parent = parent;
+//			}
+		} catch (NamingException | IOException e) {
+			throw new IllegalStateException("Cannot load user admin service from LDIF", e);
 		}
 	}
 
 	public void destroy() {
 		if (users == null || groups == null)
-			throw new UserDirectoryException("User directory " + getBaseDn() + " is already destroyed");
+			throw new IllegalStateException("User directory " + getBaseDn() + " is already destroyed");
 		users = null;
 		groups = null;
 	}
@@ -270,19 +272,19 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			else if (groups.containsKey(dn))
 				groups.remove(dn);
 			else
-				throw new UserDirectoryException("User to delete not found " + dn);
+				throw new IllegalStateException("User to delete not found " + dn);
 		}
 		// add
 		for (LdapName dn : wc.getNewUsers().keySet()) {
 			DirectoryUser user = wc.getNewUsers().get(dn);
 			if (users.containsKey(dn) || groups.containsKey(dn))
-				throw new UserDirectoryException("User to create found " + dn);
+				throw new IllegalStateException("User to create found " + dn);
 			else if (Role.USER == user.getType())
 				users.put(dn, user);
 			else if (Role.GROUP == user.getType())
 				groups.put(dn, (DirectoryGroup) user);
 			else
-				throw new UserDirectoryException("Unsupported role type " + user.getType() + " for new user " + dn);
+				throw new IllegalStateException("Unsupported role type " + user.getType() + " for new user " + dn);
 		}
 		// modify
 		for (LdapName dn : wc.getModifiedUsers().keySet()) {
@@ -293,7 +295,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			else if (groups.containsKey(dn))
 				user = groups.get(dn);
 			else
-				throw new UserDirectoryException("User to modify no found " + dn);
+				throw new IllegalStateException("User to modify no found " + dn);
 			user.publishAttributes(modifiedAttrs);
 		}
 	}
@@ -321,36 +323,43 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 //	public HierarchyUnit getHierarchyChild(int i) {
 //		return rootHierarchyUnits.get(i);
 //	}
-
 	@Override
-	public HierarchyUnit getHierarchyUnit(String path) {
-		LdapName dn = pathToName(path);
+	protected HierarchyUnit doGetHierarchyUnit(LdapName dn) {
 		return hierarchy.get(dn);
 	}
 
 	@Override
-	public Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly) {
-		if (functionalOnly) {
-			List<HierarchyUnit> res = new ArrayList<>();
-			for (HierarchyUnit hu : rootHierarchyUnits) {
-				if (hu.isFunctional())
-					res.add(hu);
+	protected Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
+		List<HierarchyUnit> res = new ArrayList<>();
+		for (LdapName n : hierarchy.keySet()) {
+			if (n.size() == searchBase.size() + 1) {
+				if (n.startsWith(searchBase)) {
+					HierarchyUnit hu = hierarchy.get(n);
+					if (functionalOnly) {
+						if (hu.isFunctional())
+							res.add(hu);
+					} else {
+						res.add(hu);
+					}
+				}
 			}
-			return res;
-
-		} else {
-			return rootHierarchyUnits;
 		}
+		return res;
 	}
 
-	@Override
-	public HierarchyUnit getHierarchyUnit(Role role) {
-		LdapName dn = LdapNameUtils.toLdapName(role.getName());
-		LdapName huDn = LdapNameUtils.getParent(dn);
-		HierarchyUnit hierarchyUnit = hierarchy.get(huDn);
-		if (hierarchyUnit == null)
-			throw new IllegalStateException("No hierarchy unit found for " + role);
-		return hierarchyUnit;
-	}
+//	@Override
+//	public Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly) {
+//		if (functionalOnly) {
+//			List<HierarchyUnit> res = new ArrayList<>();
+//			for (HierarchyUnit hu : rootHierarchyUnits) {
+//				if (hu.isFunctional())
+//					res.add(hu);
+//			}
+//			return res;
+//
+//		} else {
+//			return rootHierarchyUnits;
+//		}
+//	}
 
 }

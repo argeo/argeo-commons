@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
+import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.util.naming.NamingUtils;
@@ -141,7 +142,7 @@ public enum UserAdminConf {
 			return new URI(null, null, bDn != null ? '/' + bDn : null, query.length() != 0 ? query.toString() : null,
 					null);
 		} catch (URISyntaxException e) {
-			throw new UserDirectoryException("Cannot create URI from properties", e);
+			throw new IllegalArgumentException("Cannot create URI from properties", e);
 		}
 	}
 
@@ -181,7 +182,7 @@ public enum UserAdminConf {
 				} else if (scheme.equals(SCHEME_IPA)) {
 				} else if (scheme.equals(SCHEME_OS)) {
 				} else
-					throw new UserDirectoryException("Unsupported scheme " + scheme);
+					throw new IllegalArgumentException("Unsupported scheme " + scheme);
 			Map<String, List<String>> query = NamingUtils.queryToMap(u);
 			for (String key : query.keySet()) {
 				UserAdminConf ldapProp = UserAdminConf.valueOf(key);
@@ -189,7 +190,7 @@ public enum UserAdminConf {
 				if (values.size() == 1) {
 					res.put(ldapProp.name(), values.get(0));
 				} else {
-					throw new UserDirectoryException("Only single values are supported");
+					throw new IllegalArgumentException("Only single values are supported");
 				}
 			}
 			res.put(baseDn.name(), bDn);
@@ -209,8 +210,8 @@ public enum UserAdminConf {
 				}
 			}
 			return res;
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot convert " + uri + " to properties", e);
+		} catch (URISyntaxException | InvalidNameException e) {
+			throw new IllegalArgumentException("Cannot convert " + uri + " to properties", e);
 		}
 	}
 
@@ -239,7 +240,7 @@ public enum UserAdminConf {
 	public static String baseDnHash(Dictionary<String, Object> properties) {
 		String bDn = (String) properties.get(baseDn.name());
 		if (bDn == null)
-			throw new UserDirectoryException("No baseDn in " + properties);
+			throw new IllegalStateException("No baseDn in " + properties);
 		return DigestUtils.sha1str(bDn);
 	}
 }

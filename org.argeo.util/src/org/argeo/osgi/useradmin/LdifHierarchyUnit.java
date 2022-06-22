@@ -1,7 +1,5 @@
 package org.argeo.osgi.useradmin;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,8 +18,8 @@ class LdifHierarchyUnit implements HierarchyUnit {
 	private final boolean functional;
 	private final Attributes attributes;
 
-	HierarchyUnit parent;
-	List<HierarchyUnit> children = new ArrayList<>();
+//	HierarchyUnit parent;
+//	List<HierarchyUnit> children = new ArrayList<>();
 
 	LdifHierarchyUnit(AbstractUserDirectory directory, LdapName dn, Attributes attributes) {
 		Objects.requireNonNull(directory);
@@ -38,20 +36,21 @@ class LdifHierarchyUnit implements HierarchyUnit {
 
 	@Override
 	public HierarchyUnit getParent() {
-		return parent;
+		return directory.doGetHierarchyUnit(LdapNameUtils.getParent(dn));
 	}
 
 	@Override
 	public Iterable<HierarchyUnit> getDirectHierachyUnits(boolean functionalOnly) {
-		List<HierarchyUnit> res = new ArrayList<>();
-		if (functionalOnly)
-			for (HierarchyUnit hu : children) {
-				if (hu.isFunctional())
-					res.add(hu);
-			}
-		else
-			res.addAll(children);
-		return Collections.unmodifiableList(res);
+//		List<HierarchyUnit> res = new ArrayList<>();
+//		if (functionalOnly)
+//			for (HierarchyUnit hu : children) {
+//				if (hu.isFunctional())
+//					res.add(hu);
+//			}
+//		else
+//			res.addAll(children);
+//		return Collections.unmodifiableList(res);
+		return directory.doGetDirectHierarchyUnits(dn, functionalOnly);
 	}
 
 	@Override

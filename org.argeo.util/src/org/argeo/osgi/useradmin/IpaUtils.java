@@ -82,8 +82,8 @@ public class IpaUtils {
 			String dnsZone = hostname.substring(hostname.indexOf('.') + 1);
 			kerberosDomain = dnsBrowser.getRecord("_kerberos." + dnsZone, "TXT");
 			return kerberosDomain;
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot determine Kerberos domain from DNS", e);
+		} catch (NamingException | IOException e) {
+			throw new IllegalStateException("Cannot determine Kerberos domain from DNS", e);
 		}
 
 	}
@@ -98,7 +98,7 @@ public class IpaUtils {
 		}
 
 		if (kerberosRealm == null)
-			throw new UserDirectoryException("No Kerberos domain available for " + uri);
+			throw new IllegalStateException("No Kerberos domain available for " + uri);
 		// TODO intergrate CA certificate in truststore
 		// String schemeToUse = SCHEME_LDAPS;
 		String schemeToUse = UserAdminConf.SCHEME_LDAP;
@@ -109,12 +109,12 @@ public class IpaUtils {
 				ldapHosts = dnsBrowser.getSrvRecordsAsHosts("_ldap._tcp." + kerberosRealm.toLowerCase(),
 						schemeToUse.equals(UserAdminConf.SCHEME_LDAP) ? true : false);
 				if (ldapHosts == null || ldapHosts.size() == 0) {
-					throw new UserDirectoryException("Cannot configure LDAP for IPA " + uri);
+					throw new IllegalStateException("Cannot configure LDAP for IPA " + uri);
 				} else {
 					ldapHostsStr = ldapHosts.get(0);
 				}
 			} catch (NamingException | IOException e) {
-				throw new UserDirectoryException("cannot convert IPA uri " + uri, e);
+				throw new IllegalStateException("Cannot convert IPA uri " + uri, e);
 			}
 		} else {
 			ldapHosts = new ArrayList<>();
@@ -128,7 +128,7 @@ public class IpaUtils {
 				uriStr.append(convertedUri).append(' ');
 			}
 		} catch (URISyntaxException e) {
-			throw new UserDirectoryException("cannot convert IPA uri " + uri, e);
+			throw new IllegalStateException("Cannot convert IPA uri " + uri, e);
 		}
 
 		Hashtable<String, Object> res = new Hashtable<>();

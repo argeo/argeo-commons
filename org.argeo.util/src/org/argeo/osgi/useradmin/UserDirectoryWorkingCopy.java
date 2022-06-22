@@ -27,8 +27,7 @@ class UserDirectoryWorkingCopy {
 	}
 
 	public boolean noModifications() {
-		return newUsers.size() == 0 && modifiedUsers.size() == 0
-				&& deletedUsers.size() == 0;
+		return newUsers.size() == 0 && modifiedUsers.size() == 0 && deletedUsers.size() == 0;
 	}
 
 	public Attributes getAttributes(LdapName dn) {
@@ -40,7 +39,7 @@ class UserDirectoryWorkingCopy {
 	public void startEditing(DirectoryUser user) {
 		LdapName dn = user.getDn();
 		if (modifiedUsers.containsKey(dn))
-			throw new UserDirectoryException("Already editing " + dn);
+			throw new IllegalStateException("Already editing " + dn);
 		modifiedUsers.put(dn, (Attributes) user.getAttributes().clone());
 	}
 

@@ -19,6 +19,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.naming.LdapObjs;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -81,11 +82,11 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			int roleType = roleType(name);
 			DirectoryUser res;
 			if (roleType == Role.GROUP)
-				res = newGroup( name, attrs);
+				res = newGroup(name, attrs);
 			else if (roleType == Role.USER)
-				res = newUser( name, attrs);
+				res = newUser(name, attrs);
 			else
-				throw new UserDirectoryException("Unsupported LDAP type for " + name);
+				throw new IllegalArgumentException("Unsupported LDAP type for " + name);
 			return res;
 		} catch (NameNotFoundException e) {
 			throw e;
@@ -116,10 +117,10 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				DirectoryUser role;
 				if (objectClassAttr.contains(getGroupObjectClass())
 						|| objectClassAttr.contains(getGroupObjectClass().toLowerCase()))
-					role = newGroup( dn, attrs);
+					role = newGroup(dn, attrs);
 				else if (objectClassAttr.contains(getUserObjectClass())
 						|| objectClassAttr.contains(getUserObjectClass().toLowerCase()))
-					role = newUser( dn, attrs);
+					role = newUser(dn, attrs);
 				else {
 //					log.warn("Unsupported LDAP type for " + searchResult.getName());
 					continue results;
@@ -131,9 +132,8 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 			// ignore (typically an unsupported anonymous bind)
 			// TODO better logging
 			return res;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new UserDirectoryException("Cannot get roles for filter " + f, e);
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get roles for filter " + f, e);
 		}
 	}
 
@@ -159,8 +159,8 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				directGroups.add(toDn(searchBase, searchResult));
 			}
 			return directGroups;
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot populate direct members of " + dn, e);
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot populate direct members of " + dn, e);
 		}
 	}
 
@@ -169,7 +169,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		try {
 			ldapConnection.prepareChanges(wc);
 		} catch (NamingException e) {
-			throw new UserDirectoryException("Cannot prepare LDAP", e);
+			throw new IllegalStateException("Cannot prepare LDAP", e);
 		}
 	}
 
@@ -178,7 +178,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		try {
 			ldapConnection.commitChanges(wc);
 		} catch (NamingException e) {
-			throw new UserDirectoryException("Cannot commit LDAP", e);
+			throw new IllegalStateException("Cannot commit LDAP", e);
 		}
 	}
 
@@ -187,11 +187,44 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		// prepare not impacting
 	}
 
-//	@Override
-//	public HierarchyUnit getHierarchyUnit(String path) {
-//		LdapName dn = LdapNameUtils.toLdapName(path);
-//		Attributes attrs = ldapConnection.getAttributes(dn);
-//		
-//	}
+	/*
+	 * HIERARCHY
+	 */
+
+	@Override
+	protected Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
+		List<HierarchyUnit> res = new ArrayList<>();
+		try {
+			String searchFilter = "(|(" + objectClass + "=" + LdapObjs.organizationalUnit.name() + ")(" + objectClass
+					+ "=" + LdapObjs.organization.name() + "))";
+
+			SearchControls searchControls = new SearchControls();
+			searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+
+			NamingEnumeration<SearchResult> results = ldapConnection.search(searchBase, searchFilter, searchControls);
+
+			while (results.hasMoreElements()) {
+				SearchResult searchResult = (SearchResult) results.nextElement();
+				LdapName dn = toDn(searchBase, searchResult);
+				Attributes attrs = searchResult.getAttributes();
+				LdifHierarchyUnit hierarchyUnit = new LdifHierarchyUnit(this, dn, attrs);
+				if (hierarchyUnit.isFunctional())
+					res.add(hierarchyUnit);
+			}
+			return res;
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get direct hierarchy units ", e);
+		}
+	}
+
+	@Override
+	protected HierarchyUnit doGetHierarchyUnit(LdapName dn) {
+		try {
+			Attributes attrs = ldapConnection.getAttributes(dn);
+			return new LdifHierarchyUnit(this, dn, attrs);
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get hierarchy unit " + dn, e);
+		}
+	}
 
 }

@@ -43,7 +43,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 			else
 				this.tokensBaseDn = null;
 		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Cannot initialize " + AggregatingUserAdmin.class, e);
+			throw new IllegalStateException("Cannot initialize " + AggregatingUserAdmin.class, e);
 		}
 	}
 
@@ -170,7 +170,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 		} else {
 			LdapName baseDn = toLdapName(basePath);
 			if (businessRoles.containsKey(baseDn))
-				throw new UserDirectoryException("There is already a user admin for " + baseDn);
+				throw new IllegalStateException("There is already a user admin for " + baseDn);
 			businessRoles.put(baseDn, userDirectory);
 		}
 		userDirectory.init();
@@ -185,7 +185,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 		try {
 			return findUserAdmin(new LdapName(name));
 		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Badly formatted name " + name, e);
+			throw new IllegalArgumentException("Badly formatted name " + name, e);
 		}
 	}
 
@@ -213,9 +213,9 @@ public class AggregatingUserAdmin implements UserAdmin {
 			}
 		}
 		if (res.size() == 0)
-			throw new UserDirectoryException("Cannot find user admin for " + name);
+			throw new IllegalStateException("Cannot find user admin for " + name);
 		if (res.size() > 1)
-			throw new UserDirectoryException("Multiple user admin found for " + name);
+			throw new IllegalStateException("Multiple user admin found for " + name);
 		return res.get(0);
 	}
 
@@ -256,10 +256,10 @@ public class AggregatingUserAdmin implements UserAdmin {
 
 	protected void removeUserDirectory(String basePath) {
 		if (isSystemRolesBaseDn(basePath))
-			throw new UserDirectoryException("System roles cannot be removed ");
+			throw new IllegalArgumentException("System roles cannot be removed ");
 		LdapName baseDn = toLdapName(basePath);
 		if (!businessRoles.containsKey(baseDn))
-			throw new UserDirectoryException("No user directory registered for " + baseDn);
+			throw new IllegalStateException("No user directory registered for " + baseDn);
 		AbstractUserDirectory userDirectory = businessRoles.remove(baseDn);
 		destroy(userDirectory);
 	}

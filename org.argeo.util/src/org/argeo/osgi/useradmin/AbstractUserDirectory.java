@@ -129,6 +129,10 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			disabled = false;
 	}
 
+	/*
+	 * ABSTRACT METHODS
+	 */
+
 	/** Returns the groups this user is a direct member of. */
 	protected abstract List<LdapName> getDirectGroups(LdapName dn);
 
@@ -139,6 +143,14 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	protected abstract List<DirectoryUser> doGetRoles(LdapName searchBase, Filter f, boolean deep);
 
 	protected abstract AbstractUserDirectory scope(User user);
+
+	protected abstract HierarchyUnit doGetHierarchyUnit(LdapName dn);
+
+	protected abstract Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly);
+
+	/*
+	 * INITIALIZATION
+	 */
 
 	public void init() {
 
@@ -500,55 +512,25 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	/*
 	 * HIERARCHY
 	 */
-//	@Override
-//	public int getHierarchyChildCount() {
-//		return 0;
-//	}
-//
-//	@Override
-//	public HierarchyUnit getHierarchyChild(int i) {
-//		throw new IllegalArgumentException("No child hierarchy unit available");
-//	}
-//
-//	@Override
-//	public HierarchyUnit getParent() {
-//		return null;
-//	}
-//
-//	@Override
-//	public int getHierarchyUnitType() {
-//		return 0;
-//	}
-//
-//	@Override
-//	public String getHierarchyUnitName() {
-//		String name = LdapNameUtils.getLastRdnValue(baseDn);
-//		// TODO check ou, o, etc.
-//		return name;
-//	}
-
 	@Override
 	public HierarchyUnit getHierarchyUnit(String path) {
-		throw new UnsupportedOperationException();
+		LdapName dn = pathToName(path);
+		return doGetHierarchyUnit(dn);
 	}
 
 	@Override
 	public HierarchyUnit getHierarchyUnit(Role role) {
-		throw new UnsupportedOperationException();
+		LdapName dn = LdapNameUtils.toLdapName(role.getName());
+		LdapName huDn = LdapNameUtils.getParent(dn);
+		HierarchyUnit hierarchyUnit = doGetHierarchyUnit(huDn);
+		if (hierarchyUnit == null)
+			throw new IllegalStateException("No hierarchy unit found for " + role);
+		return hierarchyUnit;
 	}
-
-//	@Override
-//	public List<? extends Role> getHierarchyUnitRoles(String filter, boolean deep) {
-//		try {
-//			return getRoles(getBaseDn(), filter, deep);
-//		} catch (InvalidSyntaxException e) {
-//			throw new IllegalArgumentException("Cannot filter " + filter + " " + getBaseDn(), e);
-//		}
-//	}
 
 	@Override
 	public Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly) {
-		throw new UnsupportedOperationException();
+		return doGetDirectHierarchyUnits(baseDn, functionalOnly);
 	}
 
 	/*
@@ -562,7 +544,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	protected DirectoryGroup newGroup(LdapName name, Attributes attrs) {
 		if (LdapNameUtils.getParentRdn(name).equals(getSystemRoleBaseRdn()))
 			return new LdifGroup.LdifSystemPermissions(this, name, attrs);
-		
+
 		if (hasObjectClass(attrs, LdapObjs.organization))
 			return new LdifGroup.LdifOrganization(this, name, attrs);
 		else

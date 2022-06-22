@@ -23,8 +23,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.osgi.useradmin.UserDirectoryException;
-
 /** Basic LDIF writer */
 public class LdifWriter {
 	private final static Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
@@ -46,7 +44,7 @@ public class LdifWriter {
 			Rdn nameRdn = name.getRdn(name.size() - 1);
 			Attribute nameAttr = attributes.get(nameRdn.getType());
 			if (!nameAttr.get().equals(nameRdn.getValue()))
-				throw new UserDirectoryException(
+				throw new IllegalArgumentException(
 						"Attribute " + nameAttr.getID() + "=" + nameAttr.get() + " not consistent with DN " + name);
 
 			writer.append(DN + ": ").append(name.toString()).append('\n');
@@ -70,7 +68,7 @@ public class LdifWriter {
 			writer.append('\n');
 			writer.flush();
 		} catch (NamingException e) {
-			throw new UserDirectoryException("Cannot write LDIF", e);
+			throw new IllegalStateException("Cannot write LDIF", e);
 		}
 	}
 

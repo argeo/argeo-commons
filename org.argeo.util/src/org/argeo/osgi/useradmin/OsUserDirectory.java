@@ -15,6 +15,7 @@ import org.argeo.util.naming.LdapAttrs;
 import org.osgi.framework.Filter;
 import org.osgi.service.useradmin.User;
 
+/** Pseudo user directory to be used when logging in as OS user. */
 public class OsUserDirectory extends AbstractUserDirectory {
 	private final String osUsername = System.getProperty("user.name");
 	private final LdapName osUserDn;
@@ -23,12 +24,13 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	public OsUserDirectory(URI uriArg, Dictionary<String, ?> props) {
 		super(uriArg, props, false);
 		try {
-			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + getUserBaseRdn() + "," + getBaseDn());
+			osUserDn = new LdapName(
+					LdapAttrs.uid.name() + "=" + osUsername + "," + getUserBaseRdn() + "," + getBaseDn());
 			Attributes attributes = new BasicAttributes();
 			attributes.put(LdapAttrs.uid.name(), osUsername);
 			osUser = newUser(osUserDn, attributes);
 		} catch (NamingException e) {
-			throw new UserDirectoryException("Cannot create system user", e);
+			throw new IllegalStateException("Cannot create system user", e);
 		}
 	}
 
@@ -61,6 +63,16 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	@Override
 	protected AbstractUserDirectory scope(User user) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	protected HierarchyUnit doGetHierarchyUnit(LdapName dn) {
+		return null;
+	}
+
+	@Override
+	protected Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
+		return new ArrayList<>();
 	}
 
 }

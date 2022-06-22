@@ -195,9 +195,9 @@ abstract class LdifUser implements DirectoryUser {
 
 	protected synchronized void startEditing() {
 		if (frozen)
-			throw new UserDirectoryException("Cannot edit frozen view");
+			throw new IllegalStateException("Cannot edit frozen view");
 		if (getUserAdmin().isReadOnly())
-			throw new UserDirectoryException("User directory is read-only");
+			throw new IllegalStateException("User directory is read-only");
 		assert getModifiedAttributes() == null;
 		getWc().startEditing(this);
 		// modifiedAttributes = (Attributes) publishedAttributes.clone();
@@ -254,7 +254,7 @@ abstract class LdifUser implements DirectoryUser {
 						effectiveKeys.add(id);
 				}
 			} catch (NamingException e) {
-				throw new UserDirectoryException("Cannot initialise attribute dictionary", e);
+				throw new IllegalStateException("Cannot initialise attribute dictionary", e);
 			}
 			if (!credentials)
 				effectiveKeys.add(LdapAttrs.objectClasses.name());
@@ -383,7 +383,7 @@ abstract class LdifUser implements DirectoryUser {
 				else
 					return null;
 			} catch (NamingException e) {
-				throw new UserDirectoryException("Cannot get value for attribute " + key, e);
+				throw new IllegalStateException("Cannot get value for attribute " + key, e);
 			}
 		}
 
@@ -405,7 +405,7 @@ abstract class LdifUser implements DirectoryUser {
 				else
 					return null;
 			} catch (NamingException e) {
-				throw new UserDirectoryException("Cannot remove attribute " + key, e);
+				throw new IllegalStateException("Cannot remove attribute " + key, e);
 			}
 		}
 	}

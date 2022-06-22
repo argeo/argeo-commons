@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
@@ -73,7 +74,7 @@ abstract class LdifGroup extends LdifUser implements DirectoryGroup {
 		for (LdapName ldapName : getMemberNames()) {
 			Role role = findRole(ldapName);
 			if (role == null) {
-				throw new UserDirectoryException("Role " + ldapName + " cannot be added.");
+				throw new IllegalStateException("Role " + ldapName + " not found.");
 			}
 			directMembers.add(role);
 		}
@@ -107,8 +108,8 @@ abstract class LdifGroup extends LdifUser implements DirectoryGroup {
 				roles.add(dn);
 			}
 			return roles;
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot get members", e);
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get members", e);
 		}
 	}
 

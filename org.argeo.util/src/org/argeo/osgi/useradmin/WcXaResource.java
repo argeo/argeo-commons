@@ -22,10 +22,10 @@ class WcXaResource implements XAResource {
 	@Override
 	public synchronized void start(Xid xid, int flags) throws XAException {
 		if (editingXid != null)
-			throw new UserDirectoryException("Already editing " + editingXid);
+			throw new IllegalStateException("Already editing " + editingXid);
 		UserDirectoryWorkingCopy wc = workingCopies.put(xid, new UserDirectoryWorkingCopy());
 		if (wc != null)
-			throw new UserDirectoryException("There is already a working copy for " + xid);
+			throw new IllegalStateException("There is already a working copy for " + xid);
 		this.editingXid = xid;
 	}
 
@@ -43,7 +43,7 @@ class WcXaResource implements XAResource {
 			return null;
 		UserDirectoryWorkingCopy wc = workingCopies.get(editingXid);
 		if (wc == null)
-			throw new UserDirectoryException("No working copy found for " + editingXid);
+			throw new IllegalStateException("No working copy found for " + editingXid);
 		return wc;
 	}
 

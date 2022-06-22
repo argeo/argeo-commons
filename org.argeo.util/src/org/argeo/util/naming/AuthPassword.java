@@ -14,8 +14,6 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.argeo.osgi.useradmin.UserDirectoryException;
-
 /** LDAP authPassword field according to RFC 3112 */
 public class AuthPassword implements CallbackHandler {
 	private final String authScheme;
@@ -118,7 +116,7 @@ public class AuthPassword implements CallbackHandler {
 			}
 			return null;
 		} catch (NamingException e) {
-			throw new UserDirectoryException("Cannot check attribute", e);
+			throw new IllegalStateException("Cannot check attribute", e);
 		}
 	}
 
