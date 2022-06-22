@@ -33,10 +33,8 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
+import org.argeo.osgi.useradmin.DirectoryUserAdmin;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
-import org.argeo.osgi.useradmin.LdapUserAdmin;
-import org.argeo.osgi.useradmin.LdifUserAdmin;
-import org.argeo.osgi.useradmin.OsUserDirectory;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.dns.DnsBrowser;
@@ -95,18 +93,18 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		}
 
 		// Create
-		UserDirectory userDirectory;
-		if (realm != null || DirectoryConf.SCHEME_LDAP.equals(u.getScheme())
-				|| DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
-			userDirectory = new LdapUserAdmin(properties);
-		} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
-			userDirectory = new LdifUserAdmin(u, properties);
-		} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
-			userDirectory = new OsUserDirectory(u, properties);
-			singleUser = true;
-		} else {
-			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
-		}
+		UserDirectory userDirectory = new DirectoryUserAdmin(u, properties);
+//		if (realm != null || DirectoryConf.SCHEME_LDAP.equals(u.getScheme())
+//				|| DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
+//			userDirectory = new LdapUserAdmin(properties);
+//		} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
+//			userDirectory = new LdifUserAdmin(u, properties);
+//		} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
+//			userDirectory = new OsUserDirectory(u, properties);
+//			singleUser = true;
+//		} else {
+//			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
+//		}
 		String basePath = userDirectory.getContext();
 
 		addUserDirectory(userDirectory);

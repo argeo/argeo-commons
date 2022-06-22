@@ -1,8 +1,6 @@
 package org.argeo.osgi.useradmin;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
 
 import javax.naming.NameNotFoundException;
@@ -12,23 +10,23 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.util.directory.ldap.AbstractLdapDirectory;
+import org.argeo.util.directory.ldap.AbstractLdapDirectoryDao;
 import org.argeo.util.directory.ldap.LdapEntry;
 import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
 import org.argeo.util.naming.LdapAttrs;
-import org.osgi.framework.Filter;
-import org.osgi.service.useradmin.User;
 
 /** Pseudo user directory to be used when logging in as OS user. */
-public class OsUserDirectory extends AbstractUserDirectory {
+public class OsUserDirectory extends AbstractLdapDirectoryDao {
 	private final String osUsername = System.getProperty("user.name");
 	private final LdapName osUserDn;
-	private final DirectoryUser osUser;
+	private final LdapEntry osUser;
 
-	public OsUserDirectory(URI uriArg, Dictionary<String, ?> props) {
-		super(uriArg, props, false);
+	public OsUserDirectory(AbstractLdapDirectory directory) {
+		super(directory);
 		try {
-			osUserDn = new LdapName(
-					LdapAttrs.uid.name() + "=" + osUsername + "," + getUserBaseRdn() + "," + getBaseDn());
+			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + directory.getUserBaseRdn() + ","
+					+ directory.getBaseDn());
 			Attributes attributes = new BasicAttributes();
 			attributes.put(LdapAttrs.uid.name(), osUsername);
 			osUser = newUser(osUserDn, attributes);
@@ -38,17 +36,17 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<LdapName> getDirectGroups(LdapName dn) {
+	public List<LdapName> getDirectGroups(LdapName dn) {
 		return new ArrayList<>();
 	}
 
 	@Override
-	protected Boolean daoHasEntry(LdapName dn) {
+	public Boolean daoHasEntry(LdapName dn) {
 		return osUserDn.equals(dn);
 	}
 
 	@Override
-	protected DirectoryUser daoGetEntry(LdapName key) throws NameNotFoundException {
+	public LdapEntry daoGetEntry(LdapName key) throws NameNotFoundException {
 		if (osUserDn.equals(key))
 			return osUser;
 		else
@@ -56,16 +54,11 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<LdapEntry> doGetEntries(LdapName searchBase, Filter f, boolean deep) {
+	public List<LdapEntry> doGetEntries(LdapName searchBase, String f, boolean deep) {
 		List<LdapEntry> res = new ArrayList<>();
-		if (f == null || f.match(osUser.getProperties()))
-			res.add(osUser);
+//		if (f == null || f.match(osUser.getProperties()))
+		res.add(osUser);
 		return res;
-	}
-
-	@Override
-	protected AbstractUserDirectory scope(User user) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -90,4 +83,17 @@ public class OsUserDirectory extends AbstractUserDirectory {
 
 	}
 
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }

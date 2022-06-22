@@ -1,4 +1,4 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory.ldap;
 
 import static org.argeo.util.naming.LdapAttrs.objectClass;
 import static org.argeo.util.naming.LdapObjs.inetOrgPerson;
@@ -29,65 +29,62 @@ import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.util.directory.DirectoryConf;
-import org.argeo.util.directory.DirectoryDigestUtils;
 import org.argeo.util.directory.HierarchyUnit;
-import org.argeo.util.directory.ldap.LdapEntry;
-import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
-import org.argeo.util.directory.ldap.LdapHierarchyUnit;
-import org.argeo.util.directory.ldap.LdifParser;
-import org.argeo.util.directory.ldap.LdifWriter;
 import org.argeo.util.naming.LdapObjs;
 import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.User;
 
 /** A user admin based on a LDIF files. */
-public class LdifUserAdmin extends AbstractUserDirectory {
-	private NavigableMap<LdapName, LdapEntry> users = new TreeMap<>();
-	private NavigableMap<LdapName, LdapEntry> groups = new TreeMap<>();
+public class LdifDao extends AbstractLdapDirectoryDao {
+//	private NavigableMap<LdapName, LdapEntry> users = new TreeMap<>();
+//	private NavigableMap<LdapName, LdapEntry> groups = new TreeMap<>();
+	private NavigableMap<LdapName, LdapEntry> entries = new TreeMap<>();
 
 	private NavigableMap<LdapName, LdapHierarchyUnit> hierarchy = new TreeMap<>();
 //	private List<HierarchyUnit> rootHierarchyUnits = new ArrayList<>();
 
-	public LdifUserAdmin(String uri, String baseDn) {
-		this(fromUri(uri, baseDn), false);
+//	public LdifUserAdmin(String uri, String baseDn) {
+//		this(fromUri(uri, baseDn), false);
+//	}
+
+	public LdifDao(AbstractLdapDirectory directory) {
+		super(directory);
 	}
 
-	public LdifUserAdmin(Dictionary<String, ?> properties) {
-		this(properties, false);
-	}
+//	protected LdifUserAdmin(Hashtable<String, ?> properties, boolean scoped) {
+//		super( properties, scoped);
+//	}
 
-	protected LdifUserAdmin(Dictionary<String, ?> properties, boolean scoped) {
-		super(null, properties, scoped);
-	}
+//	public LdifUserAdmin(URI uri, Dictionary<String, ?> properties) {
+//		super(uri, properties, false);
+//	}
 
-	public LdifUserAdmin(URI uri, Dictionary<String, ?> properties) {
-		super(uri, properties, false);
-	}
-
-	@Override
-	protected AbstractUserDirectory scope(User user) {
-		Dictionary<String, Object> credentials = user.getCredentials();
-		String username = (String) credentials.get(SHARED_STATE_USERNAME);
-		if (username == null)
-			username = user.getName();
-		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
-		byte[] pwd = (byte[]) pwdCred;
-		if (pwd != null) {
-			char[] password = DirectoryDigestUtils.bytesToChars(pwd);
-			User directoryUser = (User) getRole(username);
-			if (!directoryUser.hasCredential(null, password))
-				throw new IllegalStateException("Invalid credentials");
-		} else {
-			throw new IllegalStateException("Password is required");
-		}
-		Dictionary<String, Object> properties = cloneProperties();
-		properties.put(DirectoryConf.readOnly.name(), "true");
-		LdifUserAdmin scopedUserAdmin = new LdifUserAdmin(properties, true);
-		scopedUserAdmin.groups = Collections.unmodifiableNavigableMap(groups);
-		scopedUserAdmin.users = Collections.unmodifiableNavigableMap(users);
-		return scopedUserAdmin;
-	}
+//	@Override
+//	protected AbstractUserDirectory scope(User user) {
+//		Dictionary<String, Object> credentials = user.getCredentials();
+//		String username = (String) credentials.get(SHARED_STATE_USERNAME);
+//		if (username == null)
+//			username = user.getName();
+//		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
+//		byte[] pwd = (byte[]) pwdCred;
+//		if (pwd != null) {
+//			char[] password = DirectoryDigestUtils.bytesToChars(pwd);
+//			User directoryUser = (User) getRole(username);
+//			if (!directoryUser.hasCredential(null, password))
+//				throw new IllegalStateException("Invalid credentials");
+//		} else {
+//			throw new IllegalStateException("Password is required");
+//		}
+//		Dictionary<String, Object> properties = cloneProperties();
+//		properties.put(DirectoryConf.readOnly.name(), "true");
+//		LdifUserAdmin scopedUserAdmin = new LdifUserAdmin(properties, true);
+////		scopedUserAdmin.groups = Collections.unmodifiableNavigableMap(groups);
+////		scopedUserAdmin.users = Collections.unmodifiableNavigableMap(users);
+//		scopedUserAdmin.entries = Collections.unmodifiableNavigableMap(entries);
+//		return scopedUserAdmin;
+//	}
 
 	private static Dictionary<String, Object> fromUri(String uri, String baseDn) {
 		Hashtable<String, Object> res = new Hashtable<String, Object>();
@@ -99,7 +96,7 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	public void init() {
 
 		try {
-			URI u = new URI(getUri());
+			URI u = new URI(getDirectory().getUri());
 			if (u.getScheme().equals("file")) {
 				File file = new File(u);
 				if (!file.exists())
@@ -107,19 +104,20 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			}
 			load(u.toURL().openStream());
 		} catch (IOException | URISyntaxException e) {
-			throw new IllegalStateException("Cannot open URL " + getUri(), e);
+			throw new IllegalStateException("Cannot open URL " + getDirectory().getUri(), e);
 		}
 	}
 
 	public void save() {
-		if (getUri() == null)
+		if (getDirectory().getUri() == null)
 			throw new IllegalStateException("Cannot save LDIF user admin: no URI is set");
-		if (isReadOnly())
-			throw new IllegalStateException("Cannot save LDIF user admin: " + getUri() + " is read-only");
-		try (FileOutputStream out = new FileOutputStream(new File(new URI(getUri())))) {
+		if (getDirectory().isReadOnly())
+			throw new IllegalStateException(
+					"Cannot save LDIF user admin: " + getDirectory().getUri() + " is read-only");
+		try (FileOutputStream out = new FileOutputStream(new File(new URI(getDirectory().getUri())))) {
 			save(out);
 		} catch (IOException | URISyntaxException e) {
-			throw new IllegalStateException("Cannot save user admin to " + getUri(), e);
+			throw new IllegalStateException("Cannot save user admin to " + getDirectory().getUri(), e);
 		}
 	}
 
@@ -128,19 +126,22 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			LdifWriter ldifWriter = new LdifWriter(out);
 			for (LdapName name : hierarchy.keySet())
 				ldifWriter.writeEntry(name, hierarchy.get(name).getAttributes());
-			for (LdapName name : groups.keySet())
-				ldifWriter.writeEntry(name, groups.get(name).getAttributes());
-			for (LdapName name : users.keySet())
-				ldifWriter.writeEntry(name, users.get(name).getAttributes());
+//			for (LdapName name : groups.keySet())
+//				ldifWriter.writeEntry(name, groups.get(name).getAttributes());
+//			for (LdapName name : users.keySet())
+//				ldifWriter.writeEntry(name, users.get(name).getAttributes());
+			for (LdapName name : entries.keySet())
+				ldifWriter.writeEntry(name, entries.get(name).getAttributes());
 		} finally {
 			out.close();
 		}
 	}
 
-	protected void load(InputStream in) {
+	public void load(InputStream in) {
 		try {
-			users.clear();
-			groups.clear();
+//			users.clear();
+//			groups.clear();
+			entries.clear();
 			hierarchy.clear();
 
 			LdifParser ldifParser = new LdifParser();
@@ -164,21 +165,21 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 					String objectClass = objectClasses.next().toString();
 					// System.out.println(" " + objectClass);
 					if (objectClass.toLowerCase().equals(inetOrgPerson.name().toLowerCase())) {
-						users.put(key, newUser(key, attributes));
+						entries.put(key, newUser(key, attributes));
 						break objectClasses;
-					} else if (objectClass.toLowerCase().equals(getGroupObjectClass().toLowerCase())) {
-						groups.put(key, newGroup(key, attributes));
+					} else if (objectClass.toLowerCase().equals(getDirectory().getGroupObjectClass().toLowerCase())) {
+						entries.put(key, newGroup(key, attributes));
 						break objectClasses;
 //					} else if (objectClass.equalsIgnoreCase(LdapObjs.organization.name())) {
 //						// we only consider organizations which are not groups
 //						hierarchy.put(key, new LdifHierarchyUnit(this, key, HierarchyUnit.ORGANIZATION, attributes));
 //						break objectClasses;
 					} else if (objectClass.equalsIgnoreCase(LdapObjs.organizationalUnit.name())) {
-//						String name = key.getRdn(key.size() - 1).toString();
+//						String name = key.getRdn(key.size() - 1).toStrindirectoryDaog();
 //						if (getUserBase().equalsIgnoreCase(name) || getGroupBase().equalsIgnoreCase(name))
 //							break objectClasses; // skip
 						// TODO skip if it does not contain groups or users
-						hierarchy.put(key, new LdapHierarchyUnit(this, key, attributes));
+						hierarchy.put(key, new LdapHierarchyUnit(getDirectory(), key, attributes));
 						break objectClasses;
 					}
 				}
@@ -203,10 +204,12 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	public void destroy() {
-		if (users == null || groups == null)
-			throw new IllegalStateException("User directory " + getBaseDn() + " is already destroyed");
-		users = null;
-		groups = null;
+//		if (users == null || groups == null)
+		if (entries == null)
+			throw new IllegalStateException("User directory " + getDirectory().getBaseDn() + " is already destroyed");
+//		users = null;
+//		groups = null;
+		entries = null;
 	}
 
 	/*
@@ -214,64 +217,82 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	 */
 
 	@Override
-	protected DirectoryUser daoGetEntry(LdapName key) throws NameNotFoundException {
-		if (groups.containsKey(key))
-			return (DirectoryUser) groups.get(key);
-		if (users.containsKey(key))
-			return (DirectoryUser) users.get(key);
+	public LdapEntry daoGetEntry(LdapName key) throws NameNotFoundException {
+//		if (groups.containsKey(key))
+//			return groups.get(key);
+//		if (users.containsKey(key))
+//			return users.get(key);
+		if (entries.containsKey(key))
+			return entries.get(key);
 		throw new NameNotFoundException(key + " not persisted");
 	}
 
 	@Override
-	protected Boolean daoHasEntry(LdapName dn) {
-		return users.containsKey(dn) || groups.containsKey(dn);
+	public Boolean daoHasEntry(LdapName dn) {
+		return entries.containsKey(dn);// || groups.containsKey(dn);
 	}
 
 	@Override
-	protected List<LdapEntry> doGetEntries(LdapName searchBase, Filter f, boolean deep) {
+	public List<LdapEntry> doGetEntries(LdapName searchBase, String f, boolean deep) {
 		Objects.requireNonNull(searchBase);
 		ArrayList<LdapEntry> res = new ArrayList<>();
-		if (f == null && deep && getBaseDn().equals(searchBase)) {
-			res.addAll(users.values());
-			res.addAll(groups.values());
+		if (f == null && deep && getDirectory().getBaseDn().equals(searchBase)) {
+//			res.addAll(users.values());
+//			res.addAll(groups.values());
+			res.addAll(entries.values());
 		} else {
-			filterRoles(users, searchBase, f, deep, res);
-			filterRoles(groups, searchBase, f, deep, res);
+//			filterRoles(users, searchBase, f, deep, res);
+//			filterRoles(groups, searchBase, f, deep, res);
+			filterRoles(entries, searchBase, f, deep, res);
 		}
 		return res;
 	}
 
-	private void filterRoles(SortedMap<LdapName, ? extends LdapEntry> map, LdapName searchBase, Filter f, boolean deep,
+	private void filterRoles(SortedMap<LdapName, ? extends LdapEntry> map, LdapName searchBase, String f, boolean deep,
 			List<LdapEntry> res) {
-		// TODO reduce map with search base ?
-		roles: for (LdapEntry user : map.values()) {
-			LdapName dn = user.getDn();
-			if (dn.startsWith(searchBase)) {
-				if (!deep && dn.size() != (searchBase.size() + 1))
-					continue roles;
-				if (f == null)
-					res.add(user);
-				else {
-					if (f.match(((DirectoryUser) user).getProperties()))
+		// FIXME get rid of OSGi references
+		try {
+			// TODO reduce map with search base ?
+			Filter filter = f != null ? FrameworkUtil.createFilter(f) : null;
+			roles: for (LdapEntry user : map.values()) {
+				LdapName dn = user.getDn();
+				if (dn.startsWith(searchBase)) {
+					if (!deep && dn.size() != (searchBase.size() + 1))
+						continue roles;
+					if (filter == null)
 						res.add(user);
+					else {
+						if (user instanceof Role) {
+							if (filter.match(((Role) user).getProperties()))
+								res.add(user);
+						}
+					}
 				}
 			}
+		} catch (InvalidSyntaxException e) {
+			throw new IllegalArgumentException("Cannot create filter " + f, e);
 		}
 
 	}
 
 	@Override
-	protected List<LdapName> getDirectGroups(LdapName dn) {
+	public List<LdapName> getDirectGroups(LdapName dn) {
 		List<LdapName> directGroups = new ArrayList<LdapName>();
-		for (LdapName name : groups.keySet()) {
-			DirectoryGroup group;
+		entries: for (LdapName name : entries.keySet()) {
+			LdapEntry group;
 			try {
-				group = (DirectoryGroup) daoGetEntry(name);
+				LdapEntry entry = daoGetEntry(name);
+				if (AbstractLdapDirectory.hasObjectClass(entry.getAttributes(), getDirectory().getGroupObjectClass())) {
+					group = entry;
+				} else {
+					continue entries;
+				}
 			} catch (NameNotFoundException e) {
 				throw new IllegalArgumentException("Group " + dn + " not found", e);
 			}
-			if (group.getMemberNames().contains(dn))
+			if (group.getReferences(getDirectory().getMemberAttributeId()).contains(dn)) {
 				directGroups.add(group.getDn());
+			}
 		}
 		return directGroups;
 	}
@@ -280,29 +301,33 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	public void prepare(LdapEntryWorkingCopy wc) {
 		// delete
 		for (LdapName dn : wc.getDeletedData().keySet()) {
-			if (users.containsKey(dn))
-				users.remove(dn);
-			else if (groups.containsKey(dn))
-				groups.remove(dn);
+			if (entries.containsKey(dn))
+				entries.remove(dn);
+//			if (users.containsKey(dn))
+//				users.remove(dn);
+//			else if (groups.containsKey(dn))
+//				groups.remove(dn);
 			else
 				throw new IllegalStateException("User to delete not found " + dn);
 		}
 		// add
 		for (LdapName dn : wc.getNewData().keySet()) {
-			DirectoryUser user = (DirectoryUser) wc.getNewData().get(dn);
-			if (users.containsKey(dn) || groups.containsKey(dn))
+			LdapEntry user = (LdapEntry) wc.getNewData().get(dn);
+//			if (users.containsKey(dn) || groups.containsKey(dn))
+			if (entries.containsKey(dn))
 				throw new IllegalStateException("User to create found " + dn);
-			else if (Role.USER == user.getType())
-				users.put(dn, user);
-			else if (Role.GROUP == user.getType())
-				groups.put(dn, (DirectoryGroup) user);
-			else
-				throw new IllegalStateException("Unsupported role type " + user.getType() + " for new user " + dn);
+			entries.put(dn, user);
+//			else if (Role.USER == user.getType())
+//				users.put(dn, user);
+//			else if (Role.GROUP == user.getType())
+//				groups.put(dn, (DirectoryGroup) user);
+//			else
+//				throw new IllegalStateException("Unsupported role type " + user.getType() + " for new user " + dn);
 		}
 		// modify
 		for (LdapName dn : wc.getModifiedData().keySet()) {
 			Attributes modifiedAttrs = wc.getModifiedData().get(dn);
-			DirectoryUser user;
+			LdapEntry user;
 			try {
 				user = daoGetEntry(dn);
 			} catch (NameNotFoundException e) {
@@ -359,6 +384,10 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 			}
 		}
 		return res;
+	}
+
+	public void scope(LdifDao scoped) {
+		scoped.entries = Collections.unmodifiableNavigableMap(entries);
 	}
 
 //	@Override

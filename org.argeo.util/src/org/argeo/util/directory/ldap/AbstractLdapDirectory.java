@@ -23,19 +23,17 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.transaction.xa.XAResource;
 
+import org.argeo.osgi.useradmin.OsUserDirectory;
 import org.argeo.util.directory.Directory;
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.directory.HierarchyUnit;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
 import org.argeo.util.transaction.WorkControl;
-import org.argeo.util.transaction.WorkingCopyProcessor;
 import org.argeo.util.transaction.WorkingCopyXaResource;
 import org.argeo.util.transaction.XAResourceProvider;
-import org.osgi.framework.Filter;
 
-public abstract class AbstractLdapDirectory
-		implements Directory, WorkingCopyProcessor<LdapEntryWorkingCopy>, XAResourceProvider {
+public abstract class AbstractLdapDirectory implements Directory, XAResourceProvider {
 	protected static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
 	protected static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
 
@@ -43,6 +41,7 @@ public abstract class AbstractLdapDirectory
 	protected final Hashtable<String, Object> properties;
 	private final Rdn userBaseRdn, groupBaseRdn, systemRoleBaseRdn;
 	private final String userObjectClass, groupObjectClass;
+	private String memberAttributeId = "member";
 
 	private final boolean readOnly;
 	private final boolean disabled;
@@ -52,12 +51,13 @@ public abstract class AbstractLdapDirectory
 
 	private final boolean scoped;
 
-	private String memberAttributeId = "member";
 	private List<String> credentialAttributeIds = Arrays
 			.asList(new String[] { LdapAttrs.userPassword.name(), LdapAttrs.authPassword.name() });
 
 	private WorkControl transactionControl;
-	private WorkingCopyXaResource<LdapEntryWorkingCopy> xaResource = new WorkingCopyXaResource<>(this);
+	private WorkingCopyXaResource<LdapEntryWorkingCopy> xaResource;
+
+	private LdapDirectoryDao directoryDao;
 
 	public AbstractLdapDirectory(URI uriArg, Dictionary<String, ?> props, boolean scoped) {
 		this.properties = new Hashtable<String, Object>();
@@ -82,8 +82,9 @@ public abstract class AbstractLdapDirectory
 		forcedPassword = DirectoryConf.forcedPassword.getValue(properties);
 
 		userObjectClass = DirectoryConf.userObjectClass.getValue(properties);
-		String userBase = DirectoryConf.userBase.getValue(properties);
 		groupObjectClass = DirectoryConf.groupObjectClass.getValue(properties);
+
+		String userBase = DirectoryConf.userBase.getValue(properties);
 		String groupBase = DirectoryConf.groupBase.getValue(properties);
 		String systemRoleBase = DirectoryConf.systemRoleBase.getValue(properties);
 		try {
@@ -112,21 +113,56 @@ public abstract class AbstractLdapDirectory
 			disabled = Boolean.parseBoolean(disabledStr);
 		else
 			disabled = false;
+
+		URI u = URI.create(uri);
+		if (!getRealm().isEmpty() || DirectoryConf.SCHEME_LDAP.equals(u.getScheme())
+				|| DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
+			directoryDao = new LdapDao(this);
+		} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
+			directoryDao = new LdifDao(this);
+		} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
+			directoryDao = new OsUserDirectory(this);
+			// singleUser = true;
+		} else {
+			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
+		}
+		xaResource = new WorkingCopyXaResource<>(directoryDao);
 	}
 
 	/*
 	 * ABSTRACT METHODS
 	 */
 
-	public abstract HierarchyUnit doGetHierarchyUnit(LdapName dn);
+//	public abstract HierarchyUnit doGetHierarchyUnit(LdapName dn);
+//
+//	public abstract Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly);
+//
+//	protected abstract Boolean daoHasEntry(LdapName dn);
+//
+//	protected abstract LdapEntry daoGetEntry(LdapName key) throws NameNotFoundException;
+//
+//	protected abstract List<LdapEntry> doGetEntries(LdapName searchBase, Filter f, boolean deep);
+//
+//	/** Returns the groups this user is a direct member of. */
+//	protected abstract List<LdapName> getDirectGroups(LdapName dn);
+	/*
+	 * INITIALIZATION
+	 */
 
-	public abstract Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly);
+	public void init() {
+		getDirectoryDao().init();
+	}
 
-	protected abstract Boolean daoHasEntry(LdapName dn);
+	public void destroy() {
+		getDirectoryDao().destroy();
+	}
 
-	protected abstract LdapEntry daoGetEntry(LdapName key) throws NameNotFoundException;
+	/*
+	 * CREATION
+	 */
+	protected abstract LdapEntry newUser(LdapName name, Attributes attrs);
 
-	protected abstract List<LdapEntry> doGetEntries(LdapName searchBase, Filter f, boolean deep);
+	protected abstract LdapEntry newGroup(LdapName name, Attributes attrs);
 
 	/*
 	 * EDITION
@@ -162,9 +198,73 @@ public abstract class AbstractLdapDirectory
 		return xaResource;
 	}
 
-	@Override
-	public LdapEntryWorkingCopy newWorkingCopy() {
-		return new LdapEntryWorkingCopy();
+	public boolean removeEntry(LdapName dn) {
+		checkEdit();
+		LdapEntryWorkingCopy wc = getWorkingCopy();
+		boolean actuallyDeleted;
+		if (getDirectoryDao().daoHasEntry(dn) || wc.getNewData().containsKey(dn)) {
+			LdapEntry user = doGetRole(dn);
+			wc.getDeletedData().put(dn, user);
+			actuallyDeleted = true;
+		} else {// just removing from groups (e.g. system roles)
+			actuallyDeleted = false;
+		}
+		for (LdapName groupDn : getDirectoryDao().getDirectGroups(dn)) {
+			LdapEntry group = doGetRole(groupDn);
+			group.getAttributes().get(getMemberAttributeId()).remove(dn.toString());
+		}
+		return actuallyDeleted;
+	}
+
+	/*
+	 * RETRIEVAL
+	 */
+
+	protected LdapEntry doGetRole(LdapName dn) {
+		LdapEntryWorkingCopy wc = getWorkingCopy();
+		LdapEntry user;
+		try {
+			user = getDirectoryDao().daoGetEntry(dn);
+		} catch (NameNotFoundException e) {
+			user = null;
+		}
+		if (wc != null) {
+			if (user == null && wc.getNewData().containsKey(dn))
+				user = wc.getNewData().get(dn);
+			else if (wc.getDeletedData().containsKey(dn))
+				user = null;
+		}
+		return user;
+	}
+
+	protected void collectGroups(LdapEntry user, List<LdapEntry> allRoles) {
+		Attributes attrs = user.getAttributes();
+		// TODO centralize attribute name
+		Attribute memberOf = attrs.get(LdapAttrs.memberOf.name());
+		// if user belongs to this directory, we only check memberOf
+		if (memberOf != null && user.getDn().startsWith(getBaseDn())) {
+			try {
+				NamingEnumeration<?> values = memberOf.getAll();
+				while (values.hasMore()) {
+					Object value = values.next();
+					LdapName groupDn = new LdapName(value.toString());
+					LdapEntry group = doGetRole(groupDn);
+					if (group != null)
+						allRoles.add(group);
+				}
+			} catch (NamingException e) {
+				throw new IllegalStateException("Cannot get memberOf groups for " + user, e);
+			}
+		} else {
+			for (LdapName groupDn : getDirectoryDao().getDirectGroups(user.getDn())) {
+				// TODO check for loops
+				LdapEntry group = doGetRole(groupDn);
+				if (group != null) {
+					allRoles.add(group);
+					collectGroups(group, allRoles);
+				}
+			}
+		}
 	}
 
 	/*
@@ -173,12 +273,12 @@ public abstract class AbstractLdapDirectory
 	@Override
 	public HierarchyUnit getHierarchyUnit(String path) {
 		LdapName dn = pathToName(path);
-		return doGetHierarchyUnit(dn);
+		return directoryDao.doGetHierarchyUnit(dn);
 	}
 
 	@Override
 	public Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly) {
-		return doGetDirectHierarchyUnits(baseDn, functionalOnly);
+		return directoryDao.doGetDirectHierarchyUnits(baseDn, functionalOnly);
 	}
 
 	/*
@@ -239,20 +339,23 @@ public abstract class AbstractLdapDirectory
 	/*
 	 * UTILITIES
 	 */
-
 	protected static boolean hasObjectClass(Attributes attrs, LdapObjs objectClass) {
+		return hasObjectClass(attrs, objectClass.name());
+	}
+
+	protected static boolean hasObjectClass(Attributes attrs, String objectClass) {
 		try {
 			Attribute attr = attrs.get(LdapAttrs.objectClass.name());
 			NamingEnumeration<?> en = attr.getAll();
 			while (en.hasMore()) {
 				String v = en.next().toString();
-				if (v.equalsIgnoreCase(objectClass.name()))
+				if (v.equalsIgnoreCase(objectClass))
 					return true;
 
 			}
 			return false;
 		} catch (NamingException e) {
-			throw new IllegalStateException("Cannot search for objectClass " + objectClass.name(), e);
+			throw new IllegalStateException("Cannot search for objectClass " + objectClass, e);
 		}
 	}
 
@@ -294,7 +397,7 @@ public abstract class AbstractLdapDirectory
 		return Optional.of(realm.toString());
 	}
 
-	protected LdapName getBaseDn() {
+	public LdapName getBaseDn() {
 		return (LdapName) baseDn.clone();
 	}
 
@@ -306,21 +409,8 @@ public abstract class AbstractLdapDirectory
 		return disabled;
 	}
 
-	/** dn can be null, in that case a default should be returned. */
-	public String getUserObjectClass() {
-		return userObjectClass;
-	}
-
 	public Rdn getUserBaseRdn() {
 		return userBaseRdn;
-	}
-
-	protected String newUserObjectClass(LdapName dn) {
-		return getUserObjectClass();
-	}
-
-	public String getGroupObjectClass() {
-		return groupObjectClass;
 	}
 
 	public Rdn getGroupBaseRdn() {
@@ -347,16 +437,29 @@ public abstract class AbstractLdapDirectory
 		return scoped;
 	}
 
-	public String getMemberAttributeId() {
-		return memberAttributeId;
-	}
-
 	public List<String> getCredentialAttributeIds() {
 		return credentialAttributeIds;
 	}
 
-	protected String getUri() {
+	public String getUri() {
 		return uri;
+	}
+
+	public LdapDirectoryDao getDirectoryDao() {
+		return directoryDao;
+	}
+
+	/** dn can be null, in that case a default should be returned. */
+	public String getUserObjectClass() {
+		return userObjectClass;
+	}
+
+	public String getGroupObjectClass() {
+		return groupObjectClass;
+	}
+
+	public String getMemberAttributeId() {
+		return memberAttributeId;
 	}
 
 	/*

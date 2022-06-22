@@ -23,6 +23,7 @@ import javax.naming.ldap.LdapName;
 
 import org.argeo.util.directory.DirectoryDigestUtils;
 import org.argeo.util.directory.Person;
+import org.argeo.util.directory.ldap.AbstractLdapDirectory;
 import org.argeo.util.directory.ldap.AbstractLdapEntry;
 import org.argeo.util.directory.ldap.AuthPassword;
 import org.argeo.util.naming.LdapAttrs;
@@ -34,7 +35,7 @@ abstract class LdifUser extends AbstractLdapEntry implements DirectoryUser {
 	private final AttributeDictionary properties;
 	private final AttributeDictionary credentials;
 
-	LdifUser(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
+	LdifUser(AbstractLdapDirectory userAdmin, LdapName dn, Attributes attributes) {
 		super(userAdmin, dn, attributes);
 		properties = new AttributeDictionary(false);
 		credentials = new AttributeDictionary(true);
@@ -160,8 +161,8 @@ abstract class LdifUser extends AbstractLdapEntry implements DirectoryUser {
 //		return hashedPassword;
 //	}
 
-	protected AbstractUserDirectory getUserAdmin() {
-		return (AbstractUserDirectory) getDirectory();
+	protected DirectoryUserAdmin getUserAdmin() {
+		return (DirectoryUserAdmin) getDirectory();
 	}
 
 	private class AttributeDictionary extends Dictionary<String, Object> {
@@ -357,7 +358,7 @@ abstract class LdifUser extends AbstractLdapEntry implements DirectoryUser {
 
 	static class LdifPerson extends LdifUser implements Person {
 
-		public LdifPerson(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
+		public LdifPerson(DirectoryUserAdmin userAdmin, LdapName dn, Attributes attributes) {
 			super(userAdmin, dn, attributes);
 		}
 

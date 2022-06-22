@@ -17,10 +17,6 @@ public interface Directory {
 
 	boolean isDisabled();
 
-	String getUserObjectClass();
-
-	String getGroupObjectClass();
-
 	Optional<String> getRealm();
 
 	void setTransactionControl(WorkControl transactionControl);

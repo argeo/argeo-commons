@@ -1,14 +1,12 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory.ldap;
 
 import static org.argeo.util.naming.LdapAttrs.objectClass;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
 
 import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.Binding;
-import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -18,60 +16,57 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
-import org.argeo.util.directory.DirectoryDigestUtils;
 import org.argeo.util.directory.HierarchyUnit;
-import org.argeo.util.directory.ldap.LdapConnection;
-import org.argeo.util.directory.ldap.LdapEntry;
-import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
-import org.argeo.util.directory.ldap.LdapHierarchyUnit;
 import org.argeo.util.naming.LdapObjs;
-import org.osgi.framework.Filter;
-import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.User;
 
 /** A user admin based on a LDAP server. */
-public class LdapUserAdmin extends AbstractUserDirectory {
+public class LdapDao extends AbstractLdapDirectoryDao {
 	private LdapConnection ldapConnection;
 
-	public LdapUserAdmin(Dictionary<String, ?> properties) {
-		this(properties, false);
+//	public LdapUserAdmin(Dictionary<String, ?> properties) {
+//		this(properties, false);
+//	}
+
+	public LdapDao(AbstractLdapDirectory directory) {
+		super(directory);
 	}
 
-	public LdapUserAdmin(Dictionary<String, ?> properties, boolean scoped) {
-		super(null, properties, scoped);
-		ldapConnection = new LdapConnection(getUri().toString(), properties);
+	@Override
+	public void init() {
+		ldapConnection = new LdapConnection(getDirectory().getUri().toString(), getDirectory().getProperties());
 	}
 
 	public void destroy() {
 		ldapConnection.destroy();
 	}
 
-	@Override
-	protected AbstractUserDirectory scope(User user) {
-		Dictionary<String, Object> credentials = user.getCredentials();
-		String username = (String) credentials.get(SHARED_STATE_USERNAME);
-		if (username == null)
-			username = user.getName();
-		Dictionary<String, Object> properties = cloneProperties();
-		properties.put(Context.SECURITY_PRINCIPAL, username.toString());
-		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
-		byte[] pwd = (byte[]) pwdCred;
-		if (pwd != null) {
-			char[] password = DirectoryDigestUtils.bytesToChars(pwd);
-			properties.put(Context.SECURITY_CREDENTIALS, new String(password));
-		} else {
-			properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
-		}
-		return new LdapUserAdmin(properties, true);
-	}
+//	@Override
+//	protected AbstractUserDirectory scope(User user) {
+//		Dictionary<String, Object> credentials = user.getCredentials();
+//		String username = (String) credentials.get(SHARED_STATE_USERNAME);
+//		if (username == null)
+//			username = user.getName();
+//		Dictionary<String, Object> properties = cloneProperties();
+//		properties.put(Context.SECURITY_PRINCIPAL, username.toString());
+//		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
+//		byte[] pwd = (byte[]) pwdCred;
+//		if (pwd != null) {
+//			char[] password = DirectoryDigestUtils.bytesToChars(pwd);
+//			properties.put(Context.SECURITY_CREDENTIALS, new String(password));
+//		} else {
+//			properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
+//		}
+//		return new LdapUserAdmin(properties, true);
+//	}
 
 //	protected InitialLdapContext getLdapContext() {
 //		return initialLdapContext;
 //	}
 
 	@Override
-	protected Boolean daoHasEntry(LdapName dn) {
+	public Boolean daoHasEntry(LdapName dn) {
 		try {
 			return daoGetEntry(dn) != null;
 		} catch (NameNotFoundException e) {
@@ -80,19 +75,19 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected DirectoryUser daoGetEntry(LdapName name) throws NameNotFoundException {
+	public LdapEntry daoGetEntry(LdapName name) throws NameNotFoundException {
 		try {
 			Attributes attrs = ldapConnection.getAttributes(name);
 			if (attrs.size() == 0)
 				return null;
-			int roleType = roleType(name);
-			DirectoryUser res;
-			if (roleType == Role.GROUP)
+//			int roleType = roleType(name);
+			LdapEntry res;
+			if (isGroup(name))
 				res = newGroup(name, attrs);
-			else if (roleType == Role.USER)
-				res = newUser(name, attrs);
 			else
-				throw new IllegalArgumentException("Unsupported LDAP type for " + name);
+				res = newUser(name, attrs);
+//			else
+//				throw new IllegalArgumentException("Unsupported LDAP type for " + name);
 			return res;
 		} catch (NameNotFoundException e) {
 			throw e;
@@ -101,13 +96,25 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 		}
 	}
 
+	protected boolean isGroup(LdapName dn) {
+		Rdn technicalRdn = LdapNameUtils.getParentRdn(dn);
+		if (getDirectory().getGroupBaseRdn().equals(technicalRdn)
+				|| getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
+			return true;
+		else if (getDirectory().getUserBaseRdn().equals(technicalRdn))
+			return false;
+		else
+			throw new IllegalArgumentException(
+					"Cannot dind role type, " + technicalRdn + " is not a technical RDN for " + dn);
+	}
+
 	@Override
-	protected List<LdapEntry> doGetEntries(LdapName searchBase, Filter f, boolean deep) {
+	public List<LdapEntry> doGetEntries(LdapName searchBase, String f, boolean deep) {
 		ArrayList<LdapEntry> res = new ArrayList<>();
 		try {
 			String searchFilter = f != null ? f.toString()
-					: "(|(" + objectClass + "=" + getUserObjectClass() + ")(" + objectClass + "="
-							+ getGroupObjectClass() + "))";
+					: "(|(" + objectClass + "=" + getDirectory().getUserObjectClass() + ")(" + objectClass + "="
+							+ getDirectory().getGroupObjectClass() + "))";
 			SearchControls searchControls = new SearchControls();
 			// FIXME make one level consistent with deep
 			searchControls.setSearchScope(deep ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE);
@@ -120,12 +127,12 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				Attributes attrs = searchResult.getAttributes();
 				Attribute objectClassAttr = attrs.get(objectClass.name());
 				LdapName dn = toDn(searchBase, searchResult);
-				DirectoryUser role;
-				if (objectClassAttr.contains(getGroupObjectClass())
-						|| objectClassAttr.contains(getGroupObjectClass().toLowerCase()))
+				LdapEntry role;
+				if (objectClassAttr.contains(getDirectory().getGroupObjectClass())
+						|| objectClassAttr.contains(getDirectory().getGroupObjectClass().toLowerCase()))
 					role = newGroup(dn, attrs);
-				else if (objectClassAttr.contains(getUserObjectClass())
-						|| objectClassAttr.contains(getUserObjectClass().toLowerCase()))
+				else if (objectClassAttr.contains(getDirectory().getUserObjectClass())
+						|| objectClassAttr.contains(getDirectory().getUserObjectClass().toLowerCase()))
 					role = newUser(dn, attrs);
 				else {
 //					log.warn("Unsupported LDAP type for " + searchResult.getName());
@@ -148,16 +155,16 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<LdapName> getDirectGroups(LdapName dn) {
+	public List<LdapName> getDirectGroups(LdapName dn) {
 		List<LdapName> directGroups = new ArrayList<LdapName>();
 		try {
-			String searchFilter = "(&(" + objectClass + "=" + getGroupObjectClass() + ")(" + getMemberAttributeId()
-					+ "=" + dn + "))";
+			String searchFilter = "(&(" + objectClass + "=" + getDirectory().getGroupObjectClass() + ")("
+					+ getDirectory().getMemberAttributeId() + "=" + dn + "))";
 
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-			LdapName searchBase = getBaseDn();
+			LdapName searchBase = getDirectory().getBaseDn();
 			NamingEnumeration<SearchResult> results = ldapConnection.search(searchBase, searchFilter, searchControls);
 
 			while (results.hasMoreElements()) {
@@ -213,7 +220,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 				SearchResult searchResult = (SearchResult) results.nextElement();
 				LdapName dn = toDn(searchBase, searchResult);
 				Attributes attrs = searchResult.getAttributes();
-				LdapHierarchyUnit hierarchyUnit = new LdapHierarchyUnit(this, dn, attrs);
+				LdapHierarchyUnit hierarchyUnit = new LdapHierarchyUnit(getDirectory(), dn, attrs);
 				if (functionalOnly) {
 					if (hierarchyUnit.isFunctional())
 						res.add(hierarchyUnit);
@@ -231,7 +238,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	public HierarchyUnit doGetHierarchyUnit(LdapName dn) {
 		try {
 			Attributes attrs = ldapConnection.getAttributes(dn);
-			return new LdapHierarchyUnit(this, dn, attrs);
+			return new LdapHierarchyUnit(getDirectory(), dn, attrs);
 		} catch (NamingException e) {
 			throw new IllegalStateException("Cannot get hierarchy unit " + dn, e);
 		}

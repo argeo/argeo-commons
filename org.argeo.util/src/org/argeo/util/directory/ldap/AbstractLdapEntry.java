@@ -1,8 +1,16 @@
 package org.argeo.util.directory.ldap;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
+/** An entry in an LDAP (or LDIF) directory. */
 public abstract class AbstractLdapEntry implements LdapEntry {
 	private final AbstractLdapDirectory directory;
 
@@ -10,8 +18,10 @@ public abstract class AbstractLdapEntry implements LdapEntry {
 
 	private Attributes publishedAttributes;
 
-	protected AbstractLdapEntry(AbstractLdapDirectory userAdmin, LdapName dn, Attributes attributes) {
-		this.directory = userAdmin;
+	protected AbstractLdapEntry(AbstractLdapDirectory directory, LdapName dn, Attributes attributes) {
+		Objects.requireNonNull(directory);
+		Objects.requireNonNull(dn);
+		this.directory = directory;
 		this.dn = dn;
 		this.publishedAttributes = attributes;
 	}
@@ -23,6 +33,25 @@ public abstract class AbstractLdapEntry implements LdapEntry {
 
 	public synchronized Attributes getAttributes() {
 		return isEditing() ? getModifiedAttributes() : publishedAttributes;
+	}
+	
+	@Override
+	public List<LdapName> getReferences(String attributeId){
+		Attribute memberAttribute = getAttributes().get(attributeId);
+		if (memberAttribute == null)
+			return new ArrayList<LdapName>();
+		try {
+			List<LdapName> roles = new ArrayList<LdapName>();
+			NamingEnumeration<?> values = memberAttribute.getAll();
+			while (values.hasMore()) {
+				LdapName dn = new LdapName(values.next().toString());
+				roles.add(dn);
+			}
+			return roles;
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get members", e);
+		}
+		
 	}
 
 	/** Should only be called from working copy thread. */
@@ -53,8 +82,12 @@ public abstract class AbstractLdapEntry implements LdapEntry {
 		publishedAttributes = modifiedAttributes;
 	}
 
-	protected AbstractLdapDirectory getDirectory() {
+	public AbstractLdapDirectory getDirectory() {
 		return directory;
+	}
+
+	public LdapDirectoryDao getDirectoryDao() {
+		return directory.getDirectoryDao();
 	}
 
 	@Override
