@@ -165,7 +165,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void prepare(UserDirectoryWorkingCopy wc) {
+	public void prepare(DirectoryUserWorkingCopy wc) {
 		try {
 			ldapConnection.prepareChanges(wc);
 		} catch (NamingException e) {
@@ -174,7 +174,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void commit(UserDirectoryWorkingCopy wc) {
+	public void commit(DirectoryUserWorkingCopy wc) {
 		try {
 			ldapConnection.commitChanges(wc);
 		} catch (NamingException e) {
@@ -183,7 +183,7 @@ public class LdapUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void rollback(UserDirectoryWorkingCopy wc) {
+	public void rollback(DirectoryUserWorkingCopy wc) {
 		// prepare not impacting
 	}
 

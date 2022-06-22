@@ -10,6 +10,9 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.FunctionalGroup;
+import org.argeo.util.directory.Organization;
+import org.argeo.util.directory.SystemPermissions;
 import org.osgi.service.useradmin.Role;
 
 /** Directory group implementation */

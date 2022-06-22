@@ -1,4 +1,4 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.directory;
 
 public interface Organization {
 

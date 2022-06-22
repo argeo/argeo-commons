@@ -264,9 +264,9 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void prepare(UserDirectoryWorkingCopy wc) {
+	public void prepare(DirectoryUserWorkingCopy wc) {
 		// delete
-		for (LdapName dn : wc.getDeletedUsers().keySet()) {
+		for (LdapName dn : wc.getDeletedData().keySet()) {
 			if (users.containsKey(dn))
 				users.remove(dn);
 			else if (groups.containsKey(dn))
@@ -275,8 +275,8 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 				throw new IllegalStateException("User to delete not found " + dn);
 		}
 		// add
-		for (LdapName dn : wc.getNewUsers().keySet()) {
-			DirectoryUser user = wc.getNewUsers().get(dn);
+		for (LdapName dn : wc.getNewData().keySet()) {
+			DirectoryUser user = wc.getNewData().get(dn);
 			if (users.containsKey(dn) || groups.containsKey(dn))
 				throw new IllegalStateException("User to create found " + dn);
 			else if (Role.USER == user.getType())
@@ -287,8 +287,8 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 				throw new IllegalStateException("Unsupported role type " + user.getType() + " for new user " + dn);
 		}
 		// modify
-		for (LdapName dn : wc.getModifiedUsers().keySet()) {
-			Attributes modifiedAttrs = wc.getModifiedUsers().get(dn);
+		for (LdapName dn : wc.getModifiedData().keySet()) {
+			Attributes modifiedAttrs = wc.getModifiedData().get(dn);
 			DirectoryUser user;
 			if (users.containsKey(dn))
 				user = users.get(dn);
@@ -301,12 +301,12 @@ public class LdifUserAdmin extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected void commit(UserDirectoryWorkingCopy wc) {
+	public void commit(DirectoryUserWorkingCopy wc) {
 		save();
 	}
 
 	@Override
-	protected void rollback(UserDirectoryWorkingCopy wc) {
+	public void rollback(DirectoryUserWorkingCopy wc) {
 		init();
 	}
 

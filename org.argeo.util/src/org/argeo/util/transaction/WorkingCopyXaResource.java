@@ -1,4 +1,4 @@
-package org.argeo.osgi.useradmin;
+package org.argeo.util.transaction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,22 +8,22 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 /** {@link XAResource} for a user directory being edited. */
-class WcXaResource implements XAResource {
-	private final AbstractUserDirectory userDirectory;
+public class WorkingCopyXaResource<WC extends WorkingCopy<?, ?, ?>> implements XAResource {
+	private final WorkingCopyProcessor<WC> processor;
 
-	private Map<Xid, DirectoryUserWorkingCopy> workingCopies = new HashMap<Xid, DirectoryUserWorkingCopy>();
+	private Map<Xid, WC> workingCopies = new HashMap<Xid, WC>();
 	private Xid editingXid = null;
 	private int transactionTimeout = 0;
 
-	public WcXaResource(AbstractUserDirectory userDirectory) {
-		this.userDirectory = userDirectory;
+	public WorkingCopyXaResource(WorkingCopyProcessor<WC> processor) {
+		this.processor = processor;
 	}
 
 	@Override
 	public synchronized void start(Xid xid, int flags) throws XAException {
 		if (editingXid != null)
 			throw new IllegalStateException("Already editing " + editingXid);
-		DirectoryUserWorkingCopy wc = workingCopies.put(xid, new DirectoryUserWorkingCopy());
+		WC wc = workingCopies.put(xid, processor.newWorkingCopy());
 		if (wc != null)
 			throw new IllegalStateException("There is already a working copy for " + xid);
 		this.editingXid = xid;
@@ -34,14 +34,14 @@ class WcXaResource implements XAResource {
 		checkXid(xid);
 	}
 
-	private DirectoryUserWorkingCopy wc(Xid xid) {
+	private WC wc(Xid xid) {
 		return workingCopies.get(xid);
 	}
 
-	synchronized DirectoryUserWorkingCopy wc() {
+	public synchronized WC wc() {
 		if (editingXid == null)
 			return null;
-		DirectoryUserWorkingCopy wc = workingCopies.get(editingXid);
+		WC wc = workingCopies.get(editingXid);
 		if (wc == null)
 			throw new IllegalStateException("No working copy found for " + editingXid);
 		return wc;
@@ -56,11 +56,11 @@ class WcXaResource implements XAResource {
 	@Override
 	public int prepare(Xid xid) throws XAException {
 		checkXid(xid);
-		DirectoryUserWorkingCopy wc = wc(xid);
+		WC wc = wc(xid);
 		if (wc.noModifications())
 			return XA_RDONLY;
 		try {
-			userDirectory.prepare(wc);
+			processor.prepare(wc);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new XAException(XAException.XAER_RMERR);
@@ -72,12 +72,12 @@ class WcXaResource implements XAResource {
 	public void commit(Xid xid, boolean onePhase) throws XAException {
 		try {
 			checkXid(xid);
-			DirectoryUserWorkingCopy wc = wc(xid);
+			WC wc = wc(xid);
 			if (wc.noModifications())
 				return;
 			if (onePhase)
-				userDirectory.prepare(wc);
-			userDirectory.commit(wc);
+				processor.prepare(wc);
+			processor.commit(wc);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new XAException(XAException.XAER_RMERR);
@@ -90,7 +90,7 @@ class WcXaResource implements XAResource {
 	public void rollback(Xid xid) throws XAException {
 		try {
 			checkXid(xid);
-			userDirectory.rollback(wc(xid));
+			processor.rollback(wc(xid));
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new XAException(XAException.XAER_RMERR);

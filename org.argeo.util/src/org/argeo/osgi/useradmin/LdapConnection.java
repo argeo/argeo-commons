@@ -98,23 +98,23 @@ class LdapConnection {
 		}
 	}
 
-	synchronized void prepareChanges(UserDirectoryWorkingCopy wc) throws NamingException {
+	synchronized void prepareChanges(DirectoryUserWorkingCopy wc) throws NamingException {
 		// make sure connection will work
 		reconnect();
 
 		// delete
-		for (LdapName dn : wc.getDeletedUsers().keySet()) {
+		for (LdapName dn : wc.getDeletedData().keySet()) {
 			if (!entryExists(dn))
 				throw new IllegalStateException("User to delete no found " + dn);
 		}
 		// add
-		for (LdapName dn : wc.getNewUsers().keySet()) {
+		for (LdapName dn : wc.getNewData().keySet()) {
 			if (entryExists(dn))
 				throw new IllegalStateException("User to create found " + dn);
 		}
 		// modify
-		for (LdapName dn : wc.getModifiedUsers().keySet()) {
-			if (!wc.getNewUsers().containsKey(dn) && !entryExists(dn))
+		for (LdapName dn : wc.getModifiedData().keySet()) {
+			if (!wc.getNewData().containsKey(dn) && !entryExists(dn))
 				throw new IllegalStateException("User to modify not found " + dn);
 		}
 
@@ -128,19 +128,19 @@ class LdapConnection {
 		}
 	}
 
-	synchronized void commitChanges(UserDirectoryWorkingCopy wc) throws NamingException {
+	synchronized void commitChanges(DirectoryUserWorkingCopy wc) throws NamingException {
 		// delete
-		for (LdapName dn : wc.getDeletedUsers().keySet()) {
+		for (LdapName dn : wc.getDeletedData().keySet()) {
 			getLdapContext().destroySubcontext(dn);
 		}
 		// add
-		for (LdapName dn : wc.getNewUsers().keySet()) {
-			DirectoryUser user = wc.getNewUsers().get(dn);
+		for (LdapName dn : wc.getNewData().keySet()) {
+			DirectoryUser user = wc.getNewData().get(dn);
 			getLdapContext().createSubcontext(dn, user.getAttributes());
 		}
 		// modify
-		for (LdapName dn : wc.getModifiedUsers().keySet()) {
-			Attributes modifiedAttrs = wc.getModifiedUsers().get(dn);
+		for (LdapName dn : wc.getModifiedData().keySet()) {
+			Attributes modifiedAttrs = wc.getModifiedData().get(dn);
 			getLdapContext().modifyAttributes(dn, DirContext.REPLACE_ATTRIBUTE, modifiedAttrs);
 		}
 	}

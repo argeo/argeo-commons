@@ -75,4 +75,17 @@ public class OsUserDirectory extends AbstractUserDirectory {
 		return new ArrayList<>();
 	}
 
+	public void prepare(DirectoryUserWorkingCopy wc) {
+
+	}
+
+	public void commit(DirectoryUserWorkingCopy wc) {
+
+	}
+
+	public void rollback(DirectoryUserWorkingCopy wc) {
+
+	}
+
+
 }

@@ -21,6 +21,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.Person;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
 import org.argeo.util.naming.SharedSecret;
@@ -182,14 +183,14 @@ abstract class LdifUser implements DirectoryUser {
 	/** Should only be called from working copy thread. */
 	private synchronized Attributes getModifiedAttributes() {
 		assert getWc() != null;
-		return getWc().getAttributes(getDn());
+		return getWc().getModifiedData().get(getDn());
 	}
 
 	protected synchronized boolean isEditing() {
 		return getWc() != null && getModifiedAttributes() != null;
 	}
 
-	private synchronized UserDirectoryWorkingCopy getWc() {
+	private synchronized DirectoryUserWorkingCopy getWc() {
 		return userAdmin.getWorkingCopy();
 	}
 

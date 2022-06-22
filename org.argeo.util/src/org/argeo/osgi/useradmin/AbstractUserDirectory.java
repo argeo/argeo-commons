@@ -30,10 +30,14 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+import javax.transaction.xa.XAResource;
 
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
 import org.argeo.util.transaction.WorkControl;
+import org.argeo.util.transaction.WorkingCopyProcessor;
+import org.argeo.util.transaction.WorkingCopyXaResource;
+import org.argeo.util.transaction.XAResourceProvider;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -43,7 +47,8 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /** Base class for a {@link UserDirectory}. */
-abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
+abstract class AbstractUserDirectory
+		implements UserAdmin, UserDirectory, WorkingCopyProcessor<DirectoryUserWorkingCopy>, XAResourceProvider {
 	static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
 	static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
 
@@ -71,7 +76,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	// Transaction
 //	private TransactionManager transactionManager;
 	private WorkControl transactionControl;
-	private WcXaResource xaResource = new WcXaResource(this);
+	private WorkingCopyXaResource<DirectoryUserWorkingCopy> xaResource = new WorkingCopyXaResource<>(this);
 
 	private String forcedPassword;
 
@@ -248,8 +253,8 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return xaResource.wc() != null;
 	}
 
-	protected UserDirectoryWorkingCopy getWorkingCopy() {
-		UserDirectoryWorkingCopy wc = xaResource.wc();
+	protected DirectoryUserWorkingCopy getWorkingCopy() {
+		DirectoryUserWorkingCopy wc = xaResource.wc();
 		if (wc == null)
 			return null;
 		return wc;
@@ -317,7 +322,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	protected DirectoryUser doGetRole(LdapName dn) {
-		UserDirectoryWorkingCopy wc = getWorkingCopy();
+		DirectoryUserWorkingCopy wc = getWorkingCopy();
 		DirectoryUser user;
 		try {
 			user = daoGetRole(dn);
@@ -325,9 +330,9 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 			user = null;
 		}
 		if (wc != null) {
-			if (user == null && wc.getNewUsers().containsKey(dn))
-				user = wc.getNewUsers().get(dn);
-			else if (wc.getDeletedUsers().containsKey(dn))
+			if (user == null && wc.getNewData().containsKey(dn))
+				user = wc.getNewData().get(dn);
+			else if (wc.getDeletedData().containsKey(dn))
 				user = null;
 		}
 		return user;
@@ -340,17 +345,17 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	}
 
 	List<DirectoryUser> getRoles(LdapName searchBase, String filter, boolean deep) throws InvalidSyntaxException {
-		UserDirectoryWorkingCopy wc = getWorkingCopy();
+		DirectoryUserWorkingCopy wc = getWorkingCopy();
 		Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
 		List<DirectoryUser> res = doGetRoles(searchBase, f, deep);
 		if (wc != null) {
 			for (Iterator<DirectoryUser> it = res.iterator(); it.hasNext();) {
 				DirectoryUser user = it.next();
 				LdapName dn = user.getDn();
-				if (wc.getDeletedUsers().containsKey(dn))
+				if (wc.getDeletedData().containsKey(dn))
 					it.remove();
 			}
-			for (DirectoryUser user : wc.getNewUsers().values()) {
+			for (DirectoryUser user : wc.getNewData().values()) {
 				if (f == null || f.match(user.getProperties()))
 					res.add(user);
 			}
@@ -427,23 +432,23 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	@Override
 	public Role createRole(String name, int type) {
 		checkEdit();
-		UserDirectoryWorkingCopy wc = getWorkingCopy();
+		DirectoryUserWorkingCopy wc = getWorkingCopy();
 		LdapName dn = toLdapName(name);
-		if ((daoHasRole(dn) && !wc.getDeletedUsers().containsKey(dn)) || wc.getNewUsers().containsKey(dn))
+		if ((daoHasRole(dn) && !wc.getDeletedData().containsKey(dn)) || wc.getNewData().containsKey(dn))
 			throw new IllegalArgumentException("Already a role " + name);
 		BasicAttributes attrs = new BasicAttributes(true);
 		// attrs.put(LdifName.dn.name(), dn.toString());
 		Rdn nameRdn = dn.getRdn(dn.size() - 1);
 		// TODO deal with multiple attr RDN
 		attrs.put(nameRdn.getType(), nameRdn.getValue());
-		if (wc.getDeletedUsers().containsKey(dn)) {
-			wc.getDeletedUsers().remove(dn);
-			wc.getModifiedUsers().put(dn, attrs);
+		if (wc.getDeletedData().containsKey(dn)) {
+			wc.getDeletedData().remove(dn);
+			wc.getModifiedData().put(dn, attrs);
 			return getRole(name);
 		} else {
-			wc.getModifiedUsers().put(dn, attrs);
+			wc.getModifiedData().put(dn, attrs);
 			DirectoryUser newRole = newRole(dn, type, attrs);
-			wc.getNewUsers().put(dn, newRole);
+			wc.getNewData().put(dn, newRole);
 			return newRole;
 		}
 	}
@@ -479,12 +484,12 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 	@Override
 	public boolean removeRole(String name) {
 		checkEdit();
-		UserDirectoryWorkingCopy wc = getWorkingCopy();
+		DirectoryUserWorkingCopy wc = getWorkingCopy();
 		LdapName dn = toLdapName(name);
 		boolean actuallyDeleted;
-		if (daoHasRole(dn) || wc.getNewUsers().containsKey(dn)) {
+		if (daoHasRole(dn) || wc.getNewData().containsKey(dn)) {
 			DirectoryUser user = (DirectoryUser) getRole(name);
-			wc.getDeletedUsers().put(dn, user);
+			wc.getDeletedData().put(dn, user);
 			actuallyDeleted = true;
 		} else {// just removing from groups (e.g. system roles)
 			actuallyDeleted = false;
@@ -496,17 +501,12 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		return actuallyDeleted;
 	}
 
-	// TRANSACTION
-	protected void prepare(UserDirectoryWorkingCopy wc) {
-
-	}
-
-	protected void commit(UserDirectoryWorkingCopy wc) {
-
-	}
-
-	protected void rollback(UserDirectoryWorkingCopy wc) {
-
+	/*
+	 * TRANSACTION
+	 */
+	@Override
+	public DirectoryUserWorkingCopy newWorkingCopy() {
+		return new DirectoryUserWorkingCopy();
 	}
 
 	/*
@@ -684,7 +684,7 @@ abstract class AbstractUserDirectory implements UserAdmin, UserDirectory {
 		this.transactionControl = transactionControl;
 	}
 
-	public WcXaResource getXaResource() {
+	public XAResource getXaResource() {
 		return xaResource;
 	}
 
