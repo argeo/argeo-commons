@@ -3,7 +3,7 @@ package org.argeo.cms.ui.forms;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.swt.EditablePart;
+import org.argeo.cms.swt.SwtEditablePart;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Text;
 
 /** Editable String that displays a browsable link when read-only */
 public class EditableLink extends EditablePropertyString implements
-		EditablePart {
+		SwtEditablePart {
 	private static final long serialVersionUID = 5055000749992803591L;
 
 	private String type;

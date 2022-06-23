@@ -19,7 +19,7 @@ import org.argeo.api.cms.ux.Cms2DSize;
 import org.argeo.api.cms.ux.CmsEditable;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.EditablePart;
+import org.argeo.cms.swt.SwtEditablePart;
 import org.argeo.cms.ui.viewers.AbstractPageViewer;
 import org.argeo.cms.ui.viewers.Section;
 import org.argeo.cms.ui.viewers.SectionPart;
@@ -86,14 +86,14 @@ public class FormPageViewer extends AbstractPageViewer {
 	}
 
 	@Override
-	protected void prepare(EditablePart part, Object caretPosition) {
+	protected void prepare(SwtEditablePart part, Object caretPosition) {
 		if (part instanceof Img) {
 			((Img) part).setFileUploadListener(fileUploadListener);
 		}
 	}
 
 	/** To be overridden.Save the edited part. */
-	protected void save(EditablePart part) throws RepositoryException {
+	protected void save(SwtEditablePart part) throws RepositoryException {
 		Node node = null;
 		if (part instanceof EditableMultiStringProperty) {
 			EditableMultiStringProperty ept = (EditableMultiStringProperty) part;
@@ -148,7 +148,7 @@ public class FormPageViewer extends AbstractPageViewer {
 	}
 
 	@Override
-	protected void updateContent(EditablePart part) throws RepositoryException {
+	protected void updateContent(SwtEditablePart part) throws RepositoryException {
 		if (part instanceof EditableMultiStringProperty) {
 			EditableMultiStringProperty ept = (EditableMultiStringProperty) part;
 			// SWT : View
@@ -259,7 +259,7 @@ public class FormPageViewer extends AbstractPageViewer {
 					if (getCmsEditable().isEditing() && !(getEdited() instanceof Img)) {
 						if (source == mainSection)
 							return;
-						EditablePart part = findDataParent(source);
+						SwtEditablePart part = findDataParent(source);
 						upload(part);
 					} else {
 						getCmsEditable().startEditing();
@@ -273,7 +273,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			if (getCmsEditable().isEditing()) {
 				if (e.button == 1) {
 					Control source = (Control) e.getSource();
-					EditablePart composite = findDataParent(source);
+					SwtEditablePart composite = findDataParent(source);
 					Point point = new Point(e.x, e.y);
 					if (!(composite instanceof Img))
 						edit(composite, source.toDisplay(point));
@@ -286,7 +286,7 @@ public class FormPageViewer extends AbstractPageViewer {
 			}
 		}
 
-		protected synchronized void upload(EditablePart part) {
+		protected synchronized void upload(SwtEditablePart part) {
 			if (part instanceof SectionPart) {
 				if (part instanceof Img) {
 					if (getEdited() == part)
@@ -561,7 +561,7 @@ public class FormPageViewer extends AbstractPageViewer {
 				if (source instanceof Button) {
 					Button btn = (Button) source;
 					Object obj = btn.getData(FormConstants.LINKED_VALUE);
-					EditablePart ep = findDataParent(btn);
+					SwtEditablePart ep = findDataParent(btn);
 					if (ep != null && ep instanceof EditableMultiStringProperty) {
 						EditableMultiStringProperty emsp = (EditableMultiStringProperty) ep;
 						List<String> values = emsp.getValues();

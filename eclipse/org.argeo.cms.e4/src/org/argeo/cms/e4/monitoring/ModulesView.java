@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;

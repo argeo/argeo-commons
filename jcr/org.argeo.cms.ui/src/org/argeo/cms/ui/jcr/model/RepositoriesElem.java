@@ -13,8 +13,8 @@ import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.security.Keyring;
 import org.argeo.cms.ui.jcr.RepositoryRegister;
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 
 /**

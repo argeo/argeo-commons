@@ -16,7 +16,7 @@ import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.security.Keyring;
 import org.argeo.cms.ui.jcr.model.RepositoriesElem;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
-import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

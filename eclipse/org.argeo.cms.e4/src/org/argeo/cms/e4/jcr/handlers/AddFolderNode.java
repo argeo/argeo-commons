@@ -10,7 +10,7 @@ import javax.jcr.nodetype.NodeType;
 import org.argeo.cms.e4.jcr.JcrBrowserView;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.jcr.model.WorkspaceElem;
-import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
 import org.argeo.eclipse.ui.dialogs.SingleValue;
 import org.eclipse.e4.core.di.annotations.Execute;

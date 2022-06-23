@@ -1,4 +1,4 @@
-package org.argeo.cms.ux.widgets;
+package org.argeo.cms.ux.acr;
 
 import org.argeo.api.acr.Content;
 

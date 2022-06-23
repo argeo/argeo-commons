@@ -9,8 +9,8 @@ import org.argeo.cms.ui.jcr.model.RepositoriesElem;
 import org.argeo.cms.ui.jcr.model.RepositoryElem;
 import org.argeo.cms.ui.jcr.model.SingleJcrNodeElem;
 import org.argeo.cms.ui.jcr.model.WorkspaceElem;
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.eclipse.ui.TreeParent;
 
 /** Useful methods to manage the JCR Browser */
 public class JcrBrowserUtils {

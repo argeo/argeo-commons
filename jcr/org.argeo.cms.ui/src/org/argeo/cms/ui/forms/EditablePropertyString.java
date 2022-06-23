@@ -7,7 +7,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.EditablePart;
+import org.argeo.cms.swt.SwtEditablePart;
 import org.argeo.cms.ui.widgets.EditableText;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.swt.widgets.Composite;
@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /** Editable String in a CMS context */
-public class EditablePropertyString extends EditableText implements EditablePart {
+public class EditablePropertyString extends EditableText implements SwtEditablePart {
 	private static final long serialVersionUID = 5055000749992803591L;
 
 	private String propertyName;

@@ -8,7 +8,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.EditablePart;
+import org.argeo.cms.swt.SwtEditablePart;
 import org.argeo.cms.ui.widgets.JcrComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -57,7 +57,7 @@ public class Section extends JcrComposite {
 
 	private void collectDirectSubSections(Composite composite, LinkedHashMap<String, Section> subSections)
 			throws RepositoryException {
-		if (composite == sectionHeader || composite instanceof EditablePart)
+		if (composite == sectionHeader || composite instanceof SwtEditablePart)
 			return;
 		if (composite instanceof Section) {
 			Section section = (Section) composite;

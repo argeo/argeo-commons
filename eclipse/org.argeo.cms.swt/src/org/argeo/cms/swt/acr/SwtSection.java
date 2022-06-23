@@ -1,4 +1,4 @@
-package org.argeo.cms.swt.widgets;
+package org.argeo.cms.swt.acr;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.argeo.api.acr.Content;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.acr.ContentComposite;
 import org.argeo.cms.ux.widgets.EditablePart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;

@@ -5,8 +5,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.JcrUtils;
 
 /**

@@ -6,7 +6,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.EditablePart;
+import org.argeo.cms.swt.SwtEditablePart;
 import org.argeo.cms.ui.widgets.StyledControl;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /** Display, add or remove values from a list in a CMS context */
-public class EditableMultiStringProperty extends StyledControl implements EditablePart {
+public class EditableMultiStringProperty extends StyledControl implements SwtEditablePart {
 	private static final long serialVersionUID = -7044614381252178595L;
 
 	private String propertyName;

@@ -5,8 +5,8 @@ import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Workspace;
 
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.eclipse.ui.TreeParent;
 
 /**
  * UI Tree component. Wraps a node of a JCR {@link Workspace}. It also keeps a

@@ -8,8 +8,8 @@ import javax.jcr.Session;
 // import javax.jcr.Workspace;
 import javax.jcr.Workspace;
 
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.argeo.eclipse.ui.EclipseUiException;
-import org.argeo.eclipse.ui.TreeParent;
 import org.argeo.jcr.JcrUtils;
 
 /**

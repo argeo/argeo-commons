@@ -8,7 +8,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.EditablePart;
+import org.argeo.cms.swt.SwtEditablePart;
 import org.argeo.cms.ui.widgets.StyledControl;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.swt.SWT;
@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** CMS form part to display and edit a date */
-public class EditablePropertyDate extends StyledControl implements EditablePart {
+public class EditablePropertyDate extends StyledControl implements SwtEditablePart {
 	private static final long serialVersionUID = 2500215515778162468L;
 
 	// Context

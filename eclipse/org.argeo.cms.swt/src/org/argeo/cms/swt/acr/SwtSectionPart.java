@@ -1,6 +1,6 @@
-package org.argeo.cms.swt.widgets;
+package org.argeo.cms.swt.acr;
 
-import org.argeo.cms.ux.widgets.ContentPart;
+import org.argeo.cms.ux.acr.ContentPart;
 import org.argeo.cms.ux.widgets.EditablePart;
 
 /** An editable part dynamically related to a Section */

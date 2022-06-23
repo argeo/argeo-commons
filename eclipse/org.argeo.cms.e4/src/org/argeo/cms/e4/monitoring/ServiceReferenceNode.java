@@ -1,6 +1,6 @@
 package org.argeo.cms.e4.monitoring;
 
-import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 

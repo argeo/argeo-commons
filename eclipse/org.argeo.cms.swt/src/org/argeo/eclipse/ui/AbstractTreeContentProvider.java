@@ -1,5 +1,6 @@
 package org.argeo.eclipse.ui;
 
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 

@@ -6,7 +6,7 @@ import javax.inject.Named;
 
 import org.argeo.cms.e4.jcr.JcrBrowserView;
 import org.argeo.cms.ui.jcr.JcrBrowserUtils;
-import org.argeo.eclipse.ui.TreeParent;
+import org.argeo.cms.ux.widgets.TreeParent;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;

@@ -13,7 +13,7 @@ import javax.security.auth.Subject;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsEditable;
-import org.argeo.cms.swt.EditablePart;
+import org.argeo.cms.swt.SwtEditablePart;
 import org.argeo.cms.swt.widgets.ScrolledPage;
 import org.argeo.jcr.JcrException;
 import org.eclipse.jface.viewers.ContentViewer;
@@ -43,7 +43,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 	private MouseListener mouseListener;
 	private FocusListener focusListener;
 
-	private EditablePart edited;
+	private SwtEditablePart edited;
 	private ISelection selection = StructuredSelection.EMPTY;
 
 	private AccessControlContext accessControlContext;
@@ -141,11 +141,11 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 	}
 
 	/** To be overridden.Save the edited part. */
-	protected void save(EditablePart part) throws RepositoryException {
+	protected void save(SwtEditablePart part) throws RepositoryException {
 	}
 
 	/** Prepare the edited part */
-	protected void prepare(EditablePart part, Object caretPosition) {
+	protected void prepare(SwtEditablePart part, Object caretPosition) {
 	}
 
 	/** Notified when the editing state changed. Does nothing, to be overridden */
@@ -178,17 +178,17 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 		this.selection = selection;
 	}
 
-	protected void updateContent(EditablePart part) throws RepositoryException {
+	protected void updateContent(SwtEditablePart part) throws RepositoryException {
 	}
 
 	// LOW LEVEL EDITION
-	protected void edit(EditablePart part, Object caretPosition) {
+	protected void edit(SwtEditablePart part, Object caretPosition) {
 		try {
 			if (edited == part)
 				return;
 
 			if (edited != null && edited != part) {
-				EditablePart previouslyEdited = edited;
+				SwtEditablePart previouslyEdited = edited;
 				try {
 					stopEditing(true);
 				} catch (Exception e) {
@@ -240,8 +240,8 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 				save(edited);
 
 			edited.stopEditing();
-			EditablePart editablePart = edited;
-			Control control = ((EditablePart) edited).getControl();
+			SwtEditablePart editablePart = edited;
+			Control control = ((SwtEditablePart) edited).getControl();
 			edited = null;
 			// TODO make edited state management more robust
 			updateContent(editablePart);
@@ -270,11 +270,11 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 	}
 
 	/**
-	 * Find the first {@link EditablePart} in the parents hierarchy of this control
+	 * Find the first {@link SwtEditablePart} in the parents hierarchy of this control
 	 */
-	protected EditablePart findDataParent(Control parent) {
-		if (parent instanceof EditablePart) {
-			return (EditablePart) parent;
+	protected SwtEditablePart findDataParent(Control parent) {
+		if (parent instanceof SwtEditablePart) {
+			return (SwtEditablePart) parent;
 		}
 		if (parent.getParent() != null)
 			return findDataParent(parent.getParent());
@@ -328,7 +328,7 @@ public abstract class AbstractPageViewer extends ContentViewer implements Observ
 		return readOnly;
 	}
 
-	protected EditablePart getEdited() {
+	protected SwtEditablePart getEdited() {
 		return edited;
 	}
 

@@ -1,4 +1,4 @@
-package org.argeo.eclipse.ui;
+package org.argeo.cms.ux.widgets;
 
 import java.util.ArrayList;
 import java.util.List;

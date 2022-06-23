@@ -1,10 +1,11 @@
-package org.argeo.cms.swt.dialogs;
+package org.argeo.cms.jface.dialog;
 
 import java.lang.reflect.InvocationTargetException;
 
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.Selected;
+import org.argeo.cms.swt.dialogs.LightweightDialog;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.wizard.IWizard;

@@ -1,4 +1,4 @@
-package org.argeo.cms.swt.widgets;
+package org.argeo.cms.swt.acr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,6 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.Selected;
-import org.argeo.cms.swt.acr.SwtUiProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.graphics.Image;
