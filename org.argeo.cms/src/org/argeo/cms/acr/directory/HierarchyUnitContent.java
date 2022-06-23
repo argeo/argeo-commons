@@ -1,6 +1,7 @@
 package org.argeo.cms.acr.directory;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -10,29 +11,24 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.CrName;
-import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.cms.acr.AbstractContent;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.HierarchyUnit;
 import org.osgi.service.useradmin.Role;
 
-class HierarchyUnitContent extends AbstractContent {
+class HierarchyUnitContent extends AbstractDirectoryContent {
 	private HierarchyUnit hierarchyUnit;
-
-	private DirectoryContentProvider provider;
 
 	public HierarchyUnitContent(ProvidedSession session, DirectoryContentProvider provider,
 			HierarchyUnit hierarchyUnit) {
-		super(session);
+		super(session, provider);
 		Objects.requireNonNull(hierarchyUnit);
-		this.provider = provider;
 		this.hierarchyUnit = hierarchyUnit;
 	}
 
 	@Override
-	public ContentProvider getProvider() {
-		return provider;
+	Dictionary<String, Object> doGetProperties() {
+		return hierarchyUnit.getProperties();
 	}
 
 	@Override
@@ -69,12 +65,19 @@ class HierarchyUnitContent extends AbstractContent {
 	/*
 	 * TYPING
 	 */
-
 	@Override
 	public List<QName> getTypes() {
-		List<QName> res = new ArrayList<>();
-		res.add(CrName.COLLECTION.get());
-		return res;
+		List<QName> contentClasses = super.getTypes();
+		contentClasses.add(CrName.COLLECTION.get());
+		return contentClasses;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <A> A adapt(Class<A> clss) {
+		if (clss.equals(HierarchyUnit.class))
+			return (A) hierarchyUnit;
+		return super.adapt(clss);
 	}
 
 	/*

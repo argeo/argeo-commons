@@ -30,7 +30,6 @@ import org.argeo.util.directory.ldap.LdapEntry;
 import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
 import org.argeo.util.directory.ldap.LdapNameUtils;
 import org.argeo.util.directory.ldap.LdifDao;
-import org.argeo.util.naming.LdapObjs;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -74,7 +73,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		String username = (String) credentials.get(SHARED_STATE_USERNAME);
 		if (username == null)
 			username = user.getName();
-		Dictionary<String, Object> properties = cloneProperties();
+		Dictionary<String, Object> properties = cloneConfigProperties();
 		properties.put(Context.SECURITY_PRINCIPAL, username.toString());
 		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
 		byte[] pwd = (byte[]) pwdCred;
@@ -102,7 +101,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		} else {
 			throw new IllegalStateException("Password is required");
 		}
-		Dictionary<String, Object> properties = cloneProperties();
+		Dictionary<String, Object> properties = cloneConfigProperties();
 		properties.put(DirectoryConf.readOnly.name(), "true");
 		DirectoryUserAdmin scopedUserAdmin = new DirectoryUserAdmin(null, properties, true);
 //		scopedUserAdmin.groups = Collections.unmodifiableNavigableMap(groups);
@@ -283,7 +282,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		checkEdit();
 		LdapEntryWorkingCopy wc = getWorkingCopy();
 		LdapName dn = toLdapName(name);
-		if ((getDirectoryDao().daoHasEntry(dn) && !wc.getDeletedData().containsKey(dn))
+		if ((getDirectoryDao().entryExists(dn) && !wc.getDeletedData().containsKey(dn))
 				|| wc.getNewData().containsKey(dn))
 			throw new IllegalArgumentException("Already a role " + name);
 		BasicAttributes attrs = new BasicAttributes(true);
@@ -380,17 +379,11 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	 */
 	protected LdapEntry newUser(LdapName name, Attributes attrs) {
 		// TODO support devices, applications, etc.
-		return new LdifUser.LdifPerson(this, name, attrs);
+		return new LdifUser(this, name, attrs);
 	}
 
 	protected LdapEntry newGroup(LdapName name, Attributes attrs) {
-		if (LdapNameUtils.getParentRdn(name).equals(getSystemRoleBaseRdn()))
-			return new LdifGroup.LdifSystemPermissions(this, name, attrs);
-
-		if (hasObjectClass(attrs, LdapObjs.organization))
-			return new LdifGroup.LdifOrganization(this, name, attrs);
-		else
-			return new LdifGroup.LdifFunctionalGroup(this, name, attrs);
+		return new LdifGroup(this, name, attrs);
 
 	}
 

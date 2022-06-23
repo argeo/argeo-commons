@@ -35,7 +35,7 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 
 	@Override
 	public void init() {
-		ldapConnection = new LdapConnection(getDirectory().getUri().toString(), getDirectory().getProperties());
+		ldapConnection = new LdapConnection(getDirectory().getUri().toString(), getDirectory().cloneConfigProperties());
 	}
 
 	public void destroy() {
@@ -66,26 +66,34 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 //	}
 
 	@Override
-	public Boolean daoHasEntry(LdapName dn) {
+	public Boolean entryExists(LdapName dn) {
 		try {
-			return daoGetEntry(dn) != null;
+			return doGetEntry(dn) != null;
 		} catch (NameNotFoundException e) {
 			return false;
 		}
 	}
 
 	@Override
-	public LdapEntry daoGetEntry(LdapName name) throws NameNotFoundException {
+	public LdapEntry doGetEntry(LdapName name) throws NameNotFoundException {
 		try {
 			Attributes attrs = ldapConnection.getAttributes(name);
 			if (attrs.size() == 0)
 				return null;
 //			int roleType = roleType(name);
 			LdapEntry res;
-			if (isGroup(name))
+			Rdn technicalRdn = LdapNameUtils.getParentRdn(name);
+			if (getDirectory().getGroupBaseRdn().equals(technicalRdn)
+					|| getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
 				res = newGroup(name, attrs);
-			else
+			else if (getDirectory().getUserBaseRdn().equals(technicalRdn))
 				res = newUser(name, attrs);
+			else
+				res = new DefaultLdapEntry(getDirectory(), name, attrs);
+//			if (isGroup(name))
+//				res = newGroup(name, attrs);
+//			else
+//				res = newUser(name, attrs);
 //			else
 //				throw new IllegalArgumentException("Unsupported LDAP type for " + name);
 			return res;
@@ -96,17 +104,17 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 		}
 	}
 
-	protected boolean isGroup(LdapName dn) {
-		Rdn technicalRdn = LdapNameUtils.getParentRdn(dn);
-		if (getDirectory().getGroupBaseRdn().equals(technicalRdn)
-				|| getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
-			return true;
-		else if (getDirectory().getUserBaseRdn().equals(technicalRdn))
-			return false;
-		else
-			throw new IllegalArgumentException(
-					"Cannot dind role type, " + technicalRdn + " is not a technical RDN for " + dn);
-	}
+//	protected boolean isGroup(LdapName dn) {
+//		Rdn technicalRdn = LdapNameUtils.getParentRdn(dn);
+//		if (getDirectory().getGroupBaseRdn().equals(technicalRdn)
+//				|| getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
+//			return true;
+//		else if (getDirectory().getUserBaseRdn().equals(technicalRdn))
+//			return false;
+//		else
+//			throw new IllegalArgumentException(
+//					"Cannot find role type, " + technicalRdn + " is not a technical RDN for " + dn);
+//	}
 
 	@Override
 	public List<LdapEntry> doGetEntries(LdapName searchBase, String f, boolean deep) {
@@ -237,6 +245,8 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 	@Override
 	public HierarchyUnit doGetHierarchyUnit(LdapName dn) {
 		try {
+			if (getDirectory().getBaseDn().equals(dn))
+				return null;
 			Attributes attrs = ldapConnection.getAttributes(dn);
 			return new LdapHierarchyUnit(getDirectory(), dn, attrs);
 		} catch (NamingException e) {

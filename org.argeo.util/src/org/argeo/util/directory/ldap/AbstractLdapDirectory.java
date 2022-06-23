@@ -38,7 +38,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	protected static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
 
 	protected final LdapName baseDn;
-	protected final Hashtable<String, Object> properties;
+	protected final Hashtable<String, Object> configProperties;
 	private final Rdn userBaseRdn, groupBaseRdn, systemRoleBaseRdn;
 	private final String userObjectClass, groupObjectClass;
 	private String memberAttributeId = "member";
@@ -60,33 +60,33 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	private LdapDirectoryDao directoryDao;
 
 	public AbstractLdapDirectory(URI uriArg, Dictionary<String, ?> props, boolean scoped) {
-		this.properties = new Hashtable<String, Object>();
+		this.configProperties = new Hashtable<String, Object>();
 		for (Enumeration<String> keys = props.keys(); keys.hasMoreElements();) {
 			String key = keys.nextElement();
-			properties.put(key, props.get(key));
+			configProperties.put(key, props.get(key));
 		}
-		baseDn = toLdapName(DirectoryConf.baseDn.getValue(properties));
+		baseDn = toLdapName(DirectoryConf.baseDn.getValue(configProperties));
 		this.scoped = scoped;
 
 		if (uriArg != null) {
 			uri = uriArg.toString();
 			// uri from properties is ignored
 		} else {
-			String uriStr = DirectoryConf.uri.getValue(properties);
+			String uriStr = DirectoryConf.uri.getValue(configProperties);
 			if (uriStr == null)
 				uri = null;
 			else
 				uri = uriStr;
 		}
 
-		forcedPassword = DirectoryConf.forcedPassword.getValue(properties);
+		forcedPassword = DirectoryConf.forcedPassword.getValue(configProperties);
 
-		userObjectClass = DirectoryConf.userObjectClass.getValue(properties);
-		groupObjectClass = DirectoryConf.groupObjectClass.getValue(properties);
+		userObjectClass = DirectoryConf.userObjectClass.getValue(configProperties);
+		groupObjectClass = DirectoryConf.groupObjectClass.getValue(configProperties);
 
-		String userBase = DirectoryConf.userBase.getValue(properties);
-		String groupBase = DirectoryConf.groupBase.getValue(properties);
-		String systemRoleBase = DirectoryConf.systemRoleBase.getValue(properties);
+		String userBase = DirectoryConf.userBase.getValue(configProperties);
+		String groupBase = DirectoryConf.groupBase.getValue(configProperties);
+		String systemRoleBase = DirectoryConf.systemRoleBase.getValue(configProperties);
 		try {
 //			baseDn = new LdapName(UserAdminConf.baseDn.getValue(properties));
 			userBaseRdn = new Rdn(userBase);
@@ -95,20 +95,20 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 //			groupBaseDn = new LdapName(groupBase + "," + baseDn);
 			systemRoleBaseRdn = new Rdn(systemRoleBase);
 		} catch (InvalidNameException e) {
-			throw new IllegalArgumentException("Badly formated base DN " + DirectoryConf.baseDn.getValue(properties),
-					e);
+			throw new IllegalArgumentException(
+					"Badly formated base DN " + DirectoryConf.baseDn.getValue(configProperties), e);
 		}
 
 		// read only
-		String readOnlyStr = DirectoryConf.readOnly.getValue(properties);
+		String readOnlyStr = DirectoryConf.readOnly.getValue(configProperties);
 		if (readOnlyStr == null) {
 			readOnly = readOnlyDefault(uri);
-			properties.put(DirectoryConf.readOnly.name(), Boolean.toString(readOnly));
+			configProperties.put(DirectoryConf.readOnly.name(), Boolean.toString(readOnly));
 		} else
 			readOnly = Boolean.parseBoolean(readOnlyStr);
 
 		// disabled
-		String disabledStr = DirectoryConf.disabled.getValue(properties);
+		String disabledStr = DirectoryConf.disabled.getValue(configProperties);
 		if (disabledStr != null)
 			disabled = Boolean.parseBoolean(disabledStr);
 		else
@@ -202,7 +202,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 		checkEdit();
 		LdapEntryWorkingCopy wc = getWorkingCopy();
 		boolean actuallyDeleted;
-		if (getDirectoryDao().daoHasEntry(dn) || wc.getNewData().containsKey(dn)) {
+		if (getDirectoryDao().entryExists(dn) || wc.getNewData().containsKey(dn)) {
 			LdapEntry user = doGetRole(dn);
 			wc.getDeletedData().put(dn, user);
 			actuallyDeleted = true;
@@ -224,7 +224,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 		LdapEntryWorkingCopy wc = getWorkingCopy();
 		LdapEntry user;
 		try {
-			user = getDirectoryDao().daoGetEntry(dn);
+			user = getDirectoryDao().doGetEntry(dn);
 		} catch (NameNotFoundException e) {
 			user = null;
 		}
@@ -387,11 +387,26 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	}
 
 	/*
+	 * AS AN ENTRY
+	 */
+	public LdapEntry asLdapEntry() {
+		try {
+			return directoryDao.doGetEntry(baseDn);
+		} catch (NameNotFoundException e) {
+			throw new IllegalStateException("Cannot get " + baseDn + " entry", e);
+		}
+	}
+
+	public Dictionary<String, Object> getProperties() {
+		return asLdapEntry().getProperties();
+	}
+
+	/*
 	 * ACCESSORS
 	 */
 	@Override
 	public Optional<String> getRealm() {
-		Object realm = getProperties().get(DirectoryConf.realm.name());
+		Object realm = configProperties.get(DirectoryConf.realm.name());
 		if (realm == null)
 			return Optional.empty();
 		return Optional.of(realm.toString());
@@ -421,12 +436,12 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 		return systemRoleBaseRdn;
 	}
 
-	public Dictionary<String, Object> getProperties() {
-		return properties;
-	}
+//	public Dictionary<String, Object> getConfigProperties() {
+//		return configProperties;
+//	}
 
-	public Dictionary<String, Object> cloneProperties() {
-		return new Hashtable<>(properties);
+	public Dictionary<String, Object> cloneConfigProperties() {
+		return new Hashtable<>(configProperties);
 	}
 
 	public String getForcedPassword() {

@@ -1,6 +1,7 @@
 package org.argeo.cms.acr.directory;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 
@@ -8,25 +9,21 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
-import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.cms.acr.AbstractContent;
 import org.argeo.util.directory.Directory;
 import org.argeo.util.directory.HierarchyUnit;
 
-class DirectoryContent extends AbstractContent {
+class DirectoryContent extends AbstractDirectoryContent {
 	private Directory directory;
-	private DirectoryContentProvider provider;
 
 	public DirectoryContent(ProvidedSession session, DirectoryContentProvider provider, Directory directory) {
-		super(session);
-		this.provider = provider;
+		super(session, provider);
 		this.directory = directory;
 	}
 
 	@Override
-	public ContentProvider getProvider() {
-		return provider;
+	Dictionary<String, Object> doGetProperties() {
+		return directory.getProperties();
 	}
 
 	@Override

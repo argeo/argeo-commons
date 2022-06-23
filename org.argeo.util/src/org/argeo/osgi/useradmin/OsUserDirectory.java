@@ -41,12 +41,12 @@ public class OsUserDirectory extends AbstractLdapDirectoryDao {
 	}
 
 	@Override
-	public Boolean daoHasEntry(LdapName dn) {
+	public Boolean entryExists(LdapName dn) {
 		return osUserDn.equals(dn);
 	}
 
 	@Override
-	public LdapEntry daoGetEntry(LdapName key) throws NameNotFoundException {
+	public LdapEntry doGetEntry(LdapName key) throws NameNotFoundException {
 		if (osUserDn.equals(key))
 			return osUser;
 		else

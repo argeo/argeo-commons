@@ -110,6 +110,9 @@ public class DirectoryContentProvider implements ContentProvider {
 		return new UserManagerContent(session);
 	}
 
+	/*
+	 * COMMON UTILITIES
+	 */
 	class UserManagerContent extends AbstractContent {
 
 		public UserManagerContent(ProvidedSession session) {

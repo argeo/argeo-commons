@@ -7,7 +7,7 @@ import javax.naming.ldap.Rdn;
 import org.argeo.util.directory.HierarchyUnit;
 
 /** LDIF/LDAP based implementation of {@link HierarchyUnit}. */
-public class LdapHierarchyUnit extends AbstractLdapEntry implements HierarchyUnit {
+public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit {
 	private final boolean functional;
 
 	public LdapHierarchyUnit(AbstractLdapDirectory directory, LdapName dn, Attributes attributes) {

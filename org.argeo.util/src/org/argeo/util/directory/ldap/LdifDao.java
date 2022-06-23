@@ -217,7 +217,7 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 	 */
 
 	@Override
-	public LdapEntry daoGetEntry(LdapName key) throws NameNotFoundException {
+	public LdapEntry doGetEntry(LdapName key) throws NameNotFoundException {
 //		if (groups.containsKey(key))
 //			return groups.get(key);
 //		if (users.containsKey(key))
@@ -228,7 +228,7 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 	}
 
 	@Override
-	public Boolean daoHasEntry(LdapName dn) {
+	public Boolean entryExists(LdapName dn) {
 		return entries.containsKey(dn);// || groups.containsKey(dn);
 	}
 
@@ -281,7 +281,7 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 		entries: for (LdapName name : entries.keySet()) {
 			LdapEntry group;
 			try {
-				LdapEntry entry = daoGetEntry(name);
+				LdapEntry entry = doGetEntry(name);
 				if (AbstractLdapDirectory.hasObjectClass(entry.getAttributes(), getDirectory().getGroupObjectClass())) {
 					group = entry;
 				} else {
@@ -329,7 +329,7 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 			Attributes modifiedAttrs = wc.getModifiedData().get(dn);
 			LdapEntry user;
 			try {
-				user = daoGetEntry(dn);
+				user = doGetEntry(dn);
 			} catch (NameNotFoundException e) {
 				throw new IllegalStateException("User to modify no found " + dn, e);
 			}

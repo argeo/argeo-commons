@@ -2,12 +2,15 @@ package org.argeo.cms.swt.widgets;
 
 import java.util.function.Consumer;
 
+import org.argeo.api.cms.ux.CmsIcon;
+import org.argeo.cms.swt.CmsSwtTheme;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ux.widgets.Column;
 import org.argeo.cms.ux.widgets.TabularPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -22,7 +25,10 @@ public class SwtTabularPart implements TabularPart {
 	private Consumer<Object> onSelected;
 	private Consumer<Object> onAction;
 
+	private CmsSwtTheme theme;
+
 	public SwtTabularPart(Composite parent, int style) {
+		theme = CmsSwtUtils.getCmsTheme(parent);
 		area = new Composite(parent, style);
 		area.setLayout(CmsSwtUtils.noSpaceGridLayout());
 		table = new Table(area, SWT.VIRTUAL | SWT.BORDER);
@@ -46,16 +52,23 @@ public class SwtTabularPart implements TabularPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (onSelected != null)
-					onSelected.accept(e.item.getData());
+					onSelected.accept(getDataFromEvent(e));
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				if (onAction != null)
-					onAction.accept(e.item.getData());
+					onAction.accept(getDataFromEvent(e));
 			}
 		});
 
+	}
+
+	protected Object getDataFromEvent(SelectionEvent e) {
+		Object data = e.item.getData();
+		if (data == null)
+			data = getData(getTable().indexOf((TableItem) e.item));
+		return data;
 	}
 
 	@Override
@@ -74,8 +87,14 @@ public class SwtTabularPart implements TabularPart {
 		for (int i = 0; i < item.getParent().getColumnCount(); i++) {
 			Column<Object> column = (Column<Object>) item.getParent().getColumn(i).getData();
 			Object data = getData(row);
+			item.setData(data);
 			String text = data != null ? column.getText(data) : "";
 			item.setText(i, text);
+			CmsIcon icon = column.getIcon(data);
+			if (icon != null) {
+				Image image = theme.getSmallIcon(icon);
+				item.setImage(i, image);
+			}
 		}
 	}
 

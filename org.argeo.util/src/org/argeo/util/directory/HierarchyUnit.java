@@ -1,5 +1,7 @@
 package org.argeo.util.directory;
 
+import java.util.Dictionary;
+
 /** A unit within the high-level organisational structure of a directory. */
 public interface HierarchyUnit {
 	String getHierarchyUnitName();
@@ -14,5 +16,5 @@ public interface HierarchyUnit {
 
 	Directory getDirectory();
 
-//	Map<String,Object> getHierarchyProperties();
+	Dictionary<String, Object> getProperties();
 }

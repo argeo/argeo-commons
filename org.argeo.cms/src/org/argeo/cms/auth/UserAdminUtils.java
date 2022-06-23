@@ -67,16 +67,17 @@ public class UserAdminUtils {
 	 */
 	public static String getUserDisplayName(UserAdmin userAdmin, String dn) {
 		Role user = userAdmin.getRole(dn);
-		String dName;
 		if (user == null)
-			dName = getUserLocalId(dn);
-		else {
-			dName = getProperty(user, LdapAttrs.displayName.name());
-			if (isEmpty(dName))
-				dName = getProperty(user, LdapAttrs.cn.name());
-			if (isEmpty(dName))
-				dName = getUserLocalId(dn);
-		}
+			return getUserLocalId(dn);
+		return getUserDisplayName(user);
+	}
+
+	public static String getUserDisplayName(Role user) {
+		String dName = getProperty(user, LdapAttrs.displayName.name());
+		if (isEmpty(dName))
+			dName = getProperty(user, LdapAttrs.cn.name());
+		if (isEmpty(dName))
+			dName = getUserLocalId(user.getName());
 		return dName;
 	}
 

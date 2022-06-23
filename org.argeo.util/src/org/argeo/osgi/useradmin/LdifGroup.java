@@ -8,14 +8,11 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.util.directory.FunctionalGroup;
-import org.argeo.util.directory.Organization;
-import org.argeo.util.directory.SystemPermissions;
 import org.argeo.util.directory.ldap.AbstractLdapDirectory;
 import org.osgi.service.useradmin.Role;
 
 /** Directory group implementation */
-abstract class LdifGroup extends LdifUser implements DirectoryGroup {
+class LdifGroup extends LdifUser implements DirectoryGroup {
 	private final String memberAttributeId;
 
 	LdifGroup(AbstractLdapDirectory userAdmin, LdapName dn, Attributes attributes) {
@@ -125,30 +122,7 @@ abstract class LdifGroup extends LdifUser implements DirectoryGroup {
 		return GROUP;
 	}
 
-	/*
-	 * KIND
-	 */
-	static class LdifFunctionalGroup extends LdifGroup implements FunctionalGroup {
-
-		public LdifFunctionalGroup(DirectoryUserAdmin userAdmin, LdapName dn, Attributes attributes) {
-			super(userAdmin, dn, attributes);
-		}
-
-	}
-
-	static class LdifOrganization extends LdifGroup implements Organization {
-
-		public LdifOrganization(DirectoryUserAdmin userAdmin, LdapName dn, Attributes attributes) {
-			super(userAdmin, dn, attributes);
-		}
-
-	}
-
-	static class LdifSystemPermissions extends LdifGroup implements SystemPermissions {
-
-		public LdifSystemPermissions(DirectoryUserAdmin userAdmin, LdapName dn, Attributes attributes) {
-			super(userAdmin, dn, attributes);
-		}
-
+	protected DirectoryUserAdmin getUserAdmin() {
+		return (DirectoryUserAdmin) getDirectory();
 	}
 }
