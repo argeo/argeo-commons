@@ -1,7 +1,6 @@
-package org.argeo.cms.ui.widgets;
+package org.argeo.cms.swt.widgets;
 
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.widgets.ScrolledPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;

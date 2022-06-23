@@ -4,15 +4,19 @@ package org.argeo.api.cms.ux;
 public interface CmsEditable {
 
 	/** Whether the calling thread can edit, the value is immutable */
-	public Boolean canEdit();
+	Boolean canEdit();
 
-	public Boolean isEditing();
+	Boolean isEditing();
 
-	public void startEditing();
+	void startEditing();
 
-	public void stopEditing();
+	void stopEditing();
 
-	public static CmsEditable NON_EDITABLE = new CmsEditable() {
+	void addCmsEditionListener(CmsEditionListener listener);
+
+	void removeCmsEditionListener(CmsEditionListener listener);
+
+	static CmsEditable NON_EDITABLE = new CmsEditable() {
 
 		@Override
 		public void stopEditing() {
@@ -31,9 +35,18 @@ public interface CmsEditable {
 		public Boolean canEdit() {
 			return false;
 		}
+
+		@Override
+		public void addCmsEditionListener(CmsEditionListener listener) {
+		}
+
+		@Override
+		public void removeCmsEditionListener(CmsEditionListener listener) {
+		}
+
 	};
 
-	public static CmsEditable ALWAYS_EDITING = new CmsEditable() {
+	static CmsEditable ALWAYS_EDITING = new CmsEditable() {
 
 		@Override
 		public void stopEditing() {
@@ -52,6 +65,15 @@ public interface CmsEditable {
 		public Boolean canEdit() {
 			return true;
 		}
+
+		@Override
+		public void addCmsEditionListener(CmsEditionListener listener) {
+		}
+
+		@Override
+		public void removeCmsEditionListener(CmsEditionListener listener) {
+		}
+
 	};
 
 }

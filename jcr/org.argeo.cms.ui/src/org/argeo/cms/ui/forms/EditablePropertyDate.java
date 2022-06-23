@@ -8,7 +8,7 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.ui.viewers.EditablePart;
+import org.argeo.cms.swt.EditablePart;
 import org.argeo.cms.ui.widgets.StyledControl;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.swt.SWT;

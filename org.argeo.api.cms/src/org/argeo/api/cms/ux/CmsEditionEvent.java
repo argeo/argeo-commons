@@ -1,4 +1,4 @@
-package org.argeo.cms.ui;
+package org.argeo.api.cms.ux;
 
 import java.util.EventObject;
 
@@ -10,14 +10,20 @@ public class CmsEditionEvent extends EventObject {
 	public final static Integer STOP_EDITING = 1;
 
 	private final Integer type;
+	private final CmsEditable cmsEditable;
 
-	public CmsEditionEvent(Object source, Integer type) {
+	public CmsEditionEvent(Object source, Integer type, CmsEditable cmsEditable) {
 		super(source);
 		this.type = type;
+		this.cmsEditable = cmsEditable;
 	}
 
 	public Integer getType() {
 		return type;
+	}
+
+	public CmsEditable getCmsEditable() {
+		return cmsEditable;
 	}
 
 }
