@@ -1,6 +1,6 @@
 package org.argeo.cms.swt;
 
-import org.argeo.api.cms.CmsUi;
+import org.argeo.api.cms.ux.CmsUi;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 

@@ -3,8 +3,8 @@ package org.argeo.cms.ui.widgets;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.api.cms.Cms2DSize;
-import org.argeo.api.cms.CmsImageManager;
+import org.argeo.api.cms.ux.Cms2DSize;
+import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.internal.JcrFileUploadReceiver;
 import org.argeo.cms.ui.viewers.NodePart;

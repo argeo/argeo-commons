@@ -14,10 +14,10 @@ import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
-import org.argeo.api.cms.Cms2DSize;
-import org.argeo.api.cms.CmsEditable;
-import org.argeo.api.cms.CmsImageManager;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.Cms2DSize;
+import org.argeo.api.cms.ux.CmsEditable;
+import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.viewers.AbstractPageViewer;
 import org.argeo.cms.ui.viewers.EditablePart;

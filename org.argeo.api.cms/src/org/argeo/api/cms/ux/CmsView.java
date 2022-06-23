@@ -1,10 +1,12 @@
-package org.argeo.api.cms;
+package org.argeo.api.cms.ux;
 
 import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.security.auth.login.LoginContext;
+
+import org.argeo.api.cms.CmsSession;
 
 /** Provides interaction with the CMS system. */
 public interface CmsView {

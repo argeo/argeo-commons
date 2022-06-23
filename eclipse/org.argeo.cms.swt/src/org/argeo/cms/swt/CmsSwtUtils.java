@@ -6,12 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.argeo.api.cms.CmsStyle;
-import org.argeo.api.cms.CmsTheme;
-import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.ux.CmsIcon;
+import org.argeo.api.cms.ux.CmsStyle;
+import org.argeo.api.cms.ux.CmsTheme;
+import org.argeo.api.cms.ux.CmsView;
 import org.argeo.eclipse.ui.specific.EclipseUiSpecificUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -30,19 +32,18 @@ import org.eclipse.swt.widgets.Widget;
 
 /** SWT utilities. */
 public class CmsSwtUtils {
+	/*
+	 * THEME AND VIEW
+	 */
 
-	/** Singleton. */
-	private CmsSwtUtils() {
-	}
-
-	public static CmsTheme getCmsTheme(Composite parent) {
-		CmsTheme theme = (CmsTheme) parent.getData(CmsTheme.class.getName());
+	public static CmsSwtTheme getCmsTheme(Composite parent) {
+		CmsSwtTheme theme = (CmsSwtTheme) parent.getData(CmsTheme.class.getName());
 		if (theme == null) {
 			// find parent shell
 			Shell topShell = parent.getShell();
 			while (topShell.getParent() != null)
 				topShell = (Shell) topShell.getParent();
-			theme = (CmsTheme) topShell.getData(CmsTheme.class.getName());
+			theme = (CmsSwtTheme) topShell.getData(CmsTheme.class.getName());
 			parent.setData(CmsTheme.class.getName(), theme);
 		}
 		return theme;
@@ -83,6 +84,10 @@ public class CmsSwtUtils {
 		shell.setData(CmsView.class.getName(), view);
 	}
 
+	/*
+	 * EVENTS
+	 */
+
 	/** Sends an event via {@link CmsView#sendEvent(String, Map)}. */
 	public static void sendEventOnSelect(Control control, String topic, Map<String, Object> properties) {
 		SelectionListener listener = (Selected) (e) -> {
@@ -102,6 +107,19 @@ public class CmsSwtUtils {
 		Map<String, Object> properties = new HashMap<>();
 		properties.put(key, value);
 		sendEventOnSelect(control, topic, properties);
+	}
+
+	/*
+	 * ICONS
+	 */
+	/** Get a small icon from this theme. */
+	public static Image getSmallIcon(CmsTheme theme, CmsIcon icon) {
+		return ((CmsSwtTheme) theme).getSmallIcon(icon);
+	}
+
+	/** Get a big icon from this theme. */
+	public static Image getBigIcon(CmsTheme theme, CmsIcon icon) {
+		return ((CmsSwtTheme) theme).getBigIcon(icon);
 	}
 
 	/*
@@ -285,8 +303,13 @@ public class CmsSwtUtils {
 			String encoded = URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8);
 			encoded = encoded.replace("+", "%20");
 			sb.append(encoded);
-	
+
 		}
 		return sb.toString();
 	}
+
+	/** Singleton. */
+	private CmsSwtUtils() {
+	}
+
 }

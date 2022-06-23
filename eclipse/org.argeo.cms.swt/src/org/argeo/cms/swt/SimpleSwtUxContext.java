@@ -1,6 +1,6 @@
 package org.argeo.cms.swt;
 
-import org.argeo.api.cms.UxContext;
+import org.argeo.api.cms.ux.UxContext;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;

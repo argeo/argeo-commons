@@ -20,7 +20,7 @@ import javax.security.auth.login.LoginException;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.RemoteAuthCallback;

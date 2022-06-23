@@ -1,4 +1,4 @@
-package org.argeo.api.cms;
+package org.argeo.api.cms.ux;
 
 /** Can be applied to {@link Enum}s in order to generate (CSS) class names. */
 public interface CmsStyle {

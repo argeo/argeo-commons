@@ -3,8 +3,8 @@ package org.argeo.cms.swt.dialogs;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 
-import org.argeo.api.cms.CmsView;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.swt.CmsSwtUtils;

@@ -18,9 +18,9 @@ import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.api.cms.Cms2DSize;
-import org.argeo.api.cms.CmsImageManager;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.Cms2DSize;
+import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;

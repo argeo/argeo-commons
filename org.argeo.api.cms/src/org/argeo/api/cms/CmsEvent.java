@@ -1,5 +1,7 @@
 package org.argeo.api.cms;
 
+import org.argeo.api.cms.ux.CmsView;
+
 /**
  * Can be applied to {@link Enum}s in order to define events used by
  * {@link CmsView#sendEvent(String, java.util.Map)}.

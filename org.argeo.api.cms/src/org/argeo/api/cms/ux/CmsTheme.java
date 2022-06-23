@@ -1,4 +1,4 @@
-package org.argeo.api.cms;
+package org.argeo.api.cms.ux;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +37,13 @@ public interface CmsTheme {
 	String getBodyHtml();
 
 	/** The default icon size (typically the smallest). */
-	Integer getDefaultIconSize();
+	default int getDefaultIconSize() {
+		return getSmallIconSize();
+	}
+
+	int getSmallIconSize();
+
+	int getBigIconSize();
 
 	/** Loads one of the relative path provided by the other methods. */
 	InputStream loadPath(String path) throws IOException;

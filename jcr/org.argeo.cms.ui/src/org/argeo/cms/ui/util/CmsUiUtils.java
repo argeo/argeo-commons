@@ -9,9 +9,9 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 
-import org.argeo.api.cms.Cms2DSize;
-import org.argeo.api.cms.CmsView;
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.ux.Cms2DSize;
+import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsUiConstants;

@@ -1,4 +1,4 @@
-package org.argeo.api.cms;
+package org.argeo.api.cms.ux;
 
 public interface CmsUi {
 	Object getData(String key);

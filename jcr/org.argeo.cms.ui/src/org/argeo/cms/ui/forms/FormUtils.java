@@ -9,8 +9,8 @@ import java.util.GregorianCalendar;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.api.cms.CmsView;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;

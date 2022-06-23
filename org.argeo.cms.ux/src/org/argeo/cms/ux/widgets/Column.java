@@ -6,4 +6,5 @@ public interface Column<T> {
 	default int getWidth() {
 		return 200;
 	}
+	
 }

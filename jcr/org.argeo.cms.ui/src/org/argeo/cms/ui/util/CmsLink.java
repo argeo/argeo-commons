@@ -8,8 +8,8 @@ import java.net.URL;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.api.cms.CmsStyle;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.CmsStyle;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.swt.CmsSwtUtils;

@@ -2,6 +2,9 @@ package org.argeo.api.cms;
 
 import java.util.Set;
 
+import org.argeo.api.cms.ux.CmsTheme;
+import org.argeo.api.cms.ux.CmsUi;
+
 /** An extensible user interface base on the CMS backend. */
 public interface CmsApp {
 	/**

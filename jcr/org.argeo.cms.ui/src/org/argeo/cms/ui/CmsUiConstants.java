@@ -1,6 +1,6 @@
 package org.argeo.cms.ui;
 
-import org.argeo.api.cms.Cms2DSize;
+import org.argeo.api.cms.ux.Cms2DSize;
 
 /** Commons constants */
 @Deprecated

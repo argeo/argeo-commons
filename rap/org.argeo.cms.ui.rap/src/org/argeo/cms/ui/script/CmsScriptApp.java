@@ -20,8 +20,8 @@ import javax.script.ScriptEngine;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.argeo.api.cms.CmsTheme;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.CmsTheme;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsUiConstants;
 import org.argeo.cms.ui.CmsUiProvider;

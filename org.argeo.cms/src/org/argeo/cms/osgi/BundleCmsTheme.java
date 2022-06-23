@@ -18,7 +18,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.api.cms.CmsTheme;
+import org.argeo.api.cms.ux.CmsTheme;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -64,7 +64,8 @@ public class BundleCmsTheme implements CmsTheme {
 //	private String swtCssPath;
 	private Bundle themeBundle;
 
-	private Integer defaultIconSize = 16;
+	private Integer smallIconSize = 16;
+	private Integer bigIconSize = 32;
 
 	public BundleCmsTheme() {
 
@@ -320,8 +321,13 @@ public class BundleCmsTheme implements CmsTheme {
 	}
 
 	@Override
-	public Integer getDefaultIconSize() {
-		return defaultIconSize;
+	public int getSmallIconSize() {
+		return smallIconSize;
+	}
+
+	@Override
+	public int getBigIconSize() {
+		return bigIconSize;
 	}
 
 	@Override

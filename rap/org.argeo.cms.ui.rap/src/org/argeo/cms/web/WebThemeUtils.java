@@ -1,7 +1,7 @@
 package org.argeo.cms.web;
 
-import org.argeo.api.cms.CmsTheme;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.CmsTheme;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 

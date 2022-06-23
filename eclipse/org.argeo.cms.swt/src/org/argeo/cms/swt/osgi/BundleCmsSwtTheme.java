@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.argeo.api.cms.ux.CmsIcon;
 import org.argeo.cms.osgi.BundleCmsTheme;
 import org.argeo.cms.swt.CmsSwtTheme;
 import org.eclipse.swt.graphics.Image;
@@ -39,11 +40,11 @@ public class BundleCmsSwtTheme extends BundleCmsTheme implements CmsSwtTheme {
 	 * 
 	 * @param name          An icon file name without path and extension.
 	 * @param preferredSize the preferred size, if <code>null</code>,
-	 *                      {@link #getDefaultIconSize()} will be tried.
+	 *                      {@link #getSmallIconSize()} will be tried.
 	 */
 	public Image getIcon(String name, Integer preferredSize) {
 		if (preferredSize == null)
-			preferredSize = getDefaultIconSize();
+			preferredSize = getSmallIconSize();
 		Map<Integer, String> subCache;
 		if (!iconPaths.containsKey(name))
 			subCache = new HashMap<>();
@@ -95,6 +96,16 @@ public class BundleCmsSwtTheme extends BundleCmsTheme implements CmsSwtTheme {
 			iconPaths.put(name, subCache);
 
 		return image;
+	}
+
+	@Override
+	public Image getSmallIcon(CmsIcon icon) {
+		return getIcon(icon.name(), getSmallIconSize());
+	}
+
+	@Override
+	public Image getBigIcon(CmsIcon icon) {
+		return getIcon(icon.name(), getBigIconSize());
 	}
 
 }

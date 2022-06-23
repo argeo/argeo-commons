@@ -1,7 +1,7 @@
 package org.argeo.cms.swt.auth;
 
 import org.argeo.api.cms.CmsContext;
-import org.argeo.api.cms.CmsView;
+import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;

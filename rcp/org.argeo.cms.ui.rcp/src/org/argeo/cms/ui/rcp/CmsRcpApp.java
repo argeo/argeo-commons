@@ -13,13 +13,13 @@ import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAuth;
-import org.argeo.api.cms.CmsImageManager;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
-import org.argeo.api.cms.CmsTheme;
-import org.argeo.api.cms.CmsUi;
-import org.argeo.api.cms.CmsView;
-import org.argeo.api.cms.UxContext;
+import org.argeo.api.cms.ux.CmsImageManager;
+import org.argeo.api.cms.ux.CmsTheme;
+import org.argeo.api.cms.ux.CmsUi;
+import org.argeo.api.cms.ux.CmsView;
+import org.argeo.api.cms.ux.UxContext;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.e4.ui.css.core.engine.CSSEngine;
 import org.eclipse.e4.ui.css.core.engine.CSSErrorHandler;

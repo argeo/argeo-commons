@@ -11,8 +11,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.security.auth.Subject;
 
-import org.argeo.api.cms.CmsEditable;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.CmsEditable;
 import org.argeo.cms.ui.widgets.ScrolledPage;
 import org.argeo.jcr.JcrException;
 import org.eclipse.jface.viewers.ContentViewer;

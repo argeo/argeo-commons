@@ -1,4 +1,4 @@
-package org.argeo.api.cms;
+package org.argeo.api.cms.ux;
 
 /** A 2D size. */
 public class Cms2DSize {

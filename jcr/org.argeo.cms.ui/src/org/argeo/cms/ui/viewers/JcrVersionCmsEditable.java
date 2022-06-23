@@ -8,7 +8,7 @@ import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.version.VersionManager;
 
-import org.argeo.api.cms.CmsEditable;
+import org.argeo.api.cms.ux.CmsEditable;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.ui.CmsEditionEvent;
 import org.eclipse.rap.rwt.RWT;

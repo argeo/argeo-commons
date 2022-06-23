@@ -1,6 +1,7 @@
 package org.argeo.cms.swt;
 
-import org.argeo.api.cms.CmsTheme;
+import org.argeo.api.cms.ux.CmsIcon;
+import org.argeo.api.cms.ux.CmsTheme;
 import org.eclipse.swt.graphics.Image;
 
 /** SWT specific {@link CmsTheme}. */
@@ -18,4 +19,7 @@ public interface CmsSwtTheme extends CmsTheme {
 	 */
 	Image getIcon(String name, Integer preferredSize);
 
+	Image getSmallIcon(CmsIcon icon);
+	
+	Image getBigIcon(CmsIcon icon);
 }

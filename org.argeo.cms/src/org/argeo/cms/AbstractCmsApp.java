@@ -9,7 +9,7 @@ import java.util.Map;
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAppListener;
 import org.argeo.api.cms.CmsContext;
-import org.argeo.api.cms.CmsTheme;
+import org.argeo.api.cms.ux.CmsTheme;
 
 /** Base class for {@link CmsApp}s. */
 public abstract class AbstractCmsApp implements CmsApp {

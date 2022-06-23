@@ -2,7 +2,7 @@ package org.argeo.cms.ui.internal;
 
 import javax.jcr.RepositoryException;
 
-import org.argeo.api.cms.Cms2DSize;
+import org.argeo.api.cms.ux.Cms2DSize;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.widgets.EditableImage;

@@ -3,8 +3,8 @@ package org.argeo.cms.ui.widgets;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.api.cms.Cms2DSize;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.ux.Cms2DSize;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.eclipse.swt.graphics.Point;

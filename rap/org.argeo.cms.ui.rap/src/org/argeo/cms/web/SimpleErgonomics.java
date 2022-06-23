@@ -7,9 +7,9 @@ import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 
-import org.argeo.api.cms.CmsImageManager;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.api.cms.UxContext;
+import org.argeo.api.cms.ux.CmsImageManager;
+import org.argeo.api.cms.ux.UxContext;
 import org.argeo.cms.CmsException;
 import org.argeo.cms.swt.CmsStyles;
 import org.argeo.cms.swt.CmsSwtUtils;

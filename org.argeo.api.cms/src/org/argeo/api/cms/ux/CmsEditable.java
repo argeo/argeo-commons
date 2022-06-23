@@ -1,4 +1,4 @@
-package org.argeo.api.cms;
+package org.argeo.api.cms.ux;
 
 /** Abstraction of a simple edition life cycle. */
 public interface CmsEditable {
