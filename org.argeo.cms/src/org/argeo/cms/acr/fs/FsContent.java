@@ -305,7 +305,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	 */
 
 	@Override
-	public List<QName> getTypes() {
+	public List<QName> getContentClasses() {
 		List<QName> res = new ArrayList<>();
 		if (Files.isDirectory(path))
 			res.add(CrName.COLLECTION.get());

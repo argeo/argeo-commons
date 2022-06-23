@@ -133,7 +133,7 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	 */
 
 	@Override
-	public List<QName> getTypes() {
+	public List<QName> getContentClasses() {
 		return new ArrayList<>();
 	}
 

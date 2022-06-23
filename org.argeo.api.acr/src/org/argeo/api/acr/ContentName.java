@@ -84,7 +84,7 @@ public class ContentName extends QName {
 
 	@Override
 	public String toString() {
-		return toPrefixedString();
+		return toQNameString();
 	}
 
 	@Override

@@ -85,7 +85,7 @@ public class AcrContentTreeView extends Composite {
 
 			@Override
 			protected int getItemCount() {
-				data = new ArrayList<>(selected.getTypes());
+				data = new ArrayList<>(selected.getContentClasses());
 				return data.size();
 			}
 		};

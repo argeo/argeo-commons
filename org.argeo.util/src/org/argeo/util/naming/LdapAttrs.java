@@ -9,7 +9,7 @@ import java.util.function.Supplier;
  * "https://github.com/krb5/krb5/blob/master/src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema">Kerberos
  * LDAP (partial)</a>
  */
-public enum LdapAttrs implements SpecifiedName, Supplier<String> {
+public enum LdapAttrs implements SpecifiedName, Supplier<String>, QNamed {
 	/** */
 	uid("0.9.2342.19200300.100.1.1", "RFC 4519"),
 	/** */
@@ -309,14 +309,6 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 		return spec;
 	}
 
-	public String getPrefix() {
-		return prefix();
-	}
-
-	public static String prefix() {
-		return "ldap";
-	}
-
 	@Deprecated
 	public String property() {
 		return get();
@@ -328,16 +320,18 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 	}
 
 	public String get() {
-		String prefix = getPrefix();
+		String prefix = getDefaultPrefix();
 		return prefix != null ? prefix + ":" + name() : name();
 	}
 
-	public String getNamespace() {
-		return namespace();
+	@Override
+	public String getDefaultPrefix() {
+		return LdapObjs.LDAP_DEFAULT_PREFIX;
 	}
 
-	public static String namespace() {
-		return "http://www.argeo.org/ns/ldap";
+	@Override
+	public String getNamespace() {
+		return LdapObjs.LDAP_NAMESPACE_URI;
 	}
 
 	@Override

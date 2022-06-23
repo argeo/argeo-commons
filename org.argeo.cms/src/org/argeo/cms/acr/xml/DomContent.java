@@ -278,7 +278,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	 * TYPING
 	 */
 	@Override
-	public List<QName> getTypes() {
+	public List<QName> getContentClasses() {
 		List<QName> res = new ArrayList<>();
 		res.add(getName());
 		return res;

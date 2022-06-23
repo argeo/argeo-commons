@@ -25,7 +25,6 @@ import javax.naming.ldap.LdapName;
 import org.argeo.util.directory.DirectoryDigestUtils;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
-import org.argeo.util.naming.SharedSecret;
 
 /** An entry in an LDAP (or LDIF) directory. */
 public class DefaultLdapEntry implements LdapEntry {

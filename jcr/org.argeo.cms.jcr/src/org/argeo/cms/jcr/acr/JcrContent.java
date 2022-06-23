@@ -291,7 +291,7 @@ public class JcrContent extends AbstractContent {
 	 * TYPING
 	 */
 	@Override
-	public List<QName> getTypes() {
+	public List<QName> getContentClasses() {
 		try {
 //			Node node = getJcrNode();
 //			List<QName> res = new ArrayList<>();

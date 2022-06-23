@@ -4,8 +4,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
+import org.argeo.api.acr.CrName;
+
 public enum CmsContentTypes {
-	CR_2("cr", "http://argeo.org/ns/cr", "cr.xsd", null),
+	CR_2(CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI, "cr.xsd", null),
 	//
 	XSD_2001("xs", "http://www.w3.org/2001/XMLSchema", "XMLSchema.xsd", "http://www.w3.org/2001/XMLSchema.xsd"),
 	//
@@ -13,12 +15,14 @@ public enum CmsContentTypes {
 	//
 	XLINK_1999("xlink", "http://www.w3.org/1999/xlink", "xlink.xsd", "http://www.w3.org/XML/2008/06/xlink.xsd"),
 	//
-	XSLT_2_0("xsl", "http://www.w3.org/1999/XSL/Transform", "schema-for-xslt20.xsd", "https://www.w3.org/2007/schema-for-xslt20.xsd"),
+	XSLT_2_0("xsl", "http://www.w3.org/1999/XSL/Transform", "schema-for-xslt20.xsd",
+			"https://www.w3.org/2007/schema-for-xslt20.xsd"),
 	//
 	SVG_1_1("svg", "http://www.w3.org/2000/svg", "SVG.xsd",
 			"https://raw.githubusercontent.com/oreillymedia/HTMLBook/master/schema/svg/SVG.xsd"),
 	//
-	DOCBOOK_5_0_1("dbk","http://docbook.org/ns/docbook","docbook.xsd","http://docbook.org/xml/5.0.1/xsd/docbook.xsd"),
+	DOCBOOK_5_0_1("dbk", "http://docbook.org/ns/docbook", "docbook.xsd",
+			"http://docbook.org/xml/5.0.1/xsd/docbook.xsd"),
 	//
 	XML_EVENTS_2001("ev", "http://www.w3.org/2001/xml-events", "xml-events-attribs-1.xsd",
 			"http://www.w3.org/MarkUp/SCHEMA/xml-events-attribs-1.xsd"),

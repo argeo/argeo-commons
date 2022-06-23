@@ -57,7 +57,7 @@ abstract class AbstractDirectoryContent extends AbstractContent {
 	}
 
 	@Override
-	public List<QName> getTypes() {
+	public List<QName> getContentClasses() {
 		Dictionary<String, Object> properties = doGetProperties();
 		List<QName> contentClasses = new ArrayList<>();
 		String objectClass = properties.get(LdapAttrs.objectClass.name()).toString();

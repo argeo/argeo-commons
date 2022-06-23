@@ -1,6 +1,6 @@
 package org.argeo.cms.web;
 
-import static org.argeo.util.naming.SharedSecret.X_SHARED_SECRET;
+import static org.argeo.util.directory.ldap.SharedSecret.X_SHARED_SECRET;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
@@ -35,7 +35,7 @@ import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.util.directory.ldap.AuthPassword;
-import org.argeo.util.naming.SharedSecret;
+import org.argeo.util.directory.ldap.SharedSecret;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.WebClient;

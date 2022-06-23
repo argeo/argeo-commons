@@ -92,7 +92,27 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	/*
 	 * TYPING
 	 */
-	List<QName> getTypes();
+	List<QName> getContentClasses();
+
+	/** AND */
+	default boolean isContentClass(QName... contentClass) {
+		List<QName> contentClasses = getContentClasses();
+		for (QName cClass : contentClass) {
+			if (!contentClasses.contains(cClass))
+				return false;
+		}
+		return true;
+	}
+
+	/** OR */
+	default boolean hasContentClass(QName... contentClass) {
+		List<QName> contentClasses = getContentClasses();
+		for (QName cClass : contentClass) {
+			if (contentClasses.contains(cClass))
+				return true;
+		}
+		return false;
+	}
 
 	/*
 	 * DEFAULT METHODS
@@ -112,9 +132,21 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	/*
 	 * CONVENIENCE METHODS
 	 */
-//	default String attr(String key) {
-//		return get(key, String.class);
-//	}
+	default String attr(String key) {
+		Object obj = get(key);
+		if (obj == null)
+			return null;
+		return obj.toString();
+
+	}
+
+	default String attr(QName key) {
+		Object obj = get(key);
+		if (obj == null)
+			return null;
+		return obj.toString();
+
+	}
 //
 //	default String attr(Object key) {
 //		return key != null ? attr(key.toString()) : attr(null);

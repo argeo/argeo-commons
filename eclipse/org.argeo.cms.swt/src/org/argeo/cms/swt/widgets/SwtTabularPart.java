@@ -89,7 +89,8 @@ public class SwtTabularPart implements TabularPart {
 			Object data = getData(row);
 			item.setData(data);
 			String text = data != null ? column.getText(data) : "";
-			item.setText(i, text);
+			if (text != null)
+				item.setText(i, text);
 			CmsIcon icon = column.getIcon(data);
 			if (icon != null) {
 				Image image = theme.getSmallIcon(icon);

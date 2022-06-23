@@ -5,7 +5,7 @@ package org.argeo.util.naming;
  * <a href="https://www.ldap.com/ldap-oid-reference">https://www.ldap.com/ldap-
  * oid-reference</a>
  */
-public enum LdapObjs implements SpecifiedName {
+public enum LdapObjs implements SpecifiedName, QNamed {
 	account("0.9.2342.19200300.100.4.5", "RFC 4524"),
 	/** */
 	document("0.9.2342.19200300.100.4.6", "RFC 4524"),
@@ -91,7 +91,12 @@ public enum LdapObjs implements SpecifiedName {
 	/** */
 	referral("2.16.840.1.113730.3.2.6", "RFC 3296");
 
-	private final static String LDAP_ = "ldap:";
+	/** MUST be equal to ContentRepository LDAP namespace. */
+	final static String LDAP_NAMESPACE_URI = "http://www.argeo.org/ns/ldap";
+	/** MUST be equal to ContentRepository LDAP prefix. */
+	final static String LDAP_DEFAULT_PREFIX = "ldap";
+
+	private final static String LDAP_ = LDAP_DEFAULT_PREFIX + ":";
 	private final String oid, spec;
 
 	private LdapObjs(String oid, String spec) {
@@ -109,6 +114,16 @@ public enum LdapObjs implements SpecifiedName {
 
 	public String property() {
 		return new StringBuilder(LDAP_).append(name()).toString();
+	}
+
+	@Override
+	public String getDefaultPrefix() {
+		return LdapObjs.LDAP_DEFAULT_PREFIX;
+	}
+
+	@Override
+	public String getNamespace() {
+		return LdapObjs.LDAP_NAMESPACE_URI;
 	}
 
 }
