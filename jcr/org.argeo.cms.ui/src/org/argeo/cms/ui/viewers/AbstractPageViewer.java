@@ -13,7 +13,7 @@ import javax.security.auth.Subject;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsEditable;
-import org.argeo.cms.ui.widgets.ScrolledPage;
+import org.argeo.cms.swt.widgets.ScrolledPage;
 import org.argeo.jcr.JcrException;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.ISelection;
