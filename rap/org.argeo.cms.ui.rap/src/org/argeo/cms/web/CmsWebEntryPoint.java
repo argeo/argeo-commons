@@ -313,9 +313,15 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		if (getApplicationContext().getLifeCycleFactory().getLifeCycle() instanceof RWTLifeCycle) {
 			eventLoop: while (!shell.isDisposed()) {
 				try {
-					if (!display.readAndDispatch()) {
-						display.sleep();
-					}
+					Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
+						@Override
+						public Void run() {
+							if (!display.readAndDispatch()) {
+								display.sleep();
+							}
+							return null;
+						}
+					});
 				} catch (Throwable e) {
 					if (e instanceof SWTError) {
 						SWTError swtError = (SWTError) e;
