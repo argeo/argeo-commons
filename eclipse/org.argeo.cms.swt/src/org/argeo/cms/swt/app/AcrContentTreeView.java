@@ -1,18 +1,22 @@
 package org.argeo.cms.swt.app;
 
+import static org.argeo.api.acr.NamespaceUtils.toPrefixedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.acr.SwtContentHierarchicalPart;
+import org.argeo.cms.swt.widgets.SwtHierarchicalPart;
 import org.argeo.cms.swt.widgets.SwtTabularPart;
+import org.argeo.cms.ux.acr.ContentHierarchicalPart;
 import org.argeo.cms.ux.widgets.Column;
+import org.argeo.cms.ux.widgets.DefaultTabularPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
 public class AcrContentTreeView extends Composite {
@@ -20,51 +24,47 @@ public class AcrContentTreeView extends Composite {
 
 	private Content rootContent;
 
-	private Content selected;
+//	private Content selected;
 
 	public AcrContentTreeView(Composite parent, int style, Content content) {
 		super(parent, style);
 		this.rootContent = content;
-		this.selected = rootContent;
+		// this.selected = rootContent;
 		setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		SashForm split = new SashForm(this, SWT.HORIZONTAL);
 		split.setLayoutData(CmsSwtUtils.fillAll());
 
-		SwtContentHierarchicalPart hPart = new SwtContentHierarchicalPart(split, getStyle());
-		Composite area = new Composite(split, SWT.NONE);
+		ContentHierarchicalPart contentPart = new ContentHierarchicalPart();
+		contentPart.setInput(rootContent);
+
+		SwtHierarchicalPart<Content> hPart = new SwtHierarchicalPart<>(split, getStyle(), contentPart);
+
+		Composite area = new Composite(split, SWT.BORDER);
 		area.setLayout(CmsSwtUtils.noSpaceGridLayout(2));
 		split.setWeights(new int[] { 30, 70 });
 
 		// attributes
-		SwtTabularPart attributesPart = new SwtTabularPart(area, SWT.NONE) {
-			List<QName> data;
+		DefaultTabularPart<Content, QName> attributesPart = new DefaultTabularPart<>() {
 
 			@Override
-			protected Object getData(int row) {
-				return data.get(row);
-			}
-
-			@Override
-			protected int getItemCount() {
-				data = new ArrayList<>(selected.keySet());
-				return data.size();
+			protected List<QName> asList(Content input) {
+				return new ArrayList<>(input.keySet());
 			}
 		};
-		attributesPart.getArea().setLayoutData(CmsSwtUtils.fillHeight());
 
 		attributesPart.addColumn(new Column<QName>() {
 
 			@Override
 			public String getText(QName model) {
-				return model.toString();
+				return toPrefixedName(model);
 			}
 		});
 		attributesPart.addColumn(new Column<QName>() {
 
 			@Override
 			public String getText(QName model) {
-				return selected.get(model).toString();
+				return attributesPart.getInput().get(model).toString();
 			}
 
 			@Override
@@ -73,38 +73,40 @@ public class AcrContentTreeView extends Composite {
 			}
 
 		});
+		// attributesPart.setInput(selected);
+
+		SwtTabularPart<Content, QName> attributeTable = new SwtTabularPart<>(area, style, attributesPart);
+		attributeTable.setLayoutData(CmsSwtUtils.fillAll());
 
 		// types
-		SwtTabularPart typesPart = new SwtTabularPart(area, SWT.NONE) {
-			List<QName> data;
+		DefaultTabularPart<Content, QName> typesPart = new DefaultTabularPart<>() {
 
 			@Override
-			protected Object getData(int row) {
-				return data.get(row);
-			}
-
-			@Override
-			protected int getItemCount() {
-				data = new ArrayList<>(selected.getContentClasses());
-				return data.size();
+			protected List<QName> asList(Content input) {
+				return input.getContentClasses();
 			}
 		};
 		typesPart.addColumn(new Column<QName>() {
 
 			@Override
 			public String getText(QName model) {
-				return model.toString();
+				return toPrefixedName(model);
 			}
+
 		});
-		typesPart.getArea().setLayoutData(CmsSwtUtils.fillHeight());
+
+		// typesPart.setInput(selected);
+
+		SwtTabularPart<Content, QName> typesTable = new SwtTabularPart<>(area, style, typesPart);
+		typesTable.setLayoutData(CmsSwtUtils.fillAll());
 
 		// controller
-		hPart.setInput(rootContent);
-		hPart.onSelected((o) -> {
+		contentPart.setInput(rootContent);
+		contentPart.onSelected((o) -> {
 			Content c = (Content) o;
-			selected = c;
-			attributesPart.refresh();
-			typesPart.refresh();
+//			selected = c;
+			attributesPart.setInput(c);
+			typesPart.setInput(c);
 		});
 
 		attributesPart.refresh();
