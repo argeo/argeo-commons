@@ -31,6 +31,10 @@ public class NamespaceUtils {
 		return new ContentName(namespaceURI, localName, prefix);
 	}
 
+	public static String toPrefixedName(QName name) {
+		return toPrefixedName(RuntimeNamespaceContext.getNamespaceContext(), name);
+	}
+
 	public static String toPrefixedName(NamespaceContext nameSpaceContext, QName name) {
 		if (XMLConstants.NULL_NS_URI.equals(name.getNamespaceURI()))
 			return name.getLocalPart();
@@ -41,7 +45,7 @@ public class NamespaceUtils {
 	}
 
 	public final static Comparator<QName> QNAME_COMPARATOR = new Comparator<QName>() {
-	
+
 		@Override
 		public int compare(QName qn1, QName qn2) {
 			if (Objects.equals(qn1.getNamespaceURI(), qn2.getNamespaceURI())) {// same namespace
@@ -50,7 +54,7 @@ public class NamespaceUtils {
 				return qn1.getNamespaceURI().compareTo(qn2.getNamespaceURI());
 			}
 		}
-	
+
 	};
 
 	/** singleton */
