@@ -8,7 +8,7 @@ public interface HierarchyUnit {
 
 	HierarchyUnit getParent();
 
-	Iterable<HierarchyUnit> getDirectHierachyUnits(boolean functionalOnly);
+	Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly);
 
 	boolean isFunctional();
 

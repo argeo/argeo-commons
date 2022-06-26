@@ -24,7 +24,7 @@ public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit
 	}
 
 	@Override
-	public Iterable<HierarchyUnit> getDirectHierachyUnits(boolean functionalOnly) {
+	public Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly) {
 		return getDirectoryDao().doGetDirectHierarchyUnits(getDn(), functionalOnly);
 	}
 

@@ -246,7 +246,9 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 	public HierarchyUnit doGetHierarchyUnit(LdapName dn) {
 		try {
 			if (getDirectory().getBaseDn().equals(dn))
-				return null;
+				return getDirectory();
+			if (!dn.startsWith(getDirectory().getBaseDn()))
+				throw new IllegalArgumentException(dn + " does not start with abse DN " + getDirectory().getBaseDn());
 			Attributes attrs = ldapConnection.getAttributes(dn);
 			return new LdapHierarchyUnit(getDirectory(), dn, attrs);
 		} catch (NamingException e) {

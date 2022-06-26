@@ -13,6 +13,7 @@ import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.Directory;
 import org.argeo.util.directory.HierarchyUnit;
 import org.osgi.service.useradmin.Role;
 
@@ -44,7 +45,7 @@ class HierarchyUnitContent extends AbstractDirectoryContent {
 	@Override
 	public Content getParent() {
 		HierarchyUnit parentHu = hierarchyUnit.getParent();
-		if (parentHu == null) {
+		if (parentHu instanceof Directory) {
 			return new DirectoryContent(getSession(), provider, hierarchyUnit.getDirectory());
 		}
 		return new HierarchyUnitContent(getSession(), provider, parentHu);
@@ -53,7 +54,7 @@ class HierarchyUnitContent extends AbstractDirectoryContent {
 	@Override
 	public Iterator<Content> iterator() {
 		List<Content> lst = new ArrayList<>();
-		for (HierarchyUnit hu : hierarchyUnit.getDirectHierachyUnits(false))
+		for (HierarchyUnit hu : hierarchyUnit.getDirectHierarchyUnits(false))
 			lst.add(new HierarchyUnitContent(getSession(), provider, hu));
 
 		for (Role role : ((UserDirectory) hierarchyUnit.getDirectory()).getHierarchyUnitRoles(hierarchyUnit, null,

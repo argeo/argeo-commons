@@ -364,6 +364,8 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 //	}
 	@Override
 	public HierarchyUnit doGetHierarchyUnit(LdapName dn) {
+		if (getDirectory().getBaseDn().equals(dn))
+			return getDirectory();
 		return hierarchy.get(dn);
 	}
 

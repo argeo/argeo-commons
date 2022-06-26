@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import org.argeo.util.transaction.WorkControl;
 
-public interface Directory {
+public interface Directory extends HierarchyUnit {
 	/**
 	 * The base of the hierarchy defined by this directory. This could typically be
 	 * an LDAP base DN.

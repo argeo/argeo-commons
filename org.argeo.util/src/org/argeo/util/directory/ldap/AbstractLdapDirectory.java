@@ -281,6 +281,26 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 		return directoryDao.doGetDirectHierarchyUnits(baseDn, functionalOnly);
 	}
 
+	@Override
+	public String getHierarchyUnitName() {
+		return getName();
+	}
+
+	@Override
+	public HierarchyUnit getParent() {
+		return null;
+	}
+
+	@Override
+	public boolean isFunctional() {
+		return true;
+	}
+
+	@Override
+	public Directory getDirectory() {
+		return this;
+	}
+
 	/*
 	 * PATHS
 	 */
@@ -314,7 +334,9 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 			LdapName name = (LdapName) getBaseDn().clone();
 			String[] segments = path.split("/");
 			Rdn parentRdn = null;
-			for (String segment : segments) {
+			// segments[0] is the directory itself
+			for (int i = 0; i < segments.length; i++) {
+				String segment = segments[i];
 				// TODO make attr names configurable ?
 				String attr = LdapAttrs.ou.name();
 				if (parentRdn != null) {
