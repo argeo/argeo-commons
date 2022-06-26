@@ -12,6 +12,7 @@ import java.util.List;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.LdapAttrs;
@@ -19,15 +20,26 @@ import org.argeo.util.naming.dns.DnsBrowser;
 
 /** Free IPA specific conventions. */
 public class IpaUtils {
-	public final static String IPA_USER_BASE = "cn=users,cn=accounts";
-	public final static String IPA_GROUP_BASE = "cn=groups,cn=accounts";
-	public final static String IPA_ROLE_BASE = "cn=roles,cn=accounts";
+	public final static String IPA_USER_BASE = "cn=users";
+	public final static String IPA_GROUP_BASE = "cn=groups";
+	public final static String IPA_ROLE_BASE = "cn=roles";
 	public final static String IPA_SERVICE_BASE = "cn=services,cn=accounts";
+
+	public final static Rdn IPA_ACCOUNTS_RDN;
+	static {
+		try {
+			IPA_ACCOUNTS_RDN = new Rdn(LdapAttrs.cn.name(), "accounts");
+		} catch (InvalidNameException e) {
+			// should not happen
+			throw new IllegalStateException(e);
+		}
+	}
 
 	private final static String KRB_PRINCIPAL_NAME = LdapAttrs.krbPrincipalName.name().toLowerCase();
 
 	public final static String IPA_USER_DIRECTORY_CONFIG = DirectoryConf.userBase + "=" + IPA_USER_BASE + "&"
-			+ DirectoryConf.groupBase + "=" + IPA_GROUP_BASE + "&" + DirectoryConf.readOnly + "=true";
+			+ DirectoryConf.groupBase + "=" + IPA_GROUP_BASE + "&" + DirectoryConf.systemRoleBase + "=" + IPA_ROLE_BASE
+			+ "&" + DirectoryConf.readOnly + "=true";
 
 	@Deprecated
 	static String domainToUserDirectoryConfigPath(String realm) {
@@ -61,7 +73,7 @@ public class IpaUtils {
 		String baseDn = domainToBaseDn(kname[1]);
 		String dn;
 		if (!username.contains("/"))
-			dn = LdapAttrs.uid + "=" + username + "," + IPA_USER_BASE + "," + baseDn;
+			dn = LdapAttrs.uid + "=" + username + "," + IPA_USER_BASE + "," + IPA_ACCOUNTS_RDN + "," + baseDn;
 		else
 			dn = KRB_PRINCIPAL_NAME + "=" + kerberosName + "," + IPA_SERVICE_BASE + "," + baseDn;
 		try {

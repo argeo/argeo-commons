@@ -113,18 +113,22 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 			disabled = Boolean.parseBoolean(disabledStr);
 		else
 			disabled = false;
-
-		URI u = URI.create(uri);
-		if (!getRealm().isEmpty() || DirectoryConf.SCHEME_LDAP.equals(u.getScheme())
-				|| DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
+		if (!getRealm().isEmpty()) {
+			// IPA multiple LDAP causes URI parsing to fail
+			// TODO manage generic redundant LDAP case
 			directoryDao = new LdapDao(this);
-		} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
-			directoryDao = new LdifDao(this);
-		} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
-			directoryDao = new OsUserDirectory(this);
-			// singleUser = true;
 		} else {
-			throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
+			URI u = URI.create(uri);
+			if (DirectoryConf.SCHEME_LDAP.equals(u.getScheme()) || DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
+				directoryDao = new LdapDao(this);
+			} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
+				directoryDao = new LdifDao(this);
+			} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
+				directoryDao = new OsUserDirectory(this);
+				// singleUser = true;
+			} else {
+				throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
+			}
 		}
 		xaResource = new WorkingCopyXaResource<>(directoryDao);
 	}
@@ -338,7 +342,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 			for (int i = 0; i < segments.length; i++) {
 				String segment = segments[i];
 				// TODO make attr names configurable ?
-				String attr = LdapAttrs.ou.name();
+				String attr = path.startsWith("accounts/")/* IPA */ ? LdapAttrs.cn.name() : LdapAttrs.ou.name();
 				if (parentRdn != null) {
 					if (getUserBaseRdn().equals(parentRdn))
 						attr = LdapAttrs.uid.name();

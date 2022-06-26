@@ -15,7 +15,7 @@ public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit
 
 		Rdn rdn = LdapNameUtils.getLastRdn(dn);
 		functional = !(directory.getUserBaseRdn().equals(rdn) || directory.getGroupBaseRdn().equals(rdn)
-				|| directory.getSystemRoleBaseRdn().equals(rdn));
+				|| directory.getSystemRoleBaseRdn().equals(rdn) );
 	}
 
 	@Override

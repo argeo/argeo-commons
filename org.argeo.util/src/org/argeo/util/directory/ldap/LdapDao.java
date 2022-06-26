@@ -83,8 +83,9 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 //			int roleType = roleType(name);
 			LdapEntry res;
 			Rdn technicalRdn = LdapNameUtils.getParentRdn(name);
-			if (getDirectory().getGroupBaseRdn().equals(technicalRdn)
-					|| getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
+			if (getDirectory().getGroupBaseRdn().equals(technicalRdn))
+				res = newGroup(name, attrs);
+			else if (getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
 				res = newGroup(name, attrs);
 			else if (getDirectory().getUserBaseRdn().equals(technicalRdn))
 				res = newUser(name, attrs);
@@ -218,6 +219,8 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 		try {
 			String searchFilter = "(|(" + objectClass + "=" + LdapObjs.organizationalUnit.name() + ")(" + objectClass
 					+ "=" + LdapObjs.organization.name() + "))";
+//			String searchFilter = "(|(" + objectClass + "=" + LdapObjs.organizationalUnit.name() + ")(" + objectClass
+//					+ "=" + LdapObjs.organization.name() + ")(cn=accounts)(cn=users)(cn=groups))";
 
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
@@ -248,7 +251,7 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 			if (getDirectory().getBaseDn().equals(dn))
 				return getDirectory();
 			if (!dn.startsWith(getDirectory().getBaseDn()))
-				throw new IllegalArgumentException(dn + " does not start with abse DN " + getDirectory().getBaseDn());
+				throw new IllegalArgumentException(dn + " does not start with base DN " + getDirectory().getBaseDn());
 			Attributes attrs = ldapConnection.getAttributes(dn);
 			return new LdapHierarchyUnit(getDirectory(), dn, attrs);
 		} catch (NamingException e) {

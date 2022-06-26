@@ -26,6 +26,7 @@ import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.directory.DirectoryDigestUtils;
 import org.argeo.util.directory.HierarchyUnit;
 import org.argeo.util.directory.ldap.AbstractLdapDirectory;
+import org.argeo.util.directory.ldap.LdapDao;
 import org.argeo.util.directory.ldap.LdapEntry;
 import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
 import org.argeo.util.directory.ldap.LdapNameUtils;
@@ -65,7 +66,13 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	 */
 
 	protected AbstractLdapDirectory scope(User user) {
-		throw new UnsupportedAddressTypeException();
+		if (getDirectoryDao() instanceof LdapDao) {
+			return scopeLdap(user);
+		} else if (getDirectoryDao() instanceof LdifDao) {
+			return scopeLdif(user);
+		} else {
+			throw new IllegalStateException("Unsupported DAO " + getDirectoryDao().getClass());
+		}
 	}
 
 	protected DirectoryUserAdmin scopeLdap(User user) {
@@ -83,7 +90,9 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		} else {
 			properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
 		}
-		return new DirectoryUserAdmin(null, properties, true);
+		DirectoryUserAdmin scopedDirectory = new DirectoryUserAdmin(null, properties, true);
+		scopedDirectory.init();
+		return scopedDirectory;
 	}
 
 	protected DirectoryUserAdmin scopeLdif(User user) {
@@ -108,6 +117,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 //		scopedUserAdmin.users = Collections.unmodifiableNavigableMap(users);
 		// FIXME do it better
 		((LdifDao) getDirectoryDao()).scope((LdifDao) scopedUserAdmin.getDirectoryDao());
+		scopedUserAdmin.init();
 		return scopedUserAdmin;
 	}
 
@@ -125,7 +135,12 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 
 	@Override
 	public Role getRoleByPath(String path) {
-		return (Role) doGetRole(pathToName(path));
+		LdapEntry entry = doGetRole(pathToName(path));
+		if (!(entry instanceof Role)) {
+			throw new IllegalStateException("Path must be a UserAdmin Role.");
+		} else {
+			return (Role) entry;
+		}
 	}
 
 	protected List<Role> getAllRoles(DirectoryUser user) {
@@ -143,7 +158,8 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		LdapEntry entry = (LdapEntry) user;
 		collectGroups(entry, allEntries);
 		for (LdapEntry e : allEntries) {
-			allRoles.add((Role) e);
+			if (e instanceof Role)
+				allRoles.add((Role) e);
 		}
 //		Attributes attrs = user.getAttributes();
 //		// TODO centralize attribute name
