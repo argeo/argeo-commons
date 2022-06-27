@@ -3,6 +3,7 @@ package org.argeo.cms.internal.runtime;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
 import java.util.UUID;
 
 import javax.security.auth.login.Configuration;
@@ -79,6 +80,16 @@ public class CmsStateImpl implements CmsState {
 
 		long duration = ((System.currentTimeMillis() - availableSince) / 1000) / 60;
 		log.info("## ARGEO CMS STOPPED after " + (duration / 60) + "h " + (duration % 60) + "min uptime ##");
+	}
+
+	@Override
+	public String getDeployProperty(String key) {
+		return KernelUtils.getFrameworkProp(key);
+	}
+
+	@Override
+	public Path getDataPath(String relativePath) {
+		return  KernelUtils.getOsgiInstancePath(relativePath);
 	}
 
 	@Override

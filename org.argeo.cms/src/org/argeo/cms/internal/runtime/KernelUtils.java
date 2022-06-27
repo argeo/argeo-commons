@@ -101,7 +101,7 @@ public class KernelUtils implements KernelConstants {
 		return value;
 	}
 
-	public static String getFrameworkProp(String key) {
+	static String getFrameworkProp(String key) {
 		return getFrameworkProp(key, null);
 	}
 

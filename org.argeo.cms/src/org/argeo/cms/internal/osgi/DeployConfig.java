@@ -70,59 +70,50 @@ public class DeployConfig {
 	private void setFromFrameworkProperties(boolean isFirstInit) {
 
 		// user admin
-		List<Dictionary<String, Object>> userDirectoryConfigs = InitUtils.getUserDirectoryConfigs();
-		if (userDirectoryConfigs.size() != 0) {
-			List<String> activeCns = new ArrayList<>();
-			for (int i = 0; i < userDirectoryConfigs.size(); i++) {
-				Dictionary<String, Object> userDirectoryConfig = userDirectoryConfigs.get(i);
-				String baseDn = (String) userDirectoryConfig.get(DirectoryConf.baseDn.name());
-				String cn;
-				if (CmsConstants.ROLES_BASEDN.equals(baseDn))
-					cn = ROLES;
-				else
-					cn = DirectoryConf.baseDnHash(userDirectoryConfig);
-				activeCns.add(cn);
-				userDirectoryConfig.put(CmsConstants.CN, cn);
-				putFactoryDeployConfig(CmsConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
-			}
-			// disable others
-			LdapName userAdminFactoryName = serviceFactoryDn(CmsConstants.NODE_USER_ADMIN_PID);
-			for (LdapName name : deployConfigs.keySet()) {
-				if (name.startsWith(userAdminFactoryName) && !name.equals(userAdminFactoryName)) {
-//					try {
-					Attributes attrs = deployConfigs.get(name);
-					String cn = name.getRdn(name.size() - 1).getValue().toString();
-					if (!activeCns.contains(cn)) {
-						attrs.put(DirectoryConf.disabled.name(), "true");
-					}
-//					} catch (Exception e) {
-//						throw new CmsException("Cannot disable user directory " + name, e);
+//		List<Dictionary<String, Object>> userDirectoryConfigs = InitUtils.getUserDirectoryConfigs();
+//		if (userDirectoryConfigs.size() != 0) {
+//			List<String> activeCns = new ArrayList<>();
+//			for (int i = 0; i < userDirectoryConfigs.size(); i++) {
+//				Dictionary<String, Object> userDirectoryConfig = userDirectoryConfigs.get(i);
+//				String baseDn = (String) userDirectoryConfig.get(DirectoryConf.baseDn.name());
+//				String cn;
+//				if (CmsConstants.ROLES_BASEDN.equals(baseDn))
+//					cn = ROLES;
+//				else
+//					cn = DirectoryConf.baseDnHash(userDirectoryConfig);
+//				activeCns.add(cn);
+//				userDirectoryConfig.put(CmsConstants.CN, cn);
+//				putFactoryDeployConfig(CmsConstants.NODE_USER_ADMIN_PID, userDirectoryConfig);
+//			}
+//			// disable others
+//			LdapName userAdminFactoryName = serviceFactoryDn(CmsConstants.NODE_USER_ADMIN_PID);
+//			for (LdapName name : deployConfigs.keySet()) {
+//				if (name.startsWith(userAdminFactoryName) && !name.equals(userAdminFactoryName)) {
+////					try {
+//					Attributes attrs = deployConfigs.get(name);
+//					String cn = name.getRdn(name.size() - 1).getValue().toString();
+//					if (!activeCns.contains(cn)) {
+//						attrs.put(DirectoryConf.disabled.name(), "true");
 //					}
-				}
-			}
-		}
+////					} catch (Exception e) {
+////						throw new CmsException("Cannot disable user directory " + name, e);
+////					}
+//				}
+//			}
+//		}
 
 		// http server
-		Dictionary<String, Object> webServerConfig = InitUtils
-				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT));
-		if (!webServerConfig.isEmpty()) {
-			// TODO check for other customizers
-//			webServerConfig.put("customizer.class", "org.argeo.equinox.jetty.CmsJettyCustomizer");
-			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
-		}
-//		LdapName defaultHttpServiceDn = serviceDn(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT);
-//		if (deployConfigs.containsKey(defaultHttpServiceDn)) {
-//			// remove old default configs since we have now to start Jetty servlet bridge
-//			// indirectly
-//			deployConfigs.remove(defaultHttpServiceDn);
+//		Dictionary<String, Object> webServerConfig = InitUtils
+//				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT));
+//		if (!webServerConfig.isEmpty()) {
+//			// TODO check for other customizers
+//			putFactoryDeployConfig(KernelConstants.JETTY_FACTORY_PID, webServerConfig);
 //		}
 
 		// SAVE
 		save();
 		//
 
-//		Dictionary<String, Object> webServerConfig = InitUtils
-//				.getHttpServerConfig(getProps(KernelConstants.JETTY_FACTORY_PID, CmsConstants.DEFAULT));
 	}
 
 	public void start() {

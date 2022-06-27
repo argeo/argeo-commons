@@ -75,7 +75,7 @@ public class CmsJcrDeployment {
 	// Readiness
 	private boolean nodeAvailable = false;
 
-	CmsDeployment cmsDeployment;
+//	CmsDeployment cmsDeployment;
 	public void start() {
 		dataModels = new DataModels(bc);
 
@@ -85,7 +85,7 @@ public class CmsJcrDeployment {
 
 //		nodeDeployment = CmsJcrActivator.getService(NodeDeployment.class);
 
-		JcrInitUtils.addToDeployment(cmsDeployment);
+		//JcrInitUtils.addToDeployment(cmsDeployment);
 
 //		contentRepository.registerTypes(NamespaceRegistry.PREFIX_JCR, NamespaceRegistry.NAMESPACE_JCR, null);
 //		contentRepository.registerTypes(NamespaceRegistry.PREFIX_MIX, NamespaceRegistry.NAMESPACE_MIX, null);
@@ -113,9 +113,9 @@ public class CmsJcrDeployment {
 
 	}
 
-	public void setCmsDeployment(CmsDeployment cmsDeployment) {
-		this.cmsDeployment = cmsDeployment;
-	}
+//	public void setCmsDeployment(CmsDeployment cmsDeployment) {
+//		this.cmsDeployment = cmsDeployment;
+//	}
 
 	/**
 	 * Checks whether the deployment is available according to expectations, and
@@ -363,7 +363,8 @@ public class CmsJcrDeployment {
 	}
 
 	boolean isStandalone(String dataModelName) {
-		return cmsDeployment.getProps(CmsConstants.NODE_REPOS_FACTORY_PID, dataModelName) != null;
+		return true;
+		//return cmsDeployment.getProps(CmsConstants.NODE_REPOS_FACTORY_PID, dataModelName) != null;
 	}
 
 	private void publishLocalRepo(String dataModelName, Repository repository) {

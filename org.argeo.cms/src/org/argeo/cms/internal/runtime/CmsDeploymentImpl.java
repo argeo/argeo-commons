@@ -19,28 +19,28 @@ public class CmsDeploymentImpl implements CmsDeployment {
 	private HttpService httpService;
 
 	private CmsState cmsState;
-	private DeployConfig deployConfig;
+//	private DeployConfig deployConfig;
 
 	public void start() {
-		httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
-		if (deployConfig.hasDomain()) {
-			loadIpaJaasConfiguration();
-		}
+//		httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
+//		if (deployConfig.hasDomain()) {
+//			loadIpaJaasConfiguration();
+//		}
 	}
 
-	public void addFactoryDeployConfig(String factoryPid, Dictionary<String, Object> props) {
-		deployConfig.putFactoryDeployConfig(factoryPid, props);
-		deployConfig.save();
-		try {
-			deployConfig.loadConfigs();
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	public Dictionary<String, Object> getProps(String factoryPid, String cn) {
-		return deployConfig.getProps(factoryPid, cn);
-	}
+//	public void addFactoryDeployConfig(String factoryPid, Dictionary<String, Object> props) {
+//		deployConfig.putFactoryDeployConfig(factoryPid, props);
+//		deployConfig.save();
+//		try {
+//			deployConfig.loadConfigs();
+//		} catch (IOException e) {
+//			throw new IllegalStateException(e);
+//		}
+//	}
+//
+//	public Dictionary<String, Object> getProps(String factoryPid, String cn) {
+//		return deployConfig.getProps(factoryPid, cn);
+//	}
 
 	public boolean isHttpAvailableOrNotExpected() {
 		return (httpExpected ? httpService != null : true);
@@ -56,14 +56,14 @@ public class CmsDeploymentImpl implements CmsDeployment {
 	}
 
 	public void stop() {
-		if (deployConfig != null) {
-			deployConfig.save();
-		}
+//		if (deployConfig != null) {
+//			deployConfig.save();
+//		}
 	}
 
-	public void setDeployConfig(DeployConfig deployConfig) {
-		this.deployConfig = deployConfig;
-	}
+//	public void setDeployConfig(DeployConfig deployConfig) {
+//		this.deployConfig = deployConfig;
+//	}
 
 	public void setCmsState(CmsState cmsState) {
 		this.cmsState = cmsState;

@@ -12,9 +12,6 @@ public interface KernelConstants {
 
 	// Files
 	String DEPLOY_CONFIG_PATH = DIR_NODE + '/' + CmsConstants.DEPLOY_BASEDN + ".ldif";
-	String DEFAULT_KEYSTORE_PATH = DIR_NODE + '/' + CmsConstants.NODE + ".p12";
-	String DEFAULT_PEM_KEY_PATH = DIR_NODE + '/' + CmsConstants.NODE + ".key";
-	String DEFAULT_PEM_CERT_PATH = DIR_NODE + '/' + CmsConstants.NODE + ".crt";
 	String NODE_KEY_TAB_PATH = DIR_NODE + "/krb5.keytab";
 
 	// Security

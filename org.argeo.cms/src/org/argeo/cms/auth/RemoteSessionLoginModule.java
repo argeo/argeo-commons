@@ -211,7 +211,8 @@ public class RemoteSessionLoginModule implements LoginModule {
 			if (log.isDebugEnabled())
 				log.debug("Client certificate " + certDn + " verified by servlet container");
 		} // Reverse proxy verified the client certificate
-		String clientDnHttpHeader = KernelUtils.getFrameworkProp(CmsConstants.HTTP_PROXY_SSL_DN);
+		String clientDnHttpHeader = CmsContextImpl.getCmsContext().getCmsState()
+				.getDeployProperty(CmsConstants.HTTP_PROXY_SSL_DN);
 		if (clientDnHttpHeader != null) {
 			String certDn = req.getHeader(clientDnHttpHeader);
 			// TODO retrieve more cf. https://httpd.apache.org/docs/current/mod/mod_ssl.html

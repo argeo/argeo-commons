@@ -238,7 +238,11 @@ public class AggregatingUserAdmin implements UserAdmin {
 //		return res;
 //	}
 
-	public void destroy() {
+	public void start() {
+
+	}
+
+	public void stop() {
 		for (LdapName name : businessRoles.keySet()) {
 			DirectoryUserAdmin userDirectory = businessRoles.get(name);
 			destroy(userDirectory);
@@ -254,6 +258,14 @@ public class AggregatingUserAdmin implements UserAdmin {
 		userDirectory.destroy();
 	}
 
+//	protected void removeUserDirectory(UserDirectory userDirectory) {
+//		LdapName baseDn = toLdapName(userDirectory.getContext());
+//		businessRoles.remove(baseDn);
+//		if (userDirectory instanceof DirectoryUserAdmin)
+//			destroy((DirectoryUserAdmin) userDirectory);
+//	}
+
+	@Deprecated
 	protected void removeUserDirectory(String basePath) {
 		if (isSystemRolesBaseDn(basePath))
 			throw new IllegalArgumentException("System roles cannot be removed ");
@@ -274,6 +286,8 @@ public class AggregatingUserAdmin implements UserAdmin {
 	public Set<UserDirectory> getUserDirectories() {
 		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getContext().compareTo(o2.getContext()));
 		res.addAll(businessRoles.values());
+		res.add(systemRoles);
 		return res;
 	}
+
 }

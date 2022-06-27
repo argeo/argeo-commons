@@ -55,12 +55,12 @@ public class StaticCms {
 				.build(register);
 
 		// Deployment Configuration
-		DeployConfig deployConfig = new DeployConfig();
-		Component<DeployConfig> deployConfigC = new Component.Builder<>(deployConfig) //
-				.addType(DeployConfig.class) //
-				.addActivation(deployConfig::start) //
-				.addDeactivation(deployConfig::stop) //
-				.build(register);
+//		DeployConfig deployConfig = new DeployConfig();
+//		Component<DeployConfig> deployConfigC = new Component.Builder<>(deployConfig) //
+//				.addType(DeployConfig.class) //
+//				.addActivation(deployConfig::start) //
+//				.addDeactivation(deployConfig::stop) //
+//				.build(register);
 
 		// CMS Deployment
 		CmsDeploymentImpl cmsDeployment = new CmsDeploymentImpl();
@@ -69,7 +69,7 @@ public class StaticCms {
 				.addActivation(cmsDeployment::start) //
 				.addDeactivation(cmsDeployment::stop) //
 				.addDependency(cmsStateC.getType(CmsState.class), cmsDeployment::setCmsState, null) //
-				.addDependency(deployConfigC.getType(DeployConfig.class), cmsDeployment::setDeployConfig, null) //
+//				.addDependency(deployConfigC.getType(DeployConfig.class), cmsDeployment::setDeployConfig, null) //
 				.build(register);
 
 		// Transaction manager
@@ -85,10 +85,10 @@ public class StaticCms {
 				.addType(UserAdmin.class) //
 				.addDependency(transactionManagerC.getType(WorkControl.class), userAdmin::setTransactionManager, null) //
 				.addDependency(transactionManagerC.getType(WorkTransaction.class), userAdmin::setUserTransaction, null) //
-				.addDependency(deployConfigC.getType(DeployConfig.class), (d) -> {
-					for (Dictionary<String, Object> userDirectoryConfig : d.getUserDirectoryConfigs())
-						userAdmin.enableUserDirectory(userDirectoryConfig);
-				}, null) //
+//				.addDependency(deployConfigC.getType(DeployConfig.class), (d) -> {
+//					for (Dictionary<String, Object> userDirectoryConfig : d.getUserDirectoryConfigs())
+//						userAdmin.enableUserDirectory(userDirectoryConfig);
+//				}, null) //
 				.build(register);
 
 		// User manager

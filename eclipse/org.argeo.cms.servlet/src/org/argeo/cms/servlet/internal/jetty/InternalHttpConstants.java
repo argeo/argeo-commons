@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.http;
+package org.argeo.cms.servlet.internal.jetty;
 
 /** Compatible with Jetty. */
 public interface InternalHttpConstants {

@@ -5,12 +5,14 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,10 +33,11 @@ import org.apache.commons.httpclient.params.HttpParams;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsState;
 import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
-import org.argeo.osgi.useradmin.DirectoryUserAdmin;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
+import org.argeo.osgi.useradmin.DirectoryUserAdmin;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.dns.DnsBrowser;
@@ -65,14 +68,27 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 	private WorkControl transactionManager;
 	private WorkTransaction userTransaction;
 
+	private CmsState cmsState;
+
 	public CmsUserAdmin() {
 		super(CmsConstants.ROLES_BASEDN, CmsConstants.TOKENS_BASEDN);
 	}
 
 	public void start() {
+		super.start();
+		List<Dictionary<String, Object>> configs = InitUtils.getUserDirectoryConfigs();
+		for (Dictionary<String, Object> config : configs) {
+			UserDirectory userDirectory = enableUserDirectory(config);
+			if (userDirectory.getRealm().isPresent())
+				loadIpaJaasConfiguration();
+		}
 	}
 
 	public void stop() {
+//		for (UserDirectory userDirectory : getUserDirectories()) {
+//			removeUserDirectory(userDirectory);
+//		}
+		super.stop();
 	}
 
 	public UserDirectory enableUserDirectory(Dictionary<String, ?> properties) {
@@ -206,6 +222,15 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		}
 	}
 
+	private void loadIpaJaasConfiguration() {
+		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
+			String jaasConfig = KernelConstants.JAAS_CONFIG_IPA;
+			URL url = getClass().getClassLoader().getResource(jaasConfig);
+			KernelUtils.setJaasConfiguration(url);
+			log.debug("Set IPA JAAS configuration.");
+		}
+	}
+
 	private String getKerberosServicePrincipal(String realm) {
 		String hostname;
 		try (DnsBrowser dnsBrowser = new DnsBrowser()) {
@@ -288,8 +313,8 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		this.userTransaction = userTransaction;
 	}
 
-	/*
-	 * STATIC
-	 */
+	public void setCmsState(CmsState cmsState) {
+		this.cmsState = cmsState;
+	}
 
 }

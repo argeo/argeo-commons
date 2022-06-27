@@ -1,10 +1,11 @@
-package org.argeo.cms.internal.runtime;
+package org.argeo.cms.security;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
@@ -18,10 +19,14 @@ import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.internal.runtime.KernelConstants;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -42,8 +47,15 @@ import org.bouncycastle.pkcs.PKCSException;
  * Utilities around private keys and certificate, mostly wrapping BouncyCastle
  * implementations.
  */
-class PkiUtils {
-	final static String PKCS12 = "PKCS12";
+public class PkiUtils {
+	private final static CmsLog log = CmsLog.getLog(PkiUtils.class);
+
+	public final static String PKCS12 = "PKCS12";
+	public static final String DEFAULT_KEYSTORE_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".p12";
+
+	public static final String DEFAULT_PEM_KEY_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".key";
+
+	public static final String DEFAULT_PEM_CERT_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".crt";
 
 	private final static String SECURITY_PROVIDER;
 	static {
@@ -254,6 +266,35 @@ class PkiUtils {
 		// e.printStackTrace();
 		// }
 
+	}
+
+	public static void createSelfSignedKeyStore(Path keyStorePath, char[] keyStorePassword, String keyStoreType) {
+		// for (Provider provider : Security.getProviders())
+		// System.out.println(provider.getName());
+		// File keyStoreFile = keyStorePath.toFile();
+		char[] keyPwd = Arrays.copyOf(keyStorePassword, keyStorePassword.length);
+		if (!Files.exists(keyStorePath)) {
+			try {
+				Files.createDirectories(keyStorePath.getParent());
+				KeyStore keyStore = getKeyStore(keyStorePath, keyStorePassword, keyStoreType);
+				generateSelfSignedCertificate(keyStore,
+						new X500Principal("CN=" + InetAddress.getLocalHost().getHostName() + ",OU=UNSECURE,O=UNSECURE"),
+						1024, keyPwd);
+				saveKeyStore(keyStorePath, keyStorePassword, keyStore);
+				if (log.isDebugEnabled())
+					log.debug("Created self-signed unsecure keystore " + keyStorePath);
+			} catch (Exception e) {
+				try {
+					if (Files.size(keyStorePath) == 0)
+						Files.delete(keyStorePath);
+				} catch (IOException e1) {
+					// silent
+				}
+				log.error("Cannot create keystore " + keyStorePath, e);
+			}
+		} else {
+			throw new IllegalStateException("Keystore " + keyStorePath + " already exists");
+		}
 	}
 
 }

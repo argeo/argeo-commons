@@ -76,7 +76,9 @@ public class CmsServletContext extends ServletContextHelper {
 
 	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
 		// anonymous
+		ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
+			Thread.currentThread().setContextClassLoader(CmsServletContext.class.getClassLoader());
 			LoginContext lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS,
 					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
 			lc.login();
@@ -85,6 +87,8 @@ public class CmsServletContext extends ServletContextHelper {
 			if (log.isDebugEnabled())
 				log.error("Cannot log in as anonymous", e1);
 			return null;
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentContextClassLoader);
 		}
 	}
 

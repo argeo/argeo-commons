@@ -8,16 +8,13 @@ import org.argeo.cms.ArgeoLogger;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.condpermadmin.BundleLocationCondition;
 import org.osgi.service.condpermadmin.ConditionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
 import org.osgi.service.condpermadmin.ConditionalPermissionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionUpdate;
-import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogReaderService;
 import org.osgi.service.permissionadmin.PermissionInfo;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * Activates the kernel. Gives access to kernel information for the rest of the
@@ -179,18 +176,18 @@ public class CmsActivator implements BundleActivator {
 //		userAdminSt = new ServiceTracker<>(bundleContext, UserAdmin.class, null);
 //		userAdminSt.open();
 
-		ServiceTracker<?, ?> httpSt = new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, null) {
-
-			@Override
-			public HttpService addingService(ServiceReference<HttpService> sr) {
-				Object httpPort = sr.getProperty("http.port");
-				Object httpsPort = sr.getProperty("https.port");
-				log.info(httpPortsMsg(httpPort, httpsPort));
-				close();
-				return super.addingService(sr);
-			}
-		};
-		httpSt.open();
+//		ServiceTracker<?, ?> httpSt = new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, null) {
+//
+//			@Override
+//			public HttpService addingService(ServiceReference<HttpService> sr) {
+//				Object httpPort = sr.getProperty("http.port");
+//				Object httpsPort = sr.getProperty("https.port");
+//				log.info(httpPortsMsg(httpPort, httpsPort));
+//				close();
+//				return super.addingService(sr);
+//			}
+//		};
+//		httpSt.open();
 	}
 
 	private String httpPortsMsg(Object httpPort, Object httpsPort) {
