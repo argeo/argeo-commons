@@ -7,7 +7,16 @@ import java.util.Objects;
 import org.argeo.api.acr.CrName;
 
 public enum CmsContentTypes {
+	//
+	// ARGEO
+	//
 	CR_2(CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI, "cr.xsd", null),
+	//
+	SLC("slc", "http://www.argeo.org/ns/slc", null, null),
+	//
+	ARGEO_LEGACY("argeo", "http://www.argeo.org/ns/argeo", null, null),
+	//
+	// EXTERNAL
 	//
 	XSD_2001("xs", "http://www.w3.org/2001/XMLSchema", "XMLSchema.xsd", "http://www.w3.org/2001/XMLSchema.xsd"),
 	//
@@ -21,6 +30,8 @@ public enum CmsContentTypes {
 	SVG_1_1("svg", "http://www.w3.org/2000/svg", "SVG.xsd",
 			"https://raw.githubusercontent.com/oreillymedia/HTMLBook/master/schema/svg/SVG.xsd"),
 	//
+	XHTML_1_1("h", "http://www.w3.org/1999/xhtml", "xhtml11.xsd", "https://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd"),
+	//
 	DOCBOOK_5_0_1("dbk", "http://docbook.org/ns/docbook", "docbook.xsd",
 			"http://docbook.org/xml/5.0.1/xsd/docbook.xsd"),
 	//
@@ -32,6 +43,22 @@ public enum CmsContentTypes {
 	//
 	DSML_v2("dsml", "urn:oasis:names:tc:DSML:2:0:core", "DSMLv2.xsd",
 			"https://www.oasis-open.org/committees/dsml/docs/DSMLv2.xsd"),
+	//
+	// JCR (to be moved elsewhere)
+	//
+	JCR("jcr", "http://www.jcp.org/jcr/1.0", null,
+			"https://jackrabbit.apache.org/archive/wiki/JCR/NamespaceRegistry_115513459.html"),
+	//
+	JCR_MIX("mix", "http://www.jcp.org/jcr/mix/1.0", null,
+			"https://jackrabbit.apache.org/archive/wiki/JCR/NamespaceRegistry_115513459.html"),
+	//
+	JCR_NT("nt", "http://www.jcp.org/jcr/nt/1.0", null,
+			"https://jackrabbit.apache.org/archive/wiki/JCR/NamespaceRegistry_115513459.html"),
+	//
+	JACKRABBIT("rep", "internal", null,
+			"https://jackrabbit.apache.org/archive/wiki/JCR/NamespaceRegistry_115513459.html"),
+	//
+	JCRX("jcrx", "http://www.argeo.org/ns/jcrx", null, null),
 	//
 	;
 
@@ -47,8 +74,10 @@ public enum CmsContentTypes {
 		this.defaultPrefix = defaultPrefix;
 		Objects.requireNonNull(namespace);
 		this.namespace = namespace;
-		resource = getClass().getResource(RESOURCE_BASE + resourceFileName);
-		Objects.requireNonNull(resource);
+		if (resourceFileName != null) {
+			resource = getClass().getResource(RESOURCE_BASE + resourceFileName);
+			Objects.requireNonNull(resource);
+		}
 		if (publicUrl != null)
 			try {
 				this.publicUrl = new URL(publicUrl);

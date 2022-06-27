@@ -12,4 +12,6 @@ public interface ProvidedRepository extends ContentRepository {
 	ContentProvider getMountContentProvider(Content mountPoint, boolean initialize, QName... types);
 
 	boolean shouldMount(QName... types);
+
+	void addProvider(ContentProvider provider);
 }

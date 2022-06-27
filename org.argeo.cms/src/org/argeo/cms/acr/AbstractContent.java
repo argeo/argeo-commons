@@ -94,7 +94,7 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 		for (Content c : ancestors) {
 			QName name = c.getName();
 			// FIXME
-			if (!CrName.ROOT.get().equals(name))
+			if (!CrName.root.qName().equals(name))
 				path.append('/').append(name);
 		}
 		return path.toString();

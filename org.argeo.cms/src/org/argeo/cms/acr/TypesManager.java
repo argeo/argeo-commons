@@ -77,35 +77,29 @@ class TypesManager {
 
 	}
 
-	public synchronized void init() {
-//		prefixes.put(CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
-//		prefixes.put("basic", CrName.CR_NAMESPACE_URI);
-//		prefixes.put("owner", CrName.CR_NAMESPACE_URI);
-//		prefixes.put("posix", CrName.CR_NAMESPACE_URI);
-
+	public void init() {
 		for (CmsContentTypes cs : CmsContentTypes.values()) {
-			StreamSource source = new StreamSource(cs.getResource().toExternalForm());
-			sources.add(source);
-//			if (prefixes.containsKey(cs.getDefaultPrefix()))
-//				throw new IllegalStateException("Prefix " + cs.getDefaultPrefix() + " is already mapped with "
-//						+ prefixes.get(cs.getDefaultPrefix()));
-//			prefixes.put(cs.getDefaultPrefix(), cs.getNamespace());
+			if (cs.getResource() != null) {
+				StreamSource source = new StreamSource(cs.getResource().toExternalForm());
+				sources.add(source);
+			}
 			RuntimeNamespaceContext.register(cs.getNamespace(), cs.getDefaultPrefix());
 		}
 
 		reload();
 	}
 
-	public synchronized void registerTypes(String defaultPrefix, String namespace, String xsdSystemId) {
+	public void registerTypes(String defaultPrefix, String namespace, String xsdSystemId) {
 //		if (prefixes.containsKey(defaultPrefix))
 //			throw new IllegalStateException(
 //					"Prefix " + defaultPrefix + " is already mapped with " + prefixes.get(defaultPrefix));
 //		prefixes.put(defaultPrefix, namespace);
 		RuntimeNamespaceContext.register(namespace, defaultPrefix);
 
-		if (xsdSystemId != null)
+		if (xsdSystemId != null) {
 			sources.add(new StreamSource(xsdSystemId));
-		reload();
+			reload();
+		}
 	}
 
 	public Set<QName> listTypes() {

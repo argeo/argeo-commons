@@ -126,8 +126,8 @@ public class StaticCms {
 				.addDependency(cmsDeploymentC.getType(CmsDeployment.class), cmsContext::setCmsDeployment, null) //
 				.addDependency(userAdminC.getType(UserAdmin.class), cmsContext::setUserAdmin, null) //
 				.addDependency(uuidFactoryC.getType(UuidFactory.class), cmsContext::setUuidFactory, null) //
-				.addDependency(contentRepositoryC.getType(ProvidedRepository.class), cmsContext::setContentRepository,
-						null) //
+//				.addDependency(contentRepositoryC.getType(ProvidedRepository.class), cmsContext::setContentRepository,
+//						null) //
 				.build(register);
 		assert cmsContextC.get() == cmsContext;
 

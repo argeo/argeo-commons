@@ -1,5 +1,7 @@
 package org.argeo.api.acr;
 
+import static javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
@@ -9,32 +11,44 @@ import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
-import javax.xml.XMLConstants;
+import javax.xml.namespace.QName;
 
 /**
  * Minimal standard attribute types that MUST be supported. All related classes
  * belong to java.base and can be implicitly derived form a given
  * <code>String<code>.
  */
-public enum CrAttributeType implements ContentNameSupplier {
-	BOOLEAN(Boolean.class, new BooleanFormatter()), //
-	INTEGER(Integer.class, new IntegerFormatter()), //
-	LONG(Long.class, new LongFormatter()), //
-	DOUBLE(Double.class, new DoubleFormatter()), //
+public enum CrAttributeType {
+	BOOLEAN(Boolean.class, W3C_XML_SCHEMA_NS_URI, "boolean", new BooleanFormatter()), //
+	INTEGER(Integer.class, W3C_XML_SCHEMA_NS_URI, "integer", new IntegerFormatter()), //
+	LONG(Long.class, W3C_XML_SCHEMA_NS_URI, "long", new LongFormatter()), //
+	DOUBLE(Double.class, W3C_XML_SCHEMA_NS_URI, "double", new DoubleFormatter()), //
 	// we do not support short and float, like recent additions to Java
 	// (e.g. optional primitives)
-	DATE_TIME(Instant.class, new InstantFormatter()), //
-	UUID(UUID.class, new UuidFormatter()), //
-	ANY_URI(URI.class, new UriFormatter()), //
-	STRING(String.class, new StringFormatter()), //
+	DATE_TIME(Instant.class, W3C_XML_SCHEMA_NS_URI, "dateTime", new InstantFormatter()), //
+	UUID(UUID.class, CrName.CR_NAMESPACE_URI, "uuid", new UuidFormatter()), //
+	ANY_URI(URI.class, W3C_XML_SCHEMA_NS_URI, "anyUri", new UriFormatter()), //
+	STRING(String.class, W3C_XML_SCHEMA_NS_URI, "string", new StringFormatter()), //
 	;
 
 	private final Class<?> clss;
 	private final AttributeFormatter<?> formatter;
 
-	private <T> CrAttributeType(Class<T> clss, AttributeFormatter<T> formatter) {
+	private ContentName qName;
+
+	private <T> CrAttributeType(Class<T> clss, String namespaceUri, String localName, AttributeFormatter<T> formatter) {
 		this.clss = clss;
 		this.formatter = formatter;
+
+		qName = new ContentName(namespaceUri, localName, RuntimeNamespaceContext.getNamespaceContext());
+	}
+
+	public QName getqName() {
+		return qName;
+	}
+
+	public void setqName(ContentName qName) {
+		this.qName = qName;
 	}
 
 	public Class<?> getClss() {
@@ -45,21 +59,21 @@ public enum CrAttributeType implements ContentNameSupplier {
 		return formatter;
 	}
 
-	@Override
-	public String getDefaultPrefix() {
-		if (equals(UUID))
-			return CrName.CR_DEFAULT_PREFIX;
-		else
-			return "xs";
-	}
-
-	@Override
-	public String getNamespaceURI() {
-		if (equals(UUID))
-			return CrName.CR_NAMESPACE_URI;
-		else
-			return XMLConstants.W3C_XML_SCHEMA_NS_URI;
-	}
+//	@Override
+//	public String getDefaultPrefix() {
+//		if (equals(UUID))
+//			return CrName.CR_DEFAULT_PREFIX;
+//		else
+//			return "xs";
+//	}
+//
+//	@Override
+//	public String getNamespaceURI() {
+//		if (equals(UUID))
+//			return CrName.CR_NAMESPACE_URI;
+//		else
+//			return XMLConstants.W3C_XML_SCHEMA_NS_URI;
+//	}
 
 	/** Default parsing procedure from a String to an object. */
 	public static Object parse(String str) {
@@ -112,7 +126,7 @@ public enum CrAttributeType implements ContentNameSupplier {
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
-		
+
 		// TODO support QName as a type? It would require a NamespaceContext
 		// see https://www.oreilly.com/library/view/xml-schema/0596002521/re91.html
 

@@ -170,7 +170,7 @@ class CmsContentSession implements ProvidedSession {
 			else {
 				Content runDir = get(CmsContentRepository.RUN_BASE);
 				// TODO deal with no run dir available?
-				sessionRunDir = runDir.add(uuid.toString(), CrName.COLLECTION.get());
+				sessionRunDir = runDir.add(uuid.toString(), CrName.collection.qName());
 			}
 		}
 		return sessionRunDir;

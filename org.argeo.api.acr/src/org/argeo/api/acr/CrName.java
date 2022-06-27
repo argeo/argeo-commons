@@ -1,34 +1,36 @@
 package org.argeo.api.acr;
 
+import javax.xml.namespace.QName;
+
 /** Standard names. */
-public enum CrName implements ContentNameSupplier {
+public enum CrName {
 
 	/*
 	 * TYPES
 	 */
-	COLLECTION, // a collection type
+	collection, // a collection type
 
 	/*
 	 * ATTRIBUTES
 	 */
-	UUID, // the UUID of a content
-	MOUNT,
+	uuid, // the UUID of a content
+	mount,
 
 	/*
 	 * ATTRIBUTES FROM FILE SEMANTICS
 	 */
-	CREATION_TIME, //
-	LAST_MODIFIED_TIME, //
-	SIZE, //
-	FILE_KEY, //
-	OWNER, //
-	GROUP, //
-	PERMISSIONS, //
+	creationTime, //
+	lastModifiedTime, //
+	size, //
+	fileKey, //
+	owner, //
+	group, //
+	permissions, //
 
 	/*
 	 * CONTENT NAMES
 	 */
-	ROOT,
+	root,
 
 	//
 	;
@@ -46,22 +48,21 @@ public enum CrName implements ContentNameSupplier {
 	private final ContentName value;
 
 	CrName() {
-		value = toContentName();
+		value = new ContentName(CR_NAMESPACE_URI, name(), RuntimeNamespaceContext.getNamespaceContext());
 	}
 
-	@Override
-	public ContentName get() {
+	public QName qName() {
 		return value;
 	}
 
-	@Override
-	public String getNamespaceURI() {
-		return CR_NAMESPACE_URI;
-	}
-
-	@Override
-	public String getDefaultPrefix() {
-		return CR_DEFAULT_PREFIX;
-	}
+//	@Override
+//	public String getNamespaceURI() {
+//		return CR_NAMESPACE_URI;
+//	}
+//
+//	@Override
+//	public String getDefaultPrefix() {
+//		return CR_DEFAULT_PREFIX;
+//	}
 
 }

@@ -52,7 +52,7 @@ class ElementIterator implements Iterator<Content> {
 		if (nextElement == null)
 			throw new NoSuchElementException();
 		Content result;
-		String isMount = nextElement.getAttributeNS(CrName.CR_NAMESPACE_URI, CrName.MOUNT.get().getLocalPart());
+		String isMount = nextElement.getAttributeNS(CrName.CR_NAMESPACE_URI, CrName.mount.qName().getLocalPart());
 		if (isMount.equals("true")) {
 			result = session.get(parent.getPath() + '/' + nextElement.getTagName());
 		}

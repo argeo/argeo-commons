@@ -37,6 +37,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.ArgeoNames;
 import org.argeo.cms.internal.jcr.JcrInitUtils;
 import org.argeo.cms.jcr.CmsJcrUtils;
+import org.argeo.cms.jcr.acr.JcrContentProvider;
 import org.argeo.cms.jcr.internal.servlet.CmsRemotingServlet;
 import org.argeo.cms.jcr.internal.servlet.CmsWebDavServlet;
 import org.argeo.cms.jcr.internal.servlet.JcrHttpUtils;
@@ -75,8 +76,6 @@ public class CmsJcrDeployment {
 	private boolean nodeAvailable = false;
 
 	CmsDeployment cmsDeployment;
-	private ProvidedRepository contentRepository;
-
 	public void start() {
 		dataModels = new DataModels(bc);
 
@@ -88,18 +87,20 @@ public class CmsJcrDeployment {
 
 		JcrInitUtils.addToDeployment(cmsDeployment);
 
-		contentRepository.registerTypes(NamespaceRegistry.PREFIX_JCR, NamespaceRegistry.NAMESPACE_JCR, null);
-		contentRepository.registerTypes(NamespaceRegistry.PREFIX_MIX, NamespaceRegistry.NAMESPACE_MIX, null);
-		contentRepository.registerTypes(NamespaceRegistry.PREFIX_NT, NamespaceRegistry.NAMESPACE_NT, null);
-		// Jackrabbit
-		// see https://jackrabbit.apache.org/archive/wiki/JCR/NamespaceRegistry_115513459.html
-		contentRepository.registerTypes("rep", "internal", null);
+//		contentRepository.registerTypes(NamespaceRegistry.PREFIX_JCR, NamespaceRegistry.NAMESPACE_JCR, null);
+//		contentRepository.registerTypes(NamespaceRegistry.PREFIX_MIX, NamespaceRegistry.NAMESPACE_MIX, null);
+//		contentRepository.registerTypes(NamespaceRegistry.PREFIX_NT, NamespaceRegistry.NAMESPACE_NT, null);
+//		// Jackrabbit
+//		// see
+//		// https://jackrabbit.apache.org/archive/wiki/JCR/NamespaceRegistry_115513459.html
+//		contentRepository.registerTypes("rep", "internal", null);
 
 	}
 
 	public void stop() {
 //		if (nodeHttp != null)
 //			nodeHttp.destroy();
+
 
 		try {
 			for (ServiceReference<JackrabbitLocalRepository> sr : bc
@@ -114,10 +115,6 @@ public class CmsJcrDeployment {
 
 	public void setCmsDeployment(CmsDeployment cmsDeployment) {
 		this.cmsDeployment = cmsDeployment;
-	}
-
-	public void setContentRepository(ProvidedRepository contentRepository) {
-		this.contentRepository = contentRepository;
 	}
 
 	/**

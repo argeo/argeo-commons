@@ -31,7 +31,7 @@ class MountManager {
 		String[] parentPath = ContentUtils.getParentPath(mountPath);
 		Content parent = systemSession.get(parentPath[0]);
 		Content mount = parent.add(parentPath[1]);
-		mount.put(CrName.MOUNT.get(), "true");
+		mount.put(CrName.mount.qName(), "true");
 
 	}
 

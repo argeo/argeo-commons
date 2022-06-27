@@ -1,4 +1,4 @@
-package org.argeo.api.acr;
+package org.argeo.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -19,6 +19,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
@@ -48,7 +49,7 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	/** Should be used only to copy source and results. */
 	private TransformerFactory identityTransformerFactory = TransformerFactory.newInstance();
 
-	public final static String ACR_MOUNT_PATH_PROPERTY = "acr.mount.path";
+//	public final static String ACR_MOUNT_PATH_PROPERTY = "acr.mount.path";
 
 	public AbstractContentRepository() {
 		// types
@@ -78,7 +79,7 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	/*
 	 * REPOSITORY
 	 */
-
+	@Override
 	public void addProvider(ContentProvider provider) {
 		if (mountManager == null)
 			providersToAdd.add(provider);
@@ -110,7 +111,8 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 //				document = dBuilder.parse(inputSource);
 //			} else {
 			document = dBuilder.newDocument();
-			Element root = document.createElementNS(CrName.CR_NAMESPACE_URI, CrName.ROOT.get().toPrefixedString());
+			Element root = document.createElementNS(CrName.CR_NAMESPACE_URI,
+					NamespaceUtils.toPrefixedName(CrName.root.qName()));
 
 			for (String prefix : RuntimeNamespaceContext.getPrefixes().keySet()) {
 //				root.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE + ":" + prefix,

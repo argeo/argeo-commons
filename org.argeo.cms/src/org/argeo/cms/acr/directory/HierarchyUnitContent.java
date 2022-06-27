@@ -69,7 +69,7 @@ class HierarchyUnitContent extends AbstractDirectoryContent {
 	@Override
 	public List<QName> getContentClasses() {
 		List<QName> contentClasses = super.getContentClasses();
-		contentClasses.add(CrName.COLLECTION.get());
+		contentClasses.add(CrName.collection.qName());
 		return contentClasses;
 	}
 

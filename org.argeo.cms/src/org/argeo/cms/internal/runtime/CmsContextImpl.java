@@ -39,7 +39,7 @@ public class CmsContextImpl implements CmsContext {
 	private CmsDeployment cmsDeployment;
 	private UserAdmin userAdmin;
 	private UuidFactory uuidFactory;
-	private ProvidedRepository contentRepository;
+//	private ProvidedRepository contentRepository;
 
 	// i18n
 	private Locale defaultLocale;
@@ -165,13 +165,13 @@ public class CmsContextImpl implements CmsContext {
 		this.uuidFactory = uuidFactory;
 	}
 
-	public ProvidedRepository getContentRepository() {
-		return contentRepository;
-	}
-
-	public void setContentRepository(ProvidedRepository contentRepository) {
-		this.contentRepository = contentRepository;
-	}
+//	public ProvidedRepository getContentRepository() {
+//		return contentRepository;
+//	}
+//
+//	public void setContentRepository(ProvidedRepository contentRepository) {
+//		this.contentRepository = contentRepository;
+//	}
 
 	@Override
 	public Locale getDefaultLocale() {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" immediate="true" name="ACR Content Repository">
    <implementation class="org.argeo.cms.internal.runtime.DeployedContentRepository"/>
-   <reference bind="addContentProvider" cardinality="0..n" interface="org.argeo.api.acr.spi.ContentProvider" name="ContentProvider" policy="dynamic" unbind="removeContentProvider"/>
+   <reference bind="addProvider" cardinality="0..n" interface="org.argeo.api.acr.spi.ContentProvider" name="ContentProvider" policy="dynamic" />
    <service>
       <provide interface="org.argeo.api.acr.ContentRepository"/>
       <provide interface="org.argeo.api.acr.spi.ProvidedRepository"/>

@@ -43,15 +43,15 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	private static final Map<QName, String> POSIX_KEYS;
 	static {
 		BASIC_KEYS = new HashMap<>();
-		BASIC_KEYS.put(CrName.CREATION_TIME.get(), "basic:creationTime");
-		BASIC_KEYS.put(CrName.LAST_MODIFIED_TIME.get(), "basic:lastModifiedTime");
-		BASIC_KEYS.put(CrName.SIZE.get(), "basic:size");
-		BASIC_KEYS.put(CrName.FILE_KEY.get(), "basic:fileKey");
+		BASIC_KEYS.put(CrName.creationTime.qName(), "basic:creationTime");
+		BASIC_KEYS.put(CrName.lastModifiedTime.qName(), "basic:lastModifiedTime");
+		BASIC_KEYS.put(CrName.size.qName(), "basic:size");
+		BASIC_KEYS.put(CrName.fileKey.qName(), "basic:fileKey");
 
 		POSIX_KEYS = new HashMap<>(BASIC_KEYS);
-		POSIX_KEYS.put(CrName.OWNER.get(), "owner:owner");
-		POSIX_KEYS.put(CrName.GROUP.get(), "posix:group");
-		POSIX_KEYS.put(CrName.PERMISSIONS.get(), "posix:permissions");
+		POSIX_KEYS.put(CrName.owner.qName(), "owner:owner");
+		POSIX_KEYS.put(CrName.group.qName(), "posix:group");
+		POSIX_KEYS.put(CrName.permissions.qName(), "posix:permissions");
 	}
 
 	private final FsContentProvider provider;
@@ -71,7 +71,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 				Content mountPoint = session.getMountPoint(mountPath);
 				this.name = mountPoint.getName();
 			} else {
-				this.name = CrName.ROOT.get();
+				this.name = CrName.root.qName();
 			}
 		} else {
 
@@ -209,7 +209,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			try {
 				return Files.list(path).map((p) -> {
 					FsContent fsContent = new FsContent(this, p);
-					Optional<String> isMount = fsContent.get(CrName.MOUNT.get(), String.class);
+					Optional<String> isMount = fsContent.get(CrName.mount.qName(), String.class);
 					if (isMount.orElse("false").equals("true")) {
 						QName[] classes = null;
 						ContentProvider contentProvider = getSession().getRepository()
@@ -233,7 +233,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		FsContent fsContent;
 		try {
 			Path newPath = path.resolve(NamespaceUtils.toPrefixedName(provider, name));
-			if (ContentName.contains(classes, CrName.COLLECTION.get()))
+			if (ContentName.contains(classes, CrName.collection.qName()))
 				Files.createDirectory(newPath);
 			else
 				Files.createFile(newPath);
@@ -250,7 +250,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			ContentProvider contentProvider = getSession().getRepository().getMountContentProvider(fsContent, true,
 					classes);
 			Content mountedContent = contentProvider.get(getSession(), "");
-			fsContent.put(CrName.MOUNT.get(), "true");
+			fsContent.put(CrName.mount.qName(), "true");
 			return mountedContent;
 
 		} else {
@@ -308,7 +308,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	public List<QName> getContentClasses() {
 		List<QName> res = new ArrayList<>();
 		if (Files.isDirectory(path))
-			res.add(CrName.COLLECTION.get());
+			res.add(CrName.collection.qName());
 		// TODO add other types
 		return res;
 	}

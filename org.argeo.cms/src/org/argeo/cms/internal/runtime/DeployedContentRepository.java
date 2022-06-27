@@ -47,13 +47,13 @@ public class DeployedContentRepository extends CmsContentRepository {
 		super.stop();
 	}
 
-	public void addContentProvider(ContentProvider provider, Map<String, Object> properties) {
-//		String base = LangUtils.get(properties, CmsContentRepository.ACR_MOUNT_PATH_PROPERTY);
-		addProvider(provider);
-	}
+//	public void addContentProvider(ContentProvider provider, Map<String, Object> properties) {
+////		String base = LangUtils.get(properties, CmsContentRepository.ACR_MOUNT_PATH_PROPERTY);
+//		addProvider(provider);
+//	}
 
-	public void removeContentProvider(ContentProvider provider, Map<String, Object> properties) {
-	}
+//	public void removeContentProvider(ContentProvider provider, Map<String, Object> properties) {
+//	}
 
 	public void setUserManager(CmsUserManager userManager) {
 		this.userManager = userManager;
