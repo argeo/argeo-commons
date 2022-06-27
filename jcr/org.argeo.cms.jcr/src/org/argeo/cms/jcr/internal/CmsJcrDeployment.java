@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jcr.NamespaceRegistry;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -29,6 +30,7 @@ import javax.servlet.Servlet;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
+import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
@@ -73,17 +75,25 @@ public class CmsJcrDeployment {
 	private boolean nodeAvailable = false;
 
 	CmsDeployment cmsDeployment;
+	private ProvidedRepository contentRepository;
 
 	public void start() {
 		dataModels = new DataModels(bc);
 
 		ServiceTracker<?, ?> repoContextSt = new RepositoryContextStc();
 		repoContextSt.open();
-		//KernelUtils.asyncOpen(repoContextSt);
+		// KernelUtils.asyncOpen(repoContextSt);
 
 //		nodeDeployment = CmsJcrActivator.getService(NodeDeployment.class);
 
 		JcrInitUtils.addToDeployment(cmsDeployment);
+
+		contentRepository.registerTypes(NamespaceRegistry.PREFIX_JCR, NamespaceRegistry.NAMESPACE_JCR, null);
+		contentRepository.registerTypes(NamespaceRegistry.PREFIX_MIX, NamespaceRegistry.NAMESPACE_MIX, null);
+		contentRepository.registerTypes(NamespaceRegistry.PREFIX_NT, NamespaceRegistry.NAMESPACE_NT, null);
+		// Jackrabbit
+		// see https://jackrabbit.apache.org/archive/wiki/JCR/NamespaceRegistry_115513459.html
+		contentRepository.registerTypes("rep", "internal", null);
 
 	}
 
@@ -104,6 +114,10 @@ public class CmsJcrDeployment {
 
 	public void setCmsDeployment(CmsDeployment cmsDeployment) {
 		this.cmsDeployment = cmsDeployment;
+	}
+
+	public void setContentRepository(ProvidedRepository contentRepository) {
+		this.contentRepository = contentRepository;
 	}
 
 	/**

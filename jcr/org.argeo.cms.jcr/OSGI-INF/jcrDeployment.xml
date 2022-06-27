@@ -2,4 +2,5 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="JCR Deployment">
    <implementation class="org.argeo.cms.jcr.internal.CmsJcrDeployment"/>
    <reference bind="setCmsDeployment" cardinality="1..1" interface="org.argeo.api.cms.CmsDeployment" policy="static"/>
+   <reference bind="setContentRepository" cardinality="1..1" interface="org.argeo.api.acr.spi.ProvidedRepository" name="ProvidedRepository" policy="static"/>
 </scr:component>

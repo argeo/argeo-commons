@@ -103,7 +103,8 @@ class TypesManager {
 //		prefixes.put(defaultPrefix, namespace);
 		RuntimeNamespaceContext.register(namespace, defaultPrefix);
 
-		sources.add(new StreamSource(xsdSystemId));
+		if (xsdSystemId != null)
+			sources.add(new StreamSource(xsdSystemId));
 		reload();
 	}
 

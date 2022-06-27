@@ -57,7 +57,11 @@ public class AcrContentTreeView extends Composite {
 
 			@Override
 			public String getText(QName model) {
-				return toPrefixedName(model);
+				try {
+					return NamespaceUtils.toPrefixedName(model);
+				} catch (IllegalStateException e) {
+					return model.toString();
+				}
 			}
 		});
 		attributesPart.addColumn(new Column<QName>() {

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.argeo.api.acr.Content;
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.cms.ux.widgets.AbstractDataPart;
 import org.argeo.cms.ux.widgets.HierarchicalPart;
 
@@ -23,7 +24,11 @@ public class ContentHierarchicalPart extends AbstractDataPart<Content, Content> 
 
 	@Override
 	public String getText(Content model) {
-		return model.getName().toString();
+		try {
+			return NamespaceUtils.toPrefixedName(model.getName());
+		} catch (IllegalStateException e) {
+			return model.getName().toString();
+		}
 	}
 
 }

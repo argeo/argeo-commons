@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="Node User Admin">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" immediate="false" name="Node User Admin">
    <implementation class="org.argeo.cms.internal.osgi.NodeUserAdmin"/>
    <property name="service.pid" type="String" value="org.argeo.api.userAdmin"/>
    <service>
