@@ -82,6 +82,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 			if (userDirectory.getRealm().isPresent())
 				loadIpaJaasConfiguration();
 		}
+		log.debug(() -> "CMS user admin available");
 	}
 
 	public void stop() {

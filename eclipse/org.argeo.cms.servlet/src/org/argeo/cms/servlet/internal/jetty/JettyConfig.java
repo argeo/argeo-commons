@@ -70,6 +70,20 @@ public class JettyConfig {
 
 		};
 		serverSt.open();
+
+		// check initialisation
+//		ServiceTracker<?, ?> httpSt = new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, null) {
+//
+//			@Override
+//			public HttpService addingService(ServiceReference<HttpService> sr) {
+//				Object httpPort = sr.getProperty("http.port");
+//				Object httpsPort = sr.getProperty("https.port");
+//				log.info(httpPortsMsg(httpPort, httpsPort));
+//				close();
+//				return super.addingService(sr);
+//			}
+//		};
+//		httpSt.open();
 	}
 
 	public void stop() {

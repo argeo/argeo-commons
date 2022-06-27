@@ -93,10 +93,10 @@ public class StaticCms {
 
 		// User manager
 		CmsUserManagerImpl userManager = new CmsUserManagerImpl();
-		for (UserDirectory userDirectory : userAdmin.getUserDirectories()) {
-			// FIXME deal with properties
-			userManager.addUserDirectory(userDirectory, new HashMap<>());
-		}
+//		for (UserDirectory userDirectory : userAdmin.getUserDirectories()) {
+//			// FIXME deal with properties
+//			userManager.addUserDirectory(userDirectory, new HashMap<>());
+//		}
 		Component<CmsUserManagerImpl> userManagerC = new Component.Builder<>(userManager) //
 				.addType(CmsUserManager.class) //
 				.addDependency(userAdminC.getType(UserAdmin.class), userManager::setUserAdmin, null) //

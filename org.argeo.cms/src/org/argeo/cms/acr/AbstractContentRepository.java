@@ -52,6 +52,7 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 //	public final static String ACR_MOUNT_PATH_PROPERTY = "acr.mount.path";
 
 	public AbstractContentRepository() {
+		long begin = System.currentTimeMillis();
 		// types
 		typesManager = new TypesManager();
 		typesManager.init();
@@ -60,7 +61,8 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 			for (QName type : types) {
 				log.trace(type + " - " + typesManager.getAttributeTypes(type));
 			}
-
+		long duration = System.currentTimeMillis() - begin;
+		log.debug(() -> "CMS content types available (initialisation took " + duration + " ms)");
 	}
 
 	protected abstract CmsContentSession newSystemSession();
@@ -81,10 +83,14 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	 */
 	@Override
 	public void addProvider(ContentProvider provider) {
-		if (mountManager == null)
+		if (mountManager == null) {
 			providersToAdd.add(provider);
-		else
+			log.debug(
+					() -> "Will add provider " + provider.getMountPath() + " (" + provider.getClass().getName() + ")");
+		} else {
 			mountManager.addStructuralContentProvider(provider);
+			log.debug(() -> "Added provider " + provider.getMountPath() + " (" + provider.getClass().getName() + ")");
+		}
 	}
 
 	public void registerTypes(String prefix, String namespaceURI, String schemaSystemId) {

@@ -1,13 +1,8 @@
 package org.argeo.cms.internal.runtime;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Dictionary;
-
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
-import org.argeo.cms.internal.osgi.DeployConfig;
 import org.osgi.service.http.HttpService;
 
 /** Implementation of a CMS deployment. */
@@ -26,6 +21,8 @@ public class CmsDeploymentImpl implements CmsDeployment {
 //		if (deployConfig.hasDomain()) {
 //			loadIpaJaasConfiguration();
 //		}
+
+		log.debug(() -> "CMS deployment available");
 	}
 
 //	public void addFactoryDeployConfig(String factoryPid, Dictionary<String, Object> props) {
@@ -46,14 +43,14 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		return (httpExpected ? httpService != null : true);
 	}
 
-	private void loadIpaJaasConfiguration() {
-		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
-			String jaasConfig = KernelConstants.JAAS_CONFIG_IPA;
-			URL url = getClass().getClassLoader().getResource(jaasConfig);
-			KernelUtils.setJaasConfiguration(url);
-			log.debug("Set IPA JAAS configuration.");
-		}
-	}
+//	private void loadIpaJaasConfiguration() {
+//		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
+//			String jaasConfig = KernelConstants.JAAS_CONFIG_IPA;
+//			URL url = getClass().getClassLoader().getResource(jaasConfig);
+//			KernelUtils.setJaasConfiguration(url);
+//			log.debug("Set IPA JAAS configuration.");
+//		}
+//	}
 
 	public void stop() {
 //		if (deployConfig != null) {
@@ -67,6 +64,9 @@ public class CmsDeploymentImpl implements CmsDeployment {
 
 	public void setCmsState(CmsState cmsState) {
 		this.cmsState = cmsState;
+		String httpPort = this.cmsState.getDeployProperty("org.osgi.service.http.port");
+		String httpsPort = this.cmsState.getDeployProperty("org.osgi.service.http.port.secure");
+		httpExpected = httpPort != null || httpsPort != null;
 	}
 
 	public void setHttpService(HttpService httpService) {

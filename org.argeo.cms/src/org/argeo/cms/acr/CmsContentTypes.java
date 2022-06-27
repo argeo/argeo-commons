@@ -30,8 +30,6 @@ public enum CmsContentTypes {
 	SVG_1_1("svg", "http://www.w3.org/2000/svg", "SVG.xsd",
 			"https://raw.githubusercontent.com/oreillymedia/HTMLBook/master/schema/svg/SVG.xsd"),
 	//
-	XHTML_1_1("h", "http://www.w3.org/1999/xhtml", "xhtml11.xsd", "https://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd"),
-	//
 	DOCBOOK_5_0_1("dbk", "http://docbook.org/ns/docbook", "docbook.xsd",
 			"http://docbook.org/xml/5.0.1/xsd/docbook.xsd"),
 	//

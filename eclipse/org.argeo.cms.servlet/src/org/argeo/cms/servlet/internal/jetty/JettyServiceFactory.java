@@ -21,6 +21,7 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.util.tracker.ServiceTracker;
 
+@Deprecated
 public class JettyServiceFactory implements ManagedServiceFactory {
 	private final static CmsLog log = CmsLog.getLog(JettyServiceFactory.class);
 

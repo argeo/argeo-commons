@@ -1,17 +1,23 @@
 package org.argeo.cms.internal.runtime;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import javax.security.auth.login.Configuration;
 
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.auth.ident.IdentClient;
+import org.argeo.util.directory.ldap.LdifParser;
 
 /**
  * Implementation of a {@link CmsState}, initialising the required services.
@@ -54,10 +60,14 @@ public class CmsStateImpl implements CmsState {
 				// (clean state) " : " "));
 				log.debug("## CMS starting... (" + uuid + ")");
 
+
 //		initI18n();
 //		initServices();
+			if (!Files.exists(getDataPath(CmsConstants.NODE))) {// first init
+				firstInit();
+			}
 
-		} catch (RuntimeException e) {
+		} catch (RuntimeException | IOException e) {
 			log.error("## FATAL: CMS activator failed", e);
 		}
 	}
@@ -82,6 +92,12 @@ public class CmsStateImpl implements CmsState {
 		log.info("## ARGEO CMS STOPPED after " + (duration / 60) + "h " + (duration % 60) + "min uptime ##");
 	}
 
+	private void firstInit() throws IOException {
+		log.info("## FIRST INIT ##");
+		// FirstInit firstInit = new FirstInit();
+		InitUtils.prepareFirstInitInstanceArea();
+	}
+
 	@Override
 	public String getDeployProperty(String key) {
 		return KernelUtils.getFrameworkProp(key);
@@ -89,7 +105,7 @@ public class CmsStateImpl implements CmsState {
 
 	@Override
 	public Path getDataPath(String relativePath) {
-		return  KernelUtils.getOsgiInstancePath(relativePath);
+		return KernelUtils.getOsgiInstancePath(relativePath);
 	}
 
 	@Override

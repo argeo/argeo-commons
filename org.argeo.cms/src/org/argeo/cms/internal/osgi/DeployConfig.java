@@ -36,6 +36,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 
 /** Manages the LDIF-based deployment configuration. */
+@Deprecated
 public class DeployConfig {
 
 	private final CmsLog log = CmsLog.getLog(getClass());

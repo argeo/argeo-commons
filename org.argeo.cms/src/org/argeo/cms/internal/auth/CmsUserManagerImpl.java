@@ -8,12 +8,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -31,6 +28,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
+import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.DirectoryConf;
@@ -64,8 +62,18 @@ public class CmsUserManagerImpl implements CmsUserManager {
 //	private Map<String, String> serviceProperties;
 	private WorkTransaction userTransaction;
 
-	private Map<UserDirectory, Hashtable<String, Object>> userDirectories = Collections
-			.synchronizedMap(new LinkedHashMap<>());
+//	private Map<UserDirectory, Hashtable<String, Object>> userDirectories = Collections
+//			.synchronizedMap(new LinkedHashMap<>());
+
+	private Set<UserDirectory> userDirectories = new HashSet<>();
+
+	public void start() {
+		log.debug(() -> "CMS user manager available");
+	}
+
+	public void stop() {
+
+	}
 
 	@Override
 	public String getMyMail() {
@@ -230,7 +238,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
 		Map<String, String> dns = new HashMap<String, String>();
-		for (UserDirectory userDirectory : userDirectories.keySet()) {
+		for (UserDirectory userDirectory : userDirectories) {
 			Boolean readOnly = userDirectory.isReadOnly();
 			String baseDn = userDirectory.getContext();
 
@@ -240,7 +248,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 				continue;
 			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;
-			dns.put(baseDn, DirectoryConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
+			dns.put(baseDn, DirectoryConf.propertiesAsUri(userDirectory.getProperties()).toString());
 
 		}
 		return dns;
@@ -248,7 +256,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	public Set<UserDirectory> getUserDirectories() {
 		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getContext().compareTo(o2.getContext()));
-		res.addAll(userDirectories.keySet());
+		res.addAll(userDirectories);
 		return res;
 	}
 
@@ -444,7 +452,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	public UserDirectory getDirectory(Role user) {
 		String name = user.getName();
 		NavigableMap<String, UserDirectory> possible = new TreeMap<>();
-		for (UserDirectory userDirectory : userDirectories.keySet()) {
+		for (UserDirectory userDirectory : userDirectories) {
 			if (name.endsWith(userDirectory.getContext())) {
 				possible.put(userDirectory.getContext(), userDirectory);
 			}
@@ -496,6 +504,13 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	/* DEPENDENCY INJECTION */
 	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
+
+		if (userAdmin instanceof AggregatingUserAdmin) {
+			userDirectories = ((AggregatingUserAdmin) userAdmin).getUserDirectories();
+		} else {
+			throw new IllegalArgumentException("Only " + AggregatingUserAdmin.class.getName() + " is supported.");
+		}
+
 //		this.serviceProperties = serviceProperties;
 	}
 
@@ -503,12 +518,12 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		this.userTransaction = userTransaction;
 	}
 
-	public void addUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
-		userDirectories.put(userDirectory, new Hashtable<>(properties));
-	}
-
-	public void removeUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
-		userDirectories.remove(userDirectory);
-	}
+//	public void addUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
+//		userDirectories.put(userDirectory, new Hashtable<>(properties));
+//	}
+//
+//	public void removeUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
+//		userDirectories.remove(userDirectory);
+//	}
 
 }
