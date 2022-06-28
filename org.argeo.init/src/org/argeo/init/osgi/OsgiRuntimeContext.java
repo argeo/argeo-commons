@@ -16,7 +16,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 
@@ -25,11 +24,6 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 	private Map<String, String> config;
 	private Framework framework;
 	private OsgiBoot osgiBoot;
-
-	@SuppressWarnings("rawtypes")
-	private ServiceRegistration<Consumer> loggingConfigurationSr;
-	@SuppressWarnings("rawtypes")
-	private ServiceRegistration<Flow.Publisher> logEntryPublisherSr;
 
 	/**
 	 * Constructor to use when the runtime context will create the OSGi
@@ -64,15 +58,17 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 	}
 
 	public void start(BundleContext bundleContext) {
+		// preferences
+//		SystemRootPreferences systemRootPreferences = ThinPreferencesFactory.getInstance().getSystemRootPreferences();
+//		bundleContext.registerService(AbstractPreferences.class, systemRootPreferences, new Hashtable<>());
+
 		// Make sure LoggerFinder has been searched for, since it is lazily loaded
 		LoggerFinder.getLoggerFinder();
 
 		// logging
-		loggingConfigurationSr = bundleContext.registerService(Consumer.class,
-				ThinLoggerFinder.getConfigurationConsumer(),
+		bundleContext.registerService(Consumer.class, ThinLoggerFinder.getConfigurationConsumer(),
 				new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.configuration")));
-		logEntryPublisherSr = bundleContext.registerService(Flow.Publisher.class,
-				ThinLoggerFinder.getLogEntryPublisher(),
+		bundleContext.registerService(Flow.Publisher.class, ThinLoggerFinder.getLogEntryPublisher(),
 				new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.publisher")));
 
 		osgiBoot = new OsgiBoot(bundleContext);
