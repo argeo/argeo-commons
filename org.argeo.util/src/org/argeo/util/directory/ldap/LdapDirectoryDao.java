@@ -14,6 +14,8 @@ public interface LdapDirectoryDao extends WorkingCopyProcessor<LdapEntryWorkingC
 
 	LdapEntry doGetEntry(LdapName name) throws NameNotFoundException;
 
+	Attributes doGetAttributes(LdapName name);
+
 	List<LdapEntry> doGetEntries(LdapName searchBase, String filter, boolean deep);
 
 	List<LdapName> getDirectGroups(LdapName dn);

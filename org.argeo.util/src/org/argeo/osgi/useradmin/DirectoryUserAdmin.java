@@ -23,7 +23,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.security.auth.Subject;
-import javax.security.auth.kerberos.KerberosKey;
 import javax.security.auth.kerberos.KerberosTicket;
 
 import org.argeo.util.CurrentSubject;

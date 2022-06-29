@@ -1,7 +1,5 @@
 package org.argeo.osgi.useradmin;
 
-import java.util.Dictionary;
-
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
@@ -24,8 +22,4 @@ class LdifUser extends DefaultLdapEntry implements DirectoryUser {
 		return USER;
 	}
 
-	@Override
-	public Dictionary<String, Object> getCredentials() {
-		return credentials;
-	}
 }

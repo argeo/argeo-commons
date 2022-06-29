@@ -26,7 +26,6 @@ import javax.security.auth.spi.LoginModule;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.internal.osgi.NodeUserAdmin;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.security.CryptoKeyring;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
@@ -237,6 +236,8 @@ public class UserAdminLoginModule implements LoginModule {
 					throw new LoginException("Kerberos login " + authenticatingUser.getName()
 							+ " is inconsistent with user admin login " + authenticatedUser.getName());
 			}
+			if (log.isTraceEnabled())
+				log.trace("Retrieve authorization for " + authenticatingUser + "... ");
 			authorization = Subject.doAs(subject, new PrivilegedAction<Authorization>() {
 
 				@Override

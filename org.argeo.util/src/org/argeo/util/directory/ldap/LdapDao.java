@@ -68,29 +68,34 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 	@Override
 	public Boolean entryExists(LdapName dn) {
 		try {
-			return doGetEntry(dn) != null;
+			return ldapConnection.entryExists(dn);
 		} catch (NameNotFoundException e) {
 			return false;
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot check " + dn, e);
 		}
 	}
 
 	@Override
 	public LdapEntry doGetEntry(LdapName name) throws NameNotFoundException {
-		try {
-			Attributes attrs = ldapConnection.getAttributes(name);
-			if (attrs.size() == 0)
-				return null;
+		if (!entryExists(name))
+			throw new NameNotFoundException(name + " was not found in " + getDirectory().getBaseDn());
+//		try {
+//			Attributes attrs = ldapConnection.getAttributes(name);
+//			if (attrs.size() == 0)
+//				return null;
+
 //			int roleType = roleType(name);
 			LdapEntry res;
 			Rdn technicalRdn = LdapNameUtils.getParentRdn(name);
 			if (getDirectory().getGroupBaseRdn().equals(technicalRdn))
-				res = newGroup(name, attrs);
+				res = newGroup(name, null);
 			else if (getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
-				res = newGroup(name, attrs);
+				res = newGroup(name, null);
 			else if (getDirectory().getUserBaseRdn().equals(technicalRdn))
-				res = newUser(name, attrs);
+				res = newUser(name, null);
 			else
-				res = new DefaultLdapEntry(getDirectory(), name, attrs);
+				res = new DefaultLdapEntry(getDirectory(), name, null);
 //			if (isGroup(name))
 //				res = newGroup(name, attrs);
 //			else
@@ -98,11 +103,9 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 //			else
 //				throw new IllegalArgumentException("Unsupported LDAP type for " + name);
 			return res;
-		} catch (NameNotFoundException e) {
-			throw e;
-		} catch (NamingException e) {
-			return null;
-		}
+//		} catch (NameNotFoundException e) {
+//			throw e;
+//		}
 	}
 
 //	protected boolean isGroup(LdapName dn) {
@@ -116,6 +119,16 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 //			throw new IllegalArgumentException(
 //					"Cannot find role type, " + technicalRdn + " is not a technical RDN for " + dn);
 //	}
+
+	@Override
+	public Attributes doGetAttributes(LdapName name) {
+		try {
+			Attributes attrs = ldapConnection.getAttributes(name);
+			return attrs;
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get attributes for " + name);
+		}
+	}
 
 	@Override
 	public List<LdapEntry> doGetEntries(LdapName searchBase, String f, boolean deep) {

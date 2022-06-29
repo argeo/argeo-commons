@@ -99,6 +99,20 @@ public class LdapConnection {
 		}
 	}
 
+	public synchronized boolean entryExists(LdapName name) throws NamingException {
+		String[] noAttrOID = new String[] { "1.1" };
+		try {
+			getLdapContext().getAttributes(name, noAttrOID);
+			return true;
+		} catch (CommunicationException e) {
+			reconnect();
+			getLdapContext().getAttributes(name, noAttrOID);
+			return true;
+		} catch (NameNotFoundException e) {
+			return false;
+		}
+	}
+
 	public synchronized void prepareChanges(WorkingCopy<?, ?, LdapName> wc) throws NamingException {
 		// make sure connection will work
 		reconnect();
@@ -121,13 +135,13 @@ public class LdapConnection {
 
 	}
 
-	protected boolean entryExists(LdapName dn) throws NamingException {
-		try {
-			return getAttributes(dn).size() != 0;
-		} catch (NameNotFoundException e) {
-			return false;
-		}
-	}
+//	protected boolean entryExists(LdapName dn) throws NamingException {
+//		try {
+//			return getAttributes(dn).size() != 0;
+//		} catch (NameNotFoundException e) {
+//			return false;
+//		}
+//	}
 
 	public synchronized void commitChanges(LdapEntryWorkingCopy wc) throws NamingException {
 		// delete

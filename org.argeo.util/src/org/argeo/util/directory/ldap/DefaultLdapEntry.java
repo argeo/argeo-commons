@@ -35,8 +35,8 @@ public class DefaultLdapEntry implements LdapEntry {
 	private Attributes publishedAttributes;
 
 	// Temporarily expose the fields
-	protected final AttributeDictionary properties;
-	protected final AttributeDictionary credentials;
+	protected AttributeDictionary properties;
+	protected AttributeDictionary credentials;
 
 	protected DefaultLdapEntry(AbstractLdapDirectory directory, LdapName dn, Attributes attributes) {
 		Objects.requireNonNull(directory);
@@ -44,8 +44,8 @@ public class DefaultLdapEntry implements LdapEntry {
 		this.directory = directory;
 		this.dn = dn;
 		this.publishedAttributes = attributes;
-		properties = new AttributeDictionary(false);
-		credentials = new AttributeDictionary(true);
+//		properties = new AttributeDictionary(false);
+//		credentials = new AttributeDictionary(true);
 	}
 
 	@Override
@@ -54,6 +54,9 @@ public class DefaultLdapEntry implements LdapEntry {
 	}
 
 	public synchronized Attributes getAttributes() {
+		// lazy loading
+		if (publishedAttributes == null)
+			publishedAttributes = getDirectory().getDirectoryDao().doGetAttributes(dn);
 		return isEditing() ? getModifiedAttributes() : publishedAttributes;
 	}
 
@@ -103,13 +106,21 @@ public class DefaultLdapEntry implements LdapEntry {
 	public synchronized void publishAttributes(Attributes modifiedAttributes) {
 		publishedAttributes = modifiedAttributes;
 	}
-	
+
 	/*
 	 * PROPERTIES
 	 */
 	@Override
 	public Dictionary<String, Object> getProperties() {
+		if (properties == null)
+			properties = new AttributeDictionary(false);
 		return properties;
+	}
+
+	public Dictionary<String, Object> getCredentials() {
+		if (credentials == null)
+			credentials = new AttributeDictionary(false);
+		return credentials;
 	}
 
 	/*

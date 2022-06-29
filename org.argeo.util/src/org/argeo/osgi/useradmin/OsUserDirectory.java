@@ -95,5 +95,13 @@ public class OsUserDirectory extends AbstractLdapDirectoryDao {
 		
 	}
 
+	@Override
+	public Attributes doGetAttributes(LdapName name) {
+		try {
+			return doGetEntry(name).getAttributes();
+		} catch (NameNotFoundException e) {
+			throw new IllegalStateException(name + " doe not exist in " + getDirectory().getBaseDn(), e);
+		}
+	}
 	
 }

@@ -12,9 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.Objects;
@@ -28,7 +26,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.directory.HierarchyUnit;
 import org.argeo.util.naming.LdapObjs;
 import org.osgi.framework.Filter;
@@ -86,12 +83,12 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 //		return scopedUserAdmin;
 //	}
 
-	private static Dictionary<String, Object> fromUri(String uri, String baseDn) {
-		Hashtable<String, Object> res = new Hashtable<String, Object>();
-		res.put(DirectoryConf.uri.name(), uri);
-		res.put(DirectoryConf.baseDn.name(), baseDn);
-		return res;
-	}
+//	private static Dictionary<String, Object> fromUri(String uri, String baseDn) {
+//		Hashtable<String, Object> res = new Hashtable<String, Object>();
+//		res.put(DirectoryConf.uri.name(), uri);
+//		res.put(DirectoryConf.baseDn.name(), baseDn);
+//		return res;
+//	}
 
 	public void init() {
 
@@ -225,6 +222,15 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 		if (entries.containsKey(key))
 			return entries.get(key);
 		throw new NameNotFoundException(key + " not persisted");
+	}
+
+	@Override
+	public Attributes doGetAttributes(LdapName name) {
+		try {
+			return doGetEntry(name).getAttributes();
+		} catch (NameNotFoundException e) {
+			throw new IllegalStateException(name + " doe not exist in " + getDirectory().getBaseDn(), e);
+		}
 	}
 
 	@Override
