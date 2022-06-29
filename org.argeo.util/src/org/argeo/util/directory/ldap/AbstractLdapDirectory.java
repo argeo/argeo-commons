@@ -38,8 +38,8 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	protected static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
 	protected static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
 
-	protected final LdapName baseDn;
-	protected final Hashtable<String, Object> configProperties;
+	private final LdapName baseDn;
+	private final Hashtable<String, Object> configProperties;
 	private final Rdn userBaseRdn, groupBaseRdn, systemRoleBaseRdn;
 	private final String userObjectClass, groupObjectClass;
 	private String memberAttributeId = "member";
@@ -375,6 +375,10 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	/*
 	 * UTILITIES
 	 */
+	protected boolean isExternal(LdapName name) {
+		return !name.startsWith(baseDn);
+	}
+	
 	protected static boolean hasObjectClass(Attributes attrs, LdapObjs objectClass) {
 		return hasObjectClass(attrs, objectClass.name());
 	}

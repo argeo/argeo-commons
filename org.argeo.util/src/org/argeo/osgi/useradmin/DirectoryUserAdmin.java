@@ -8,9 +8,10 @@ import static org.argeo.util.naming.LdapObjs.person;
 import static org.argeo.util.naming.LdapObjs.top;
 
 import java.net.URI;
-import java.nio.channels.UnsupportedAddressTypeException;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,7 +22,11 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+import javax.security.auth.Subject;
+import javax.security.auth.kerberos.KerberosKey;
+import javax.security.auth.kerberos.KerberosTicket;
 
+import org.argeo.util.CurrentSubject;
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.directory.DirectoryDigestUtils;
 import org.argeo.util.directory.HierarchyUnit;
@@ -146,16 +151,16 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	protected List<Role> getAllRoles(DirectoryUser user) {
 		List<Role> allRoles = new ArrayList<Role>();
 		if (user != null) {
-			collectRoles(user, allRoles);
+			collectRoles((LdapEntry) user, allRoles);
 			allRoles.add(user);
 		} else
 			collectAnonymousRoles(allRoles);
 		return allRoles;
 	}
 
-	private void collectRoles(DirectoryUser user, List<Role> allRoles) {
+	private void collectRoles(LdapEntry user, List<Role> allRoles) {
 		List<LdapEntry> allEntries = new ArrayList<>();
-		LdapEntry entry = (LdapEntry) user;
+		LdapEntry entry = user;
 		collectGroups(entry, allEntries);
 		for (LdapEntry e : allEntries) {
 			if (e instanceof Role)
@@ -275,21 +280,49 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 
 	@Override
 	public Authorization getAuthorization(User user) {
-		if (user == null || user instanceof DirectoryUser) {
-			return new LdifAuthorization(user, getAllRoles((DirectoryUser) user));
+		if (user == null) {// anonymous
+			return new LdifAuthorization(user, getAllRoles(null));
+		}
+		LdapName userName = toLdapName(user.getName());
+		if (isExternal(userName) && user instanceof LdapEntry) {
+			List<Role> allRoles = new ArrayList<Role>();
+			collectRoles((LdapEntry) user, allRoles);
+			return new LdifAuthorization(user, allRoles);
 		} else {
-			// bind
-			DirectoryUserAdmin scopedUserAdmin = (DirectoryUserAdmin) scope(user);
-			try {
-				DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
-				if (directoryUser == null)
-					throw new IllegalStateException("No scoped user found for " + user);
-				LdifAuthorization authorization = new LdifAuthorization(directoryUser,
-						scopedUserAdmin.getAllRoles(directoryUser));
-				return authorization;
-			} finally {
-				scopedUserAdmin.destroy();
+
+			Subject currentSubject = CurrentSubject.current();
+			if (currentSubject != null //
+					&& !currentSubject.getPrivateCredentials(Authorization.class).isEmpty() //
+					&& !currentSubject.getPrivateCredentials(KerberosTicket.class).isEmpty()) {
+				// TODO not only Kerberos but also bind scope with kept password ?
+				Authorization auth = currentSubject.getPrivateCredentials(Authorization.class).iterator().next();
+				// bind with authenticating user
+				DirectoryUserAdmin scopedUserAdmin = Subject.doAs(currentSubject,
+						(PrivilegedAction<DirectoryUserAdmin>) () -> (DirectoryUserAdmin) scope(
+								new AuthenticatingUser(auth.getName(), new Hashtable<>())));
+				return getAuthorizationFromScoped(scopedUserAdmin, user);
 			}
+
+			if (user instanceof DirectoryUser) {
+				return new LdifAuthorization(user, getAllRoles((DirectoryUser) user));
+			} else {
+				// bind with authenticating user
+				DirectoryUserAdmin scopedUserAdmin = (DirectoryUserAdmin) scope(user);
+				return getAuthorizationFromScoped(scopedUserAdmin, user);
+			}
+		}
+	}
+
+	private Authorization getAuthorizationFromScoped(DirectoryUserAdmin scopedUserAdmin, User user) {
+		try {
+			DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
+			if (directoryUser == null)
+				throw new IllegalStateException("No scoped user found for " + user);
+			LdifAuthorization authorization = new LdifAuthorization(directoryUser,
+					scopedUserAdmin.getAllRoles(directoryUser));
+			return authorization;
+		} finally {
+			scopedUserAdmin.destroy();
 		}
 	}
 

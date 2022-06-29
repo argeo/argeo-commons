@@ -160,8 +160,10 @@ class CmsAuthUtils {
 					} else {
 						// keep current session
 						cmsSession = currentLocalSession;
-						// keyring
-						subject.getPrivateCredentials().addAll(cmsSession.getSecretKeys());
+						// credentials
+						// TODO control it more??
+						subject.getPrivateCredentials().addAll(cmsSession.getSubject().getPrivateCredentials());
+						subject.getPublicCredentials().addAll(cmsSession.getSubject().getPublicCredentials());
 					}
 				} else {// anonymous
 					if (!currentLocalSessionAnonymous) {
@@ -187,9 +189,9 @@ class CmsAuthUtils {
 				subject.getPrivateCredentials().add(nodeSessionId);
 			} else {
 				UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
-				// if (storedSessionId.equals(httpSessionId.getValue()))
-				throw new IllegalStateException(
-						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
+				if (!storedSessionId.equals(nodeSessionId.getUuid()))
+					throw new IllegalStateException(
+							"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
 		} else {
 			CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(SINGLE_USER_LOCAL_ID);

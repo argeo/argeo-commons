@@ -93,6 +93,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 		}
 		DirectoryUserAdmin userReferentialOfThisUser = findUserAdmin(user.getName());
 		Authorization rawAuthorization = userReferentialOfThisUser.getAuthorization(user);
+		User retrievedUser = (User) userReferentialOfThisUser.getRole(user.getName());
 		String usernameToUse;
 		String displayNameToUse;
 		if (user instanceof Group) {
@@ -113,6 +114,17 @@ public class AggregatingUserAdmin implements UserAdmin {
 		}
 
 		// gather roles from other referentials
+		List<String> allRoles = new ArrayList<>(Arrays.asList(rawAuthorization.getRoles()));
+		for (LdapName otherBaseDn : businessRoles.keySet()) {
+			if (otherBaseDn.equals(userReferentialOfThisUser.getBaseDn()))
+				continue;
+			DirectoryUserAdmin otherUserAdmin = businessRoles.get(otherBaseDn);
+			Authorization auth = otherUserAdmin.getAuthorization(retrievedUser);
+			allRoles.addAll(Arrays.asList(auth.getRoles()));
+
+		}
+
+		// integrate system roles
 		final DirectoryUserAdmin userAdminToUse;// possibly scoped when authenticating
 		if (user instanceof DirectoryUser) {
 			userAdminToUse = userReferentialOfThisUser;
@@ -136,7 +148,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 			}
 			addAbstractSystemRoles(rawAuthorization, sysRoles);
 			Authorization authorization = new AggregatingAuthorization(usernameToUse, displayNameToUse, sysRoles,
-					rawAuthorization.getRoles());
+					allRoles.toArray(new String[allRoles.size()]));
 			return authorization;
 		} finally {
 			if (userAdminToUse != null && userAdminToUse.isScoped()) {

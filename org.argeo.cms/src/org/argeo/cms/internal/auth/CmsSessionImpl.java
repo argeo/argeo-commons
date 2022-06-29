@@ -116,10 +116,10 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		return Subject.getSubject(accessControlContext);
 	}
 
-	public Set<SecretKey> getSecretKeys() {
-		checkValid();
-		return getSubject().getPrivateCredentials(SecretKey.class);
-	}
+//	public Set<SecretKey> getSecretKeys() {
+//		checkValid();
+//		return getSubject().getPrivateCredentials(SecretKey.class);
+//	}
 
 	@Override
 	public boolean isValid() {

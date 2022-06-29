@@ -18,7 +18,6 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.cms.internal.runtime.KernelUtils;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
@@ -53,17 +52,17 @@ public class RemoteSessionLoginModule implements LoginModule {
 	public boolean login() throws LoginException {
 		if (callbackHandler == null)
 			return false;
-		RemoteAuthCallback httpCallback = new RemoteAuthCallback();
+		RemoteAuthCallback remoteAuthCallback = new RemoteAuthCallback();
 		try {
-			callbackHandler.handle(new Callback[] { httpCallback });
+			callbackHandler.handle(new Callback[] { remoteAuthCallback });
 		} catch (IOException e) {
 			throw new LoginException("Cannot handle http callback: " + e.getMessage());
 		} catch (UnsupportedCallbackException e) {
 			return false;
 		}
-		request = httpCallback.getRequest();
+		request = remoteAuthCallback.getRequest();
 		if (request == null) {
-			RemoteAuthSession httpSession = httpCallback.getHttpSession();
+			RemoteAuthSession httpSession = remoteAuthCallback.getHttpSession();
 			if (httpSession == null)
 				return false;
 			// TODO factorize with below
