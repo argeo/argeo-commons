@@ -1,6 +1,5 @@
 package org.argeo.cms.auth;
 
-import java.security.AccessController;
 import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
@@ -10,8 +9,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionException;
 
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
@@ -22,6 +19,7 @@ import org.argeo.api.cms.CmsSessionId;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.util.CurrentSubject;
 import org.osgi.service.useradmin.Authorization;
 
 /**
@@ -144,14 +142,7 @@ public final class CurrentUser {
 	 * HELPERS
 	 */
 	private static Subject currentSubject() {
-		Subject subject = getAccessControllerSubject();
-		if (subject != null)
-			return subject;
-		throw new IllegalStateException("Cannot find related subject");
-	}
-
-	private static Subject getAccessControllerSubject() {
-		return Subject.getSubject(AccessController.getContext());
+		return CurrentSubject.current();
 	}
 
 	private static Authorization getAuthorization(Subject subject) {
@@ -175,29 +166,7 @@ public final class CurrentUser {
 		return true;
 	}
 
-	/*
-	 * PREPARE EVOLUTION OF JAVA APIs INTRODUCED IN JDK 18 The following static
-	 * methods will be added to Subject
-	 */
-	public Subject current() {
-		return currentSubject();
-	}
-
-	public static <T> T callAs(Subject subject, Callable<T> action) {
-		try {
-			return Subject.doAs(subject, new PrivilegedExceptionAction<T>() {
-
-				@Override
-				public T run() throws Exception {
-					return action.call();
-				}
-
-			});
-		} catch (PrivilegedActionException e) {
-			throw new CompletionException("Failed to execute action for " + subject, e.getCause());
-		}
-	}
-
+	/** singleton */
 	private CurrentUser() {
 	}
 }
