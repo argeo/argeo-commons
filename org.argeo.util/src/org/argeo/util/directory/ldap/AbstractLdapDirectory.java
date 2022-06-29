@@ -19,6 +19,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.transaction.xa.XAResource;
@@ -253,8 +254,17 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 					Object value = values.next();
 					LdapName groupDn = new LdapName(value.toString());
 					LdapEntry group = doGetRole(groupDn);
-					if (group != null)
+					if (group != null) {
 						allRoles.add(group);
+					}else {
+						// user doesn't have the right to retrieve role, but we know it exists
+						// otherwise memberOf would not work
+						Attributes a = new BasicAttributes();
+						a.put(LdapNameUtils.getLastRdn(groupDn).getType(), LdapNameUtils.getLastRdn(groupDn).getValue());
+						a.put(LdapAttrs.objectClass.name(), LdapObjs.groupOfNames.name());
+						group = newGroup(groupDn, a);
+						allRoles.add(group);
+					}
 				}
 			} catch (NamingException e) {
 				throw new IllegalStateException("Cannot get memberOf groups for " + user, e);
