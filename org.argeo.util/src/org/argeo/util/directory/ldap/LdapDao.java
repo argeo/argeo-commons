@@ -13,12 +13,14 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.LdapObjs;
 
 /** A user admin based on a LDAP server. */
@@ -78,34 +80,43 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 
 	@Override
 	public LdapEntry doGetEntry(LdapName name) throws NameNotFoundException {
-		if (!entryExists(name))
-			throw new NameNotFoundException(name + " was not found in " + getDirectory().getBaseDn());
-//		try {
-//			Attributes attrs = ldapConnection.getAttributes(name);
-//			if (attrs.size() == 0)
-//				return null;
+//		if (!entryExists(name))
+//			throw new NameNotFoundException(name + " was not found in " + getDirectory().getBaseDn());
+		try {
+			Attributes attrs = ldapConnection.getAttributes(name);
 
-//			int roleType = roleType(name);
 			LdapEntry res;
 			Rdn technicalRdn = LdapNameUtils.getParentRdn(name);
-			if (getDirectory().getGroupBaseRdn().equals(technicalRdn))
-				res = newGroup(name, null);
-			else if (getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
-				res = newGroup(name, null);
-			else if (getDirectory().getUserBaseRdn().equals(technicalRdn))
-				res = newUser(name, null);
-			else
-				res = new DefaultLdapEntry(getDirectory(), name, null);
-//			if (isGroup(name))
-//				res = newGroup(name, attrs);
-//			else
-//				res = newUser(name, attrs);
-//			else
-//				throw new IllegalArgumentException("Unsupported LDAP type for " + name);
+			if (getDirectory().getGroupBaseRdn().equals(technicalRdn)) {
+				if (attrs.size() == 0) {// exists but not accessible
+					attrs = new BasicAttributes();
+					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
+					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getGroupObjectClass());
+				}
+				res = newGroup(name, attrs);
+			} else if (getDirectory().getSystemRoleBaseRdn().equals(technicalRdn)) {
+				if (attrs.size() == 0) {// exists but not accessible
+					attrs = new BasicAttributes();
+					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
+					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getGroupObjectClass());
+				}
+				res = newGroup(name, attrs);
+			} else if (getDirectory().getUserBaseRdn().equals(technicalRdn)) {
+				if (attrs.size() == 0) {// exists but not accessible
+					attrs = new BasicAttributes();
+					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
+					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getUserObjectClass());
+				}
+				res = newUser(name, attrs);
+			} else {
+				res = new DefaultLdapEntry(getDirectory(), name, attrs);
+			}
 			return res;
-//		} catch (NameNotFoundException e) {
-//			throw e;
-//		}
+		} catch (NameNotFoundException e) {
+			throw e;
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot retrieve entry " + name, e);
+		}
 	}
 
 //	protected boolean isGroup(LdapName dn) {

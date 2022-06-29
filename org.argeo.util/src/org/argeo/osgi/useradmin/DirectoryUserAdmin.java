@@ -291,8 +291,10 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 
 			Subject currentSubject = CurrentSubject.current();
 			if (currentSubject != null //
+					&& getRealm().isPresent() //
 					&& !currentSubject.getPrivateCredentials(Authorization.class).isEmpty() //
-					&& !currentSubject.getPrivateCredentials(KerberosTicket.class).isEmpty()) {
+					&& !currentSubject.getPrivateCredentials(KerberosTicket.class).isEmpty()) //
+			{
 				// TODO not only Kerberos but also bind scope with kept password ?
 				Authorization auth = currentSubject.getPrivateCredentials(Authorization.class).iterator().next();
 				// bind with authenticating user
