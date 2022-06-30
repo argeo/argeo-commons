@@ -20,7 +20,17 @@ import org.ietf.jgss.Oid;
 /** Remote authentication utilities. */
 public class RemoteAuthUtils {
 	static final String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
-//	private static BundleContext bundleContext = FrameworkUtil.getBundle(RemoteAuthUtils.class).getBundleContext();
+	private final static Oid KERBEROS_OID;
+//	private final static Oid KERB_V5_OID, KRB5_PRINCIPAL_NAME_OID;
+	static {
+		try {
+			KERBEROS_OID = new Oid("1.3.6.1.5.5.2");
+//			KERB_V5_OID = new Oid("1.2.840.113554.1.2.2");
+//			KRB5_PRINCIPAL_NAME_OID = new Oid("1.2.840.113554.1.2.2.1");
+		} catch (GSSException e) {
+			throw new IllegalStateException("Cannot create Kerberos OID", e);
+		}
+	}
 
 	/**
 	 * Execute this supplier, using the CMS class loader as context classloader.
@@ -67,19 +77,12 @@ public class RemoteAuthUtils {
 		return cmsSession;
 	}
 
-	private final static Oid KERBEROS_OID;
-	static {
-		try {
-			KERBEROS_OID = new Oid("1.3.6.1.5.5.2");
-		} catch (GSSException e) {
-			throw new IllegalStateException("Cannot create Kerberos OID", e);
-		}
-	}
-
-	public static String getGssToken(Subject subject, String serverPrinc) {
+	public static String getGssToken(Subject subject, String service, String server) {
 		if (subject.getPrivateCredentials(KerberosTicket.class).isEmpty())
 			throw new IllegalArgumentException("Subject " + subject + " is not GSS authenticated.");
 		return Subject.doAs(subject, (PrivilegedAction<String>) () -> {
+			// !! different format than Kerberos
+			String serverPrinc = service + "@" + server;
 			GSSContext context = null;
 			String tokenStr = null;
 

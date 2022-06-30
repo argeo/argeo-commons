@@ -4,24 +4,9 @@ import static org.argeo.cms.CmsMsg.password;
 import static org.argeo.cms.CmsMsg.username;
 
 import java.io.IOException;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandler;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivilegedAction;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Locale;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -39,7 +24,6 @@ import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.RemoteAuthCallback;
-import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.servlet.ServletHttpRequest;
 import org.argeo.cms.servlet.ServletHttpResponse;
 import org.argeo.cms.swt.CmsStyles;
@@ -293,11 +277,6 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 			else
 				loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
-//			try {
-//				openHttpClient(loginContext.getSubject(), "id-internal.work.argeo.net");
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
 			cmsView.authChange(loginContext);
 			return true;
 		} catch (LoginException e) {
@@ -320,69 +299,6 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		// }
 	}
 
-	private static HttpClient openHttpClient(Subject subject, String server) {
-		try {
-			String domain = "WORK.ARGEO.ORG";
-			// disable https check
-			// jdk.internal.httpclient.disableHostnameVerification=true
-			HttpClient client = HttpClient.newBuilder().sslContext(insecureContext())
-					.authenticator(new Authenticator() {
-						public PasswordAuthentication getPasswordAuthentication() {
-							// I haven't checked getRequestingScheme() here, since for NTLM
-							// and Negotiate, the usrname and password are all the same.
-							System.err.println("Feeding username and password for " + getRequestingScheme());
-							return (new PasswordAuthentication("mbaudier@" + domain, null));
-						}
-
-					}).build();
-
-			String token = RemoteAuthUtils.getGssToken(subject, "HTTP/" + server + "@" + domain);
-
-			HttpRequest request = HttpRequest.newBuilder(URI.create("https://" + server + "/ipa/session/json")).GET()
-					.header("Authorization", "Negotiate " + token).build();
-			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
-			HttpResponse<String> response = client.send(request, bodyHandler);
-			System.out.println(response.body());
-			return client;
-
-			// return client;
-//			AuthPolicy.registerAuthScheme(SpnegoAuthScheme.NAME, SpnegoAuthScheme.class);
-//			HttpParams params = DefaultHttpParams.getDefaultParams();
-//			ArrayList<String> schemes = new ArrayList<>();
-//			schemes.add(SpnegoAuthScheme.NAME);
-//			params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
-//			params.setParameter(CredentialsProvider.PROVIDER, new HttpCredentialProvider());
-//			HttpClient httpClient = new HttpClient();
-//			httpClient.executeMethod(new GetMethod(("https://" + server + "/ipa/session/json")));
-//			return httpClient;
-		} catch (
-
-		Exception e) {
-			throw new IllegalStateException("Cannot open client to IPA server " + server, e);
-		}
-
-	}
-
-	private static SSLContext insecureContext() {
-		TrustManager[] noopTrustManager = new TrustManager[] { new X509TrustManager() {
-			public void checkClientTrusted(X509Certificate[] xcs, String string) {
-			}
-
-			public void checkServerTrusted(X509Certificate[] xcs, String string) {
-			}
-
-			public X509Certificate[] getAcceptedIssuers() {
-				return null;
-			}
-		} };
-		try {
-			SSLContext sc = SSLContext.getInstance("ssl");
-			sc.init(null, noopTrustManager, null);
-			return sc;
-		} catch (KeyManagementException | NoSuchAlgorithmException e) {
-			throw new IllegalStateException("Cannot create insecure SSL context ", e);
-		}
-	}
 
 	protected void logout() {
 		cmsView.logout();
