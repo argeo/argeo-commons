@@ -41,6 +41,8 @@ public class CmsServletContext extends ServletContextHelper {
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (log.isTraceEnabled())
 			HttpUtils.logRequestHeaders(log, request);
+		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(CmsServletContext.class.getClassLoader());
 		LoginContext lc;
 		try {
 			lc = CmsAuth.USER.newLoginContext(
@@ -52,6 +54,8 @@ public class CmsServletContext extends ServletContextHelper {
 				HttpUtils.logResponseHeaders(log, response);
 			if (lc == null)
 				return false;
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentThreadContextClassLoader);
 		}
 
 		Subject subject = lc.getSubject();
@@ -79,7 +83,7 @@ public class CmsServletContext extends ServletContextHelper {
 		ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(CmsServletContext.class.getClassLoader());
-			LoginContext lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS,
+			LoginContext lc = CmsAuth.ANONYMOUS.newLoginContext(
 					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
 			lc.login();
 			return lc;

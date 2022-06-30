@@ -9,11 +9,15 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedSet;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.naming.Binding;
+import javax.naming.Context;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -25,14 +29,21 @@ public class DnsBrowser implements Closeable {
 	private final DirContext initialCtx;
 
 	public DnsBrowser() throws NamingException {
-		this(null);
+		this(new ArrayList<>());
 	}
 
-	public DnsBrowser(String dnsServerUrls) throws NamingException {
+	public DnsBrowser(List<String> dnsServerUrls) throws NamingException {
+		Objects.requireNonNull(dnsServerUrls);
 		Hashtable<String, Object> env = new Hashtable<>();
-		env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
-		if (dnsServerUrls != null)
-			env.put("java.naming.provider.url", dnsServerUrls);
+		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
+		if (!dnsServerUrls.isEmpty()) {
+			StringJoiner providerUrl = new StringJoiner(" ");
+			for (String dnsUrl : dnsServerUrls) {
+				if (dnsUrl != null)
+					providerUrl.add(dnsUrl);
+			}
+			env.put(Context.PROVIDER_URL, providerUrl.toString());
+		}
 		initialCtx = new InitialDirContext(env);
 	}
 
@@ -54,17 +65,23 @@ public class DnsBrowser implements Closeable {
 	 * Return a single record (typically A, AAAA, etc. or null if not available.
 	 * Will fail if multiple records.
 	 */
-	public String getRecord(String name, String recordType) throws NamingException {
-		Attributes attrs = initialCtx.getAttributes(name, new String[] { recordType });
-		if (attrs.size() == 0)
+	public String getRecord(String name, String recordType) {
+		try {
+			Attributes attrs = initialCtx.getAttributes(name, new String[] { recordType });
+			if (attrs.size() == 0)
+				return null;
+			Attribute attr = attrs.get(recordType);
+			if (attr.size() > 1)
+				throw new IllegalArgumentException("Multiple record type " + recordType);
+			assert attr.size() != 0;
+			Object value = attr.get();
+			assert value != null;
+			return value.toString();
+		} catch (NameNotFoundException e) {
 			return null;
-		Attribute attr = attrs.get(recordType);
-		if (attr.size() > 1)
-			throw new IllegalArgumentException("Multiple record type " + recordType);
-		assert attr.size() != 0;
-		Object value = attr.get();
-		assert value != null;
-		return value.toString();
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get DNS entry " + recordType + " of " + name, e);
+		}
 	}
 
 	/**

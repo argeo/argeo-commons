@@ -22,6 +22,8 @@ public enum CmsDeployProperty {
 	//
 	/** Either a host or an IP address. Restricts all servers to it. */
 	HOST("argeo.host"),
+	/** Either a host or an IP address. Restricts all servers to it. */
+	DNS("argeo.dns", 16),
 	//
 	// HTTP
 	//

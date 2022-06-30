@@ -2,7 +2,6 @@ package org.argeo.cms.internal.runtime;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -81,9 +80,9 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		super.start();
 		List<Dictionary<String, Object>> configs = getUserDirectoryConfigs();
 		for (Dictionary<String, Object> config : configs) {
-			UserDirectory userDirectory = enableUserDirectory(config);
-			if (userDirectory.getRealm().isPresent())
-				loadIpaJaasConfiguration();
+			enableUserDirectory(config);
+//			if (userDirectory.getRealm().isPresent())
+//				loadIpaJaasConfiguration();
 		}
 		log.debug(() -> "CMS user admin available");
 	}
@@ -276,6 +275,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 
 		Optional<String> realm = userDirectory.getRealm();
 		if (realm.isPresent()) {
+			loadIpaJaasConfiguration();
 			if (Files.exists(nodeKeyTab)) {
 				String servicePrincipal = getKerberosServicePrincipal(realm.get());
 				if (servicePrincipal != null) {
@@ -289,7 +289,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 						}
 					};
 					try {
-						LoginContext nodeLc = new LoginContext(CmsAuth.LOGIN_CONTEXT_NODE, callbackHandler);
+						LoginContext nodeLc = CmsAuth.NODE.newLoginContext(callbackHandler);
 						nodeLc.login();
 						acceptorCredentials = logInAsAcceptor(nodeLc.getSubject(), servicePrincipal);
 					} catch (LoginException e) {
@@ -335,16 +335,21 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		}
 	}
 
-	private String getKerberosServicePrincipal(String realm) {
-		String hostname;
-		try (DnsBrowser dnsBrowser = new DnsBrowser()) {
-			InetAddress localhost = InetAddress.getLocalHost();
-			hostname = localhost.getHostName();
+	protected String getKerberosServicePrincipal(String realm) {
+		if (!Files.exists(nodeKeyTab))
+			return null;
+		List<String> dns = CmsStateImpl.getDeployProperties(cmsState, CmsDeployProperty.DNS);
+		String hostname = CmsStateImpl.getDeployProperty(cmsState, CmsDeployProperty.HOST);
+		try (DnsBrowser dnsBrowser = new DnsBrowser(dns)) {
+			hostname = hostname != null ? hostname : InetAddress.getLocalHost().getHostName();
 			String dnsZone = hostname.substring(hostname.indexOf('.') + 1);
-			String ipfromDns = dnsBrowser.getRecord(hostname, localhost instanceof Inet6Address ? "AAAA" : "A");
-			boolean consistentIp = localhost.getHostAddress().equals(ipfromDns);
+			String ipv4fromDns = dnsBrowser.getRecord(hostname, "A");
+			String ipv6fromDns = dnsBrowser.getRecord(hostname, "AAAA");
+			if (ipv4fromDns == null && ipv6fromDns == null)
+				throw new IllegalStateException("hostname " + hostname + " is not registered in DNS");
+			// boolean consistentIp = localhost.getHostAddress().equals(ipfromDns);
 			String kerberosDomain = dnsBrowser.getRecord("_kerberos." + dnsZone, "TXT");
-			if (consistentIp && kerberosDomain != null && kerberosDomain.equals(realm) && Files.exists(nodeKeyTab)) {
+			if (kerberosDomain != null && kerberosDomain.equals(realm)) {
 				return KernelConstants.DEFAULT_KERBEROS_SERVICE + "/" + hostname + "@" + kerberosDomain;
 			} else
 				return null;

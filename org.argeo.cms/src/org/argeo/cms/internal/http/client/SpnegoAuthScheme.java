@@ -133,8 +133,10 @@ public class SpnegoAuthScheme implements AuthScheme {
 	}
 
 	public static void main(String[] args) {
-		if (args.length == 0) {
-			System.err.println("usage: java " + SpnegoAuthScheme.class.getName() + " <url>");
+		String principal = System.getProperty("javax.security.auth.login.name");
+		if (args.length == 0 || principal == null) {
+			System.err.println("usage: java -Djavax.security.auth.login.name=<principal@REALM> "
+					+ SpnegoAuthScheme.class.getName() + " <url>");
 			System.exit(1);
 			return;
 		}
