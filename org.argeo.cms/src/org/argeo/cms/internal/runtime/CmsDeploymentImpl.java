@@ -3,6 +3,7 @@ package org.argeo.cms.internal.runtime;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
+import org.argeo.cms.CmsDeployProperty;
 import org.osgi.service.http.HttpService;
 
 /** Implementation of a CMS deployment. */
@@ -64,8 +65,8 @@ public class CmsDeploymentImpl implements CmsDeployment {
 
 	public void setCmsState(CmsState cmsState) {
 		this.cmsState = cmsState;
-		String httpPort = this.cmsState.getDeployProperty("org.osgi.service.http.port");
-		String httpsPort = this.cmsState.getDeployProperty("org.osgi.service.http.port.secure");
+		String httpPort = this.cmsState.getDeployProperty(CmsDeployProperty.HTTP_PORT.getProperty());
+		String httpsPort = this.cmsState.getDeployProperty(CmsDeployProperty.HTTPS_PORT.getProperty());
 		httpExpected = httpPort != null || httpsPort != null;
 	}
 

@@ -3,6 +3,7 @@ package org.argeo.cms.jcr.internal;
 import java.nio.file.Path;
 
 /** Centralises access to the default node deployment directories. */
+@Deprecated
 public class CmsPaths {
 	public static Path getRepoDirPath(String cn) {
 		return KernelUtils.getOsgiInstancePath(KernelConstants.DIR_REPOS + '/' + cn);

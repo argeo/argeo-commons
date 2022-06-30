@@ -1,7 +1,5 @@
 package org.argeo.api.cms;
 
-import java.util.Dictionary;
-
 /** A configured node deployment. */
 public interface CmsDeployment {
 

@@ -25,9 +25,7 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.ArgeoLogListener;
 import org.argeo.cms.ArgeoLogger;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.internal.runtime.KernelConstants;
 import org.argeo.util.directory.DirectoryConf;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
@@ -40,6 +38,9 @@ import org.osgi.service.log.LogReaderService;
 
 /** Not meant to be used directly in standard log4j config */
 public class CmsOsgiLogger implements ArgeoLogger, LogListener {
+	private final static String WHITEBOARD_PATTERN_PROP = "osgi.http.whiteboard.servlet.pattern";
+	private final static String CONTEXT_NAME_PROP = "contextName";
+
 	/** Internal debug for development purposes. */
 	private static Boolean debug = false;
 
@@ -120,7 +121,7 @@ public class CmsOsgiLogger implements ArgeoLogger, LogListener {
 			logDispatcherThread = new LogDispatcherThread();
 			logDispatcherThread.start();
 		} catch (Exception e) {
-			throw new CmsException("Cannot initialize log4j");
+			throw new IllegalStateException("Cannot initialize log4j");
 		}
 	}
 
@@ -203,19 +204,18 @@ public class CmsOsgiLogger implements ArgeoLogger, LogListener {
 			// sb.append(" " + Constants.SERVICE_PID + ": " + servicePid);
 			// }
 			// servlets
-			Object whiteBoardPattern = sr.getProperty(KernelConstants.WHITEBOARD_PATTERN_PROP);
+			Object whiteBoardPattern = sr.getProperty(WHITEBOARD_PATTERN_PROP);
 			if (whiteBoardPattern != null) {
 				if (whiteBoardPattern instanceof String) {
-					sb.append(" " + KernelConstants.WHITEBOARD_PATTERN_PROP + ": " + whiteBoardPattern);
+					sb.append(" " + WHITEBOARD_PATTERN_PROP + ": " + whiteBoardPattern);
 				} else {
-					sb.append(" " + KernelConstants.WHITEBOARD_PATTERN_PROP + ": "
-							+ arrayToString((String[]) whiteBoardPattern));
+					sb.append(" " + WHITEBOARD_PATTERN_PROP + ": " + arrayToString((String[]) whiteBoardPattern));
 				}
 			}
 			// RWT
-			Object contextName = sr.getProperty(KernelConstants.CONTEXT_NAME_PROP);
+			Object contextName = sr.getProperty(CONTEXT_NAME_PROP);
 			if (contextName != null)
-				sb.append(" " + KernelConstants.CONTEXT_NAME_PROP + ": " + contextName);
+				sb.append(" " + CONTEXT_NAME_PROP + ": " + contextName);
 
 			// user directories
 			Object baseDn = sr.getProperty(DirectoryConf.baseDn.name());
@@ -254,7 +254,7 @@ public class CmsOsgiLogger implements ArgeoLogger, LogListener {
 	public synchronized void register(ArgeoLogListener listener, Integer numberOfPreviousEvents) {
 		String username = CurrentUser.getUsername();
 		if (username == null)
-			throw new CmsException("Only authenticated users can register a log listener");
+			throw new IllegalStateException("Only authenticated users can register a log listener");
 
 		if (!userListeners.containsKey(username)) {
 			List<ArgeoLogListener> lst = Collections.synchronizedList(new ArrayList<ArgeoLogListener>());

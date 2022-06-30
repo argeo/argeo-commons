@@ -6,10 +6,10 @@ import java.util.Locale;
 
 import javax.security.auth.callback.LanguageCallback;
 
-import org.argeo.cms.CmsException;
-import org.argeo.cms.LocaleUtils;
+import org.argeo.cms.swt.CmsException;
 
 /** Choose in a list of locales. TODO: replace with {@link LanguageCallback} */
+@Deprecated
 public class LocaleChoice {
 	private final List<Locale> locales;
 
@@ -36,13 +36,13 @@ public class LocaleChoice {
 		this.selectedIndex = defaultIndex;
 	}
 
-	/**
-	 * Convenience constructor based on a comma separated list of iso codes (en,
-	 * en_US, fr_CA, etc.). Default selection is default locale.
-	 */
-	public LocaleChoice(String locales, Locale defaultLocale) {
-		this(LocaleUtils.asLocaleList(locales), defaultLocale);
-	}
+//	/**
+//	 * Convenience constructor based on a comma separated list of iso codes (en,
+//	 * en_US, fr_CA, etc.). Default selection is default locale.
+//	 */
+//	public LocaleChoice(String locales, Locale defaultLocale) {
+//		this(LocaleUtils.asLocaleList(locales), defaultLocale);
+//	}
 
 	public String[] getSupportedLocalesLabels() {
 		String[] labels = new String[locales.size()];

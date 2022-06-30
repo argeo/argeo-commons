@@ -1,11 +1,9 @@
 package org.argeo.cms.internal.jcr;
 
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.osgi.metatype.EnumAD;
-import org.argeo.osgi.metatype.EnumOCD;
 
 /** JCR repository configuration */
-public enum RepoConf implements EnumAD {
+public enum RepoConf {
 	/** Repository type */
 	type("h2"),
 	/** Default workspace */
@@ -41,10 +39,8 @@ public enum RepoConf implements EnumAD {
 
 	/** The default value. */
 	private Object def;
-	private String oid;
 
 	RepoConf(String oid, Object def) {
-		this.oid = oid;
 		this.def = def;
 	}
 
@@ -54,19 +50,6 @@ public enum RepoConf implements EnumAD {
 
 	public Object getDefault() {
 		return def;
-	}
-
-	@Override
-	public String getID() {
-		if (oid != null)
-			return oid;
-		return EnumAD.super.getID();
-	}
-
-	public static class OCD extends EnumOCD<RepoConf> {
-		public OCD(String locale) {
-			super(RepoConf.class, locale);
-		}
 	}
 
 }

@@ -45,7 +45,7 @@ public class CmsContentRepository extends AbstractContentRepository {
 		CmsContentSession contentSession = userSessions.get(cmsSession);
 		if (contentSession == null) {
 			final CmsContentSession newContentSession = new CmsContentSession(this, cmsSession.getUuid(),
-					cmsSession.getSubject(), locale);
+					cmsSession.getSubject(), locale, uuidFactory);
 			cmsSession.addOnCloseCallback((c) -> {
 				newContentSession.close();
 				userSessions.remove(cmsSession);
@@ -65,8 +65,8 @@ public class CmsContentRepository extends AbstractContentRepository {
 			throw new RuntimeException("Could not login as data admin", e1);
 		} finally {
 		}
-		return new CmsContentSession(this, getCmsState().getUuid(), loginContext.getSubject(),
-				Locale.getDefault());
+		return new CmsContentSession(this, getCmsState().getUuid(), loginContext.getSubject(), Locale.getDefault(),
+				uuidFactory);
 	}
 
 	protected CmsState getCmsState() {

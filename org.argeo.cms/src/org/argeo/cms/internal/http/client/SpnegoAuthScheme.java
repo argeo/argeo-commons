@@ -20,7 +20,6 @@ import org.apache.commons.httpclient.auth.MalformedChallengeException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpParams;
-import org.argeo.cms.internal.runtime.KernelConstants;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -40,6 +39,8 @@ public class SpnegoAuthScheme implements AuthScheme {
 			throw new IllegalStateException("Cannot create Kerberos OID", e);
 		}
 	}
+
+	private final static String DEFAULT_KERBEROS_SERVICE = "HTTP";
 
 	private boolean complete = false;
 	private String realm;
@@ -100,7 +101,7 @@ public class SpnegoAuthScheme implements AuthScheme {
 		} catch (URIException e1) {
 			throw new IllegalStateException("Cannot authenticate", e1);
 		}
-		String serverPrinc = KernelConstants.DEFAULT_KERBEROS_SERVICE + "@" + hostname;
+		String serverPrinc = DEFAULT_KERBEROS_SERVICE + "@" + hostname;
 
 		try {
 			// Get service's principal name

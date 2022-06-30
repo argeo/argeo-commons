@@ -1,6 +1,6 @@
 package org.argeo.cms.e4;
 
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.eclipse.e4.core.contexts.ContextFunction;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.di.IInjector;

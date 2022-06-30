@@ -23,9 +23,6 @@ import javax.naming.ldap.Rdn;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.internal.runtime.InitUtils;
-import org.argeo.cms.internal.runtime.KernelConstants;
-import org.argeo.cms.internal.runtime.KernelUtils;
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.directory.ldap.AttributesDictionary;
 import org.argeo.util.directory.ldap.LdifParser;
@@ -42,7 +39,7 @@ public class DeployConfig {
 	private final CmsLog log = CmsLog.getLog(getClass());
 //	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-	private static Path deployConfigPath = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
+	private static Path deployConfigPath;// = KernelUtils.getOsgiInstancePath(KernelConstants.DEPLOY_CONFIG_PATH);
 	private SortedMap<LdapName, Attributes> deployConfigs = new TreeMap<>();
 //	private final DataModels dataModels;
 
@@ -57,7 +54,7 @@ public class DeployConfig {
 		Files.createDirectories(deployConfigPath.getParent());
 
 		// FirstInit firstInit = new FirstInit();
-		InitUtils.prepareFirstInitInstanceArea();
+		//InitUtils.prepareFirstInitInstanceArea();
 
 		if (!Files.exists(deployConfigPath))
 			deployConfigs = new TreeMap<>();

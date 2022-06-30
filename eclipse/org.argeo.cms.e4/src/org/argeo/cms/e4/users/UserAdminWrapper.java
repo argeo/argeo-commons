@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.transaction.WorkTransaction;

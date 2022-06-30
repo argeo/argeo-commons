@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.cms.swt;
 
 /** @deprecated Use standard Java {@link RuntimeException} instead. */
 @Deprecated

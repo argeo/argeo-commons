@@ -82,31 +82,31 @@ public interface CmsConstants {
 	/*
 	 * INIT FRAMEWORK PROPERTIES
 	 */
-	String NODE_INIT = "argeo.node.init";
-	String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
-	String I18N_LOCALES = "argeo.i18n.locales";
+//	String NODE_INIT = "argeo.node.init";
+//	String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
+//	String I18N_LOCALES = "argeo.i18n.locales";
 	// Node Security
-	String ROLES_URI = "argeo.node.roles.uri";
-	String TOKENS_URI = "argeo.node.tokens.uri";
-	/** URI to an LDIF file or LDAP server used as initialization or backend */
-	String USERADMIN_URIS = "argeo.node.useradmin.uris";
+//	String ROLES_URI = "argeo.node.roles.uri";
+//	String TOKENS_URI = "argeo.node.tokens.uri";
+//	/** URI to an LDIF file or LDAP server used as initialization or backend */
+//	String USERADMIN_URIS = "argeo.node.useradmin.uris";
 	// Transaction manager
-	String TRANSACTION_MANAGER = "argeo.node.transaction.manager";
-	String TRANSACTION_MANAGER_SIMPLE = "simple";
-	String TRANSACTION_MANAGER_BITRONIX = "bitronix";
+//	String TRANSACTION_MANAGER = "argeo.node.transaction.manager";
+//	String TRANSACTION_MANAGER_SIMPLE = "simple";
+//	String TRANSACTION_MANAGER_BITRONIX = "bitronix";
 	// Node
-	/** Properties configuring the node repository */
-	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
-	/** Additional standalone repositories, related to data models. */
-	String NODE_REPOS_PROP_PREFIX = "argeo.node.repos.";
+//	/** Properties configuring the node repository */
+//	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
+//	/** Additional standalone repositories, related to data models. */
+//	String NODE_REPOS_PROP_PREFIX = "argeo.node.repos.";
 	// HTTP
-	String HTTP_PORT = "org.osgi.service.http.port";
-	String HTTP_PORT_SECURE = "org.osgi.service.http.port.secure";
-	/**
-	 * The HTTP header used to convey the DN of a client verified by a reverse
-	 * proxy. Typically SSL_CLIENT_S_DN for Apache.
-	 */
-	String HTTP_PROXY_SSL_DN = "argeo.http.proxy.ssl.dn";
+//	String HTTP_PORT = "org.osgi.service.http.port";
+//	String HTTP_PORT_SECURE = "org.osgi.service.http.port.secure";
+//	/**
+//	 * The HTTP header used to convey the DN of a client verified by a reverse
+//	 * proxy. Typically SSL_CLIENT_S_DN for Apache.
+//	 */
+//	String HTTP_PROXY_SSL_DN = "argeo.http.proxy.ssl.dn";
 
 	/*
 	 * PIDs

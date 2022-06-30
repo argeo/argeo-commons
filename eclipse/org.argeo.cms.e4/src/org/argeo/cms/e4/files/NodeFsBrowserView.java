@@ -9,8 +9,8 @@ import java.nio.file.spi.FileSystemProvider;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.argeo.cms.CmsException;
 import org.argeo.cms.jcr.CmsJcrUtils;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.eclipse.ui.fs.AdvancedFsBrowser;
 import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
 import org.eclipse.swt.SWT;

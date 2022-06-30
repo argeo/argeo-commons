@@ -16,6 +16,7 @@ import org.apache.jackrabbit.core.RepositoryContext;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
+import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.internal.jcr.RepoConf;
 import org.argeo.cms.internal.jcr.RepositoryBuilder;
 import org.argeo.cms.jcr.internal.osgi.CmsJcrActivator;
@@ -25,6 +26,7 @@ import org.osgi.service.cm.ManagedServiceFactory;
 /** A {@link ManagedServiceFactory} creating or referencing JCR repositories. */
 public class RepositoryContextsFactory {
 	private final static CmsLog log = CmsLog.getLog(RepositoryContextsFactory.class);
+	private final static String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
 //	private final BundleContext bc = FrameworkUtil.getBundle(RepositoryServiceFactory.class).getBundleContext();
 
 //	private Map<String, RepositoryContext> repositories = new HashMap<String, RepositoryContext>();
@@ -68,8 +70,11 @@ public class RepositoryContextsFactory {
 	/** Override the provided config with the framework properties */
 	private Dictionary<String, Object> getNodeRepositoryConfig() {
 		Dictionary<String, Object> props = new Hashtable<String, Object>();
+		addDeployProperty(CmsDeployProperty.DB_URL, RepoConf.dburl, props);
+		addDeployProperty(CmsDeployProperty.DB_USER, RepoConf.dbuser, props);
+		addDeployProperty(CmsDeployProperty.DB_PASSWORD, RepoConf.dbpassword, props);
 		for (RepoConf repoConf : RepoConf.values()) {
-			Object value = getFrameworkProp(CmsConstants.NODE_REPO_PROP_PREFIX + repoConf.name());
+			Object value = getFrameworkProp(NODE_REPO_PROP_PREFIX + repoConf.name());
 			if (value != null) {
 				props.put(repoConf.name(), value);
 				if (log.isDebugEnabled())
@@ -78,6 +83,15 @@ public class RepositoryContextsFactory {
 		}
 		props.put(CmsConstants.CN, CmsConstants.NODE_REPOSITORY);
 		return props;
+	}
+
+	private void addDeployProperty(CmsDeployProperty deployProperty, RepoConf repoConf,
+			Dictionary<String, Object> props) {
+		String value = getFrameworkProp(deployProperty.getProperty());
+		if (value != null) {
+			props.put(repoConf.name(), value);
+		}
+
 	}
 
 //	@Override

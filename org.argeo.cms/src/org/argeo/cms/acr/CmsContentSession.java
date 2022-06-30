@@ -1,27 +1,23 @@
 package org.argeo.cms.acr;
 
-import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import javax.security.auth.Subject;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.CrName;
-import org.argeo.api.acr.NamespaceUtils;
-import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.acr.xml.DomContentProvider;
 
 /** Implements {@link ProvidedSession}. */
@@ -32,6 +28,8 @@ class CmsContentSession implements ProvidedSession {
 	private Subject subject;
 	private Locale locale;
 
+	private UuidFactory uuidFactory;
+
 	private CompletableFuture<ProvidedSession> closed = new CompletableFuture<>();
 
 	private CompletableFuture<ContentSession> edition;
@@ -40,12 +38,13 @@ class CmsContentSession implements ProvidedSession {
 
 	private Content sessionRunDir;
 
-	public CmsContentSession(AbstractContentRepository contentRepository, UUID uuid, Subject subject, Locale locale) {
+	public CmsContentSession(AbstractContentRepository contentRepository, UUID uuid, Subject subject, Locale locale,
+			UuidFactory uuidFactory) {
 		this.contentRepository = contentRepository;
 		this.subject = subject;
 		this.locale = locale;
 		this.uuid = uuid;
-
+		this.uuidFactory = uuidFactory;
 	}
 
 	public void close() {
@@ -97,6 +96,10 @@ class CmsContentSession implements ProvidedSession {
 	@Override
 	public ProvidedRepository getRepository() {
 		return contentRepository;
+	}
+
+	public UuidFactory getUuidFactory() {
+		return uuidFactory;
 	}
 
 	/*

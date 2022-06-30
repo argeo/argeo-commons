@@ -8,7 +8,6 @@ import java.util.Map;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.runtime.CmsUserAdmin;
-import org.argeo.cms.internal.runtime.KernelConstants;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.DirectoryConf;
 import org.osgi.framework.Constants;
@@ -20,7 +19,8 @@ import org.osgi.service.useradmin.UserAdmin;
  * Aggregates multiple {@link UserDirectory} and integrates them with system
  * roles.
  */
-public class NodeUserAdmin extends CmsUserAdmin implements ManagedServiceFactory, KernelConstants {
+@Deprecated
+public class NodeUserAdmin extends CmsUserAdmin implements ManagedServiceFactory {
 	private final static CmsLog log = CmsLog.getLog(NodeUserAdmin.class);
 
 	// OSGi

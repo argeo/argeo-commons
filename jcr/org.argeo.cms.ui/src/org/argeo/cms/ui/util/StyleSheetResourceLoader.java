@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
 

@@ -1,9 +1,10 @@
 package org.argeo.cms;
 
 /** JCR types in the http://www.argeo.org/argeo namespace */
+@Deprecated
 public interface ArgeoTypes {
 	public final static String ARGEO_REMOTE_REPOSITORY = "argeo:remoteRepository";
-	
+
 	// tabular
 	public final static String ARGEO_TABLE = "argeo:table";
 	public final static String ARGEO_COLUMN = "argeo:column";

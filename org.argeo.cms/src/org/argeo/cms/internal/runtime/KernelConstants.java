@@ -1,17 +1,15 @@
 package org.argeo.cms.internal.runtime;
 
-import org.argeo.api.cms.CmsConstants;
-
 /** Internal CMS constants. */
-public interface KernelConstants {
+interface KernelConstants {
 	// Directories
 	String DIR_NODE = "node";
-	String DIR_REPOS = "repos";
-	String DIR_INDEXES = "indexes";
-	String DIR_TRANSACTIONS = "transactions";
+//	String DIR_REPOS = "repos";
+//	String DIR_INDEXES = "indexes";
+//	String DIR_TRANSACTIONS = "transactions";
 
 	// Files
-	String DEPLOY_CONFIG_PATH = DIR_NODE + '/' + CmsConstants.DEPLOY_BASEDN + ".ldif";
+//	String DEPLOY_CONFIG_PATH = DIR_NODE + '/' + CmsConstants.DEPLOY_BASEDN + ".ldif";
 	String NODE_KEY_TAB_PATH = DIR_NODE + "/krb5.keytab";
 
 	// Security
@@ -19,12 +17,12 @@ public interface KernelConstants {
 	String JAAS_CONFIG_IPA = "/org/argeo/cms/internal/runtime/jaas-ipa.cfg";
 
 	// Java
-	String JAAS_CONFIG_PROP = "java.security.auth.login.config";
+//	String JAAS_CONFIG_PROP = "java.security.auth.login.config";
 
 	// DEFAULTS JCR PATH
-	String DEFAULT_HOME_BASE_PATH = "/home";
-	String DEFAULT_USERS_BASE_PATH = "/users";
-	String DEFAULT_GROUPS_BASE_PATH = "/groups";
+//	String DEFAULT_HOME_BASE_PATH = "/home";
+//	String DEFAULT_USERS_BASE_PATH = "/users";
+//	String DEFAULT_GROUPS_BASE_PATH = "/groups";
 	
 	// KERBEROS
 	String DEFAULT_KERBEROS_SERVICE = "HTTP";
@@ -37,14 +35,12 @@ public interface KernelConstants {
 	// String PATH_WORKBENCH_PUBLIC = PATH_WORKBENCH + "/public";
 
 //	String JETTY_FACTORY_PID = "org.eclipse.equinox.http.jetty.config";
-	String JETTY_FACTORY_PID = "org.argeo.equinox.jetty.config";
-	String WHITEBOARD_PATTERN_PROP = "osgi.http.whiteboard.servlet.pattern";
+//	String JETTY_FACTORY_PID = "org.argeo.equinox.jetty.config";
 	// default Jetty server configured via JettyConfigurator
-	String DEFAULT_JETTY_SERVER = "default";
-	String CMS_JETTY_CUSTOMIZER_CLASS = "org.argeo.equinox.jetty.CmsJettyCustomizer";
+//	String DEFAULT_JETTY_SERVER = "default";
+//	String CMS_JETTY_CUSTOMIZER_CLASS = "org.argeo.equinox.jetty.CmsJettyCustomizer";
 
 	// avoid dependencies
-	String CONTEXT_NAME_PROP = "contextName";
-	String JACKRABBIT_REPOSITORY_URI = "org.apache.jackrabbit.repository.uri";
-	String JACKRABBIT_REMOTE_DEFAULT_WORKSPACE = "org.apache.jackrabbit.spi2davex.WorkspaceNameDefault";
+//	String JACKRABBIT_REPOSITORY_URI = "org.apache.jackrabbit.repository.uri";
+//	String JACKRABBIT_REMOTE_DEFAULT_WORKSPACE = "org.apache.jackrabbit.spi2davex.WorkspaceNameDefault";
 }

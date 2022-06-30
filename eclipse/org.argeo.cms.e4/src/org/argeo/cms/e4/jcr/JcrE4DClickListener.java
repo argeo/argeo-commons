@@ -3,7 +3,7 @@ package org.argeo.cms.e4.jcr;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.cms.ui.jcr.JcrDClickListener;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;

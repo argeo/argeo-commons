@@ -138,11 +138,18 @@ public final class CurrentUser {
 		return CmsContextImpl.getCmsContext().getCmsSessionByUuid(cmsSessionId.getUuid());
 	}
 
+	public static boolean isAvailable() {
+		return CurrentSubject.current() != null;
+	}
+
 	/*
 	 * HELPERS
 	 */
 	private static Subject currentSubject() {
-		return CurrentSubject.current();
+		Subject subject = CurrentSubject.current();
+		if (subject == null)
+			throw new IllegalStateException("Cannot find related subject");
+		return subject;
 	}
 
 	private static Authorization getAuthorization(Subject subject) {

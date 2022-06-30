@@ -11,7 +11,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.osgi.framework.BundleContext;

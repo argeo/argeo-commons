@@ -4,8 +4,8 @@ import java.security.AccessController;
 
 import javax.security.auth.Subject;
 
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.swt.CmsException;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.ui.workbench.IWorkbench;
 

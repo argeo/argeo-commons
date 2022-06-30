@@ -11,8 +11,8 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.api.cms.ux.UxContext;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.SimpleSwtUxContext;
 import org.argeo.cms.swt.auth.CmsLoginShell;
@@ -55,7 +55,7 @@ public class CmsE4Application implements IApplication, CmsView {
 			}
 		}
 		if (CurrentUser.getUsername(getSubject()) == null)
-			throw new CmsException("Cannot log in");
+			throw new IllegalStateException("Cannot log in");
 
 		// try {
 		// CallbackHandler callbackHandler = new DefaultLoginDialog(

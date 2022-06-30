@@ -6,7 +6,7 @@ import java.util.List;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.cms.swt.CmsStyles;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsUiProvider;

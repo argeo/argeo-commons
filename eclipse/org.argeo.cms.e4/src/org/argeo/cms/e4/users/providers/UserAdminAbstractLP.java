@@ -3,8 +3,8 @@ package org.argeo.cms.e4.users.providers;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.UserAdminUtils;
+import org.argeo.cms.swt.CmsException;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;

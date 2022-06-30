@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrUtils;
 import org.osgi.framework.BundleContext;
@@ -137,7 +136,7 @@ public class LinkServlet extends HttpServlet {
 			response.setHeader("Content-Type", "text/html");
 			writer.flush();
 		} catch (Exception e) {
-			throw new CmsException("Cannot write canonical answer", e);
+			throw new IllegalStateException("Cannot write canonical answer", e);
 		} finally {
 			JcrUtils.logoutQuietly(session);
 		}
@@ -190,7 +189,7 @@ public class LinkServlet extends HttpServlet {
 				buf.append(':').append(url.getPort());
 			return buf;
 		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot extract server base URL from " + request.getRequestURL(), e);
+			throw new IllegalArgumentException("Cannot extract server base URL from " + request.getRequestURL(), e);
 		}
 	}
 
@@ -200,7 +199,7 @@ public class LinkServlet extends HttpServlet {
 			buf.append(CmsJcrUtils.getDataPath(CmsConstants.EGO_REPOSITORY, node));
 			return new URL(buf.toString()).toString();
 		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot build data URL for " + node, e);
+			throw new IllegalArgumentException("Cannot build data URL for " + node, e);
 		}
 	}
 
@@ -238,7 +237,7 @@ public class LinkServlet extends HttpServlet {
 			buf.append('/').append('!').append(node.getPath());
 			return new URL(buf.toString()).toString();
 		} catch (MalformedURLException e) {
-			throw new CmsException("Cannot build data URL for " + node, e);
+			throw new IllegalArgumentException("Cannot build data URL for " + node, e);
 		}
 		// return request.getRequestURL().append('!').append(node.getPath())
 		// .toString();
@@ -252,7 +251,7 @@ public class LinkServlet extends HttpServlet {
 			lc.login();
 			return subject;
 		} catch (LoginException e) {
-			throw new CmsException("Cannot login as anonymous", e);
+			throw new IllegalStateException("Cannot login as anonymous", e);
 		}
 	}
 

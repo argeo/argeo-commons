@@ -16,8 +16,10 @@ import javax.security.auth.spi.LoginModule;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.cms.internal.runtime.CmsStateImpl;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
@@ -210,8 +212,8 @@ public class RemoteSessionLoginModule implements LoginModule {
 			if (log.isDebugEnabled())
 				log.debug("Client certificate " + certDn + " verified by servlet container");
 		} // Reverse proxy verified the client certificate
-		String clientDnHttpHeader = CmsContextImpl.getCmsContext().getCmsState()
-				.getDeployProperty(CmsConstants.HTTP_PROXY_SSL_DN);
+		String clientDnHttpHeader = CmsStateImpl.getDeployProperty(CmsContextImpl.getCmsContext().getCmsState(),
+				CmsDeployProperty.HTTP_PROXY_SSL_HEADER_DN);
 		if (clientDnHttpHeader != null) {
 			String certDn = req.getHeader(clientDnHttpHeader);
 			// TODO retrieve more cf. https://httpd.apache.org/docs/current/mod/mod_ssl.html

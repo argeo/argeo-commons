@@ -1,5 +1,6 @@
 package org.argeo.cms.internal.runtime;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -30,10 +31,12 @@ import org.apache.commons.httpclient.auth.CredentialsProvider;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.params.HttpParams;
+import org.apache.commons.io.FileUtils;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
+import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.internal.http.client.HttpCredentialProvider;
 import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
@@ -76,7 +79,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 
 	public void start() {
 		super.start();
-		List<Dictionary<String, Object>> configs = InitUtils.getUserDirectoryConfigs();
+		List<Dictionary<String, Object>> configs = getUserDirectoryConfigs();
 		for (Dictionary<String, Object> config : configs) {
 			UserDirectory userDirectory = enableUserDirectory(config);
 			if (userDirectory.getRealm().isPresent())
@@ -90,6 +93,106 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 //			removeUserDirectory(userDirectory);
 //		}
 		super.stop();
+	}
+
+	protected List<Dictionary<String, Object>> getUserDirectoryConfigs() {
+		List<Dictionary<String, Object>> res = new ArrayList<>();
+		File nodeBaseDir = cmsState.getDataPath(KernelConstants.DIR_NODE).toFile();
+		List<String> uris = new ArrayList<>();
+
+		// node roles
+		String nodeRolesUri = null;// getFrameworkProp(CmsConstants.ROLES_URI);
+		String baseNodeRoleDn = CmsConstants.ROLES_BASEDN;
+		if (nodeRolesUri == null) {
+			nodeRolesUri = baseNodeRoleDn + ".ldif";
+			File nodeRolesFile = new File(nodeBaseDir, nodeRolesUri);
+			if (!nodeRolesFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(CmsUserAdmin.class.getResourceAsStream(baseNodeRoleDn + ".ldif"),
+							nodeRolesFile);
+				} catch (IOException e) {
+					throw new RuntimeException("Cannot copy demo resource", e);
+				}
+			// nodeRolesUri = nodeRolesFile.toURI().toString();
+		}
+		uris.add(nodeRolesUri);
+
+		// node tokens
+		String nodeTokensUri = null;// getFrameworkProp(CmsConstants.TOKENS_URI);
+		String baseNodeTokensDn = CmsConstants.TOKENS_BASEDN;
+		if (nodeTokensUri == null) {
+			nodeTokensUri = baseNodeTokensDn + ".ldif";
+			File nodeTokensFile = new File(nodeBaseDir, nodeTokensUri);
+			if (!nodeTokensFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(CmsUserAdmin.class.getResourceAsStream(baseNodeTokensDn + ".ldif"),
+							nodeTokensFile);
+				} catch (IOException e) {
+					throw new RuntimeException("Cannot copy demo resource", e);
+				}
+			// nodeRolesUri = nodeRolesFile.toURI().toString();
+		}
+		uris.add(nodeTokensUri);
+
+		// Business roles
+//		String userAdminUris = getFrameworkProp(CmsConstants.USERADMIN_URIS);
+		List<String> userAdminUris = CmsStateImpl.getDeployProperties(cmsState, CmsDeployProperty.DIRECTORY);// getFrameworkProp(CmsConstants.USERADMIN_URIS);
+		for (String userAdminUri : userAdminUris) {
+			if (userAdminUri == null)
+				continue;
+//			if (!userAdminUri.trim().equals(""))
+			uris.add(userAdminUri);
+		}
+
+		if (uris.size() == 0) {
+			// TODO put this somewhere else
+			String demoBaseDn = "dc=example,dc=com";
+			String userAdminUri = demoBaseDn + ".ldif";
+			File businessRolesFile = new File(nodeBaseDir, userAdminUri);
+			File systemRolesFile = new File(nodeBaseDir, "ou=roles,ou=node.ldif");
+			if (!businessRolesFile.exists())
+				try {
+					FileUtils.copyInputStreamToFile(CmsUserAdmin.class.getResourceAsStream(demoBaseDn + ".ldif"),
+							businessRolesFile);
+					if (!systemRolesFile.exists())
+						FileUtils.copyInputStreamToFile(
+								CmsUserAdmin.class.getResourceAsStream("example-ou=roles,ou=node.ldif"),
+								systemRolesFile);
+				} catch (IOException e) {
+					throw new RuntimeException("Cannot copy demo resources", e);
+				}
+			// userAdminUris = businessRolesFile.toURI().toString();
+			log.warn("## DEV Using dummy base DN " + demoBaseDn);
+			// TODO downgrade security level
+		}
+
+		// Interprets URIs
+		for (String uri : uris) {
+			URI u;
+			try {
+				u = new URI(uri);
+				if (u.getPath() == null)
+					throw new IllegalArgumentException(
+							"URI " + uri + " must have a path in order to determine base DN");
+				if (u.getScheme() == null) {
+					if (uri.startsWith("/") || uri.startsWith("./") || uri.startsWith("../"))
+						u = new File(uri).getCanonicalFile().toURI();
+					else if (!uri.contains("/")) {
+						// u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + uri);
+						u = new URI(uri);
+					} else
+						throw new IllegalArgumentException("Cannot interpret " + uri + " as an uri");
+				} else if (u.getScheme().equals(DirectoryConf.SCHEME_FILE)) {
+					u = new File(u).getCanonicalFile().toURI();
+				}
+			} catch (Exception e) {
+				throw new RuntimeException("Cannot interpret " + uri + " as an uri", e);
+			}
+			Dictionary<String, Object> properties = DirectoryConf.uriAsProperties(u.toString());
+			res.add(properties);
+		}
+
+		return res;
 	}
 
 	public UserDirectory enableUserDirectory(Dictionary<String, ?> properties) {
@@ -224,7 +327,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 	}
 
 	private void loadIpaJaasConfiguration() {
-		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
+		if (CmsStateImpl.getDeployProperty(cmsState, CmsDeployProperty.JAVA_LOGIN_CONFIG) == null) {
 			String jaasConfig = KernelConstants.JAAS_CONFIG_IPA;
 			URL url = getClass().getClassLoader().getResource(jaasConfig);
 			KernelUtils.setJaasConfiguration(url);

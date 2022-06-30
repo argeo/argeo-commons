@@ -11,6 +11,8 @@ import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.spi.ProvidedRepository;
+import org.argeo.api.uuid.MacAddressUuidFactory;
+import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.acr.fs.FsContentProvider;
 import org.argeo.util.naming.LdapAttrs;
 
@@ -23,6 +25,8 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 	private final Locale locale;
 
 	private UUID uuid;
+
+	private UuidFactory uuidFactory = MacAddressUuidFactory.DEFAULT;
 
 	// the single session
 	private CmsContentSession contentSession;
@@ -51,7 +55,7 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 		initRootContentProvider(null);
 		if (contentSession != null)
 			throw new IllegalStateException("Repository is already started, stop it first.");
-		contentSession = new CmsContentSession(this, uuid, subject, locale);
+		contentSession = new CmsContentSession(this, uuid, subject, locale, uuidFactory);
 	}
 
 	@Override
@@ -76,7 +80,7 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 
 	@Override
 	protected CmsContentSession newSystemSession() {
-		return new CmsContentSession(this, uuid, subject, Locale.getDefault());
+		return new CmsContentSession(this, uuid, subject, Locale.getDefault(), uuidFactory);
 	}
 
 	public static void main(String... args) {

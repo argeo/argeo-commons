@@ -2,7 +2,7 @@ package org.argeo.cms.e4;
 
 import java.util.List;
 
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.commands.MCommand;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;

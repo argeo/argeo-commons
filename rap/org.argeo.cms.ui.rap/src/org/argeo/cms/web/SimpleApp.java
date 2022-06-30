@@ -22,8 +22,8 @@ import javax.jcr.version.VersionManager;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.jcr.CmsJcrUtils;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.cms.ui.CmsUiConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.LifeCycleUiProvider;

@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsTheme;
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.cms.ui.CmsUiConstants;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.CmsUiUtils;

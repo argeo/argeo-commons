@@ -3,6 +3,7 @@ package org.argeo.cms.internal.runtime;
 import static java.util.Locale.ENGLISH;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -13,8 +14,6 @@ import java.util.concurrent.ExecutionException;
 
 import javax.security.auth.Subject;
 
-import org.argeo.api.acr.spi.ProvidedContent;
-import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
@@ -23,6 +22,7 @@ import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsSessionId;
 import org.argeo.api.cms.CmsState;
 import org.argeo.api.uuid.UuidFactory;
+import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.ietf.jgss.GSSCredential;
@@ -56,10 +56,14 @@ public class CmsContextImpl implements CmsContext {
 //	}
 
 	public void start() {
-		Object defaultLocaleValue = KernelUtils.getFrameworkProp(CmsConstants.I18N_DEFAULT_LOCALE);
-		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
-				: new Locale(ENGLISH.getLanguage());
-		locales = LocaleUtils.asLocaleList(KernelUtils.getFrameworkProp(CmsConstants.I18N_LOCALES));
+		List<String> codes = CmsStateImpl.getDeployProperties(cmsState, CmsDeployProperty.LOCALE);
+		locales = getLocaleList(codes);
+		if (locales.size() == 0)
+			throw new IllegalStateException("At least one locale must be set");
+		defaultLocale = locales.get(0);
+//		Object defaultLocaleValue = KernelUtils.getFrameworkProp(CmsConstants.I18N_DEFAULT_LOCALE);
+//		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
+//				: new Locale(ENGLISH.getLanguage());
 		// node repository
 //		new ServiceTracker<Repository, Repository>(bc, Repository.class, null) {
 //			@Override
@@ -143,6 +147,29 @@ public class CmsContextImpl implements CmsContext {
 //		// TODO add check that the group exists
 //		egoRepository.createWorkgroup(dn);
 		throw new UnsupportedOperationException();
+	}
+
+	/** Returns null if argument is null. */
+	private static List<Locale> getLocaleList(List<String> codes) {
+		if (codes == null)
+			return null;
+		ArrayList<Locale> availableLocales = new ArrayList<Locale>();
+		for (String code : codes) {
+			if (code == null)
+				continue;
+			// variant not supported
+			int indexUnd = code.indexOf("_");
+			Locale locale;
+			if (indexUnd > 0) {
+				String language = code.substring(0, indexUnd);
+				String country = code.substring(indexUnd + 1);
+				locale = new Locale(language, country);
+			} else {
+				locale = new Locale(code);
+			}
+			availableLocales.add(locale);
+		}
+		return availableLocales;
 	}
 
 	public void setCmsDeployment(CmsDeployment cmsDeployment) {

@@ -16,7 +16,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
 import org.argeo.api.cms.ux.Cms2DSize;
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsUiProvider;
 import org.argeo.cms.ui.util.CmsLink;

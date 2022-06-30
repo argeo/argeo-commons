@@ -1,4 +1,4 @@
-package org.argeo.cms.security;
+package org.argeo.cms.internal.runtime;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +26,6 @@ import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.internal.runtime.KernelConstants;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -47,7 +46,7 @@ import org.bouncycastle.pkcs.PKCSException;
  * Utilities around private keys and certificate, mostly wrapping BouncyCastle
  * implementations.
  */
-public class PkiUtils {
+class PkiUtils {
 	private final static CmsLog log = CmsLog.getLog(PkiUtils.class);
 
 	public final static String PKCS12 = "PKCS12";

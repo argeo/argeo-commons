@@ -17,9 +17,9 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.security.CryptoKeyring;
 import org.argeo.cms.security.Keyring;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.jcr.JcrBrowserUtils;
 import org.argeo.cms.ui.jcr.NodeContentProvider;

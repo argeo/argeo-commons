@@ -12,15 +12,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jcr.NamespaceRegistry;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -30,14 +27,10 @@ import javax.servlet.Servlet;
 import org.apache.jackrabbit.commons.cnd.CndImporter;
 import org.apache.jackrabbit.core.RepositoryContext;
 import org.apache.jackrabbit.core.RepositoryImpl;
-import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.ArgeoNames;
-import org.argeo.cms.internal.jcr.JcrInitUtils;
 import org.argeo.cms.jcr.CmsJcrUtils;
-import org.argeo.cms.jcr.acr.JcrContentProvider;
 import org.argeo.cms.jcr.internal.servlet.CmsRemotingServlet;
 import org.argeo.cms.jcr.internal.servlet.CmsWebDavServlet;
 import org.argeo.cms.jcr.internal.servlet.JcrHttpUtils;
@@ -48,7 +41,6 @@ import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
 import org.argeo.util.LangUtils;
-import org.argeo.util.naming.LdapAttrs;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -165,23 +157,23 @@ public class CmsJcrDeployment {
 //		}
 
 		// init from repository
-		Collection<ServiceReference<Repository>> initRepositorySr;
-		try {
-			initRepositorySr = bc.getServiceReferences(Repository.class,
-					"(" + CmsConstants.CN + "=" + CmsConstants.NODE_INIT + ")");
-		} catch (InvalidSyntaxException e1) {
-			throw new IllegalArgumentException(e1);
-		}
-		Iterator<ServiceReference<Repository>> it = initRepositorySr.iterator();
-		while (it.hasNext()) {
-			ServiceReference<Repository> sr = it.next();
-			Object labeledUri = sr.getProperties().get(LdapAttrs.labeledURI.name());
-			Repository initRepository = bc.getService(sr);
-			if (log.isDebugEnabled())
-				log.debug("Found init repository " + labeledUri + ", copying it...");
-			initFromRepository(deployedNodeRepository, initRepository);
-			log.info("Node repository initialised from " + labeledUri);
-		}
+//		Collection<ServiceReference<Repository>> initRepositorySr;
+//		try {
+//			initRepositorySr = bc.getServiceReferences(Repository.class,
+//					"(" + CmsConstants.CN + "=" + CmsConstants.NODE_INIT + ")");
+//		} catch (InvalidSyntaxException e1) {
+//			throw new IllegalArgumentException(e1);
+//		}
+//		Iterator<ServiceReference<Repository>> it = initRepositorySr.iterator();
+//		while (it.hasNext()) {
+//			ServiceReference<Repository> sr = it.next();
+//			Object labeledUri = sr.getProperties().get(LdapAttrs.labeledURI.name());
+//			Repository initRepository = bc.getService(sr);
+//			if (log.isDebugEnabled())
+//				log.debug("Found init repository " + labeledUri + ", copying it...");
+//			initFromRepository(deployedNodeRepository, initRepository);
+//			log.info("Node repository initialised from " + labeledUri);
+//		}
 	}
 
 	/** Init from a (typically remote) repository. */

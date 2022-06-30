@@ -1,11 +1,5 @@
 package org.argeo.cms.servlet.internal.jetty;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.KeyStore;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -18,7 +12,7 @@ import javax.websocket.server.ServerEndpointConfig;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
-import org.argeo.cms.security.PkiUtils;
+import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.websocket.javax.server.CmsWebSocketConfigurator;
 import org.argeo.cms.websocket.javax.server.TestEndpoint;
 import org.argeo.util.LangUtils;
@@ -32,12 +26,12 @@ public class JettyConfig {
 	private final static CmsLog log = CmsLog.getLog(JettyConfig.class);
 
 	final static String CMS_JETTY_CUSTOMIZER_CLASS = "org.argeo.equinox.jetty.CmsJettyCustomizer";
-	// Argeo specific
-	final static String WEBSOCKET_ENABLED = "websocket.enabled";
 
 	private CmsState cmsState;
 
 	private final BundleContext bc = FrameworkUtil.getBundle(JettyConfig.class).getBundleContext();
+
+	//private static final String JETTY_PROPERTY_PREFIX = "org.eclipse.equinox.http.jetty.";
 
 	public void start() {
 		// We need to start asynchronously so that Jetty bundle get started by lazy init
@@ -103,10 +97,10 @@ public class JettyConfig {
 			config.put("customizer.class", CMS_JETTY_CUSTOMIZER_CLASS);
 
 			// TODO centralise with Jetty extender
-			Object webSocketEnabled = config.get(WEBSOCKET_ENABLED);
+			Object webSocketEnabled = config.get(CmsDeployProperty.WEBSOCKET_ENABLED.getProperty());
 			if (webSocketEnabled != null && webSocketEnabled.toString().equals("true")) {
 				bc.registerService(ServerEndpointConfig.Configurator.class, new CmsWebSocketConfigurator(), null);
-				config.put(WEBSOCKET_ENABLED, "true");
+				// config.put(WEBSOCKET_ENABLED, "true");
 			}
 		}
 
@@ -117,8 +111,8 @@ public class JettyConfig {
 					// FIXME deal with multiple ids
 					JettyConfigurator.startServer(CmsConstants.DEFAULT, new Hashtable<>(config));
 
-					Object httpPort = config.get(InternalHttpConstants.HTTP_PORT);
-					Object httpsPort = config.get(InternalHttpConstants.HTTPS_PORT);
+					Object httpPort = config.get(JettyHttpConstants.HTTP_PORT);
+					Object httpsPort = config.get(JettyHttpConstants.HTTPS_PORT);
 					log.info(httpPortsMsg(httpPort, httpsPort));
 
 					// Explicitly starts Jetty OSGi HTTP bundle, so that it gets triggered if OSGi
@@ -148,94 +142,57 @@ public class JettyConfig {
 
 	/** Override the provided config with the framework properties */
 	public Dictionary<String, Object> getHttpServerConfig() {
-		String httpPort = getFrameworkProp("org.osgi.service.http.port");
-		String httpsPort = getFrameworkProp("org.osgi.service.http.port.secure");
+		String httpPort = getFrameworkProp(CmsDeployProperty.HTTP_PORT);
+		String httpsPort = getFrameworkProp(CmsDeployProperty.HTTPS_PORT);
 		/// TODO make it more generic
-		String httpHost = getFrameworkProp(
-				InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.HTTP_HOST);
-		String httpsHost = getFrameworkProp(
-				InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.HTTPS_HOST);
-		String webSocketEnabled = getFrameworkProp(
-				InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.WEBSOCKET_ENABLED);
+		String httpHost = getFrameworkProp(CmsDeployProperty.HOST);
+//		String httpsHost = getFrameworkProp(
+//				JettyConfig.JETTY_PROPERTY_PREFIX + CmsHttpConstants.HTTPS_HOST);
+		String webSocketEnabled = getFrameworkProp(CmsDeployProperty.WEBSOCKET_ENABLED);
 
 		final Hashtable<String, Object> props = new Hashtable<String, Object>();
 		// try {
 		if (httpPort != null || httpsPort != null) {
 			boolean httpEnabled = httpPort != null;
-			props.put(InternalHttpConstants.HTTP_ENABLED, httpEnabled);
+			props.put(JettyHttpConstants.HTTP_ENABLED, httpEnabled);
 			boolean httpsEnabled = httpsPort != null;
-			props.put(InternalHttpConstants.HTTPS_ENABLED, httpsEnabled);
+			props.put(JettyHttpConstants.HTTPS_ENABLED, httpsEnabled);
 
 			if (httpEnabled) {
-				props.put(InternalHttpConstants.HTTP_PORT, httpPort);
+				props.put(JettyHttpConstants.HTTP_PORT, httpPort);
 				if (httpHost != null)
-					props.put(InternalHttpConstants.HTTP_HOST, httpHost);
+					props.put(JettyHttpConstants.HTTP_HOST, httpHost);
 			}
 
 			if (httpsEnabled) {
-				props.put(InternalHttpConstants.HTTPS_PORT, httpsPort);
-				if (httpsHost != null)
-					props.put(InternalHttpConstants.HTTPS_HOST, httpsHost);
+				props.put(JettyHttpConstants.HTTPS_PORT, httpsPort);
+				if (httpHost != null)
+					props.put(JettyHttpConstants.HTTPS_HOST, httpHost);
 
-				// server certificate
-				Path keyStorePath = cmsState.getDataPath(PkiUtils.DEFAULT_KEYSTORE_PATH);
-				Path pemKeyPath = cmsState.getDataPath(PkiUtils.DEFAULT_PEM_KEY_PATH);
-				Path pemCertPath = cmsState.getDataPath(PkiUtils.DEFAULT_PEM_CERT_PATH);
-				String keyStorePasswordStr = getFrameworkProp(
-						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_PASSWORD);
-				char[] keyStorePassword;
-				if (keyStorePasswordStr == null)
-					keyStorePassword = "changeit".toCharArray();
-				else
-					keyStorePassword = keyStorePasswordStr.toCharArray();
-
-				// if PEM files both exists, update the PKCS12 file
-				if (Files.exists(pemCertPath) && Files.exists(pemKeyPath)) {
-					// TODO check certificate update time? monitor changes?
-					KeyStore keyStore = PkiUtils.getKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
-					try (Reader key = Files.newBufferedReader(pemKeyPath, StandardCharsets.US_ASCII);
-							Reader cert = Files.newBufferedReader(pemCertPath, StandardCharsets.US_ASCII);) {
-						PkiUtils.loadPem(keyStore, key, keyStorePassword, cert);
-						PkiUtils.saveKeyStore(keyStorePath, keyStorePassword, keyStore);
-						if (log.isDebugEnabled())
-							log.debug("PEM certificate stored in " + keyStorePath);
-					} catch (IOException e) {
-						log.error("Cannot read PEM files " + pemKeyPath + " and " + pemCertPath, e);
-					}
-				}
-
-				if (!Files.exists(keyStorePath))
-					PkiUtils.createSelfSignedKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
-				props.put(InternalHttpConstants.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
-				props.put(InternalHttpConstants.SSL_KEYSTORE, keyStorePath.toString());
-				props.put(InternalHttpConstants.SSL_PASSWORD, new String(keyStorePassword));
-
-//				props.put(InternalHttpConstants.SSL_KEYSTORETYPE, "PKCS11");
-//				props.put(InternalHttpConstants.SSL_KEYSTORE, "../../nssdb");
-//				props.put(InternalHttpConstants.SSL_PASSWORD, keyStorePassword);
+				props.put(JettyHttpConstants.SSL_KEYSTORETYPE,  getFrameworkProp(CmsDeployProperty.SSL_KEYSTORETYPE));
+				props.put(JettyHttpConstants.SSL_KEYSTORE, getFrameworkProp(CmsDeployProperty.SSL_KEYSTORE));
+				props.put(JettyHttpConstants.SSL_PASSWORD, getFrameworkProp(CmsDeployProperty.SSL_PASSWORD));
 
 				// client certificate authentication
-				String wantClientAuth = getFrameworkProp(
-						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_WANTCLIENTAUTH);
+				String wantClientAuth = getFrameworkProp(CmsDeployProperty.SSL_WANTCLIENTAUTH);
 				if (wantClientAuth != null)
-					props.put(InternalHttpConstants.SSL_WANTCLIENTAUTH, Boolean.parseBoolean(wantClientAuth));
-				String needClientAuth = getFrameworkProp(
-						InternalHttpConstants.JETTY_PROPERTY_PREFIX + InternalHttpConstants.SSL_NEEDCLIENTAUTH);
+					props.put(JettyHttpConstants.SSL_WANTCLIENTAUTH, Boolean.parseBoolean(wantClientAuth));
+				String needClientAuth = getFrameworkProp(CmsDeployProperty.SSL_NEEDCLIENTAUTH);
 				if (needClientAuth != null)
-					props.put(InternalHttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(needClientAuth));
+					props.put(JettyHttpConstants.SSL_NEEDCLIENTAUTH, Boolean.parseBoolean(needClientAuth));
 			}
 
 			// web socket
 			if (webSocketEnabled != null && webSocketEnabled.equals("true"))
-				props.put(InternalHttpConstants.WEBSOCKET_ENABLED, true);
+				props.put(CmsDeployProperty.WEBSOCKET_ENABLED.getProperty(), true);
 
 			props.put(CmsConstants.CN, CmsConstants.DEFAULT);
 		}
 		return props;
 	}
 
-	private String getFrameworkProp(String key) {
-		return cmsState.getDeployProperty(key);
+	private String getFrameworkProp(CmsDeployProperty deployProperty) {
+		return cmsState.getDeployProperty(deployProperty.getProperty());
 	}
 
 	public void setCmsState(CmsState cmsState) {

@@ -7,13 +7,13 @@ import java.util.Map;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.DomainNameLP;
 import org.argeo.cms.e4.users.providers.MailLP;
 import org.argeo.cms.e4.users.providers.UserNameLP;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.eclipse.ui.ColumnDefinition;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.parts.LdifUsersTable;

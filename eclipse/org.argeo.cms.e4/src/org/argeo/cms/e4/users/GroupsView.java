@@ -9,12 +9,12 @@ import javax.inject.Inject;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.e4.users.providers.CommonNameLP;
 import org.argeo.cms.e4.users.providers.DomainNameLP;
 import org.argeo.cms.e4.users.providers.RoleIconLP;
 import org.argeo.cms.e4.users.providers.UserDragListener;
+import org.argeo.cms.swt.CmsException;
 //import org.argeo.cms.ui.workbench.WorkbenchUiPlugin;
 //import org.argeo.cms.ui.workbench.internal.useradmin.UiUserAdminListener;
 //import org.argeo.cms.ui.workbench.internal.useradmin.UserAdminWrapper;

@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.CmsException;
+import org.argeo.cms.swt.CmsException;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.argeo.eclipse.ui.dialogs.SingleValue;

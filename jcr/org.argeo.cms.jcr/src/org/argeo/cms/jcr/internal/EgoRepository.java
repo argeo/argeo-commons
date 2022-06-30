@@ -19,7 +19,6 @@ import javax.security.auth.login.LoginContext;
 
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.CmsException;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrRepositoryWrapper;
@@ -28,7 +27,7 @@ import org.argeo.jcr.JcrUtils;
 /**
  * Make sure each user has a home directory available.
  */
-class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
+class EgoRepository extends JcrRepositoryWrapper {
 
 	/** The home base path. */
 //	private String homeBasePath = KernelConstants.DEFAULT_HOME_BASE_PATH;
@@ -145,7 +144,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 //			JcrUtils.addPrivilege(adminSession, groupsBasePath, NodeConstants.ROLE_USER_ADMIN, Privilege.JCR_READ);
 			adminSession.save();
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot initialize home repository", e);
+			throw new JcrException("Cannot initialize home repository", e);
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
 		}
@@ -197,7 +196,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 		try {
 			dn = new LdapName(username);
 		} catch (InvalidNameException e) {
-			throw new CmsException("Invalid name " + username, e);
+			throw new IllegalArgumentException("Invalid name " + username, e);
 		}
 		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
 		return '/' + userId;
@@ -214,7 +213,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 		try {
 			dn = new LdapName(username);
 		} catch (InvalidNameException e) {
-			throw new CmsException("Invalid name " + username, e);
+			throw new IllegalArgumentException("Invalid name " + username, e);
 		}
 		String userId = dn.getRdn(dn.size() - 1).getValue().toString();
 		return userId;
@@ -233,7 +232,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 		Node newWorkgroup = CmsJcrUtils.getGroupHome(adminSession, cn);
 		if (newWorkgroup != null) {
 			JcrUtils.logoutQuietly(adminSession);
-			throw new CmsException("Workgroup " + newWorkgroup + " already exists for " + dn);
+			throw new IllegalStateException("Workgroup " + newWorkgroup + " already exists for " + dn);
 		}
 		try {
 			// TODO enhance transformation of cn to a valid node name
@@ -251,7 +250,7 @@ class EgoRepository extends JcrRepositoryWrapper implements KernelConstants {
 			JcrUtils.addPrivilege(adminSession, newWorkgroup.getPath(), dn.toString(), Privilege.JCR_ALL);
 			adminSession.save();
 		} catch (RepositoryException e) {
-			throw new CmsException("Cannot create workgroup", e);
+			throw new JcrException("Cannot create workgroup", e);
 		} finally {
 			JcrUtils.logoutQuietly(adminSession);
 		}

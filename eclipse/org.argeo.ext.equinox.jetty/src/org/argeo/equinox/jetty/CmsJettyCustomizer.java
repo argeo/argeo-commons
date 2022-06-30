@@ -17,7 +17,7 @@ import org.osgi.framework.FrameworkUtil;
 public class CmsJettyCustomizer extends JettyCustomizer {
 	private BundleContext bc = FrameworkUtil.getBundle(CmsJettyCustomizer.class).getBundleContext();
 
-	public final static String WEBSOCKET_ENABLED = "websocket.enabled";
+	public final static String WEBSOCKET_ENABLED = "argeo.websocket.enabled";
 
 	@Override
 	public Object customizeContext(Object context, Dictionary<String, ?> settings) {

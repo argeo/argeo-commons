@@ -19,7 +19,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.osgi.CmsActivator;
 
 /** Package utilities */
-public class KernelUtils implements KernelConstants {
+class KernelUtils implements KernelConstants {
 	final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
 	final static String OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
 
