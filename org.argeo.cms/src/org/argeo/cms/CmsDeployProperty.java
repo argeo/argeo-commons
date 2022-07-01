@@ -55,6 +55,12 @@ public enum CmsDeployProperty {
 	SSL_PROTOCOL("argeo.ssl.protocol"),
 	/** SSL algorithm to use. */
 	SSL_ALGORITHM("argeo.ssl.algorithm"),
+	/** Custom SSL trust store. */
+	SSL_TRUSTSTORE("argeo.ssl.truststore"),
+	/** Custom SSL trust store type. */
+	SSL_TRUSTSTORETYPE("argeo.ssl.truststoretype"),
+	/** Custom SSL trust store type. */
+	SSL_TRUSTSTOREPASSWORD("argeo.ssl.truststorepassword"),
 	//
 	// WEBSOCKET
 	//

@@ -55,10 +55,16 @@ public class CmsStateImpl implements CmsState {
 		deployPropertyDefaults.put(CmsDeployProperty.NODE_INIT, "../../init");
 		deployPropertyDefaults.put(CmsDeployProperty.LOCALE, Locale.getDefault().toString());
 
+		// certificates
 		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
-		deployPropertyDefaults.put(CmsDeployProperty.SSL_PASSWORD, "changeit");
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_PASSWORD, PkiUtils.DEFAULT_KEYSTORE_PASSWORD);
 		Path keyStorePath = getDataPath(PkiUtils.DEFAULT_KEYSTORE_PATH);
 		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORE, keyStorePath.toAbsolutePath().toString());
+
+		Path trustStorePath = getDataPath(PkiUtils.DEFAULT_TRUSTSTORE_PATH);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORETYPE, PkiUtils.PKCS12);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD, PkiUtils.DEFAULT_KEYSTORE_PASSWORD);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORE, trustStorePath.toAbsolutePath().toString());
 
 		this.deployPropertyDefaults = Collections.unmodifiableMap(deployPropertyDefaults);
 	}
@@ -141,10 +147,12 @@ public class CmsStateImpl implements CmsState {
 		Path pemCertPath = getDataPath(PkiUtils.DEFAULT_PEM_CERT_PATH);
 		char[] keyStorePassword = getDeployProperty(CmsDeployProperty.SSL_PASSWORD).toCharArray();
 
+		// Keystore
 		// if PEM files both exists, update the PKCS12 file
 		if (Files.exists(pemCertPath) && Files.exists(pemKeyPath)) {
 			// TODO check certificate update time? monitor changes?
-			KeyStore keyStore = PkiUtils.getKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
+			KeyStore keyStore = PkiUtils.getKeyStore(keyStorePath, keyStorePassword,
+					getDeployProperty(CmsDeployProperty.SSL_KEYSTORETYPE));
 			try (Reader key = Files.newBufferedReader(pemKeyPath, StandardCharsets.US_ASCII);
 					Reader cert = Files.newBufferedReader(pemCertPath, StandardCharsets.US_ASCII);) {
 				PkiUtils.loadPem(keyStore, key, keyStorePassword, cert);
@@ -153,6 +161,25 @@ public class CmsStateImpl implements CmsState {
 					log.debug("PEM certificate stored in " + keyStorePath);
 			} catch (IOException e) {
 				log.error("Cannot read PEM files " + pemKeyPath + " and " + pemCertPath, e);
+			}
+		}
+
+		// Truststore
+		Path trustStorePath = Paths.get(getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORE));
+		char[] trustStorePassword = getDeployProperty(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD).toCharArray();
+
+		// IPA CA
+		Path ipaCaCertPath = Paths.get(PkiUtils.IPA_PEM_CA_CERT_PATH);
+		if (Files.exists(ipaCaCertPath)) {
+			KeyStore trustStore = PkiUtils.getKeyStore(trustStorePath, trustStorePassword,
+					getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORETYPE));
+			try (Reader cert = Files.newBufferedReader(ipaCaCertPath, StandardCharsets.US_ASCII);) {
+				PkiUtils.loadPem(trustStore, null, trustStorePassword, cert);
+				PkiUtils.saveKeyStore(trustStorePath, trustStorePassword, trustStore);
+				if (log.isDebugEnabled())
+					log.debug("IPA CA certificate stored in " + trustStorePath);
+			} catch (IOException e) {
+				log.error("Cannot trust CA certificate", e);
 			}
 		}
 
@@ -245,25 +272,30 @@ public class CmsStateImpl implements CmsState {
 			// try defaults
 			if (deployPropertyDefaults.containsKey(deployProperty)) {
 				value = deployPropertyDefaults.get(deployProperty);
+				if (deployProperty.isSystemPropertyOnly())
+					System.setProperty(deployProperty.getProperty(), value);
 			}
-			// try legacy properties
-			String legacyProperty = switch (deployProperty) {
-			case DIRECTORY -> "argeo.node.useradmin.uris";
-			case DB_URL -> "argeo.node.dburl";
-			case DB_USER -> "argeo.node.dbuser";
-			case DB_PASSWORD -> "argeo.node.dbpassword";
-			case HTTP_PORT -> "org.osgi.service.http.port";
-			case HTTPS_PORT -> "org.osgi.service.http.port.secure";
-			case HOST -> "org.eclipse.equinox.http.jetty.http.host";
-			case LOCALE -> "argeo.i18n.defaultLocale";
 
-			default -> null;
-			};
-			if (legacyProperty != null) {
-				value = doGetDeployProperty(legacyProperty);
-				if (value != null) {
-					log.warn("Retrieved deploy property " + deployProperty.getProperty()
-							+ " through deprecated property " + legacyProperty);
+			if (value == null) {
+				// try legacy properties
+				String legacyProperty = switch (deployProperty) {
+				case DIRECTORY -> "argeo.node.useradmin.uris";
+				case DB_URL -> "argeo.node.dburl";
+				case DB_USER -> "argeo.node.dbuser";
+				case DB_PASSWORD -> "argeo.node.dbpassword";
+				case HTTP_PORT -> "org.osgi.service.http.port";
+				case HTTPS_PORT -> "org.osgi.service.http.port.secure";
+				case HOST -> "org.eclipse.equinox.http.jetty.http.host";
+				case LOCALE -> "argeo.i18n.defaultLocale";
+
+				default -> null;
+				};
+				if (legacyProperty != null) {
+					value = doGetDeployProperty(legacyProperty);
+					if (value != null) {
+						log.warn("Retrieved deploy property " + deployProperty.getProperty()
+								+ " through deprecated property " + legacyProperty);
+					}
 				}
 			}
 		}

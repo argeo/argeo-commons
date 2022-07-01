@@ -69,33 +69,15 @@ public class SpnegoHttpClient {
 	}
 
 	private static HttpClient openHttpClient(Subject subject) {
-		// disable https check
-		// jdk.internal.httpclient.disableHostnameVerification=true
-		HttpClient client = HttpClient.newBuilder().sslContext(insecureContext())
-//				.authenticator(new Authenticator() {
-//			public PasswordAuthentication getPasswordAuthentication() {
-//				return null;
-//			}
-//
-//		})
-				.version(HttpClient.Version.HTTP_1_1).build();
+		HttpClient client = HttpClient.newBuilder() //
+//				.sslContext(insecureContext()) //
+				.version(HttpClient.Version.HTTP_1_1) //
+				.build();
 
 		return client;
-
-		// return client;
-//			AuthPolicy.registerAuthScheme(SpnegoAuthScheme.NAME, SpnegoAuthScheme.class);
-//			HttpParams params = DefaultHttpParams.getDefaultParams();
-//			ArrayList<String> schemes = new ArrayList<>();
-//			schemes.add(SpnegoAuthScheme.NAME);
-//			params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
-//			params.setParameter(CredentialsProvider.PROVIDER, new HttpCredentialProvider());
-//			HttpClient httpClient = new HttpClient();
-//			httpClient.executeMethod(new GetMethod(("https://" + server + "/ipa/session/json")));
-//			return httpClient;
-
 	}
 
-	private static SSLContext insecureContext() {
+	static SSLContext insecureContext() {
 		TrustManager[] noopTrustManager = new TrustManager[] { new X509TrustManager() {
 			public void checkClientTrusted(X509Certificate[] xcs, String string) {
 			}

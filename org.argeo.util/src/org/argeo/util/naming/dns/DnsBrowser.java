@@ -37,12 +37,16 @@ public class DnsBrowser implements Closeable {
 		Hashtable<String, Object> env = new Hashtable<>();
 		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
 		if (!dnsServerUrls.isEmpty()) {
+			boolean specified = false;
 			StringJoiner providerUrl = new StringJoiner(" ");
 			for (String dnsUrl : dnsServerUrls) {
-				if (dnsUrl != null)
+				if (dnsUrl != null) {
 					providerUrl.add(dnsUrl);
+					specified = true;
+				}
 			}
-			env.put(Context.PROVIDER_URL, providerUrl.toString());
+			if (specified)
+				env.put(Context.PROVIDER_URL, providerUrl.toString());
 		}
 		initialCtx = new InitialDirContext(env);
 	}

@@ -31,7 +31,8 @@ public class JettyConfig {
 
 	private final BundleContext bc = FrameworkUtil.getBundle(JettyConfig.class).getBundleContext();
 
-	//private static final String JETTY_PROPERTY_PREFIX = "org.eclipse.equinox.http.jetty.";
+	// private static final String JETTY_PROPERTY_PREFIX =
+	// "org.eclipse.equinox.http.jetty.";
 
 	public void start() {
 		// We need to start asynchronously so that Jetty bundle get started by lazy init
@@ -104,9 +105,10 @@ public class JettyConfig {
 			}
 		}
 
-		int tryCount = 30;
+		long begin = System.currentTimeMillis();
+		int tryCount = 60;
 		try {
-			tryGettyJetty: while (tryCount > 0) {
+			while (tryCount > 0) {
 				try {
 					// FIXME deal with multiple ids
 					JettyConfigurator.startServer(CmsConstants.DEFAULT, new Hashtable<>(config));
@@ -118,7 +120,7 @@ public class JettyConfig {
 					// Explicitly starts Jetty OSGi HTTP bundle, so that it gets triggered if OSGi
 					// configuration is not cleaned
 					FrameworkUtil.getBundle(JettyConfigurator.class).start();
-					break tryGettyJetty;
+					return;
 				} catch (IllegalStateException e) {
 					// e.printStackTrace();
 					// Jetty may not be ready
@@ -129,6 +131,8 @@ public class JettyConfig {
 					}
 					tryCount--;
 				}
+				long duration = System.currentTimeMillis() - begin;
+				log.error("Gave up with starting Jetty server after " + (duration / 1000) + " s");
 			}
 		} catch (Exception e) {
 			log.error("Cannot start default Jetty server with config " + properties, e);
@@ -169,9 +173,17 @@ public class JettyConfig {
 				if (httpHost != null)
 					props.put(JettyHttpConstants.HTTPS_HOST, httpHost);
 
-				props.put(JettyHttpConstants.SSL_KEYSTORETYPE,  getFrameworkProp(CmsDeployProperty.SSL_KEYSTORETYPE));
+				// keystore
+				props.put(JettyHttpConstants.SSL_KEYSTORETYPE, getFrameworkProp(CmsDeployProperty.SSL_KEYSTORETYPE));
 				props.put(JettyHttpConstants.SSL_KEYSTORE, getFrameworkProp(CmsDeployProperty.SSL_KEYSTORE));
 				props.put(JettyHttpConstants.SSL_PASSWORD, getFrameworkProp(CmsDeployProperty.SSL_PASSWORD));
+
+				// truststore
+				props.put(JettyHttpConstants.SSL_TRUSTSTORETYPE,
+						getFrameworkProp(CmsDeployProperty.SSL_TRUSTSTORETYPE));
+				props.put(JettyHttpConstants.SSL_TRUSTSTORE, getFrameworkProp(CmsDeployProperty.SSL_TRUSTSTORE));
+				props.put(JettyHttpConstants.SSL_TRUSTSTOREPASSWORD,
+						getFrameworkProp(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD));
 
 				// client certificate authentication
 				String wantClientAuth = getFrameworkProp(CmsDeployProperty.SSL_WANTCLIENTAUTH);

@@ -12,6 +12,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
@@ -49,17 +50,29 @@ import org.bouncycastle.pkcs.PKCSException;
 class PkiUtils {
 	private final static CmsLog log = CmsLog.getLog(PkiUtils.class);
 
-	public final static String PKCS12 = "PKCS12";
-	public static final String DEFAULT_KEYSTORE_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".p12";
+	final static String PKCS12 = "PKCS12";
+	final static String JKS = "JKS";
 
-	public static final String DEFAULT_PEM_KEY_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".key";
+	static final String DEFAULT_KEYSTORE_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".p12";
 
-	public static final String DEFAULT_PEM_CERT_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".crt";
+	static final String DEFAULT_TRUSTSTORE_PATH = KernelConstants.DIR_NODE + "/trusted.p12";
+
+	static final String DEFAULT_PEM_KEY_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".key";
+
+	static final String DEFAULT_PEM_CERT_PATH = KernelConstants.DIR_NODE + '/' + CmsConstants.NODE + ".crt";
+
+	static final String IPA_PEM_CA_CERT_PATH = "/etc/ipa/ca.crt";
+
+	static final String DEFAULT_KEYSTORE_PASSWORD = "changeit";
 
 	private final static String SECURITY_PROVIDER;
+	private final static String BC_PROVIDER;
 	static {
 		Security.addProvider(new BouncyCastleProvider());
-		SECURITY_PROVIDER = "BC";
+		// BouncyCastle does not store trusted certificates properly
+		// TODO report it
+		BC_PROVIDER = "BC";
+		SECURITY_PROVIDER = "SUN";
 	}
 
 	public static X509Certificate generateSelfSignedCertificate(KeyStore keyStore, X500Principal x500Principal,
@@ -89,7 +102,7 @@ class PkiUtils {
 
 	public static KeyStore getKeyStore(Path keyStoreFile, char[] keyStorePassword, String keyStoreType) {
 		try {
-			KeyStore store = KeyStore.getInstance(keyStoreType, SECURITY_PROVIDER);
+			KeyStore store = KeyStore.getInstance(keyStoreType, "SunJSSE");
 			if (Files.exists(keyStoreFile)) {
 				try (InputStream fis = Files.newInputStream(keyStoreFile)) {
 					store.load(fis, keyStorePassword);
@@ -150,11 +163,16 @@ class PkiUtils {
 //	}
 
 	public static void loadPem(KeyStore keyStore, Reader key, char[] keyPassword, Reader cert) {
-		PrivateKey privateKey = loadPemPrivateKey(key, keyPassword);
-		X509Certificate certificate = loadPemCertificate(cert);
 		try {
-			keyStore.setKeyEntry(certificate.getSubjectX500Principal().getName(), privateKey, keyPassword,
-					new java.security.cert.Certificate[] { certificate });
+			X509Certificate certificate = loadPemCertificate(cert);
+			if (key != null) {
+				PrivateKey privateKey = loadPemPrivateKey(key, keyPassword);
+				keyStore.setKeyEntry(certificate.getSubjectX500Principal().getName(), privateKey, keyPassword,
+						new java.security.cert.Certificate[] { certificate });
+			} else {
+				TrustedCertificateEntry trustedCertificateEntry = new TrustedCertificateEntry(certificate);
+				keyStore.setEntry(certificate.getSubjectX500Principal().getName(), trustedCertificateEntry, null);
+			}
 		} catch (KeyStoreException e) {
 			throw new RuntimeException("Cannot store PEM certificate", e);
 		}
@@ -162,7 +180,7 @@ class PkiUtils {
 
 	public static PrivateKey loadPemPrivateKey(Reader reader, char[] keyPassword) {
 		try (PEMParser pemParser = new PEMParser(reader)) {
-			JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
+			JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BC_PROVIDER);
 			Object object = pemParser.readObject();
 			PrivateKeyInfo privateKeyInfo;
 			if (object instanceof PKCS8EncryptedPrivateKeyInfo) {

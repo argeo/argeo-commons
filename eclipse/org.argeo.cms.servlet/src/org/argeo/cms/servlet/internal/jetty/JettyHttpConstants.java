@@ -16,4 +16,10 @@ interface JettyHttpConstants {
 	static final String SSL_PROTOCOL = "ssl.protocol";
 	static final String SSL_ALGORITHM = "ssl.algorithm";
 	static final String SSL_KEYSTORETYPE = "ssl.keystoretype";
+
+	// Argeo
+	static final String SSL_TRUSTSTORE = "ssl.truststore";
+	static final String SSL_TRUSTSTOREPASSWORD = "ssl.truststorepassword";
+	static final String SSL_TRUSTSTORETYPE = "ssl.truststoretype";
+
 }
