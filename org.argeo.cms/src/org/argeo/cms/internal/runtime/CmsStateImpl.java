@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,9 +52,14 @@ public class CmsStateImpl implements CmsState {
 
 	public CmsStateImpl() {
 		Map<CmsDeployProperty, String> deployPropertyDefaults = new HashMap<>();
-		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
 		deployPropertyDefaults.put(CmsDeployProperty.NODE_INIT, "../../init");
 		deployPropertyDefaults.put(CmsDeployProperty.LOCALE, Locale.getDefault().toString());
+
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_PASSWORD, "changeit");
+		Path keyStorePath = getDataPath(PkiUtils.DEFAULT_KEYSTORE_PATH);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORE, keyStorePath.toAbsolutePath().toString());
+
 		this.deployPropertyDefaults = Collections.unmodifiableMap(deployPropertyDefaults);
 	}
 
@@ -130,15 +136,10 @@ public class CmsStateImpl implements CmsState {
 
 	private void initCertificates() {
 		// server certificate
-		Path keyStorePath = getDataPath(PkiUtils.DEFAULT_KEYSTORE_PATH);
+		Path keyStorePath = Paths.get(getDeployProperty(CmsDeployProperty.SSL_KEYSTORE));
 		Path pemKeyPath = getDataPath(PkiUtils.DEFAULT_PEM_KEY_PATH);
 		Path pemCertPath = getDataPath(PkiUtils.DEFAULT_PEM_CERT_PATH);
-		String keyStorePasswordStr = doGetDeployProperty(CmsDeployProperty.SSL_PASSWORD.getProperty());
-		char[] keyStorePassword;
-		if (keyStorePasswordStr == null)
-			keyStorePassword = "changeit".toCharArray();
-		else
-			keyStorePassword = keyStorePasswordStr.toCharArray();
+		char[] keyStorePassword = getDeployProperty(CmsDeployProperty.SSL_PASSWORD).toCharArray();
 
 		// if PEM files both exists, update the PKCS12 file
 		if (Files.exists(pemCertPath) && Files.exists(pemKeyPath)) {
