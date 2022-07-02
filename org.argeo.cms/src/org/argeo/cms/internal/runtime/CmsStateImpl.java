@@ -355,6 +355,8 @@ public class CmsStateImpl implements CmsState {
 	public static void prepareFirstInitInstanceArea(List<String> nodeInits) {
 
 		for (String nodeInit : nodeInits) {
+			if(nodeInit==null)
+				continue;
 
 			if (nodeInit.startsWith("http")) {
 				// TODO reconnect it

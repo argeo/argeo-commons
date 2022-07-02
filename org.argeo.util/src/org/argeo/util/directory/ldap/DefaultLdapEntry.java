@@ -164,7 +164,7 @@ public class DefaultLdapEntry implements LdapEntry {
 			return false;
 		}
 
-		Object storedValue = credentials.get(key);
+		Object storedValue = getCredentials().get(key);
 		if (storedValue == null || value == null)
 			return false;
 		if (!(value instanceof String || value instanceof byte[]))

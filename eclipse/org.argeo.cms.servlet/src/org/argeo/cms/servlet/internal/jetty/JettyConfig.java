@@ -131,9 +131,9 @@ public class JettyConfig {
 					}
 					tryCount--;
 				}
-				long duration = System.currentTimeMillis() - begin;
-				log.error("Gave up with starting Jetty server after " + (duration / 1000) + " s");
 			}
+			long duration = System.currentTimeMillis() - begin;
+			log.error("Gave up with starting Jetty server after " + (duration / 1000) + " s");
 		} catch (Exception e) {
 			log.error("Cannot start default Jetty server with config " + properties, e);
 		}
