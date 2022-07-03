@@ -2,6 +2,9 @@
   "resources":{
   "includes":[
     {
+      "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
+    }, 
+    {
       "pattern":"\\QMETA-INF/services/javax.xml.validation.SchemaFactory\\E"
     }, 
     {
