@@ -65,20 +65,20 @@ class PkiUtils {
 
 	static final String DEFAULT_KEYSTORE_PASSWORD = "changeit";
 
-	private final static String SECURITY_PROVIDER;
-	private final static String BC_PROVIDER;
+	private final static String SUN_SECURITY_PROVIDER;
+	private final static String BC_SECURITY_PROVIDER;
 	static {
 		Security.addProvider(new BouncyCastleProvider());
 		// BouncyCastle does not store trusted certificates properly
 		// TODO report it
-		BC_PROVIDER = "BC";
-		SECURITY_PROVIDER = "SUN";
+		BC_SECURITY_PROVIDER = "BC";
+		SUN_SECURITY_PROVIDER = "SUN";
 	}
 
 	public static X509Certificate generateSelfSignedCertificate(KeyStore keyStore, X500Principal x500Principal,
 			int keySize, char[] keyPassword) {
 		try {
-			KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", SECURITY_PROVIDER);
+			KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", BC_SECURITY_PROVIDER);
 			kpGen.initialize(keySize, new SecureRandom());
 			KeyPair pair = kpGen.generateKeyPair();
 			Date notBefore = new Date(System.currentTimeMillis() - 10000);
@@ -86,9 +86,9 @@ class PkiUtils {
 			BigInteger serial = BigInteger.valueOf(System.currentTimeMillis());
 			X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder(x500Principal, serial, notBefore,
 					notAfter, x500Principal, pair.getPublic());
-			ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider(SECURITY_PROVIDER)
-					.build(pair.getPrivate());
-			X509Certificate cert = new JcaX509CertificateConverter().setProvider(SECURITY_PROVIDER)
+			ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption")
+					.setProvider(BC_SECURITY_PROVIDER).build(pair.getPrivate());
+			X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC_SECURITY_PROVIDER)
 					.getCertificate(certGen.build(sigGen));
 			cert.checkValidity(new Date());
 			cert.verify(cert.getPublicKey());
@@ -180,7 +180,7 @@ class PkiUtils {
 
 	public static PrivateKey loadPemPrivateKey(Reader reader, char[] keyPassword) {
 		try (PEMParser pemParser = new PEMParser(reader)) {
-			JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BC_PROVIDER);
+			JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BC_SECURITY_PROVIDER);
 			Object object = pemParser.readObject();
 			PrivateKeyInfo privateKeyInfo;
 			if (object instanceof PKCS8EncryptedPrivateKeyInfo) {
@@ -202,7 +202,7 @@ class PkiUtils {
 	public static X509Certificate loadPemCertificate(Reader reader) {
 		try (PEMParser pemParser = new PEMParser(reader)) {
 			X509CertificateHolder certHolder = (X509CertificateHolder) pemParser.readObject();
-			X509Certificate cert = new JcaX509CertificateConverter().setProvider(SECURITY_PROVIDER)
+			X509Certificate cert = new JcaX509CertificateConverter().setProvider(SUN_SECURITY_PROVIDER)
 					.getCertificate(certHolder);
 			return cert;
 		} catch (IOException | CertificateException e) {
