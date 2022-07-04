@@ -89,7 +89,9 @@ public class RemoteAuthUtils {
 			try {
 				// Get service's principal name
 				GSSManager manager = GSSManager.getInstance();
-				GSSName serverName = manager.createName(serverPrinc, GSSName.NT_HOSTBASED_SERVICE, KERBEROS_OID);
+				// GSSName serverName = manager.createName(serverPrinc,
+				// GSSName.NT_HOSTBASED_SERVICE, KERBEROS_OID);
+				GSSName serverName = manager.createName(serverPrinc, GSSName.NT_HOSTBASED_SERVICE);
 
 				// Get the context for authentication
 				context = manager.createContext(serverName, KERBEROS_OID, null, GSSContext.DEFAULT_LIFETIME);

@@ -21,8 +21,8 @@ import org.argeo.cms.auth.RemoteAuthUtils;
 
 public class SpnegoHttpClient {
 	public static void main(String[] args) throws MalformedURLException {
-		String principal = System.getProperty("javax.security.auth.login.name");
-		if (args.length == 0 || principal == null) {
+//		String principal = System.getProperty("javax.security.auth.login.name");
+		if (args.length == 0 ) {
 			System.err.println("usage: java -Djavax.security.auth.login.name=<principal@REALM> "
 					+ SpnegoHttpClient.class.getName() + " <url>");
 			System.exit(1);
@@ -31,8 +31,8 @@ public class SpnegoHttpClient {
 		String url = args[0];
 		URL u = new URL(url);
 		String server = u.getHost();
-
-		URL jaasUrl = SpnegoAuthScheme.class.getResource("jaas.cfg");
+		
+		URL jaasUrl = SpnegoHttpClient.class.getResource("jaas.cfg");
 		System.setProperty("java.security.auth.login.config", jaasUrl.toExternalForm());
 		try {
 			LoginContext lc = new LoginContext("SINGLE_USER");
