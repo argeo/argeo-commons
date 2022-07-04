@@ -156,6 +156,7 @@ public class CmsStateImpl implements CmsState {
 			try (Reader key = Files.newBufferedReader(pemKeyPath, StandardCharsets.US_ASCII);
 					Reader cert = Files.newBufferedReader(pemCertPath, StandardCharsets.US_ASCII);) {
 				PkiUtils.loadPem(keyStore, key, keyStorePassword, cert);
+				Files.createDirectories(keyStorePath.getParent());
 				PkiUtils.saveKeyStore(keyStorePath, keyStorePassword, keyStore);
 				if (log.isDebugEnabled())
 					log.debug("PEM certificate stored in " + keyStorePath);
@@ -175,6 +176,7 @@ public class CmsStateImpl implements CmsState {
 					getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORETYPE));
 			try (Reader cert = Files.newBufferedReader(ipaCaCertPath, StandardCharsets.US_ASCII);) {
 				PkiUtils.loadPem(trustStore, null, trustStorePassword, cert);
+				Files.createDirectories(keyStorePath.getParent());
 				PkiUtils.saveKeyStore(trustStorePath, trustStorePassword, trustStore);
 				if (log.isDebugEnabled())
 					log.debug("IPA CA certificate stored in " + trustStorePath);
