@@ -28,41 +28,49 @@ import javax.naming.directory.InitialDirContext;
 public class DnsBrowser implements Closeable {
 	private final DirContext initialCtx;
 
-	public DnsBrowser() throws NamingException {
+	public DnsBrowser() {
 		this(new ArrayList<>());
 	}
 
-	public DnsBrowser(List<String> dnsServerUrls) throws NamingException {
-		Objects.requireNonNull(dnsServerUrls);
-		Hashtable<String, Object> env = new Hashtable<>();
-		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
-		if (!dnsServerUrls.isEmpty()) {
-			boolean specified = false;
-			StringJoiner providerUrl = new StringJoiner(" ");
-			for (String dnsUrl : dnsServerUrls) {
-				if (dnsUrl != null) {
-					providerUrl.add(dnsUrl);
-					specified = true;
+	public DnsBrowser(List<String> dnsServerUrls) {
+		try {
+			Objects.requireNonNull(dnsServerUrls);
+			Hashtable<String, Object> env = new Hashtable<>();
+			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.dns.DnsContextFactory");
+			if (!dnsServerUrls.isEmpty()) {
+				boolean specified = false;
+				StringJoiner providerUrl = new StringJoiner(" ");
+				for (String dnsUrl : dnsServerUrls) {
+					if (dnsUrl != null) {
+						providerUrl.add(dnsUrl);
+						specified = true;
+					}
 				}
+				if (specified)
+					env.put(Context.PROVIDER_URL, providerUrl.toString());
 			}
-			if (specified)
-				env.put(Context.PROVIDER_URL, providerUrl.toString());
+			initialCtx = new InitialDirContext(env);
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot initialise DNS borowser.", e);
 		}
-		initialCtx = new InitialDirContext(env);
 	}
 
-	public Map<String, List<String>> getAllRecords(String name) throws NamingException {
-		Map<String, List<String>> res = new TreeMap<>();
-		Attributes attrs = initialCtx.getAttributes(name);
-		NamingEnumeration<String> ids = attrs.getIDs();
-		while (ids.hasMore()) {
-			String recordType = ids.next();
-			List<String> lst = new ArrayList<String>();
-			res.put(recordType, lst);
-			Attribute attr = attrs.get(recordType);
-			addValues(attr, lst);
+	public Map<String, List<String>> getAllRecords(String name) {
+		try {
+			Map<String, List<String>> res = new TreeMap<>();
+			Attributes attrs = initialCtx.getAttributes(name);
+			NamingEnumeration<String> ids = attrs.getIDs();
+			while (ids.hasMore()) {
+				String recordType = ids.next();
+				List<String> lst = new ArrayList<String>();
+				res.put(recordType, lst);
+				Attribute attr = attrs.get(recordType);
+				addValues(attr, lst);
+			}
+			return Collections.unmodifiableMap(res);
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get allrecords of " + name, e);
 		}
-		return Collections.unmodifiableMap(res);
 	}
 
 	/**
@@ -91,16 +99,20 @@ public class DnsBrowser implements Closeable {
 	/**
 	 * Return records of a given type.
 	 */
-	public List<String> getRecords(String name, String recordType) throws NamingException {
-		List<String> res = new ArrayList<String>();
-		Attributes attrs = initialCtx.getAttributes(name, new String[] { recordType });
-		Attribute attr = attrs.get(recordType);
-		addValues(attr, res);
-		return res;
+	public List<String> getRecords(String name, String recordType) {
+		try {
+			List<String> res = new ArrayList<String>();
+			Attributes attrs = initialCtx.getAttributes(name, new String[] { recordType });
+			Attribute attr = attrs.get(recordType);
+			addValues(attr, res);
+			return res;
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot get records " + recordType + " of " + name, e);
+		}
 	}
 
 	/** Ordered, with preferred first. */
-	public List<String> getSrvRecordsAsHosts(String name, boolean withPort) throws NamingException {
+	public List<String> getSrvRecordsAsHosts(String name, boolean withPort) {
 		List<String> raw = getRecords(name, "SRV");
 		if (raw.size() == 0)
 			return null;
@@ -137,14 +149,18 @@ public class DnsBrowser implements Closeable {
 
 	}
 
-	public List<String> listEntries(String name) throws NamingException {
-		List<String> res = new ArrayList<String>();
-		NamingEnumeration<Binding> ne = initialCtx.listBindings(name);
-		while (ne.hasMore()) {
-			Binding b = ne.next();
-			res.add(b.getName());
+	public List<String> listEntries(String name) {
+		try {
+			List<String> res = new ArrayList<String>();
+			NamingEnumeration<Binding> ne = initialCtx.listBindings(name);
+			while (ne.hasMore()) {
+				Binding b = ne.next();
+				res.add(b.getName());
+			}
+			return Collections.unmodifiableList(res);
+		} catch (NamingException e) {
+			throw new IllegalStateException("Cannot list entries of " + name, e);
 		}
-		return Collections.unmodifiableList(res);
 	}
 
 	@Override

@@ -10,7 +10,6 @@ import java.util.Hashtable;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
-import javax.naming.NamingException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
@@ -95,7 +94,7 @@ public class IpaUtils {
 			String dnsZone = hostname.substring(hostname.indexOf('.') + 1);
 			kerberosDomain = dnsBrowser.getRecord("_kerberos." + dnsZone, "TXT");
 			return kerberosDomain;
-		} catch (NamingException | IOException e) {
+		} catch (IOException e) {
 			throw new IllegalStateException("Cannot determine Kerberos domain from DNS", e);
 		}
 
@@ -126,7 +125,7 @@ public class IpaUtils {
 				} else {
 					ldapHostsStr = ldapHosts.get(0);
 				}
-			} catch (NamingException | IOException e) {
+			} catch (IOException e) {
 				throw new IllegalStateException("Cannot convert IPA uri " + uri, e);
 			}
 		} else {
