@@ -294,8 +294,19 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 			// NOTE: this is the method called when logging a plain message without
 			// exception, so it should be considered as a format only when args are not null
-			if (format.contains("{}"))// workaround for weird Jetty formatting
-				params = null;
+//			if (format.contains("{}"))// workaround for weird Jetty formatting
+//				params = null;
+			// TODO move this to slf4j wrapper?
+			if (format.contains("{}")) {
+				StringBuilder sb = new StringBuilder();
+				String[] segments = format.split("\\{\\}");
+				for (int i = 0; i < segments.length; i++) {
+					sb.append(segments[i]);
+					if (i != (segments.length - 1))
+						sb.append("{" + i + "}");
+				}
+				format = sb.toString();
+			}
 			String msg = params == null ? format : MessageFormat.format(format, params);
 			publisher.log(this, level, bundle, msg, now, thread, (Throwable) null, findCallLocation(level, thread));
 		}
