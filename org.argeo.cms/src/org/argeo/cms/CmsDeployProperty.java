@@ -67,6 +67,11 @@ public enum CmsDeployProperty {
 	/** Whether web socket should be enables in web server. */
 	WEBSOCKET_ENABLED("argeo.websocket.enabled"),
 	//
+	// SSH
+	//
+	/** Request an HTTP server on this port. */
+	SSHD_PORT("argeo.sshd.port"),
+	//
 	// INTERNATIONALIZATION
 	//
 	/** Locales enabled for this system, the first one is considered the default. */

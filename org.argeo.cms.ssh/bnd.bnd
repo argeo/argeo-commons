@@ -1,0 +1,7 @@
+Import-Package: \
+org.apache.sshd.server.forward,\
+org.apache.sshd.common.forward,\
+*
+
+Service-Component: \
+OSGI-INF/cmsSshServer.xml
