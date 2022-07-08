@@ -6,7 +6,6 @@ import java.lang.System.Logger.Level;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;

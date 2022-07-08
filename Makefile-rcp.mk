@@ -19,9 +19,11 @@ org.argeo.cms \
 org.argeo.tp \
 org.argeo.tp.apache \
 org.argeo.tp.jetty \
-org.argeo.tp.eclipse.equinox \
-org.argeo.tp.eclipse.swt \
-org.argeo.tp.eclipse.rcp \
+org.argeo.tp.eclipse \
+osgi/osgi/org.argeo.tp.osgi \
+swt/rcp/org.argeo.tp.swt \
+lib/linux/x86_64/swt/rcp/org.argeo.tp.swt \
+swt/rcp/org.argeo.tp.swt.workbench \
 org.argeo.tp.jcr
 
 

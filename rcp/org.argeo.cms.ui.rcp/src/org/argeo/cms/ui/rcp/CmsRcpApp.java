@@ -27,8 +27,6 @@ import org.eclipse.e4.ui.css.swt.engine.CSSSWTEngineImpl;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
@@ -37,7 +35,7 @@ import org.osgi.service.event.EventAdmin;
 public class CmsRcpApp implements CmsView {
 	private final static CmsLog log = CmsLog.getLog(CmsRcpApp.class);
 
-	private BundleContext bundleContext = FrameworkUtil.getBundle(CmsRcpApp.class).getBundleContext();
+	//private BundleContext bundleContext = FrameworkUtil.getBundle(CmsRcpApp.class).getBundleContext();
 
 	private Shell shell;
 	private CmsApp cmsApp;
