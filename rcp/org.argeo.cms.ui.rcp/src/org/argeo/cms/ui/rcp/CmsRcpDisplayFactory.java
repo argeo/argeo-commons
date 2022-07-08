@@ -6,6 +6,7 @@ import org.argeo.api.cms.CmsApp;
 import org.argeo.util.OS;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.service.event.EventAdmin;
+import org.eclipse.swt.events.DisposeListener;
 
 /** Creates the SWT {@link Display} in a dedicated thread. */
 public class CmsRcpDisplayFactory {
@@ -22,7 +23,12 @@ public class CmsRcpDisplayFactory {
 	public void init() {
 		uiThread = new CmsUiThread();
 		uiThread.start();
-
+		while (display == null)
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// silent
+			}
 	}
 
 	public void destroy() {
@@ -46,6 +52,8 @@ public class CmsRcpDisplayFactory {
 		@Override
 		public void run() {
 			display = Display.getDefault();
+			display.setRuntimeExceptionHandler((e) -> e.printStackTrace());
+			display.setErrorHandler((e) -> e.printStackTrace());
 
 //			for (String contextName : cmsApps.keySet()) {
 //				openCmsApp(contextName);
@@ -64,12 +72,15 @@ public class CmsRcpDisplayFactory {
 		return display;
 	}
 
-	public static void openCmsApp(EventAdmin eventAdmin, CmsApp cmsApp, String uiName) {
+	public static void openCmsApp(EventAdmin eventAdmin, CmsApp cmsApp, String uiName,
+			DisposeListener disposeListener) {
 		CmsRcpDisplayFactory.getDisplay().syncExec(() -> {
 			CmsRcpApp cmsRcpApp = new CmsRcpApp(uiName);
 			cmsRcpApp.setEventAdmin(eventAdmin);
 			cmsRcpApp.setCmsApp(cmsApp, null);
 			cmsRcpApp.initRcpApp();
+			if (disposeListener != null)
+				cmsRcpApp.getShell().addDisposeListener(disposeListener);
 		});
 	}
 

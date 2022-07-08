@@ -132,7 +132,19 @@ public class StaticCms {
 				.build(register);
 		assert cmsContextC.get() == cmsContext;
 
+		addComponents(register);
+
 		register.activate();
+
+		postActivation(register);
+	}
+
+	protected void addComponents(SimpleRegister register) {
+
+	}
+
+	protected void postActivation(SimpleRegister register) {
+
 	}
 
 	public void stop() {

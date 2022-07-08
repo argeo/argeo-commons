@@ -35,7 +35,8 @@ import org.osgi.service.event.EventAdmin;
 public class CmsRcpApp implements CmsView {
 	private final static CmsLog log = CmsLog.getLog(CmsRcpApp.class);
 
-	//private BundleContext bundleContext = FrameworkUtil.getBundle(CmsRcpApp.class).getBundleContext();
+	// private BundleContext bundleContext =
+	// FrameworkUtil.getBundle(CmsRcpApp.class).getBundleContext();
 
 	private Shell shell;
 	private CmsApp cmsApp;
@@ -205,6 +206,10 @@ public class CmsRcpApp implements CmsView {
 
 	protected Subject getSubject() {
 		return loginContext.getSubject();
+	}
+
+	public Shell getShell() {
+		return shell;
 	}
 
 	/*

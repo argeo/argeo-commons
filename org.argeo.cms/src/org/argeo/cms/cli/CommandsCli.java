@@ -12,6 +12,7 @@ import java.util.function.Function;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.MissingOptionException;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -52,7 +53,8 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 		if (function == null)
 			throw new IllegalArgumentException("Uknown command " + cmd);
 		try {
-			return function.apply(newArgs).toString();
+			Object value = function.apply(newArgs);
+			return value != null ? value.toString() : null;
 		} catch (CommandArgsException e) {
 			if (e.getCommandName() == null) {
 				e.setCommandName(cmd);
@@ -115,6 +117,9 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 			System.exit(0);
 		} catch (CommandArgsException e) {
 			System.err.println("Wrong arguments " + Arrays.toString(args) + ": " + e.getMessage());
+			Throwable cause = e.getCause();
+			if (!(cause instanceof MissingOptionException))
+				e.printStackTrace();
 			if (e.getCommandName() != null) {
 				StringWriter out = new StringWriter();
 				HelpCommand.printHelp(e.getCommandsCli(), e.getCommandName(), out);

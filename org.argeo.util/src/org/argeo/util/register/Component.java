@@ -1,8 +1,10 @@
 package org.argeo.util.register;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -163,6 +165,24 @@ public class Component<I> implements Supplier<I>, Comparable<Component<?>> {
 	@Override
 	public int compareTo(Component<?> o) {
 		return rankingKey.compareTo(rankingKey);
+	}
+
+	@Override
+	public int hashCode() {
+		Long serviceId = (Long) properties.get(RankingKey.SERVICE_ID);
+		if (serviceId != null)
+			return serviceId.intValue();
+		else
+			return super.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		List<String> classes = new ArrayList<>();
+		for (Class<?> clss : types.keySet()) {
+			classes.add(clss.getName());
+		}
+		return "Component " + classes + " " + properties + "";
 	}
 
 	/** A type which has been explicitly exposed by a component. */

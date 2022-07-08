@@ -33,7 +33,7 @@ public class CmsRcpServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String path = req.getPathInfo();
 		String uiName = path != null ? path.substring(path.lastIndexOf('/') + 1) : "";
-		CmsRcpDisplayFactory.openCmsApp(eventAdmin, cmsApp, uiName);
+		CmsRcpDisplayFactory.openCmsApp(eventAdmin, cmsApp, uiName, null);
 		logger.log(Level.DEBUG, "Opened RCP UI  " + uiName + " of  CMS App " + req.getServletPath());
 	}
 
