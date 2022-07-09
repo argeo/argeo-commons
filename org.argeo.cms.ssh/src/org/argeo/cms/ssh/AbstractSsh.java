@@ -20,7 +20,7 @@ import org.apache.sshd.sftp.client.fs.SftpFileSystemProvider;
 import org.argeo.api.cms.CmsLog;
 
 @SuppressWarnings("restriction")
-abstract class AbstractSsh {
+public abstract class AbstractSsh {
 	private final static CmsLog log = CmsLog.getLog(AbstractSsh.class);
 
 	private static SshClient sshClient;
@@ -31,7 +31,7 @@ abstract class AbstractSsh {
 
 	private SshKeyPair sshKeyPair;
 
-	synchronized SshClient getSshClient() {
+	public synchronized SshClient getSshClient() {
 		if (sshClient == null) {
 			long begin = System.currentTimeMillis();
 			sshClient = SshClient.setUpDefaultClient();
@@ -51,33 +51,52 @@ abstract class AbstractSsh {
 		return sftpFileSystemProvider;
 	}
 
-	void authenticate() {
-		try {
-			if (sshKeyPair != null) {
-				session.addPublicKeyIdentity(sshKeyPair.asKeyPair());
-			} else {
+	public void authenticate() {
+		if (sshKeyPair != null) {
+			session.addPublicKeyIdentity(sshKeyPair.asKeyPair());
+		} else {
 
-				if (!passwordSet) {
-					String password;
-					Console console = System.console();
-					if (console == null) {// IDE
-						System.out.print("Password: ");
-						try (Scanner s = new Scanner(System.in)) {
-							password = s.next();
-						}
-					} else {
-						console.printf("Password: ");
-						char[] pwd = console.readPassword();
-						password = new String(pwd);
-						Arrays.fill(pwd, ' ');
+			if (!passwordSet) {
+				String password;
+				Console console = System.console();
+				if (console == null) {// IDE
+					System.out.print("Password: ");
+					try (Scanner s = new Scanner(System.in)) {
+						password = s.next();
 					}
-					session.addPasswordIdentity(password);
-					passwordSet = true;
+				} else {
+					console.printf("Password: ");
+					char[] pwd = console.readPassword();
+					password = new String(pwd);
+					Arrays.fill(pwd, ' ');
 				}
+				session.addPasswordIdentity(password);
+				passwordSet = true;
 			}
+		}
+		verifyAuth();
+	}
+
+	public void verifyAuth() {
+		try {
 			session.auth().verify(1000l);
 		} catch (IOException e) {
-			throw new IllegalStateException(e);
+			throw new IllegalStateException("Cannot verify auth", e);
+		}
+	}
+
+	public static char[] readPassword() {
+		Console console = System.console();
+		if (console == null) {// IDE
+			System.out.print("Password: ");
+			try (Scanner s = new Scanner(System.in)) {
+				String password = s.next();
+				return password.toCharArray();
+			}
+		} else {
+			console.printf("Password: ");
+			char[] pwd = console.readPassword();
+			return pwd;
 		}
 	}
 
@@ -136,7 +155,7 @@ abstract class AbstractSsh {
 		}
 	}
 
-	void closeSession() {
+	public void closeSession() {
 		if (session == null)
 			throw new IllegalStateException("No session is open");
 		try {
@@ -154,6 +173,10 @@ abstract class AbstractSsh {
 
 	public void setSshKeyPair(SshKeyPair sshKeyPair) {
 		this.sshKeyPair = sshKeyPair;
+	}
+
+	public static void openShell(AbstractSsh ssh) {
+		openShell(ssh.getSession());
 	}
 
 	public static void openShell(ClientSession session) {

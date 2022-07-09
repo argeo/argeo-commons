@@ -20,9 +20,12 @@ import java.security.spec.RSAPublicKeySpec;
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.config.keys.PublicKeyEntry;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.PEMDecryptorProvider;
+import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.PKCS8Generator;
+import org.bouncycastle.openssl.bc.BcPEMDecryptorProvider;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
@@ -125,12 +128,32 @@ public class SshKeyPair {
 		}
 	}
 
+	public static SshKeyPair loadDefault(char[] password) {
+		Path privateKeyPath = Paths.get(System.getProperty("user.home") + "/.ssh/id_rsa");
+		// TODO try other formats
+		return load(privateKeyPath, password);
+	}
+
+	public static SshKeyPair load(Path privateKeyPath, char[] password) {
+		try (Reader reader = Files.newBufferedReader(privateKeyPath)) {
+			return load(reader, password);
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot load private key from " + privateKeyPath, e);
+		}
+
+	}
+
 	public static SshKeyPair load(Reader reader, char[] password) {
 		try (PEMParser pemParser = new PEMParser(reader)) {
 			Object object = pemParser.readObject();
 			JcaPEMKeyConverter converter = new JcaPEMKeyConverter();// .setProvider("BC");
 			KeyPair kp;
-			if (object instanceof PKCS8EncryptedPrivateKeyInfo) {
+			if (object instanceof PEMEncryptedKeyPair) {
+				PEMEncryptedKeyPair ekp = (PEMEncryptedKeyPair) object;
+				PEMDecryptorProvider decryptorProvider = new BcPEMDecryptorProvider(password);
+				PEMKeyPair pemKp = ekp.decryptKeyPair(decryptorProvider);
+				kp = converter.getKeyPair(pemKp);
+			} else if (object instanceof PKCS8EncryptedPrivateKeyInfo) {
 				// Encrypted key - we will use provided password
 				PKCS8EncryptedPrivateKeyInfo ckp = (PKCS8EncryptedPrivateKeyInfo) object;
 //				PEMDecryptorProvider decProv = new JcePEMDecryptorProviderBuilder().build(password);
