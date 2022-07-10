@@ -25,6 +25,7 @@ org.argeo.cms.lib.jetty \
 org.argeo.cms.lib.equinox \
 org.argeo.cms.lib.sshd \
 org.argeo.cms.lib.pgsql \
+swt/org.argeo.swt.minidesktop \
 swt/org.argeo.cms.swt \
 swt/org.argeo.cms.e4 \
 swt/rap/org.argeo.swt.specific.rap \
@@ -47,7 +48,7 @@ org.argeo.api.cms
 A2_OUTPUT = $(SDK_BUILD_BASE)/a2
 A2_BASE = $(A2_OUTPUT)
 
-VPATH = .:eclipse:rap:jcr:swt:swt/rap
+VPATH = .:jcr:swt:swt/rap
 
 DEP_CATEGORIES = \
 org.argeo.tp \

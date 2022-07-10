@@ -6,7 +6,6 @@ all: osgi
 A2_CATEGORY = org.argeo.cms.eclipse.rcp
 
 BUNDLES = \
-rcp/org.argeo.swt.minidesktop \
 swt/rcp/org.argeo.swt.specific.rcp \
 swt/rcp/org.argeo.cms.swt.rcp \
 swt/rcp/org.argeo.cms.swt.rcp.cli \
@@ -31,6 +30,6 @@ org.argeo.tp.jcr
 clean:
 	rm -rf $(BUILD_BASE)
 
-VPATH = .:rcp:swt/rcp
+VPATH = .:swt/rcp
 
 include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk
