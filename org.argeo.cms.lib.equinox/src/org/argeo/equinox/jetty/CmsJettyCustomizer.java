@@ -52,11 +52,11 @@ public class CmsJettyCustomizer extends JettyCustomizer {
 		if (httpsConnector != null)
 			for (ConnectionFactory connectionFactory : httpsConnector.getConnectionFactories()) {
 				if (connectionFactory instanceof SslConnectionFactory) {
-					SslContextFactory.Server sslConnectionFactory = ((SslConnectionFactory) connectionFactory)
+					SslContextFactory.Server sslContextFactory = ((SslConnectionFactory) connectionFactory)
 							.getSslContextFactory();
-					sslConnectionFactory.setTrustStorePath((String) settings.get(SSL_TRUSTSTORE));
-					sslConnectionFactory.setTrustStoreType((String) settings.get(SSL_TRUSTSTORETYPE));
-					sslConnectionFactory.setTrustStorePassword((String) settings.get(SSL_TRUSTSTOREPASSWORD));
+					sslContextFactory.setTrustStorePath((String) settings.get(SSL_TRUSTSTORE));
+					sslContextFactory.setTrustStoreType((String) settings.get(SSL_TRUSTSTORETYPE));
+					sslContextFactory.setTrustStorePassword((String) settings.get(SSL_TRUSTSTOREPASSWORD));
 				}
 			}
 		return super.customizeHttpsConnector(connector, settings);

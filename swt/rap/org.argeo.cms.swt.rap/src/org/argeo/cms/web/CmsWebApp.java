@@ -113,7 +113,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 //			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
 	}
 
-	CmsApp getCmsApp() {
+	public CmsApp getCmsApp() {
 		return cmsApp;
 	}
 

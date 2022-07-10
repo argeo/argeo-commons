@@ -14,6 +14,8 @@ import org.argeo.api.cli.CommandsCli;
 import org.argeo.api.cli.DescribedCommand;
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsContext;
+import org.argeo.api.cms.CmsState;
+import org.argeo.cms.jetty.CmsJettyServer;
 import org.argeo.cms.runtime.StaticCms;
 import org.argeo.cms.swt.app.CmsUserApp;
 import org.argeo.cms.web.CmsWebApp;
@@ -60,6 +62,7 @@ public class CmsRapCli extends CommandsCli {
 
 			Path instancePath = Paths.get(dataPath);
 			System.setProperty("osgi.instance.area", instancePath.toUri().toString());
+			System.setProperty("argeo.http.port", "0");
 
 			StaticCms staticCms = new StaticCms() {
 				@Override
@@ -77,16 +80,17 @@ public class CmsRapCli extends CommandsCli {
 						CmsWebApp cmsWebApp = new CmsWebApp();
 						Component<CmsWebApp> cmsWebAppC = new Component.Builder<>(cmsWebApp) //
 								.addType(ApplicationConfiguration.class) //
+								.addType(CmsWebApp.class) //
 								.addDependency(cmsAppC.getType(CmsApp.class), cmsWebApp::setCmsApp, null) //
 								.build(register);
 
-						RwtRunner rwtRunner = new RwtRunner();
-						Component<RwtRunner> rwtRunnerC = new Component.Builder<>(rwtRunner) //
-								.addActivation(rwtRunner::init) //
-								.addDeactivation(rwtRunner::destroy) //
-								.addType(RwtRunner.class) //
-								.addDependency(cmsWebAppC.getType(ApplicationConfiguration.class),
-										rwtRunner::setApplicationConfiguration, null) //
+						RapJettyServer rwtRunner = new RapJettyServer();
+						Component<RapJettyServer> rwtRunnerC = new Component.Builder<>(rwtRunner) //
+								.addActivation(rwtRunner::start) //
+								.addDeactivation(rwtRunner::stop) //
+								.addType(CmsJettyServer.class) //
+								.addDependency(register.getSingleton(CmsState.class), rwtRunner::setCmsState, null) //
+								.addDependency(cmsWebAppC.getType(CmsWebApp.class), rwtRunner::setCmsWebApp, null) //
 								.build(register);
 					}
 				}
@@ -102,8 +106,9 @@ public class CmsRapCli extends CommandsCli {
 				try {
 					// open browser in app mode
 					Thread.sleep(2000);// wait for RWT to be ready
-					Runtime.getRuntime().exec("google-chrome --app=http://localhost:"
-							+ staticCms.getComponentRegister().getObject(RwtRunner.class).getEffectivePort() + "/data");
+					String browserCommand = "google-chrome --app=http://localhost:"
+							+ staticCms.getComponentRegister().getObject(CmsJettyServer.class).getHttpPort() + "/data";
+					Runtime.getRuntime().exec(browserCommand);
 				} catch (InterruptedException | IOException e) {
 					e.printStackTrace();
 				}

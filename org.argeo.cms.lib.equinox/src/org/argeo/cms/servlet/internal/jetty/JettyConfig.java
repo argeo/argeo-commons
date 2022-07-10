@@ -1,5 +1,6 @@
 package org.argeo.cms.servlet.internal.jetty;
 
+import java.io.File;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.argeo.cms.websocket.javax.server.TestEndpoint;
 import org.argeo.util.LangUtils;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -38,7 +40,7 @@ public class JettyConfig {
 		// We need to start asynchronously so that Jetty bundle get started by lazy init
 		// due to the non-configurable behaviour of its activator
 		ForkJoinPool.commonPool().execute(() -> {
-			Dictionary<String, ?> properties = getHttpServerConfig();
+			Dictionary<String, Object> properties = getHttpServerConfig();
 			startServer(properties);
 		});
 
@@ -90,7 +92,7 @@ public class JettyConfig {
 
 	}
 
-	public void startServer(Dictionary<String, ?> properties) {
+	public void startServer(Dictionary<String, Object> properties) {
 		// Explicitly configures Jetty so that the default server is not started by the
 		// activator of the Equinox Jetty bundle.
 		Map<String, String> config = LangUtils.dictToStringMap(properties);
@@ -105,38 +107,53 @@ public class JettyConfig {
 			}
 		}
 
-		long begin = System.currentTimeMillis();
-		int tryCount = 60;
-		try {
-			while (tryCount > 0) {
-				try {
-					// FIXME deal with multiple ids
-					JettyConfigurator.startServer(CmsConstants.DEFAULT, new Hashtable<>(config));
+		properties.put(Constants.SERVICE_PID, "default");
+		File jettyWorkDir = new File(bc.getDataFile(""), "jettywork"); //$NON-NLS-1$
+		jettyWorkDir.mkdir();
 
-					Object httpPort = config.get(JettyHttpConstants.HTTP_PORT);
-					Object httpsPort = config.get(JettyHttpConstants.HTTPS_PORT);
-					log.info(httpPortsMsg(httpPort, httpsPort));
+//		HttpServerManager serverManager = new HttpServerManager(jettyWorkDir);
+//		try {
+//			serverManager.updated("default", properties);
+//		} catch (ConfigurationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		Object httpPort = config.get(JettyHttpConstants.HTTP_PORT);
+		Object httpsPort = config.get(JettyHttpConstants.HTTPS_PORT);
+		log.info(httpPortsMsg(httpPort, httpsPort));
 
-					// Explicitly starts Jetty OSGi HTTP bundle, so that it gets triggered if OSGi
-					// configuration is not cleaned
-					FrameworkUtil.getBundle(JettyConfigurator.class).start();
-					return;
-				} catch (IllegalStateException e) {
-					// e.printStackTrace();
-					// Jetty may not be ready
-					try {
-						Thread.sleep(1000);
-					} catch (Exception e1) {
-						// silent
-					}
-					tryCount--;
-				}
-			}
-			long duration = System.currentTimeMillis() - begin;
-			log.error("Gave up with starting Jetty server after " + (duration / 1000) + " s");
-		} catch (Exception e) {
-			log.error("Cannot start default Jetty server with config " + properties, e);
-		}
+//		long begin = System.currentTimeMillis();
+//		int tryCount = 60;
+//		try {
+//			while (tryCount > 0) {
+//				try {
+//					// FIXME deal with multiple ids
+//					JettyConfigurator.startServer(CmsConstants.DEFAULT, new Hashtable<>(config));
+//
+//					Object httpPort = config.get(JettyHttpConstants.HTTP_PORT);
+//					Object httpsPort = config.get(JettyHttpConstants.HTTPS_PORT);
+//					log.info(httpPortsMsg(httpPort, httpsPort));
+//
+//					// Explicitly starts Jetty OSGi HTTP bundle, so that it gets triggered if OSGi
+//					// configuration is not cleaned
+//					FrameworkUtil.getBundle(JettyConfigurator.class).start();
+//					return;
+//				} catch (IllegalStateException e) {
+//					// e.printStackTrace();
+//					// Jetty may not be ready
+//					try {
+//						Thread.sleep(1000);
+//					} catch (Exception e1) {
+//						// silent
+//					}
+//					tryCount--;
+//				}
+//			}
+//			long duration = System.currentTimeMillis() - begin;
+//			log.error("Gave up with starting Jetty server after " + (duration / 1000) + " s");
+//		} catch (Exception e) {
+//			log.error("Cannot start default Jetty server with config " + properties, e);
+//		}
 
 	}
 

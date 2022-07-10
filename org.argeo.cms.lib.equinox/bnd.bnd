@@ -1,4 +1,2 @@
-Fragment-Host: org.eclipse.equinox.http.jetty
-
 Service-Component: \
 OSGI-INF/jettyServiceFactory.xml,\
