@@ -19,11 +19,12 @@ org.argeo.api.acr \
 org.argeo.api.cli \
 org.argeo.api.cms \
 org.argeo.cms \
-org.argeo.cms.sql \
-org.argeo.cms.ssh \
 org.argeo.cms.ux \
-eclipse/org.argeo.ext.equinox.jetty \
-eclipse/org.argeo.cms.servlet \
+org.argeo.cms.ee4j \
+org.argeo.cms.lib.jetty \
+org.argeo.cms.lib.equinox \
+org.argeo.cms.lib.sshd \
+org.argeo.cms.lib.pgsql \
 swt/org.argeo.cms.swt \
 swt/org.argeo.cms.e4 \
 swt/rap/org.argeo.swt.specific.rap \

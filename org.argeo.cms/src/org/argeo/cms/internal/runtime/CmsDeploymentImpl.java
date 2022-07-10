@@ -4,7 +4,6 @@ import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
-import org.osgi.service.http.HttpService;
 
 /** Implementation of a CMS deployment. */
 public class CmsDeploymentImpl implements CmsDeployment {
@@ -12,7 +11,7 @@ public class CmsDeploymentImpl implements CmsDeployment {
 
 	// Readiness
 	private boolean httpExpected = false;
-	private HttpService httpService;
+//	private HttpService httpService;
 
 	private CmsState cmsState;
 //	private DeployConfig deployConfig;
@@ -40,9 +39,9 @@ public class CmsDeploymentImpl implements CmsDeployment {
 //		return deployConfig.getProps(factoryPid, cn);
 //	}
 
-	public boolean isHttpAvailableOrNotExpected() {
-		return (httpExpected ? httpService != null : true);
-	}
+//	public boolean isHttpAvailableOrNotExpected() {
+//		return (httpExpected ? httpService != null : true);
+//	}
 
 //	private void loadIpaJaasConfiguration() {
 //		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
@@ -70,8 +69,8 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		httpExpected = httpPort != null || httpsPort != null;
 	}
 
-	public void setHttpService(HttpService httpService) {
-		this.httpService = httpService;
-	}
+//	public void setHttpService(HttpService httpService) {
+//		this.httpService = httpService;
+//	}
 
 }

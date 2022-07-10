@@ -27,7 +27,6 @@ import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.http.WebCmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
-import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
 /** Centralises security related registrations. */
@@ -140,8 +139,8 @@ class CmsAuthUtils {
 			String httpSessId = httpSession.getId();
 			boolean anonymous = authorization.getName() == null;
 			String remoteUser = !anonymous ? authorization.getName() : CmsConstants.ROLE_ANONYMOUS;
-			request.setAttribute(HttpContext.REMOTE_USER, remoteUser);
-			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
+			request.setAttribute(RemoteAuthRequest.REMOTE_USER, remoteUser);
+			request.setAttribute(RemoteAuthRequest.AUTHORIZATION, authorization);
 
 			CmsSessionImpl cmsSession;
 			CmsSessionImpl currentLocalSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessId);

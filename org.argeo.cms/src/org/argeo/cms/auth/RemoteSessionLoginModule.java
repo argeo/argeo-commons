@@ -14,13 +14,11 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.internal.runtime.CmsStateImpl;
-import org.osgi.service.http.HttpContext;
 import org.osgi.service.useradmin.Authorization;
 
 /** Use the HTTP session as the basis for authentication. */
@@ -79,7 +77,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 					log.trace("Retrieved authorization from " + cmsSession);
 			}
 		} else {
-			authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
+			authorization = (Authorization) request.getAttribute(RemoteAuthRequest.AUTHORIZATION);
 			if (authorization == null) {// search by session ID
 				RemoteAuthSession httpSession = request.getSession();
 				if (httpSession == null) {
@@ -110,7 +108,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 		} else {
 			if (log.isTraceEnabled())
 				log.trace("HTTP login: " + true);
-			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
+			request.setAttribute(RemoteAuthRequest.AUTHORIZATION, authorization);
 			return true;
 		}
 	}
