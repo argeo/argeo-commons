@@ -19,6 +19,7 @@ import org.argeo.cms.internal.runtime.CmsStateImpl;
 import org.argeo.cms.internal.runtime.CmsUserAdmin;
 import org.argeo.cms.internal.runtime.DeployedContentRepository;
 import org.argeo.util.register.Component;
+import org.argeo.util.register.ComponentRegister;
 import org.argeo.util.register.SimpleRegister;
 import org.argeo.util.transaction.SimpleTransactionManager;
 import org.argeo.util.transaction.WorkControl;
@@ -26,7 +27,7 @@ import org.argeo.util.transaction.WorkTransaction;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**
- * A CMS assembly which is programatically defined, as an alternative to OSGi
+ * A CMS assembly which is programmatically defined, as an alternative to OSGi
  * deployment. Useful for testing or AOT compilation.
  */
 public class StaticCms {
@@ -139,12 +140,16 @@ public class StaticCms {
 		postActivation(register);
 	}
 
-	protected void addComponents(SimpleRegister register) {
+	protected void addComponents(ComponentRegister register) {
 
 	}
 
-	protected void postActivation(SimpleRegister register) {
+	protected void postActivation(ComponentRegister register) {
 
+	}
+
+	public ComponentRegister getComponentRegister() {
+		return register;
 	}
 
 	public void stop() {

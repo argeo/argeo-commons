@@ -6,10 +6,11 @@ all: osgi
 A2_CATEGORY = org.argeo.cms.eclipse.rcp
 
 BUNDLES = \
-rcp/org.argeo.cms.e4.rcp \
-rcp/org.argeo.cms.ui.rcp \
 rcp/org.argeo.swt.minidesktop \
-rcp/org.argeo.swt.specific.rcp \
+swt/rcp/org.argeo.swt.specific.rcp \
+swt/rcp/org.argeo.cms.swt.rcp \
+swt/rcp/org.argeo.cms.swt.rcp.cli \
+swt/rcp/org.argeo.cms.e4.rcp \
 
 A2_OUTPUT = $(SDK_BUILD_BASE)/a2
 A2_BASE = $(A2_OUTPUT)
@@ -30,6 +31,6 @@ org.argeo.tp.jcr
 clean:
 	rm -rf $(BUILD_BASE)
 
-VPATH = .:rcp
+VPATH = .:rcp:swt/rcp
 
 include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk

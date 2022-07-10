@@ -9,8 +9,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.argeo.api.cms.CmsLog;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.UserAdmin;
 
@@ -22,7 +21,7 @@ public class AnonymousLoginModule implements LoginModule {
 	private Map<String, Object> sharedState = null;
 
 	// private state
-	private BundleContext bc;
+//	private BundleContext bc;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -30,12 +29,12 @@ public class AnonymousLoginModule implements LoginModule {
 			Map<String, ?> options) {
 		this.subject = subject;
 		this.sharedState = (Map<String, Object>) sharedState;
-		try {
-			bc = FrameworkUtil.getBundle(AnonymousLoginModule.class).getBundleContext();
-			assert bc != null;
-		} catch (Exception e) {
-			throw new IllegalStateException("Cannot initialize login module", e);
-		}
+//		try {
+//			bc = FrameworkUtil.getBundle(AnonymousLoginModule.class).getBundleContext();
+//			assert bc != null;
+//		} catch (Exception e) {
+//			throw new IllegalStateException("Cannot initialize login module", e);
+//		}
 	}
 
 	@Override
@@ -45,7 +44,7 @@ public class AnonymousLoginModule implements LoginModule {
 
 	@Override
 	public boolean commit() throws LoginException {
-		UserAdmin userAdmin = bc.getService(bc.getServiceReference(UserAdmin.class));
+		UserAdmin userAdmin = CmsContextImpl.getCmsContext().getUserAdmin();
 		Authorization authorization = userAdmin.getAuthorization(null);
 		RemoteAuthRequest request = (RemoteAuthRequest) sharedState.get(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST);
 		Locale locale = Locale.getDefault();

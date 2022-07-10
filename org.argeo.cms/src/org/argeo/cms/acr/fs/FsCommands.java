@@ -1,6 +1,6 @@
 package org.argeo.cms.acr.fs;
 
-import org.argeo.cms.cli.CommandsCli;
+import org.argeo.api.cli.CommandsCli;
 
 /** File utilities. */
 public class FsCommands extends CommandsCli {

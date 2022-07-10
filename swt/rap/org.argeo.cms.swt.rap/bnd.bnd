@@ -1,0 +1,12 @@
+Import-Package:\
+org.argeo.api.acr,\
+org.eclipse.swt,\
+org.argeo.eclipse.ui,\
+javax.jcr.nodetype,\
+javax.jcr.security,\
+org.eclipse.swt.graphics,\
+javax.servlet.*;version="[3,5)",\
+*
+
+Service-Component: OSGI-INF/cmsWebAppFactory.xml
+
