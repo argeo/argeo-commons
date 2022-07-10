@@ -9,6 +9,7 @@ import java.util.Objects;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.argeo.minidesktop.MiniDesktopManager;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -17,9 +18,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.application.ApplicationRunner;
+import org.eclipse.rap.rwt.application.EntryPoint;
+import org.eclipse.rap.rwt.application.Application.OperationMode;
 import org.eclipse.rap.rwt.engine.RWTServlet;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -52,7 +54,7 @@ public class RwtRunner {
 		context.setContextPath("/");
 		server.setHandler(context);
 
-		String entryPoint = "data";
+		String entryPoint = "app";
 
 		// rwt-resources requires a file system
 		try {
@@ -119,16 +121,18 @@ public class RwtRunner {
 		RwtRunner rwtRunner = new RwtRunner();
 
 		String entryPoint = "app";
-		ApplicationConfiguration applicationConfiguration = (application) -> application.addEntryPoint("/" + entryPoint,
-				() -> new AbstractEntryPoint() {
-					private static final long serialVersionUID = 5678385921969090733L;
-
-					@Override
-					protected void createContents(Composite parent) {
-						Label label = new Label(parent, 0);
-						label.setText("Hello world!");
-					}
-				}, null);
+		ApplicationConfiguration applicationConfiguration = (application) -> {
+			application.setOperationMode(OperationMode.SWT_COMPATIBILITY);
+			application.addEntryPoint("/" + entryPoint, () -> new EntryPoint() {
+				@Override
+				public int createUI() {
+					MiniDesktopManager miniDesktopManager = new MiniDesktopManager(false, false);
+					miniDesktopManager.init();
+					miniDesktopManager.run();
+					return 0;
+				}
+			}, null);
+		};
 
 		rwtRunner.setApplicationConfiguration(applicationConfiguration);
 		rwtRunner.init();

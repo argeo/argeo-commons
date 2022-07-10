@@ -15,7 +15,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -83,7 +82,7 @@ public class MiniExplorer {
 				if (Files.isDirectory(path)) {
 					setPath(path);
 				} else {
-					Program.launch(path.toString());
+					//Program.launch(path.toString());
 				}
 			}
 		});

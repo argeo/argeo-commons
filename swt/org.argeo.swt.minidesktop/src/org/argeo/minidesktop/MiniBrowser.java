@@ -84,10 +84,12 @@ public class MiniBrowser {
 			}
 
 		});
-		browser.addTitleListener(e -> titleChanged(e.title));
-		browser.addOpenWindowListener((e) -> {
-			e.browser = openNewBrowserWindow();
-		});
+		
+		// FIXME make it portable
+//		browser.addTitleListener(e -> titleChanged(e.title));
+//		browser.addOpenWindowListener((e) -> {
+//			e.browser = openNewBrowserWindow();
+//		});
 		return browser;
 	}
 

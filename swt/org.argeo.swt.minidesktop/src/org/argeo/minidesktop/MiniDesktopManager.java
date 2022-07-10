@@ -14,12 +14,10 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -285,16 +283,16 @@ public class MiniDesktopManager {
 	}
 
 	protected Image getIconForExt(String ext) {
-		Program program = Program.findProgram(ext);
-		if (program == null)
+//		Program program = Program.findProgram(ext);
+//		if (program == null)
 			return display.getSystemImage(SWT.ICON_INFORMATION);
 
-		ImageData iconData = program.getImageData();
-		if (iconData == null) {
-			return display.getSystemImage(SWT.ICON_INFORMATION);
-		} else {
-			return new Image(display, iconData);
-		}
+//		ImageData iconData = program.getImageData();
+//		if (iconData == null) {
+//			return display.getSystemImage(SWT.ICON_INFORMATION);
+//		} else {
+//			return new Image(display, iconData);
+//		}
 
 	}
 

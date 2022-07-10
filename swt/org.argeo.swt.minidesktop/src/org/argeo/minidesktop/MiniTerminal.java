@@ -27,7 +27,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Caret;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -35,7 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 public class MiniTerminal implements KeyListener, PaintListener {
 
 	private Canvas area;
-	private Caret caret;
+//	private Caret caret;
 
 	private StringBuffer buf = new StringBuffer("");
 	private StringBuffer userInput = new StringBuffer("");
@@ -76,8 +75,8 @@ public class MiniTerminal implements KeyListener, PaintListener {
 		parent.setLayout(new GridLayout());
 		area = new Canvas(parent, SWT.NONE);
 		area.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		caret = new Caret(area, SWT.NONE);
-		area.setCaret(caret);
+//		caret = new Caret(area, SWT.NONE);
+//		area.setCaret(caret);
 
 		area.addKeyListener(this);
 		area.addPaintListener(this);
@@ -102,8 +101,9 @@ public class MiniTerminal implements KeyListener, PaintListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.keyLocation != 0)
-			return;// weird characters
+//		if (e.keyLocation != 0)
+//			return;// weird characters
+		
 		// System.out.println(e.character);
 		if (e.keyCode == 0xd) {// return
 			markLogicalLine();
