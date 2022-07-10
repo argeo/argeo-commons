@@ -20,7 +20,7 @@ org.argeo.api.cli \
 org.argeo.api.cms \
 org.argeo.cms \
 org.argeo.cms.ux \
-org.argeo.cms.ee4j \
+org.argeo.cms.ee \
 org.argeo.cms.lib.jetty \
 org.argeo.cms.lib.equinox \
 org.argeo.cms.lib.sshd \
