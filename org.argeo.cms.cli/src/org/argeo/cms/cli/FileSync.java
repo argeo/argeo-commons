@@ -1,4 +1,4 @@
-package org.argeo.cms.ux.cli;
+package org.argeo.cms.cli;
 
 import java.net.URI;
 import java.net.URISyntaxException;

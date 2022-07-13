@@ -1,0 +1,8 @@
+[
+  {
+    "interfaces":["javax.servlet.http.HttpServletRequest"]}
+  ,
+  {
+    "interfaces":["javax.servlet.http.HttpServletResponse"]}
+  
+]

@@ -25,6 +25,7 @@ org.argeo.cms.lib.jetty \
 org.argeo.cms.lib.equinox \
 org.argeo.cms.lib.sshd \
 org.argeo.cms.lib.pgsql \
+org.argeo.cms.cli \
 swt/org.argeo.swt.minidesktop \
 swt/org.argeo.cms.swt \
 swt/org.argeo.cms.e4 \
@@ -72,10 +73,14 @@ A2_BUNDLES_CLASSPATH = $(subst $(space),$(pathsep),$(strip $(A2_BUNDLES)))
 
 native-image:
 	mkdir -p $(A2_OUTPUT)/libexec/$(A2_CATEGORY)
-	cd $(A2_OUTPUT)/libexec/$(A2_CATEGORY) && /opt/graalvm-ce/bin/native-image \
+#	cd $(A2_OUTPUT)/libexec/$(A2_CATEGORY) && /opt/graalvm-ce/bin/native-image \
 		-cp $(A2_CLASSPATH):$(A2_BUNDLES_CLASSPATH) org.argeo.eclipse.ui.jetty.CmsRapCli \
 		--enable-url-protocols=http,https \
 		-H:AdditionalSecurityProviders=sun.security.jgss.SunProvider,org.bouncycastle.jce.provider.BouncyCastleProvider,net.i2p.crypto.eddsa.EdDSASecurityProvider \
+		--initialize-at-build-time=org.argeo.init.logging.ThinLogging,org.slf4j.LoggerFactory \
+		--no-fallback 
+	cd $(A2_OUTPUT)/libexec/$(A2_CATEGORY) && /opt/graalvm-ce/bin/native-image \
+		-cp $(A2_CLASSPATH):$(A2_BUNDLES_CLASSPATH) org.argeo.cms.ux.cli.FileSync \
 		--initialize-at-build-time=org.argeo.init.logging.ThinLogging,org.slf4j.LoggerFactory \
 		--no-fallback 
 

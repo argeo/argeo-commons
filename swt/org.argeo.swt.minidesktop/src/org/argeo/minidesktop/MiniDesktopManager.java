@@ -158,7 +158,7 @@ public class MiniDesktopManager {
 			AppContext appContext = createAppParent(images.browserIcon);
 			new MiniBrowser(appContext.getAppParent(), url, false, false) {
 				@Override
-				protected void titleChanged(String title) {
+				public void titleChanged(String title) {
 					if (appContext.shell != null)
 						appContext.shell.setText(title);
 					if (appContext.tabItem != null) {
@@ -285,7 +285,7 @@ public class MiniDesktopManager {
 	protected Image getIconForExt(String ext) {
 //		Program program = Program.findProgram(ext);
 //		if (program == null)
-			return display.getSystemImage(SWT.ICON_INFORMATION);
+		return display.getSystemImage(SWT.ICON_INFORMATION);
 
 //		ImageData iconData = program.getImageData();
 //		if (iconData == null) {

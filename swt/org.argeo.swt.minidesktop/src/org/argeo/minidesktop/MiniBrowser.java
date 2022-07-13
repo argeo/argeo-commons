@@ -84,16 +84,13 @@ public class MiniBrowser {
 			}
 
 		});
-		
-		// FIXME make it portable
-//		browser.addTitleListener(e -> titleChanged(e.title));
-//		browser.addOpenWindowListener((e) -> {
-//			e.browser = openNewBrowserWindow();
-//		});
+
+		MiniDesktopSpecific.getMiniDesktopSpecific().addBrowserTitleListener(this, browser);
+		MiniDesktopSpecific.getMiniDesktopSpecific().addBrowserOpenWindowListener(this, browser);
 		return browser;
 	}
 
-	protected Browser openNewBrowserWindow() {
+	public Browser openNewBrowserWindow() {
 
 		if (isFullScreen()) {
 			// TODO manage multiple tabs?
@@ -121,7 +118,7 @@ public class MiniBrowser {
 	}
 
 	/** Called when title changed; to be overridden, does nothing by default. */
-	protected void titleChanged(String title) {
+	public void titleChanged(String title) {
 	}
 
 	protected Browser getBrowser() {
@@ -174,7 +171,7 @@ public class MiniBrowser {
 		new MiniBrowser(shell, url, fullscreen, appMode) {
 
 			@Override
-			protected void titleChanged(String title) {
+			public void titleChanged(String title) {
 				shell.setText(title);
 			}
 		};
