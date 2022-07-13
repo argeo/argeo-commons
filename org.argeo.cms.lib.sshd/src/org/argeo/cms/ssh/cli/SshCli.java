@@ -13,5 +13,8 @@ public class SshCli extends CommandsCli {
 		return "SSH utilities.";
 	}
 
-	 
+	public static void main(String[] args) {
+		mainImpl(new SshCli("ssh"), args);
+	}
+
 }

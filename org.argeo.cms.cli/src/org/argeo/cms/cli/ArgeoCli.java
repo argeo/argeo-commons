@@ -25,8 +25,4 @@ public class ArgeoCli extends CommandsCli {
 		return "Argeo utilities";
 	}
 
-	public static void main(String[] args) {
-		mainImpl(new ArgeoCli("argeo"), args);
-	}
-
 }

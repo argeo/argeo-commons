@@ -1,0 +1,75 @@
+[
+{
+  "name":"java.lang.Boolean",
+  "methods":[{"name":"getBoolean","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.ClassLoader",
+  "methods":[
+    {"name":"getPlatformClassLoader","parameterTypes":[] }, 
+    {"name":"loadClass","parameterTypes":["java.lang.String"] }
+  ]
+},
+{
+  "name":"java.lang.String",
+  "methods":[
+    {"name":"<init>","parameterTypes":["byte[]"] }, 
+    {"name":"getBytes","parameterTypes":[] }
+  ]
+},
+{
+  "name":"jdk.internal.loader.ClassLoaders$PlatformClassLoader"
+},
+{
+  "name":"org.apache.tomcat.jni.FileInfo",
+  "fields":[
+    {"name":"atime"}, 
+    {"name":"csize"}, 
+    {"name":"ctime"}, 
+    {"name":"device"}, 
+    {"name":"filehand"}, 
+    {"name":"filetype"}, 
+    {"name":"fname"}, 
+    {"name":"group"}, 
+    {"name":"inode"}, 
+    {"name":"mtime"}, 
+    {"name":"name"}, 
+    {"name":"nlink"}, 
+    {"name":"pool"}, 
+    {"name":"protection"}, 
+    {"name":"size"}, 
+    {"name":"user"}, 
+    {"name":"valid"}
+  ],
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.tomcat.jni.Sockaddr",
+  "fields":[
+    {"name":"family"}, 
+    {"name":"hostname"}, 
+    {"name":"next"}, 
+    {"name":"pool"}, 
+    {"name":"port"}, 
+    {"name":"servname"}
+  ],
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.graalvm.jniutils.JNIExceptionWrapperEntryPoints",
+  "methods":[{"name":"getClassName","parameterTypes":["java.lang.Class"] }]
+},
+{
+  "name":"sun.management.VMManagementImpl",
+  "fields":[
+    {"name":"compTimeMonitoringSupport"}, 
+    {"name":"currentThreadCpuTimeSupport"}, 
+    {"name":"objectMonitorUsageSupport"}, 
+    {"name":"otherThreadCpuTimeSupport"}, 
+    {"name":"remoteDiagnosticCommandsSupport"}, 
+    {"name":"synchronizerUsageSupport"}, 
+    {"name":"threadAllocatedMemorySupport"}, 
+    {"name":"threadContentionMonitoringSupport"}
+  ]
+}
+]
