@@ -4,9 +4,16 @@ include sdk.mk
 all: osgi jni move-rap
 	$(MAKE) -f Makefile-rcp.mk
 
-move-rap: osgi
-	mkdir -p $(A2_OUTPUT)/$(A2_CATEGORY).eclipse.rap
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/$(A2_CATEGORY).eclipse.rap
+move-swt: osgi
+	mkdir -p $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.swt.minidesktop.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.swt.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.e4.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+
+move-rap: move-swt
+	mkdir -p $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.cli.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
 	touch $(BUILD_BASE)/*.rap/bnd.bnd
 
 A2_CATEGORY = org.argeo.cms
@@ -55,8 +62,8 @@ DEP_CATEGORIES = \
 org.argeo.tp \
 org.argeo.tp.apache \
 org.argeo.tp.jetty \
-org.argeo.tp.eclipse \
 osgi/api/org.argeo.tp.osgi \
+osgi/equinox/org.argeo.tp.eclipse \
 swt/rap/org.argeo.tp.swt \
 swt/rap/org.argeo.tp.swt.workbench \
 org.argeo.tp.jcr

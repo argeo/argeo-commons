@@ -102,11 +102,16 @@ public class OsgiBoot implements OsgiBootConstants {
 		} else {
 			for (String source : sources.split(",")) {
 				if (source.trim().equals(A2Source.DEFAULT_A2_URI)) {
+					int qmIndex = source.lastIndexOf('?');
+					String queryPart = "";
+					if (qmIndex >= 0) {
+						queryPart = source.substring(qmIndex);
+					}
 					if (Files.exists(homePath))
-						provisioningManager
-								.registerSource(A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/a2");
-					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/share/a2");
-					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/share/a2");
+						provisioningManager.registerSource(
+								A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/a2" + queryPart);
+					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/share/a2" + queryPart);
+					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/share/a2" + queryPart);
 				} else {
 					provisioningManager.registerSource(source);
 				}

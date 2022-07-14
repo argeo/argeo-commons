@@ -1,9 +1,15 @@
 include sdk.mk
 .PHONY: clean all osgi
 
-all: osgi
+all: osgi move-rcp
 
-A2_CATEGORY = org.argeo.cms.eclipse.rcp
+move-rcp: osgi
+	mkdir -p $(A2_OUTPUT)/swt/rcp/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rcp.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rcp/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rcp.cli.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rcp/$(A2_CATEGORY)
+	touch $(BUILD_BASE)/*.rcp/bnd.bnd
+
+A2_CATEGORY = org.argeo.cms
 
 BUNDLES = \
 swt/rcp/org.argeo.swt.specific.rcp \
