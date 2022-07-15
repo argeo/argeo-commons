@@ -39,25 +39,22 @@ public class DeployedContentRepository extends CmsContentRepository {
 			DirectoryContentProvider directoryContentProvider = new DirectoryContentProvider(
 					CmsContentRepository.DIRECTORY_BASE, userManager);
 			addProvider(directoryContentProvider);
+
+			// remote
+//			DavContentProvider davContentProvider = new DavContentProvider("/srv",
+//					URI.create("http://localhost/unstable/a2/"));
+//			addProvider(davContentProvider);
 		} catch (IOException e) {
 			throw new IllegalStateException("Cannot start content repository", e);
 		}
-		long duration = System.currentTimeMillis()-begin;
-		log.debug(() -> "CMS content repository available (initialisation took "+duration+" ms)");
+		long duration = System.currentTimeMillis() - begin;
+		log.debug(() -> "CMS content repository available (initialisation took " + duration + " ms)");
 	}
 
 	@Override
 	public void stop() {
 		super.stop();
 	}
-
-//	public void addContentProvider(ContentProvider provider, Map<String, Object> properties) {
-////		String base = LangUtils.get(properties, CmsContentRepository.ACR_MOUNT_PATH_PROPERTY);
-//		addProvider(provider);
-//	}
-
-//	public void removeContentProvider(ContentProvider provider, Map<String, Object> properties) {
-//	}
 
 	public void setUserManager(CmsUserManager userManager) {
 		this.userManager = userManager;
