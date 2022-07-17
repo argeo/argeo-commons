@@ -93,13 +93,13 @@ public class JettyHttpServer extends HttpsServer {
 				configureRootContextHandler(rootContextHandler);
 //			server.setHandler(rootContextHandler);
 
-			ContextHandlerCollection contextHandlers = new ContextHandlerCollection();
+//			ContextHandlerCollection contextHandlers = new ContextHandlerCollection();
 			if (rootContextHandler != null && !contexts.containsKey("/"))
-				contextHandlers.addHandler(rootContextHandler);
-			for (String contextPath : contexts.keySet()) {
-				JettyHttpContext ctx = contexts.get(contextPath);
-				contextHandlers.addHandler(ctx.getContextHandler());
-			}
+				contextHandlerCollection.addHandler(rootContextHandler);
+//			for (String contextPath : contexts.keySet()) {
+//				JettyHttpContext ctx = contexts.get(contextPath);
+//				contextHandlers.addHandler(ctx.getContextHandler());
+//			}
 
 			server.setHandler(contextHandlerCollection);
 
