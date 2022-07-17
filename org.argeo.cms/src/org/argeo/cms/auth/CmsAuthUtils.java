@@ -24,7 +24,7 @@ import org.argeo.api.cms.CmsSessionId;
 import org.argeo.api.cms.DataAdminPrincipal;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
-import org.argeo.cms.internal.http.WebCmsSessionImpl;
+import org.argeo.cms.internal.auth.RemoteCmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.osgi.service.useradmin.Authorization;
@@ -151,7 +151,7 @@ class CmsAuthUtils {
 						currentLocalSession.close();
 						// new CMS session
 						UUID cmsSessionUuid = CmsContextImpl.getCmsContext().getUuidFactory().timeUUID();
-						cmsSession = new WebCmsSessionImpl(cmsSessionUuid, subject, authorization, locale, request);
+						cmsSession = new RemoteCmsSessionImpl(cmsSessionUuid, subject, authorization, locale, request);
 						CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 					} else if (!authorization.getName().equals(currentLocalSession.getAuthorization().getName())) {
 						throw new IllegalStateException("Inconsistent user " + authorization.getName()
@@ -176,7 +176,7 @@ class CmsAuthUtils {
 			} else {
 				// new CMS session
 				UUID cmsSessionUuid = CmsContextImpl.getCmsContext().getUuidFactory().timeUUID();
-				cmsSession = new WebCmsSessionImpl(cmsSessionUuid, subject, authorization, locale, request);
+				cmsSession = new RemoteCmsSessionImpl(cmsSessionUuid, subject, authorization, locale, request);
 				CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 			}
 

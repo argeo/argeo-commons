@@ -25,7 +25,7 @@ public class EquinoxJettyServer extends CmsJettyServer {
 	private static final String INTERNAL_CONTEXT_CLASSLOADER = "org.eclipse.equinox.http.jetty.internal.ContextClassLoader";
 
 	@Override
-	protected void addServlets(ServletContextHandler servletContextHandler) throws ServletException {
+	protected void addServlets(ServletContextHandler rootContextHandler) throws ServletException {
 		ServletHolder holder = new ServletHolder(new InternalHttpServiceServlet());
 		holder.setInitOrder(0);
 		holder.setInitParameter(Constants.SERVICE_VENDOR, "Eclipse.org"); //$NON-NLS-1$
@@ -33,10 +33,10 @@ public class EquinoxJettyServer extends CmsJettyServer {
 
 		// holder.setInitParameter(JettyConstants.CONTEXT_PATH,
 		// httpContext.getContextPath());
-		servletContextHandler.addServlet(holder, "/*");
+		rootContextHandler.addServlet(holder, "/*");
 
 		// post-start
-		SessionHandler sessionManager = servletContextHandler.getSessionHandler();
+		SessionHandler sessionManager = rootContextHandler.getSessionHandler();
 		sessionManager.addEventListener((HttpSessionIdListener) holder.getServlet());
 	}
 

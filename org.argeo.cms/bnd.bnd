@@ -1,7 +1,6 @@
 Bundle-Activator: org.argeo.cms.internal.osgi.CmsActivator
 
 Import-Package: \
-org.apache.commons.httpclient.cookie;resolution:=optional,\
 !com.sun.security.jgss,\
 org.osgi.*;version=0.0.0,\
 org.apache.xerces.jaxp;resolution:=optional,\

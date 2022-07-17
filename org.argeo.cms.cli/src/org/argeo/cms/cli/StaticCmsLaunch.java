@@ -1,4 +1,4 @@
-package org.argeo.cms.runtime;
+package org.argeo.cms.cli;
 
 import java.lang.management.ManagementFactory;
 import java.nio.file.Path;
@@ -9,6 +9,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.argeo.api.cli.DescribedCommand;
+import org.argeo.cms.runtime.StaticCms;
 
 public class StaticCmsLaunch implements DescribedCommand<String> {
 	private Option dataOption;

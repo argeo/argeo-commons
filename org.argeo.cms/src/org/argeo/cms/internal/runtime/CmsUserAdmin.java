@@ -25,19 +25,12 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.httpclient.auth.AuthPolicy;
-import org.apache.commons.httpclient.auth.CredentialsProvider;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.httpclient.params.HttpParams;
 import org.apache.commons.io.FileUtils;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
-import org.argeo.cms.internal.http.client.HttpCredentialProvider;
-import org.argeo.cms.internal.http.client.SpnegoAuthScheme;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.DirectoryUserAdmin;
 import org.argeo.osgi.useradmin.UserDirectory;
@@ -298,16 +291,6 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 				}
 			}
 
-			// Register client-side SPNEGO auth scheme
-			AuthPolicy.registerAuthScheme(SpnegoAuthScheme.NAME, SpnegoAuthScheme.class);
-			HttpParams params = DefaultHttpParams.getDefaultParams();
-			ArrayList<String> schemes = new ArrayList<>();
-			schemes.add(SpnegoAuthScheme.NAME);// SPNEGO preferred
-			// schemes.add(AuthPolicy.BASIC);// incompatible with Basic
-			params.setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, schemes);
-			params.setParameter(CredentialsProvider.PROVIDER, new HttpCredentialProvider());
-			params.setParameter(HttpMethodParams.COOKIE_POLICY, KernelConstants.COOKIE_POLICY_BROWSER_COMPATIBILITY);
-			// params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		}
 	}
 

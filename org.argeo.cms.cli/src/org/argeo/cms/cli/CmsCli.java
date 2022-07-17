@@ -1,4 +1,4 @@
-package org.argeo.cms.runtime;
+package org.argeo.cms.cli;
 
 import org.argeo.api.cli.CommandsCli;
 
