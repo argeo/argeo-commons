@@ -71,15 +71,14 @@ class DeploymentEntryPoint {
 		Label label = new Label(composite, SWT.WRAP);
 		CmsSwtUtils.markup(label);
 		if (nodeDeploymentRef == null) {
-			label.setText("Not yet deployed on <br>" + nodeState.getHostname() + "</br>, please configure below.");
+			label.setText("Not yet deployed on, please configure below.");
 		} else {
 			Object stateUuid = nodeStateRef.getProperty(CmsConstants.CN);
 			CmsContext nodeDeployment = bc.getService(nodeDeploymentRef);
 			GregorianCalendar calendar = new GregorianCalendar();
 			calendar.setTimeInMillis(nodeDeployment.getAvailableSince());
 			calendar.setTimeZone(TimeZone.getDefault());
-			label.setText("[" + "<b>" + nodeState.getHostname() + "</b>]# " + "Deployment state " + stateUuid
-					+ ", available since <b>" + calendar.getTime() + "</b>");
+			label.setText("Deployment state " + stateUuid + ", available since <b>" + calendar.getTime() + "</b>");
 		}
 	}
 

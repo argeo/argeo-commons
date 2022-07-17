@@ -44,7 +44,7 @@ public class CmsStateImpl implements CmsState {
 
 	private UUID uuid;
 //	private final boolean cleanState;
-	private String hostname;
+//	private String hostname;
 
 	private UuidFactory uuidFactory;
 
@@ -83,11 +83,11 @@ public class CmsStateImpl implements CmsState {
 //			this.uuid = UUID.fromString(stateUuidStr);
 			this.uuid = uuidFactory.timeUUID();
 //		this.cleanState = stateUuid.equals(frameworkUuid);
-			try {
-				this.hostname = InetAddress.getLocalHost().getHostName();
-			} catch (UnknownHostException e) {
-				log.error("Cannot set hostname: " + e);
-			}
+//			try {
+//				this.hostname = InetAddress.getLocalHost().getHostName();
+//			} catch (UnknownHostException e) {
+//				log.error("Cannot set hostname: " + e);
+//			}
 
 			availableSince = System.currentTimeMillis();
 			if (log.isDebugEnabled()) {
@@ -337,10 +337,6 @@ public class CmsStateImpl implements CmsState {
 	/*
 	 * ACCESSORS
 	 */
-	public String getHostname() {
-		return hostname;
-	}
-
 	@Override
 	public UUID getUuid() {
 		return uuid;

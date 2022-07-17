@@ -11,8 +11,10 @@ OSGI-INF/cmsState.xml,\
 OSGI-INF/simpleTransactionManager.xml,\
 OSGI-INF/nodeUserAdmin.xml,\
 OSGI-INF/cmsUserManager.xml,\
+OSGI-INF/cmsAuthenticator.xml,\
 OSGI-INF/uuidFactory.xml,\
 OSGI-INF/acrContentRepository.xml,\
+OSGI-INF/cmsAcrHttpHandler.xml,\
 OSGI-INF/cmsDeployment.xml,\
 OSGI-INF/cmsContext.xml,\
 

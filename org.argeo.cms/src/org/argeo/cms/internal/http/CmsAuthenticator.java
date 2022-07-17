@@ -69,7 +69,7 @@ public class CmsAuthenticator extends Authenticator {
 	}
 
 	protected boolean authIsRequired(HttpExchange httpExchange) {
-		return false;
+		return true;
 	}
 
 	protected LoginContext processUnauthorized(HttpExchange httpExchange) {

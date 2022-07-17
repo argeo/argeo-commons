@@ -9,6 +9,8 @@ import javax.servlet.ServletException;
 import javax.websocket.DeploymentException;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
+import com.sun.net.httpserver.Authenticator;
+import com.sun.net.httpserver.HttpContext;
 
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
@@ -37,6 +39,8 @@ public class CmsJettyServer extends JettyHttpServer {
 	private ServerEndpointConfig.Configurator wsEndpointConfigurator;
 
 	private CmsState cmsState;
+
+	private Authenticator defaultAuthenticator;
 
 	protected void addServlets(ServletContextHandler servletContextHandler) throws ServletException {
 	}
@@ -73,6 +77,13 @@ public class CmsJettyServer extends JettyHttpServer {
 
 	}
 
+	@Override
+	public synchronized HttpContext createContext(String path) {
+		HttpContext httpContext = super.createContext(path);
+		httpContext.setAuthenticator(defaultAuthenticator);
+		return httpContext;
+	}
+
 	protected void enableWebSocket(ServletContextHandler servletContextHandler) {
 		String webSocketEnabled = getDeployProperty(CmsDeployProperty.WEBSOCKET_ENABLED);
 		// web socket
@@ -105,6 +116,10 @@ public class CmsJettyServer extends JettyHttpServer {
 
 	public void setCmsState(CmsState cmsState) {
 		this.cmsState = cmsState;
+	}
+
+	public void setDefaultAuthenticator(Authenticator defaultAuthenticator) {
+		this.defaultAuthenticator = defaultAuthenticator;
 	}
 
 }

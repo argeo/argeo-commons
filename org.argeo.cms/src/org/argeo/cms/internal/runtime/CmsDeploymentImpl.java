@@ -1,9 +1,14 @@
 package org.argeo.cms.internal.runtime;
 
+import java.util.Map;
+
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
+
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
 /** Implementation of a CMS deployment. */
 public class CmsDeploymentImpl implements CmsDeployment {
@@ -15,6 +20,8 @@ public class CmsDeploymentImpl implements CmsDeployment {
 
 	private CmsState cmsState;
 //	private DeployConfig deployConfig;
+
+	private HttpServer httpServer;
 
 	public void start() {
 //		httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
@@ -69,6 +76,26 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		httpExpected = httpPort != null || httpsPort != null;
 	}
 
+	public void setHttpServer(HttpServer httpServer) {
+		this.httpServer = httpServer;
+	}
+
+	public void addHttpHandler(HttpHandler httpHandler, Map<String, String> properties) {
+		if (httpServer == null)
+			return;
+		final String contextPath = properties.get("contextPath");
+		httpServer.createContext(contextPath, httpHandler);
+		log.debug(() -> "Added handler " + contextPath + " : " + httpHandler.getClass().getName());
+
+	}
+
+	public void removeHttpHandler(HttpHandler httpHandler, Map<String, String> properties) {
+		if (httpServer == null)
+			return;
+		final String contextPath = properties.get("contextPath");
+		httpServer.removeContext(contextPath);
+		log.debug(() -> "Removed handler " + contextPath + " : " + httpHandler.getClass().getName());
+	}
 //	public void setHttpService(HttpService httpService) {
 //		this.httpService = httpService;
 //	}

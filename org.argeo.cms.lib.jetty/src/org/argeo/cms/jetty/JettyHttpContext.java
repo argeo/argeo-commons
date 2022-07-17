@@ -12,6 +12,7 @@ import java.util.Set;
 import org.argeo.cms.servlet.httpserver.HttpContextServlet;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
@@ -36,10 +37,15 @@ class JettyHttpContext extends HttpContext {
 		this.httpServer = httpServer;
 		this.path = path;
 
+		// Jetty context handler
 		ServletContextHandler servletContextHandler = new ServletContextHandler();
 		servletContextHandler.setContextPath(path);
 		HttpContextServlet servlet = new HttpContextServlet(this);
 		servletContextHandler.addServlet(new ServletHolder(servlet), "/*");
+		SessionHandler sessionHandler = new SessionHandler();
+		// FIXME find a better default
+		sessionHandler.setMaxInactiveInterval(-1);
+		servletContextHandler.setSessionHandler(sessionHandler);
 		contextHandler = servletContextHandler;
 
 		attributes = new ContextAttributes();

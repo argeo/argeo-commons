@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.argeo.cms.auth.RemoteAuthSession;
+import org.argeo.cms.servlet.ServletHttpSession;
+
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
@@ -24,6 +27,8 @@ public class HttpContextServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try (ServletHttpExchange httpExchange = new ServletHttpExchange(httpContext, req, resp)) {
+			ServletHttpSession httpSession = new ServletHttpSession(req.getSession());
+			httpExchange.setAttribute(RemoteAuthSession.class.getName(), httpSession);
 			Authenticator authenticator = httpContext.getAuthenticator();
 			if (authenticator != null) {
 				Authenticator.Result authenticationResult = authenticator.authenticate(httpExchange);
@@ -31,10 +36,14 @@ public class HttpContextServlet extends HttpServlet {
 					HttpPrincipal httpPrincipal = ((Authenticator.Success) authenticationResult).getPrincipal();
 					httpExchange.setPrincipal(httpPrincipal);
 				} else if (authenticationResult instanceof Authenticator.Retry) {
-					resp.setStatus(((Authenticator.Retry) authenticationResult).getResponseCode());
+					httpExchange.sendResponseHeaders((((Authenticator.Retry) authenticationResult).getResponseCode()),
+							-1);
+					resp.flushBuffer();
 					return;
 				} else if (authenticationResult instanceof Authenticator.Failure) {
-					resp.setStatus(((Authenticator.Failure) authenticationResult).getResponseCode());
+					httpExchange.sendResponseHeaders(((Authenticator.Failure) authenticationResult).getResponseCode(),
+							-1);
+					resp.flushBuffer();
 					return;
 				} else {
 					throw new UnsupportedOperationException(
@@ -46,5 +55,4 @@ public class HttpContextServlet extends HttpServlet {
 			httpHandler.handle(httpExchange);
 		}
 	}
-
 }

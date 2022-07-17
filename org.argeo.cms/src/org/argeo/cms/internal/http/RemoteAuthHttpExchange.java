@@ -3,6 +3,7 @@ package org.argeo.cms.internal.http;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
@@ -11,10 +12,13 @@ import org.argeo.cms.auth.RemoteAuthSession;
 import com.sun.net.httpserver.HttpExchange;
 
 public class RemoteAuthHttpExchange implements RemoteAuthRequest, RemoteAuthResponse {
-	private HttpExchange httpExchange;
+	private final HttpExchange httpExchange;
+	private RemoteAuthSession remoteAuthSession;
 
 	public RemoteAuthHttpExchange(HttpExchange httpExchange) {
 		this.httpExchange = httpExchange;
+		this.remoteAuthSession = (RemoteAuthSession) httpExchange.getAttribute(RemoteAuthSession.class.getName());
+		Objects.requireNonNull(this.remoteAuthSession);
 	}
 
 	@Override
@@ -24,14 +28,12 @@ public class RemoteAuthHttpExchange implements RemoteAuthRequest, RemoteAuthResp
 
 	@Override
 	public RemoteAuthSession getSession() {
-		// TODO Auto-generated method stub
-		return null;
+		return remoteAuthSession;
 	}
 
 	@Override
 	public RemoteAuthSession createSession() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("Cannot create remote session");
 	}
 
 	@Override
