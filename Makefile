@@ -1,20 +1,20 @@
 include sdk.mk
-.PHONY: clean all osgi jni
+.PHONY: clean all osgi jni move-swt move-rap
 
 all: osgi jni move-rap
 	$(MAKE) -f Makefile-rcp.mk
-
-move-swt: osgi
-	mkdir -p $(A2_OUTPUT)/swt/$(A2_CATEGORY)
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.swt.minidesktop.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.swt.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.e4.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
 
 move-rap: move-swt
 	mkdir -p $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
 	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
 	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.cli.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
 	touch $(BUILD_BASE)/*.rap/bnd.bnd
+
+move-swt: osgi
+	mkdir -p $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.swt.minidesktop.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.swt.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.e4.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
 
 A2_CATEGORY = org.argeo.cms
 
