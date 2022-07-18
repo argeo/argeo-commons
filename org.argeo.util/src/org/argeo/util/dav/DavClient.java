@@ -64,7 +64,7 @@ public class DavClient {
 					  <D:propname/>
 					</D:propfind>""";
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.Depth.name(), "1") //
+					.header(DavHeader.DEPTH.name(), "1") //
 					.method(DavMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
 					.build();
 
@@ -83,7 +83,7 @@ public class DavClient {
 	public boolean exists(URI uri) {
 		try {
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.Depth.name(), "0") //
+					.header(DavHeader.DEPTH.name(), "0") //
 					.method(DavMethod.HEAD.name(), BodyPublishers.noBody()) //
 					.build();
 			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
@@ -110,7 +110,7 @@ public class DavClient {
 					  <D:allprop/>
 					</D:propfind>""";
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.Depth.name(), "0") //
+					.header(DavHeader.DEPTH.name(), "0") //
 					.method(DavMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
 					.build();
 

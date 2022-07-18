@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.cms.auth.SpnegoLoginModule;
-import org.argeo.cms.servlet.internal.HttpUtils;
+import org.argeo.util.http.HttpHeader;
 
 /** Servlet context forcing authentication. */
 public class PrivateWwwAuthServletContext extends CmsServletContext {
@@ -23,9 +23,10 @@ public class PrivateWwwAuthServletContext extends CmsServletContext {
 		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
 		// realm=\"" + httpAuthRealm + "\"");
 		if (SpnegoLoginModule.hasAcceptorCredentials() && !forceBasic)// SPNEGO
-			response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "Negotiate");
+			response.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(), HttpHeader.NEGOTIATE);
 		else
-			response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "Basic realm=\"" + httpAuthRealm + "\"");
+			response.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(),
+					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + httpAuthRealm + "\"");
 
 		// response.setDateHeader("Date", System.currentTimeMillis());
 		// response.setDateHeader("Expires", System.currentTimeMillis() + (24 *

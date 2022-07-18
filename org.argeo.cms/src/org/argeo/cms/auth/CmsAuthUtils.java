@@ -34,8 +34,8 @@ class CmsAuthUtils {
 	// Standard
 	final static String SHARED_STATE_NAME = AuthenticatingUser.SHARED_STATE_NAME;
 	final static String SHARED_STATE_PWD = AuthenticatingUser.SHARED_STATE_PWD;
-	final static String HEADER_AUTHORIZATION = "Authorization";
-	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+//	final static String HEADER_AUTHORIZATION = "Authorization";
+//	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	// Argeo specific
 	final static String SHARED_STATE_HTTP_REQUEST = "org.argeo.cms.auth.http.request";

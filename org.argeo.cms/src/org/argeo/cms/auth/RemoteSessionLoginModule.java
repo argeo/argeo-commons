@@ -19,6 +19,7 @@ import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.internal.runtime.CmsStateImpl;
+import org.argeo.util.http.HttpHeader;
 import org.osgi.service.useradmin.Authorization;
 
 /** Use the HTTP session as the basis for authentication. */
@@ -32,8 +33,6 @@ public class RemoteSessionLoginModule implements LoginModule {
 	private RemoteAuthRequest request = null;
 	private RemoteAuthResponse response = null;
 
-//	private BundleContext bc;
-
 	private Authorization authorization;
 	private Locale locale;
 
@@ -41,8 +40,6 @@ public class RemoteSessionLoginModule implements LoginModule {
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
-//		bc = FrameworkUtil.getBundle(RemoteSessionLoginModule.class).getBundleContext();
-//		assert bc != null;
 		this.subject = subject;
 		this.callbackHandler = callbackHandler;
 		this.sharedState = (Map<String, Object>) sharedState;
@@ -117,7 +114,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		byte[] outToken = (byte[]) sharedState.get(CmsAuthUtils.SHARED_STATE_SPNEGO_OUT_TOKEN);
 		if (outToken != null) {
-			response.setHeader(CmsAuthUtils.HEADER_WWW_AUTHENTICATE,
+			response.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(),
 					"Negotiate " + java.util.Base64.getEncoder().encodeToString(outToken));
 		}
 
@@ -155,7 +152,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 	}
 
 	private void extractHttpAuth(final RemoteAuthRequest httpRequest) {
-		String authHeader = httpRequest.getHeader(CmsAuthUtils.HEADER_AUTHORIZATION);
+		String authHeader = httpRequest.getHeader(HttpHeader.AUTHORIZATION.getName());
 		extractHttpAuth(authHeader);
 	}
 
@@ -164,7 +161,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 			StringTokenizer st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
 				String basic = st.nextToken();
-				if (basic.equalsIgnoreCase("Basic")) {
+				if (basic.equalsIgnoreCase(HttpHeader.BASIC)) {
 					try {
 						// TODO manipulate char[]
 						Base64.Decoder decoder = Base64.getDecoder();
@@ -182,7 +179,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 					} catch (Exception e) {
 						throw new IllegalStateException("Couldn't retrieve authentication", e);
 					}
-				} else if (basic.equalsIgnoreCase("Negotiate")) {
+				} else if (basic.equalsIgnoreCase(HttpHeader.NEGOTIATE)) {
 					String spnegoToken = st.nextToken();
 					Base64.Decoder decoder = Base64.getDecoder();
 					byte[] authToken = decoder.decode(spnegoToken);

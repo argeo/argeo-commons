@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.argeo.api.cms.CmsLog;
 
 public class HttpUtils {
-	public final static String HEADER_AUTHORIZATION = "Authorization";
-	public final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+//	public final static String HEADER_AUTHORIZATION = "Authorization";
+//	public final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	static boolean isBrowser(String userAgent) {
 		return userAgent.contains("webkit") || userAgent.contains("gecko") || userAgent.contains("firefox")

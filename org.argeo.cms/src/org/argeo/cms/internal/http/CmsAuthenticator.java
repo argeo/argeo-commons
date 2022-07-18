@@ -9,14 +9,15 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.auth.SpnegoLoginModule;
+import org.argeo.util.http.HttpHeader;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpPrincipal;
 
 public class CmsAuthenticator extends Authenticator {
-	final static String HEADER_AUTHORIZATION = "Authorization";
-	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+//	final static String HEADER_AUTHORIZATION = "Authorization";
+//	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	private final static CmsLog log = CmsLog.getLog(CmsAuthenticator.class);
 
@@ -96,9 +97,10 @@ public class CmsAuthenticator extends Authenticator {
 		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
 		// realm=\"" + httpAuthRealm + "\"");
 		if (SpnegoLoginModule.hasAcceptorCredentials() && !forceBasic)// SPNEGO
-			httpExchange.getResponseHeaders().set(HEADER_WWW_AUTHENTICATE, "Negotiate");
+			httpExchange.getResponseHeaders().set(HttpHeader.WWW_AUTHENTICATE.getName(), HttpHeader.NEGOTIATE);
 		else
-			httpExchange.getResponseHeaders().set(HEADER_WWW_AUTHENTICATE, "Basic realm=\"" + httpAuthRealm + "\"");
+			httpExchange.getResponseHeaders().set(HttpHeader.WWW_AUTHENTICATE.getName(),
+					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + httpAuthRealm + "\"");
 
 		// response.setDateHeader("Date", System.currentTimeMillis());
 		// response.setDateHeader("Expires", System.currentTimeMillis() + (24 *
