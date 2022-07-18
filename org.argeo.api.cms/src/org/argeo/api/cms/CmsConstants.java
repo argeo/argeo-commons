@@ -80,6 +80,11 @@ public interface CmsConstants {
 	String NODE_SERVICE = NODE;
 
 	/*
+	 * COMPONENT PROPERTIES
+	 */
+	String CONTEXT_PATH = "context.path";
+
+	/*
 	 * INIT FRAMEWORK PROPERTIES
 	 */
 //	String NODE_INIT = "argeo.node.init";

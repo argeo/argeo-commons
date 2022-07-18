@@ -3,6 +3,6 @@
    <implementation class="org.argeo.cms.internal.runtime.CmsAcrHttpHandler"/>
    <service>
       <provide interface="com.sun.net.httpserver.HttpHandler"/>
-      <property name="contextPath" type="String" value="/api/acr" />
+      <property name="context.path" type="String" value="/api/acr" />
    </service>
 </scr:component>

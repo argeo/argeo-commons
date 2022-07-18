@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Reader;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -119,7 +117,7 @@ public class CmsStateImpl implements CmsState {
 			}
 
 		} catch (RuntimeException | IOException e) {
-			log.error("## FATAL: CMS activator failed", e);
+			log.error("## FATAL: CMS state failed", e);
 		}
 	}
 

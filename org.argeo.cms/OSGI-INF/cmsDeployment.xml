@@ -2,8 +2,8 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" immediate="true" name="CMS Deployment">
    <implementation class="org.argeo.cms.internal.runtime.CmsDeploymentImpl"/>
    <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
-   <reference bind="setHttpServer" cardinality="1..1" interface="com.sun.net.httpserver.HttpServer" policy="static"/>
-   <reference bind="addHttpHandler" unbind="removeHttpHandlerler" cardinality="0..1" interface="com.sun.net.httpserver.HttpHandler" policy="dynamic"/>
+   <reference bind="setHttpServer" cardinality="0..1" interface="com.sun.net.httpserver.HttpServer" policy="static"/>
+   <reference bind="addHttpHandler" unbind="removeHttpHandler" cardinality="0..1" interface="com.sun.net.httpserver.HttpHandler" policy="dynamic"/>
    <service>
       <provide interface="org.argeo.api.cms.CmsDeployment"/>
    </service>

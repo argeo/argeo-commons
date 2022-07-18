@@ -1,7 +1,11 @@
 package org.argeo.cms.internal.runtime;
 
-import java.util.Map;
+import static org.argeo.api.cms.CmsConstants.CONTEXT_PATH;
 
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
@@ -15,13 +19,14 @@ public class CmsDeploymentImpl implements CmsDeployment {
 	private final CmsLog log = CmsLog.getLog(getClass());
 
 	// Readiness
-	private boolean httpExpected = false;
 //	private HttpService httpService;
 
 	private CmsState cmsState;
 //	private DeployConfig deployConfig;
 
+	private boolean httpExpected = false;
 	private HttpServer httpServer;
+	private Map<String, HttpHandler> httpHandlers = new TreeMap<>();
 
 	public void start() {
 //		httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
@@ -78,21 +83,35 @@ public class CmsDeploymentImpl implements CmsDeployment {
 
 	public void setHttpServer(HttpServer httpServer) {
 		this.httpServer = httpServer;
+		// create contexts whose handles had already been published
+		for (String contextPath : httpHandlers.keySet()) {
+			HttpHandler httpHandler = httpHandlers.get(contextPath);
+			httpServer.createContext(contextPath, httpHandler);
+			log.debug(() -> "Added handler " + contextPath + " : " + httpHandler.getClass().getName());
+		}
 	}
 
 	public void addHttpHandler(HttpHandler httpHandler, Map<String, String> properties) {
+		final String contextPath = properties.get(CONTEXT_PATH);
+		if (contextPath == null) {
+			log.warn("Property " + CONTEXT_PATH + " not set on HTTP handler " + properties + ". Ignoring it.");
+			return;
+		}
+		httpHandlers.put(contextPath, httpHandler);
 		if (httpServer == null)
 			return;
-		final String contextPath = properties.get("contextPath");
 		httpServer.createContext(contextPath, httpHandler);
 		log.debug(() -> "Added handler " + contextPath + " : " + httpHandler.getClass().getName());
 
 	}
 
 	public void removeHttpHandler(HttpHandler httpHandler, Map<String, String> properties) {
+		final String contextPath = properties.get(CmsConstants.CONTEXT_PATH);
+		if (contextPath == null)
+			return; // ignore silently
+		httpHandlers.remove(contextPath);
 		if (httpServer == null)
 			return;
-		final String contextPath = properties.get("contextPath");
 		httpServer.removeContext(contextPath);
 		log.debug(() -> "Removed handler " + contextPath + " : " + httpHandler.getClass().getName());
 	}
