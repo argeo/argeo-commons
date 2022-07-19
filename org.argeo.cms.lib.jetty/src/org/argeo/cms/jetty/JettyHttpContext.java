@@ -9,12 +9,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.servlet.ServletContext;
+import javax.websocket.DeploymentException;
+import javax.websocket.server.ServerContainer;
+
 import org.argeo.cms.servlet.httpserver.HttpContextServlet;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.handler.ContextHandler;
+import org.argeo.cms.websocket.server.WebsocketEndpoints;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
+import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.Filter;
@@ -26,7 +31,7 @@ import com.sun.net.httpserver.HttpServer;
 class JettyHttpContext extends HttpContext {
 	private final JettyHttpServer httpServer;
 	private final String path;
-	private final ContextHandler contextHandler;
+	private final ServletContextHandler contextHandler;
 	private final ContextAttributes attributes;
 	private final List<Filter> filters = new ArrayList<>();
 
@@ -62,6 +67,25 @@ class JettyHttpContext extends HttpContext {
 			throw new IllegalArgumentException("Handler is already set");
 		Objects.requireNonNull(handler);
 		this.handler = handler;
+
+		// web socket
+		if (handler instanceof WebsocketEndpoints) {
+			JavaxWebSocketServletContainerInitializer.configure(contextHandler, new Configurator() {
+
+				@Override
+				public void accept(ServletContext servletContext, ServerContainer serverContainer)
+						throws DeploymentException {
+//					CmsWebSocketConfigurator wsEndpointConfigurator = new CmsWebSocketConfigurator();
+
+					for (Class<?> clss : ((WebsocketEndpoints) handler).getEndPoints()) {
+//						Class<?> clss = websocketEndpoints.get(path);
+//						ServerEndpointConfig config = ServerEndpointConfig.Builder.create(clss, path)
+//								.configurator(wsEndpointConfigurator).build();
+						serverContainer.addEndpoint(clss);
+					}
+				}
+			});
+		}
 
 		if (httpServer.isStarted())
 			try {
@@ -103,7 +127,7 @@ class JettyHttpContext extends HttpContext {
 		return authenticator;
 	}
 
-	public Handler getContextHandler() {
+	ServletContextHandler getContextHandler() {
 		return contextHandler;
 	}
 

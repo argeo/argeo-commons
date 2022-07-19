@@ -8,4 +8,5 @@ javax.servlet.*;version="[3,5)",\
 
 Service-Component:\
 OSGI-INF/pkgServletContext.xml,\
-OSGI-INF/pkgServlet.xml
+OSGI-INF/pkgServlet.xml,\
+OSGI-INF/statusHandler.xml,\

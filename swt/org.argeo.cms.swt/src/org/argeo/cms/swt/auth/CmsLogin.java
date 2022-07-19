@@ -4,6 +4,7 @@ import static org.argeo.cms.CmsMsg.password;
 import static org.argeo.cms.CmsMsg.username;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -278,6 +279,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 				loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
 			cmsView.authChange(loginContext);
+			cmsContext.sendEvent("cms", Collections.singletonMap("msg", "New login"));
 			return true;
 		} catch (LoginException e) {
 			if (log.isTraceEnabled())
@@ -298,7 +300,6 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		// return false;
 		// }
 	}
-
 
 	protected void logout() {
 		cmsView.logout();

@@ -1,37 +1,37 @@
-package org.argeo.cms.websocket.javax.server;
+package org.argeo.cms.websocket.server;
 
-import java.io.IOException;
-import java.security.AccessControlContext;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.websocket.CloseReason;
+import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
+import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.integration.CmsExceptionsChain;
+import org.argeo.util.naming.NamingUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-import org.osgi.service.http.context.ServletContextHelper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Provides WebSocket access. */
-@ServerEndpoint(value = "/ws/test/events/")
+@ServerEndpoint(value = "/test/{topic}", configurator = CmsWebSocketConfigurator.class)
 public class TestEndpoint implements EventHandler {
 	private final static CmsLog log = CmsLog.getLog(TestEndpoint.class);
 
@@ -58,7 +58,11 @@ public class TestEndpoint implements EventHandler {
 	private WebSocketView view;
 
 	@OnOpen
-	public void onWebSocketConnect(Session session) {
+	public void onOpen(Session session, EndpointConfig endpointConfig) {
+		Map<String, List<String>> parameters = NamingUtils.queryToMap(session.getRequestURI());
+		String path = NamingUtils.getQueryValue(parameters, "path");
+		log.debug("WS Path: " + path);
+
 		wsSessionId = session.getId();
 
 		// 24h timeout
@@ -107,7 +111,8 @@ public class TestEndpoint implements EventHandler {
 	}
 
 	@OnMessage
-	public void onWebSocketText(Session session, String message) throws JsonMappingException, JsonProcessingException {
+	public void onWebSocketText(@PathParam("topic") String topic, Session session, String message)
+			throws JsonMappingException, JsonProcessingException {
 		try {
 			if (log.isTraceEnabled())
 				log.trace("WS#" + view.getUid() + " received:\n" + message + "\n");
@@ -119,7 +124,7 @@ public class TestEndpoint implements EventHandler {
 //				view.checkRole(SPECIFIC_ROLE);
 //				computationUid= process();
 //			}
-			remote.sendText("ACK");
+			remote.sendText("ACK " + topic);
 		} catch (Exception e) {
 			log.error("Error when receiving web socket message", e);
 			sendSystemErrorMessage(e);

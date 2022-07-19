@@ -1,4 +1,4 @@
-package org.argeo.cms.websocket.javax.server;
+package org.argeo.cms.websocket.server;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -14,6 +14,7 @@ import javax.websocket.server.ServerEndpointConfig.Configurator;
 
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsState;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.auth.RemoteAuthSession;
 import org.argeo.cms.servlet.ServletHttpSession;
@@ -28,6 +29,16 @@ public class CmsWebSocketConfigurator extends Configurator {
 
 	private final static CmsLog log = CmsLog.getLog(CmsWebSocketConfigurator.class);
 	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+	
+	private CmsState cmsState;
+	
+	public void start() {
+		
+	}
+	
+	public void stop() {
+		
+	}
 
 	@Override
 	public boolean checkOrigin(String originHeaderValue) {

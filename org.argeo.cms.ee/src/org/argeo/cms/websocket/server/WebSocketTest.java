@@ -1,4 +1,4 @@
-package org.argeo.cms.websocket.javax.server;
+package org.argeo.cms.websocket.server;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -24,7 +24,7 @@ public class WebSocketTest {
 
 		HttpClient client = HttpClient.newHttpClient();
 		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder()
-				.buildAsync(URI.create("ws://localhost:7070/ws/test/events/"), listener);
+				.buildAsync(URI.create("ws://localhost:7070/cms/status/test/my%20topic?path=my%2Frelative%2Fpath"), listener);
 		WebSocket webSocket = ws.get();
 		webSocket.sendText("TEST", true);
 

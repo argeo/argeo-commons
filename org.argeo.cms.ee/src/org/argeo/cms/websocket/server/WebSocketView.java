@@ -1,4 +1,4 @@
-package org.argeo.cms.websocket.javax.server;
+package org.argeo.cms.websocket.server;
 
 import java.security.Principal;
 import java.util.HashSet;

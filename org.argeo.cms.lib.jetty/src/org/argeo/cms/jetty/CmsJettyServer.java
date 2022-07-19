@@ -3,6 +3,7 @@ package org.argeo.cms.jetty;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -14,8 +15,8 @@ import com.sun.net.httpserver.HttpContext;
 
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
-import org.argeo.cms.websocket.javax.server.CmsWebSocketConfigurator;
-import org.argeo.cms.websocket.javax.server.TestEndpoint;
+import org.argeo.cms.websocket.server.CmsWebSocketConfigurator;
+import org.argeo.cms.websocket.server.TestEndpoint;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
@@ -35,7 +36,7 @@ public class CmsJettyServer extends JettyHttpServer {
 	private Path tempDir;
 
 	// WebSocket
-	private ServerContainer wsServerContainer;
+//	private ServerContainer wsServerContainer;
 	private ServerEndpointConfig.Configurator wsEndpointConfigurator;
 
 	private CmsState cmsState;
@@ -88,25 +89,25 @@ public class CmsJettyServer extends JettyHttpServer {
 		String webSocketEnabled = getDeployProperty(CmsDeployProperty.WEBSOCKET_ENABLED);
 		// web socket
 		if (webSocketEnabled != null && webSocketEnabled.equals(Boolean.toString(true))) {
-			JavaxWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
-
-				@Override
-				public void accept(ServletContext servletContext, ServerContainer serverContainer)
-						throws DeploymentException {
-					wsServerContainer = serverContainer;
-
-					wsEndpointConfigurator = new CmsWebSocketConfigurator();
-
-					ServerEndpointConfig config = ServerEndpointConfig.Builder
-							.create(TestEndpoint.class, "/ws/test/events/").configurator(wsEndpointConfigurator)
-							.build();
-					try {
-						wsServerContainer.addEndpoint(config);
-					} catch (DeploymentException e) {
-						throw new IllegalStateException("Cannot initalise the WebSocket server runtime.", e);
-					}
-				}
-			});
+//			JavaxWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
+//
+//				@Override
+//				public void accept(ServletContext servletContext, ServerContainer serverContainer)
+//						throws DeploymentException {
+////					wsServerContainer = serverContainer;
+//
+//					CmsWebSocketConfigurator wsEndpointConfigurator = new CmsWebSocketConfigurator();
+//
+//					ServerEndpointConfig config = ServerEndpointConfig.Builder
+//							.create(TestEndpoint.class, "/ws/test/events/{topic}").configurator(wsEndpointConfigurator)
+//							.build();
+//					try {
+//						serverContainer.addEndpoint(config);
+//					} catch (DeploymentException e) {
+//						throw new IllegalStateException("Cannot initalise the WebSocket server runtime.", e);
+//					}
+//				}
+//			});
 		}
 	}
 
