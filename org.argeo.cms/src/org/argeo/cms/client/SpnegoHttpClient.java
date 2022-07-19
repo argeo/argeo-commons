@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.http.client;
+package org.argeo.cms.client;
 
 import java.net.MalformedURLException;
 import java.net.URL;

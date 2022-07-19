@@ -1,4 +1,4 @@
-package org.argeo.cms.websocket.server;
+package org.argeo.cms.client;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -11,6 +11,12 @@ import java.util.concurrent.CompletionStage;
 public class WebSocketEventClient {
 
 	public static void main(String[] args) throws Exception {
+		if (args.length == 0) {
+			System.err.println("usage: java " + WebSocketEventClient.class.getName() + " <url>");
+			System.exit(1);
+			return;
+		}
+		URI uri = URI.create(args[0]);
 		WebSocket.Listener listener = new WebSocket.Listener() {
 
 			public CompletionStage<?> onText(WebSocket webSocket, CharSequence message, boolean last) {
@@ -28,8 +34,7 @@ public class WebSocketEventClient {
 		};
 
 		HttpClient client = HttpClient.newHttpClient();
-		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder()
-				.buildAsync(URI.create("ws://localhost:7070/cms/status/event/cms"), listener);
+		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder().buildAsync(uri, listener);
 		WebSocket webSocket = ws.get();
 		webSocket.request(Long.MAX_VALUE);
 
