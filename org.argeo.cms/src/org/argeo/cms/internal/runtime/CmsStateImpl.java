@@ -1,7 +1,5 @@
 package org.argeo.cms.internal.runtime;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
@@ -23,13 +21,13 @@ import java.util.UUID;
 
 import javax.security.auth.login.Configuration;
 
-import org.apache.commons.io.FileUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.auth.ident.IdentClient;
+import org.argeo.util.FsUtils;
 
 /**
  * Implementation of a {@link CmsState}, initialising the required services.
@@ -57,12 +55,16 @@ public class CmsStateImpl implements CmsState {
 		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
 		deployPropertyDefaults.put(CmsDeployProperty.SSL_PASSWORD, PkiUtils.DEFAULT_KEYSTORE_PASSWORD);
 		Path keyStorePath = getDataPath(PkiUtils.DEFAULT_KEYSTORE_PATH);
-		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORE, keyStorePath.toAbsolutePath().toString());
+		if (keyStorePath != null) {
+			deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORE, keyStorePath.toAbsolutePath().toString());
+		}
 
 		Path trustStorePath = getDataPath(PkiUtils.DEFAULT_TRUSTSTORE_PATH);
+		if (trustStorePath != null) {
+			deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORE, trustStorePath.toAbsolutePath().toString());
+		}
 		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORETYPE, PkiUtils.PKCS12);
 		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD, PkiUtils.DEFAULT_KEYSTORE_PASSWORD);
-		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORE, trustStorePath.toAbsolutePath().toString());
 
 		this.deployPropertyDefaults = Collections.unmodifiableMap(deployPropertyDefaults);
 	}
@@ -110,9 +112,8 @@ public class CmsStateImpl implements CmsState {
 				log.debug("## CMS starting... (" + uuid + ")\n" + sb + "\n");
 			}
 
-//		initI18n();
-//		initServices();
-			if (!Files.exists(getDataPath(CmsConstants.NODE))) {// first init
+			Path nodeBase = getDataPath(CmsConstants.NODE);
+			if (nodeBase != null && !Files.exists(nodeBase)) {// first init
 				firstInit();
 			}
 
@@ -351,7 +352,7 @@ public class CmsStateImpl implements CmsState {
 	public static void prepareFirstInitInstanceArea(List<String> nodeInits) {
 
 		for (String nodeInit : nodeInits) {
-			if(nodeInit==null)
+			if (nodeInit == null)
 				continue;
 
 			if (nodeInit.startsWith("http")) {
@@ -360,29 +361,17 @@ public class CmsStateImpl implements CmsState {
 			} else {
 
 				// TODO use java.nio.file
-				File initDir;
+				Path initDir;
 				if (nodeInit.startsWith("."))
 					initDir = KernelUtils.getExecutionDir(nodeInit);
 				else
-					initDir = new File(nodeInit);
+					initDir = Paths.get(nodeInit);
 				// TODO also uncompress archives
-				if (initDir.exists())
-					try {
-						// TODO use NIO utilities
-						FileUtils.copyDirectory(initDir, KernelUtils.getOsgiInstancePath("").toFile(),
-								new FileFilter() {
-
-									@Override
-									public boolean accept(File pathname) {
-										if (pathname.getName().equals(".svn") || pathname.getName().equals(".git"))
-											return false;
-										return true;
-									}
-								});
-						log.info("CMS initialized from " + initDir.getCanonicalPath());
-					} catch (IOException e) {
-						throw new RuntimeException("Cannot initialize from " + initDir, e);
-					}
+				if (Files.exists(initDir)) {
+					Path dataPath = KernelUtils.getOsgiInstancePath("");
+					FsUtils.copyDirectory(initDir, dataPath);
+					log.info("CMS initialized from " + initDir);
+				}
 			}
 		}
 	}

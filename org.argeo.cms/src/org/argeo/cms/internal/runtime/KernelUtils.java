@@ -1,6 +1,5 @@
 package org.argeo.cms.internal.runtime;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
@@ -52,12 +51,12 @@ class KernelUtils implements KernelConstants {
 		return asDictionary(props);
 	}
 
-	static File getExecutionDir(String relativePath) {
-		File executionDir = new File(getFrameworkProp("user.dir"));
+	static Path getExecutionDir(String relativePath) {
+		Path executionDir = Paths.get(getFrameworkProp("user.dir"));
 		if (relativePath == null)
 			return executionDir;
 		try {
-			return new File(executionDir, relativePath).getCanonicalFile();
+			return executionDir.resolve(relativePath).toRealPath();
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot get canonical file", e);
 		}
@@ -69,28 +68,34 @@ class KernelUtils implements KernelConstants {
 //	}
 
 	public static Path getOsgiInstancePath(String relativePath) {
-		return Paths.get(getOsgiInstanceUri(relativePath));
+		URI uri = getOsgiInstanceUri(relativePath);
+		if (uri == null) // no data area available
+			return null;
+		return Paths.get(uri);
 	}
 
 	public static URI getOsgiInstanceUri(String relativePath) {
 		String osgiInstanceBaseUri = getFrameworkProp(OSGI_INSTANCE_AREA);
+		if (osgiInstanceBaseUri == null) // no data area available
+			return null;
+
 		if (!osgiInstanceBaseUri.endsWith("/"))
 			osgiInstanceBaseUri = osgiInstanceBaseUri + "/";
-		if (osgiInstanceBaseUri != null)
-			return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
-		else
-			return Paths.get(System.getProperty("user.dir"), (relativePath != null ? relativePath : "")).toUri();
+//		if (osgiInstanceBaseUri != null)
+		return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
+//		else
+//			return Paths.get(System.getProperty("user.dir"), (relativePath != null ? relativePath : "")).toUri();
 	}
 
-	static File getOsgiConfigurationFile(String relativePath) {
-		try {
-			return new File(
-					new URI(CmsActivator.getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
-					.getCanonicalFile();
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Cannot get configuration file for " + relativePath, e);
-		}
-	}
+//	static File getOsgiConfigurationFile(String relativePath) {
+//		try {
+//			return new File(
+//					new URI(CmsActivator.getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
+//					.getCanonicalFile();
+//		} catch (Exception e) {
+//			throw new IllegalArgumentException("Cannot get configuration file for " + relativePath, e);
+//		}
+//	}
 
 	static String getFrameworkProp(String key, String def) {
 		String value;

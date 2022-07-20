@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -17,8 +16,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.argeo.api.cms.ux.CmsTheme;
+import org.argeo.util.StreamUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -213,7 +212,7 @@ public class BundleCmsTheme implements CmsTheme {
 
 	void loadBodyHtml(URL url) {
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), UTF_8))) {
-			bodyHtml = IOUtils.toString(url, StandardCharsets.UTF_8);
+			bodyHtml = StreamUtils.toString(in);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot load URL " + url, e);
 		}

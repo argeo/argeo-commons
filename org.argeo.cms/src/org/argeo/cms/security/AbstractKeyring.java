@@ -24,9 +24,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.io.IOUtils;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.util.CurrentSubject;
+import org.argeo.util.StreamUtils;
 
 /** username / password based keyring. TODO internationalize */
 public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
@@ -109,7 +109,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 		try (InputStream in = getAsStream(path);
 				CharArrayWriter writer = new CharArrayWriter();
 				Reader reader = new InputStreamReader(in, charset);) {
-			IOUtils.copy(reader, writer);
+			StreamUtils.copy(reader, writer);
 			return writer.toCharArray();
 		} catch (IOException e) {
 			throw new IllegalStateException("Cannot decrypt to char array", e);

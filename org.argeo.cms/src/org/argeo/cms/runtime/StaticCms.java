@@ -31,7 +31,7 @@ import org.osgi.service.useradmin.UserAdmin;
  * deployment. Useful for testing or AOT compilation.
  */
 public class StaticCms {
-	private static SimpleRegister register = new SimpleRegister();
+	private SimpleRegister register = new SimpleRegister();
 
 	private CompletableFuture<Void> stopped = new CompletableFuture<Void>();
 
@@ -51,14 +51,6 @@ public class StaticCms {
 				.addDependency(uuidFactoryC.getType(UuidFactory.class), cmsState::setUuidFactory, null) //
 				.build(register);
 
-		// Deployment Configuration
-//		DeployConfig deployConfig = new DeployConfig();
-//		Component<DeployConfig> deployConfigC = new Component.Builder<>(deployConfig) //
-//				.addType(DeployConfig.class) //
-//				.addActivation(deployConfig::start) //
-//				.addDeactivation(deployConfig::stop) //
-//				.build(register);
-
 		// Transaction manager
 		SimpleTransactionManager transactionManager = new SimpleTransactionManager();
 		Component<SimpleTransactionManager> transactionManagerC = new Component.Builder<>(transactionManager) //
@@ -75,10 +67,6 @@ public class StaticCms {
 				.addDependency(cmsStateC.getType(CmsState.class), userAdmin::setCmsState, null) //
 				.addDependency(transactionManagerC.getType(WorkControl.class), userAdmin::setTransactionManager, null) //
 				.addDependency(transactionManagerC.getType(WorkTransaction.class), userAdmin::setUserTransaction, null) //
-//				.addDependency(deployConfigC.getType(DeployConfig.class), (d) -> {
-//					for (Dictionary<String, Object> userDirectoryConfig : d.getUserDirectoryConfigs())
-//						userAdmin.enableUserDirectory(userDirectoryConfig);
-//				}, null) //
 				.build(register);
 
 		// User manager

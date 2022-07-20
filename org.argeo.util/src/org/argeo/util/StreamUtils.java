@@ -1,13 +1,15 @@
 package org.argeo.util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.StringJoiner;
 
-/** Utilities to be used when Apache Commons IO is not available. */
-class StreamUtils {
+/** Stream utilities to be used when Apache Commons IO is not available. */
+public class StreamUtils {
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 	/*
@@ -15,8 +17,7 @@ class StreamUtils {
 	 */
 
 	/** @return the number of bytes */
-	public static Long copy(InputStream in, OutputStream out)
-			throws IOException {
+	public static Long copy(InputStream in, OutputStream out) throws IOException {
 		Long count = 0l;
 		byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
 		while (true) {
@@ -77,5 +78,13 @@ class StreamUtils {
 			} catch (Exception e) {
 				//
 			}
+	}
+
+	public static String toString(BufferedReader reader) throws IOException {
+		StringJoiner sn = new StringJoiner("\n");
+		String line = null;
+		while ((line = reader.readLine()) != null)
+			sn.add(line);
+		return sn.toString();
 	}
 }

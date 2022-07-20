@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +15,7 @@ import java.util.TreeSet;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.DirectoryConf;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -251,7 +253,12 @@ public class AggregatingUserAdmin implements UserAdmin {
 //	}
 
 	public void start() {
-
+		if (systemRoles == null) {
+			// TODO do we really need separate system roles?
+			Hashtable<String, Object> properties = new Hashtable<>();
+			properties.put(DirectoryConf.baseDn.name(), "ou=roles,ou=system");
+			systemRoles = new DirectoryUserAdmin(properties);
+		}
 	}
 
 	public void stop() {

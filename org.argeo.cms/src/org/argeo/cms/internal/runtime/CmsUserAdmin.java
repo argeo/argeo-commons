@@ -1,6 +1,5 @@
 package org.argeo.cms.internal.runtime;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
@@ -8,6 +7,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -25,7 +25,6 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.io.FileUtils;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
@@ -89,42 +88,42 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 
 	protected List<Dictionary<String, Object>> getUserDirectoryConfigs() {
 		List<Dictionary<String, Object>> res = new ArrayList<>();
-		File nodeBaseDir = cmsState.getDataPath(KernelConstants.DIR_NODE).toFile();
+		Path nodeBase = cmsState.getDataPath(KernelConstants.DIR_NODE);
 		List<String> uris = new ArrayList<>();
 
 		// node roles
 		String nodeRolesUri = null;// getFrameworkProp(CmsConstants.ROLES_URI);
 		String baseNodeRoleDn = CmsConstants.ROLES_BASEDN;
-		if (nodeRolesUri == null) {
+		if (nodeRolesUri == null && nodeBase != null) {
 			nodeRolesUri = baseNodeRoleDn + ".ldif";
-			File nodeRolesFile = new File(nodeBaseDir, nodeRolesUri);
-			if (!nodeRolesFile.exists())
+			Path nodeRolesFile = nodeBase.resolve(nodeRolesUri);
+			if (!Files.exists(nodeRolesFile))
 				try {
-					FileUtils.copyInputStreamToFile(CmsUserAdmin.class.getResourceAsStream(baseNodeRoleDn + ".ldif"),
-							nodeRolesFile);
+					Files.copy(CmsUserAdmin.class.getResourceAsStream(baseNodeRoleDn + ".ldif"), nodeRolesFile);
 				} catch (IOException e) {
 					throw new RuntimeException("Cannot copy demo resource", e);
 				}
 			// nodeRolesUri = nodeRolesFile.toURI().toString();
 		}
-		uris.add(nodeRolesUri);
+		if (nodeRolesUri != null)
+			uris.add(nodeRolesUri);
 
 		// node tokens
 		String nodeTokensUri = null;// getFrameworkProp(CmsConstants.TOKENS_URI);
 		String baseNodeTokensDn = CmsConstants.TOKENS_BASEDN;
-		if (nodeTokensUri == null) {
+		if (nodeTokensUri == null && nodeBase != null) {
 			nodeTokensUri = baseNodeTokensDn + ".ldif";
-			File nodeTokensFile = new File(nodeBaseDir, nodeTokensUri);
-			if (!nodeTokensFile.exists())
+			Path nodeTokensFile = nodeBase.resolve(nodeTokensUri);
+			if (!Files.exists(nodeTokensFile))
 				try {
-					FileUtils.copyInputStreamToFile(CmsUserAdmin.class.getResourceAsStream(baseNodeTokensDn + ".ldif"),
-							nodeTokensFile);
+					Files.copy(CmsUserAdmin.class.getResourceAsStream(baseNodeTokensDn + ".ldif"), nodeTokensFile);
 				} catch (IOException e) {
 					throw new RuntimeException("Cannot copy demo resource", e);
 				}
 			// nodeRolesUri = nodeRolesFile.toURI().toString();
 		}
-		uris.add(nodeTokensUri);
+		if (nodeTokensUri != null)
+			uris.add(nodeTokensUri);
 
 		// Business roles
 //		String userAdminUris = getFrameworkProp(CmsConstants.USERADMIN_URIS);
@@ -136,19 +135,17 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 			uris.add(userAdminUri);
 		}
 
-		if (uris.size() == 0) {
+		if (uris.size() == 0 && nodeBase != null) {
 			// TODO put this somewhere else
 			String demoBaseDn = "dc=example,dc=com";
 			String userAdminUri = demoBaseDn + ".ldif";
-			File businessRolesFile = new File(nodeBaseDir, userAdminUri);
-			File systemRolesFile = new File(nodeBaseDir, "ou=roles,ou=node.ldif");
-			if (!businessRolesFile.exists())
+			Path businessRolesFile = nodeBase.resolve(userAdminUri);
+			Path systemRolesFile = nodeBase.resolve("ou=roles,ou=node.ldif");
+			if (!Files.exists(businessRolesFile))
 				try {
-					FileUtils.copyInputStreamToFile(CmsUserAdmin.class.getResourceAsStream(demoBaseDn + ".ldif"),
-							businessRolesFile);
-					if (!systemRolesFile.exists())
-						FileUtils.copyInputStreamToFile(
-								CmsUserAdmin.class.getResourceAsStream("example-ou=roles,ou=node.ldif"),
+					Files.copy(CmsUserAdmin.class.getResourceAsStream(demoBaseDn + ".ldif"), businessRolesFile);
+					if (!Files.exists(systemRolesFile))
+						Files.copy(CmsUserAdmin.class.getResourceAsStream("example-ou=roles,ou=node.ldif"),
 								systemRolesFile);
 				} catch (IOException e) {
 					throw new RuntimeException("Cannot copy demo resources", e);
@@ -168,14 +165,14 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 							"URI " + uri + " must have a path in order to determine base DN");
 				if (u.getScheme() == null) {
 					if (uri.startsWith("/") || uri.startsWith("./") || uri.startsWith("../"))
-						u = new File(uri).getCanonicalFile().toURI();
+						u = Paths.get(uri).toRealPath().toUri();
 					else if (!uri.contains("/")) {
 						// u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + uri);
 						u = new URI(uri);
 					} else
 						throw new IllegalArgumentException("Cannot interpret " + uri + " as an uri");
 				} else if (u.getScheme().equals(DirectoryConf.SCHEME_FILE)) {
-					u = new File(u).getCanonicalFile().toURI();
+					u = Paths.get(u).toRealPath().toUri();
 				}
 			} catch (Exception e) {
 				throw new RuntimeException("Cannot interpret " + uri + " as an uri", e);

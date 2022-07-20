@@ -15,10 +15,10 @@ import org.argeo.util.naming.NamingUtils;
 /** Properties used to configure user admins. */
 public enum DirectoryConf {
 	/** Base DN (cannot be configured externally) */
-	baseDn("dc=example,dc=com"),
+	baseDn(null),
 
 	/** URI of the underlying resource (cannot be configured externally) */
-	uri("ldap://localhost:10389"),
+	uri(null),
 
 	/** User objectClass */
 	userObjectClass("inetOrgPerson"),

@@ -15,6 +15,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentNotFoundException;
+import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
@@ -79,7 +80,7 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 			throw new IllegalArgumentException("Relative path cannot start with /");
 		String xPathExpression = '/' + relativePath;
 		if ("/".equals(mountPath))
-			xPathExpression = "/cr:root" + xPathExpression;
+			xPathExpression = "/" + CrName.root.qName() + xPathExpression;
 		try {
 			NodeList nodes = (NodeList) xPath.get().evaluate(xPathExpression, document, XPathConstants.NODESET);
 			return nodes;

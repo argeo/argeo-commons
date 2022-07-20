@@ -31,9 +31,11 @@ public class DeployedContentRepository extends CmsContentRepository {
 
 			// run dir
 			Path runDirPath = KernelUtils.getOsgiInstancePath(CmsContentRepository.RUN_BASE);
-			Files.createDirectories(runDirPath);
-			FsContentProvider runContentProvider = new FsContentProvider(CmsContentRepository.RUN_BASE, runDirPath);
-			addProvider(runContentProvider);
+			if (runDirPath != null) {
+				Files.createDirectories(runDirPath);
+				FsContentProvider runContentProvider = new FsContentProvider(CmsContentRepository.RUN_BASE, runDirPath);
+				addProvider(runContentProvider);
+			}
 
 			// users
 			DirectoryContentProvider directoryContentProvider = new DirectoryContentProvider(

@@ -66,7 +66,11 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 			String key = keys.nextElement();
 			configProperties.put(key, props.get(key));
 		}
-		baseDn = toLdapName(DirectoryConf.baseDn.getValue(configProperties));
+
+		String baseDnStr = DirectoryConf.baseDn.getValue(configProperties);
+		if (baseDnStr == null)
+			throw new IllegalArgumentException("Base DN must be specified: " + configProperties);
+		baseDn = toLdapName(baseDnStr);
 		this.scoped = scoped;
 
 		if (uriArg != null) {
@@ -119,19 +123,26 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 			// TODO manage generic redundant LDAP case
 			directoryDao = new LdapDao(this);
 		} else {
-			URI u = URI.create(uri);
-			if (DirectoryConf.SCHEME_LDAP.equals(u.getScheme()) || DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
-				directoryDao = new LdapDao(this);
-			} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
-				directoryDao = new LdifDao(this);
-			} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
-				directoryDao = new OsUserDirectory(this);
-				// singleUser = true;
+			if (uri != null) {
+				URI u = URI.create(uri);
+				if (DirectoryConf.SCHEME_LDAP.equals(u.getScheme())
+						|| DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
+					directoryDao = new LdapDao(this);
+				} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
+					directoryDao = new LdifDao(this);
+				} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
+					directoryDao = new OsUserDirectory(this);
+					// singleUser = true;
+				} else {
+					throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
+				}
 			} else {
-				throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
+				// in memory
+				directoryDao = new LdifDao(this);
 			}
 		}
-		xaResource = new WorkingCopyXaResource<>(directoryDao);
+		if (directoryDao != null)
+			xaResource = new WorkingCopyXaResource<>(directoryDao);
 	}
 
 	/*
@@ -256,11 +267,12 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 					LdapEntry group = doGetRole(groupDn);
 					if (group != null) {
 						allRoles.add(group);
-					}else {
+					} else {
 						// user doesn't have the right to retrieve role, but we know it exists
 						// otherwise memberOf would not work
 						Attributes a = new BasicAttributes();
-						a.put(LdapNameUtils.getLastRdn(groupDn).getType(), LdapNameUtils.getLastRdn(groupDn).getValue());
+						a.put(LdapNameUtils.getLastRdn(groupDn).getType(),
+								LdapNameUtils.getLastRdn(groupDn).getValue());
 						a.put(LdapAttrs.objectClass.name(), LdapObjs.groupOfNames.name());
 						group = newGroup(groupDn, a);
 						allRoles.add(group);
@@ -378,7 +390,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	protected boolean isExternal(LdapName name) {
 		return !name.startsWith(baseDn);
 	}
-	
+
 	protected static boolean hasObjectClass(Attributes attrs, LdapObjs objectClass) {
 		return hasObjectClass(attrs, objectClass.name());
 	}
