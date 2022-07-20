@@ -3,6 +3,7 @@ package org.argeo.cms.client;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
@@ -18,11 +19,12 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import org.argeo.cms.auth.RemoteAuthUtils;
+import org.argeo.util.http.HttpHeader;
 
 public class SpnegoHttpClient {
 	public static void main(String[] args) throws MalformedURLException {
 //		String principal = System.getProperty("javax.security.auth.login.name");
-		if (args.length == 0 ) {
+		if (args.length == 0) {
 			System.err.println("usage: java -Djavax.security.auth.login.name=<principal@REALM> "
 					+ SpnegoHttpClient.class.getName() + " <url>");
 			System.exit(1);
@@ -31,7 +33,7 @@ public class SpnegoHttpClient {
 		String url = args[0];
 		URL u = new URL(url);
 		String server = u.getHost();
-		
+
 		URL jaasUrl = SpnegoHttpClient.class.getResource("jaas.cfg");
 		System.setProperty("java.security.auth.login.config", jaasUrl.toExternalForm());
 		try {
@@ -53,7 +55,7 @@ public class SpnegoHttpClient {
 			String token = RemoteAuthUtils.getGssToken(lc.getSubject(), "HTTP", server);
 
 			HttpRequest request = HttpRequest.newBuilder().uri(u.toURI()) //
-					.header("Authorization", "Negotiate " + token) //
+					.header(HttpHeader.AUTHORIZATION.getName(), HttpHeader.NEGOTIATE + " " + token) //
 					.build();
 			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);

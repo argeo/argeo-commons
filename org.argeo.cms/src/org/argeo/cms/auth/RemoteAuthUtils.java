@@ -8,9 +8,15 @@ import java.util.function.Supplier;
 
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosTicket;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
+import org.argeo.cms.internal.http.CmsAuthenticator;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.util.http.HttpHeader;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -19,6 +25,8 @@ import org.ietf.jgss.Oid;
 
 /** Remote authentication utilities. */
 public class RemoteAuthUtils {
+	private final static CmsLog log = CmsLog.getLog(RemoteAuthUtils.class);
+
 	static final String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
 	private final static Oid KERBEROS_OID;
 //	private final static Oid KERB_V5_OID, KRB5_PRINCIPAL_NAME_OID;
@@ -117,4 +125,44 @@ public class RemoteAuthUtils {
 			}
 		});
 	}
+
+	public static LoginContext anonymousLogin(RemoteAuthRequest remoteAuthRequest,
+			RemoteAuthResponse remoteAuthResponse) {
+		// anonymous
+		ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread().setContextClassLoader(CmsAuthenticator.class.getClassLoader());
+			LoginContext lc = CmsAuth.ANONYMOUS
+					.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthRequest, remoteAuthResponse));
+			lc.login();
+			return lc;
+		} catch (LoginException e1) {
+			if (log.isDebugEnabled())
+				log.error("Cannot log in as anonymous", e1);
+			return null;
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentContextClassLoader);
+		}
+	}
+
+	public static int askForWwwAuth(RemoteAuthResponse remoteAuthResponse, String realm, boolean forceBasic) {
+		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
+		// realm=\"" + httpAuthRealm + "\"");
+		if (SpnegoLoginModule.hasAcceptorCredentials() && !forceBasic)// SPNEGO
+			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(), HttpHeader.NEGOTIATE);
+		else
+			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(),
+					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + realm + "\"");
+
+		// response.setDateHeader("Date", System.currentTimeMillis());
+		// response.setDateHeader("Expires", System.currentTimeMillis() + (24 *
+		// 60 * 60 * 1000));
+		// response.setHeader("Accept-Ranges", "bytes");
+		// response.setHeader("Connection", "Keep-Alive");
+		// response.setHeader("Keep-Alive", "timeout=5, max=97");
+		// response.setContentType("text/html; charset=UTF-8");
+
+		return 401;
+	}
+
 }

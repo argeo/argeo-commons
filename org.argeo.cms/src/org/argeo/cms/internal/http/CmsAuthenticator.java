@@ -8,8 +8,10 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
-import org.argeo.cms.auth.SpnegoLoginModule;
-import org.argeo.util.http.HttpHeader;
+import org.argeo.cms.auth.RemoteAuthRequest;
+import org.argeo.cms.auth.RemoteAuthResponse;
+import org.argeo.cms.auth.RemoteAuthUtils;
+import org.argeo.util.CurrentSubject;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpExchange;
@@ -29,22 +31,21 @@ public class CmsAuthenticator extends Authenticator {
 	public Result authenticate(HttpExchange exch) {
 //		if (log.isTraceEnabled())
 //			HttpUtils.logRequestHeaders(log, request);
-		RemoteAuthHttpExchange remoteAuthHttpExchange = new RemoteAuthHttpExchange(exch);
+		RemoteAuthHttpExchange remoteAuthExchange = new RemoteAuthHttpExchange(exch);
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(CmsAuthenticator.class.getClassLoader());
 		LoginContext lc;
 		try {
-			lc = CmsAuth.USER
-					.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthHttpExchange, remoteAuthHttpExchange));
+			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthExchange, remoteAuthExchange));
 			lc.login();
 		} catch (LoginException e) {
 			// FIXME better analyse failure so as not to try endlessly
-			if (authIsRequired(exch)) {
-				return askForWwwAuth(exch);
+			if (authIsRequired(remoteAuthExchange,remoteAuthExchange)) {
+				int statusCode = RemoteAuthUtils.askForWwwAuth(remoteAuthExchange, httpAuthRealm, forceBasic);
+				return new Authenticator.Retry(statusCode);
+
 			} else {
-				lc = processUnauthorized(exch);
-//			if (log.isTraceEnabled())
-//				HttpUtils.logResponseHeaders(log, response);
+				lc = RemoteAuthUtils.anonymousLogin(remoteAuthExchange, remoteAuthExchange);
 			}
 			if (lc == null)
 				return new Authenticator.Failure(403);
@@ -54,6 +55,10 @@ public class CmsAuthenticator extends Authenticator {
 
 		Subject subject = lc.getSubject();
 
+		CurrentSubject.callAs(subject, () -> {
+			RemoteAuthUtils.configureRequestSecurity(remoteAuthExchange);
+			return null;
+		});
 //		Subject.doAs(subject, new PrivilegedAction<Void>() {
 //
 //			@Override
@@ -69,48 +74,9 @@ public class CmsAuthenticator extends Authenticator {
 		return new Authenticator.Success(httpPrincipal);
 	}
 
-	protected boolean authIsRequired(HttpExchange httpExchange) {
+	protected boolean authIsRequired(RemoteAuthRequest remoteAuthRequest,
+			RemoteAuthResponse remoteAuthResponse) {
 		return true;
-	}
-
-	protected LoginContext processUnauthorized(HttpExchange httpExchange) {
-
-		RemoteAuthHttpExchange remoteAuthExchange = new RemoteAuthHttpExchange(httpExchange);
-		// anonymous
-		ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(CmsAuthenticator.class.getClassLoader());
-			LoginContext lc = CmsAuth.ANONYMOUS
-					.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthExchange, remoteAuthExchange));
-			lc.login();
-			return lc;
-		} catch (LoginException e1) {
-			if (log.isDebugEnabled())
-				log.error("Cannot log in as anonymous", e1);
-			return null;
-		} finally {
-			Thread.currentThread().setContextClassLoader(currentContextClassLoader);
-		}
-	}
-
-	protected Authenticator.Retry askForWwwAuth(HttpExchange httpExchange) {
-		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
-		// realm=\"" + httpAuthRealm + "\"");
-		if (SpnegoLoginModule.hasAcceptorCredentials() && !forceBasic)// SPNEGO
-			httpExchange.getResponseHeaders().set(HttpHeader.WWW_AUTHENTICATE.getName(), HttpHeader.NEGOTIATE);
-		else
-			httpExchange.getResponseHeaders().set(HttpHeader.WWW_AUTHENTICATE.getName(),
-					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + httpAuthRealm + "\"");
-
-		// response.setDateHeader("Date", System.currentTimeMillis());
-		// response.setDateHeader("Expires", System.currentTimeMillis() + (24 *
-		// 60 * 60 * 1000));
-		// response.setHeader("Accept-Ranges", "bytes");
-		// response.setHeader("Connection", "Keep-Alive");
-		// response.setHeader("Keep-Alive", "timeout=5, max=97");
-		// response.setContentType("text/html; charset=UTF-8");
-
-		return new Authenticator.Retry(401);
 	}
 
 }

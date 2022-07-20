@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
+import org.argeo.cms.auth.RemoteAuthRequest;
+import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.servlet.internal.HttpUtils;
 import org.osgi.framework.Bundle;
@@ -29,6 +31,9 @@ public class CmsServletContext extends ServletContextHelper {
 	// use CMS bundle for resources
 	private Bundle bundle = FrameworkUtil.getBundle(getClass());
 
+	private final String httpAuthRealm = "Argeo";
+	private final boolean forceBasic = false;
+
 	public void init(Map<String, String> properties) {
 
 	}
@@ -41,17 +46,24 @@ public class CmsServletContext extends ServletContextHelper {
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (log.isTraceEnabled())
 			HttpUtils.logRequestHeaders(log, request);
+		RemoteAuthRequest remoteAuthRequest = new ServletHttpRequest(request);
+		RemoteAuthResponse remoteAuthResponse = new ServletHttpResponse(response);
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(CmsServletContext.class.getClassLoader());
 		LoginContext lc;
 		try {
-			lc = CmsAuth.USER.newLoginContext(
-					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
+			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthRequest, remoteAuthResponse));
 			lc.login();
 		} catch (LoginException e) {
-			lc = processUnauthorized(request, response);
-			if (log.isTraceEnabled())
-				HttpUtils.logResponseHeaders(log, response);
+			// FIXME better analyse failure so as not to try endlessly
+			if (authIsRequired(remoteAuthRequest, remoteAuthResponse)) {
+				int statusCode = RemoteAuthUtils.askForWwwAuth(remoteAuthResponse, httpAuthRealm, forceBasic);
+				response.setStatus(statusCode);
+				return false;
+
+			} else {
+				lc = RemoteAuthUtils.anonymousLogin(remoteAuthRequest, remoteAuthResponse);
+			}
 			if (lc == null)
 				return false;
 		} finally {
@@ -59,13 +71,12 @@ public class CmsServletContext extends ServletContextHelper {
 		}
 
 		Subject subject = lc.getSubject();
-		// log.debug("SERVLET CONTEXT: "+subject);
 		Subject.doAs(subject, new PrivilegedAction<Void>() {
 
 			@Override
 			public Void run() {
 				// TODO also set login context in order to log out ?
-				RemoteAuthUtils.configureRequestSecurity(new ServletHttpRequest(request));
+				RemoteAuthUtils.configureRequestSecurity(remoteAuthRequest);
 				return null;
 			}
 
@@ -78,23 +89,27 @@ public class CmsServletContext extends ServletContextHelper {
 		RemoteAuthUtils.clearRequestSecurity(new ServletHttpRequest(request));
 	}
 
-	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
-		// anonymous
-		ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-		try {
-			Thread.currentThread().setContextClassLoader(CmsServletContext.class.getClassLoader());
-			LoginContext lc = CmsAuth.ANONYMOUS.newLoginContext(
-					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
-			lc.login();
-			return lc;
-		} catch (LoginException e1) {
-			if (log.isDebugEnabled())
-				log.error("Cannot log in as anonymous", e1);
-			return null;
-		} finally {
-			Thread.currentThread().setContextClassLoader(currentContextClassLoader);
-		}
+	protected boolean authIsRequired(RemoteAuthRequest remoteAuthRequest, RemoteAuthResponse remoteAuthResponse) {
+		return false;
 	}
+
+//	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
+//		// anonymous
+//		ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
+//		try {
+//			Thread.currentThread().setContextClassLoader(CmsServletContext.class.getClassLoader());
+//			LoginContext lc = CmsAuth.ANONYMOUS.newLoginContext(
+//					new RemoteAuthCallbackHandler(new ServletHttpRequest(request), new ServletHttpResponse(response)));
+//			lc.login();
+//			return lc;
+//		} catch (LoginException e1) {
+//			if (log.isDebugEnabled())
+//				log.error("Cannot log in as anonymous", e1);
+//			return null;
+//		} finally {
+//			Thread.currentThread().setContextClassLoader(currentContextClassLoader);
+//		}
+//	}
 
 	@Override
 	public URL getResource(String name) {

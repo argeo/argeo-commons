@@ -77,21 +77,23 @@ public class RemoteSessionLoginModule implements LoginModule {
 			authorization = (Authorization) request.getAttribute(RemoteAuthRequest.AUTHORIZATION);
 			if (authorization == null) {// search by session ID
 				RemoteAuthSession httpSession = request.getSession();
-				if (httpSession == null) {
-					// TODO make sure this is always safe
-					if (log.isTraceEnabled())
-						log.trace("Create http session");
-					httpSession = request.createSession();
-				}
-				String httpSessionId = httpSession.getId();
+//				if (httpSession == null) {
+//					// TODO make sure this is always safe
+//					if (log.isTraceEnabled())
+//						log.trace("Create http session");
+//					httpSession = request.createSession();
+//				}
+				if (httpSession != null) {
+					String httpSessionId = httpSession.getId();
 //				if (log.isTraceEnabled())
 //					log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
-				CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessionId);
-				if (cmsSession != null && !cmsSession.isAnonymous()) {
-					authorization = cmsSession.getAuthorization();
-					locale = cmsSession.getLocale();
-					if (log.isTraceEnabled())
-						log.trace("Retrieved authorization from " + cmsSession);
+					CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessionId);
+					if (cmsSession != null && !cmsSession.isAnonymous()) {
+						authorization = cmsSession.getAuthorization();
+						locale = cmsSession.getLocale();
+						if (log.isTraceEnabled())
+							log.trace("Retrieved authorization from " + cmsSession);
+					}
 				}
 			}
 			sharedState.put(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST, request);

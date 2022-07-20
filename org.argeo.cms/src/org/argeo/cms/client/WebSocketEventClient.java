@@ -1,11 +1,17 @@
 package org.argeo.cms.client;
 
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import javax.security.auth.login.LoginContext;
+
+import org.argeo.cms.auth.RemoteAuthUtils;
+import org.argeo.util.http.HttpHeader;
 
 /** Tests connectivity to the web socket server. */
 public class WebSocketEventClient {
@@ -33,8 +39,17 @@ public class WebSocketEventClient {
 
 		};
 
+		// SPNEGO
+		URL jaasUrl = SpnegoHttpClient.class.getResource("jaas.cfg");
+		System.setProperty("java.security.auth.login.config", jaasUrl.toExternalForm());
+		LoginContext lc = new LoginContext("SINGLE_USER");
+		lc.login();
+		String token = RemoteAuthUtils.getGssToken(lc.getSubject(), "HTTP", uri.getHost());
+
 		HttpClient client = HttpClient.newHttpClient();
-		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder().buildAsync(uri, listener);
+		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder()
+				.header(HttpHeader.AUTHORIZATION.getName(), HttpHeader.NEGOTIATE + " " + token)
+				.buildAsync(uri, listener);
 		WebSocket webSocket = ws.get();
 		webSocket.request(Long.MAX_VALUE);
 

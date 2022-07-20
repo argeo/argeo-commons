@@ -9,6 +9,7 @@ public interface RemoteAuthRequest {
 
 	RemoteAuthSession getSession();
 
+	@Deprecated
 	RemoteAuthSession createSession();
 
 	Locale getLocale();
