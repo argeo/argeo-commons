@@ -1,4 +1,4 @@
-package org.argeo.cms.acr.fs;
+package org.argeo.cms.file;
 
 import java.net.URI;
 import java.nio.file.FileSystems;
