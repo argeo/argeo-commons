@@ -34,7 +34,7 @@ public enum CrAttributeType {
 	private final Class<?> clss;
 	private final AttributeFormatter<?> formatter;
 
-	private ContentName qName;
+	private final ContentName qName;
 
 	private <T> CrAttributeType(Class<T> clss, String namespaceUri, String localName, AttributeFormatter<T> formatter) {
 		this.clss = clss;
@@ -45,10 +45,6 @@ public enum CrAttributeType {
 
 	public QName getqName() {
 		return qName;
-	}
-
-	public void setqName(ContentName qName) {
-		this.qName = qName;
 	}
 
 	public Class<?> getClss() {

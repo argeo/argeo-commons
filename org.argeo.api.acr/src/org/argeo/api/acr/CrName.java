@@ -36,7 +36,6 @@ public enum CrName {
 	;
 
 	public final static String CR_NAMESPACE_URI = "http://www.argeo.org/ns/cr";
-
 	public final static String CR_DEFAULT_PREFIX = "cr";
 
 	public final static String LDAP_NAMESPACE_URI = "http://www.argeo.org/ns/ldap";

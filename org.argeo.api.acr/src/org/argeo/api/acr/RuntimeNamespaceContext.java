@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 
 /**
@@ -13,6 +14,9 @@ import javax.xml.namespace.NamespaceContext;
  * namespaces MUST register here with a single default prefix.
  */
 public class RuntimeNamespaceContext implements NamespaceContext {
+	public final static String XSD_DEFAULT_PREFIX = "xs";
+	public final static String XSD_INSTANCE_DEFAULT_PREFIX = "xsi";
+
 	private NavigableMap<String, String> prefixes = new TreeMap<>();
 	private NavigableMap<String, String> namespaces = new TreeMap<>();
 
@@ -48,6 +52,15 @@ public class RuntimeNamespaceContext implements NamespaceContext {
 	private final static RuntimeNamespaceContext INSTANCE = new RuntimeNamespaceContext();
 
 	static {
+		// Standard
+		register(XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX);
+		register(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE);
+
+		// Common
+		register(XMLConstants.W3C_XML_SCHEMA_NS_URI, XSD_DEFAULT_PREFIX);
+		register(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, XSD_INSTANCE_DEFAULT_PREFIX);
+
+		// Argeo specific
 		register(CrName.CR_NAMESPACE_URI, CrName.CR_DEFAULT_PREFIX);
 		register(CrName.LDAP_NAMESPACE_URI, CrName.LDAP_DEFAULT_PREFIX);
 		register(CrName.ROLE_NAMESPACE_URI, CrName.ROLE_DEFAULT_PREFIX);
