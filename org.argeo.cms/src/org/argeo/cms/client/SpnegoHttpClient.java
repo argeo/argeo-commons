@@ -3,7 +3,6 @@ package org.argeo.cms.client;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
@@ -40,17 +39,6 @@ public class SpnegoHttpClient {
 			LoginContext lc = new LoginContext("SINGLE_USER");
 			lc.login();
 
-//			int responseCode = Subject.doAs(lc.getSubject(), new PrivilegedExceptionAction<Integer>() {
-//
-//				public Integer run() throws Exception {
-
-//					InputStream ins = u.openConnection().getInputStream();
-//					BufferedReader reader = new BufferedReader(new InputStreamReader(ins));
-//					String str;
-//					while ((str = reader.readLine()) != null)
-//						System.out.println(str);
-//					return 666;
-
 			HttpClient httpClient = openHttpClient(lc.getSubject());
 			String token = RemoteAuthUtils.getGssToken(lc.getSubject(), "HTTP", server);
 
@@ -61,10 +49,7 @@ public class SpnegoHttpClient {
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);
 			System.out.println(response.body());
 			int responseCode = response.statusCode();
-//					return response.statusCode();
-//				}
-//			});
-			System.out.println("Reponse code: " + responseCode);
+			System.exit(responseCode);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

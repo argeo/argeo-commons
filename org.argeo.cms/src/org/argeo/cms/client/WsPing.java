@@ -59,7 +59,6 @@ public class WsPing implements Runnable {
 
 			while (!webSocket.isInputClosed()) {
 				long begin = System.nanoTime();
-//				ByteBuffer buffer = ByteBuffer.allocate(3 * Long.BYTES);
 				ByteBuffer buffer = ByteBuffer.allocate(PING_FRAME_SIZE);
 				buffer.putLong(uuid.getMostSignificantBits());
 				buffer.putLong(uuid.getLeastSignificantBits());

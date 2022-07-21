@@ -253,15 +253,9 @@ public class CmsContextImpl implements CmsContext {
 		return getInstance();
 	}
 
-//	/** Required by USER login module. */
-//	public synchronized static UserAdmin getUserAdmin() {
-//		return getInstance().userAdmin;
-//	}
-
 	/** Required by SPNEGO login module. */
-	@Deprecated
 	public synchronized static GSSCredential getAcceptorCredentials() {
-		// FIXME find a cleaner way
+		// TODO find a cleaner way
 		return ((CmsUserAdmin) getInstance().userAdmin).getAcceptorCredentials();
 	}
 
