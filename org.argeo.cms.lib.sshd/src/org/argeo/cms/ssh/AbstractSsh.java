@@ -19,7 +19,6 @@ import org.apache.sshd.common.util.io.output.NoCloseOutputStream;
 import org.apache.sshd.sftp.client.fs.SftpFileSystemProvider;
 import org.argeo.api.cms.CmsLog;
 
-@SuppressWarnings("restriction")
 public abstract class AbstractSsh {
 	private final static CmsLog log = CmsLog.getLog(AbstractSsh.class);
 

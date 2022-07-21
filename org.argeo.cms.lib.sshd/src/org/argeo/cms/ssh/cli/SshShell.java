@@ -8,7 +8,6 @@ import java.security.KeyPair;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.MissingArgumentException;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.sshd.agent.SshAgent;

@@ -12,7 +12,6 @@ import org.apache.sshd.server.shell.ProcessShellFactory;
 import org.argeo.util.OS;
 
 /** A simple SSH server with some defaults. Supports SCP. */
-@SuppressWarnings("restriction")
 public class BasicSshServer {
 	private Integer port;
 	private Path hostKeyPath;
