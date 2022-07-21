@@ -91,7 +91,16 @@ public class CmsContextImpl implements CmsContext {
 //
 //		}.open();
 
-		checkReadiness();
+		new Thread(() -> {
+			while (!checkReadiness()) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+				}
+			}
+		}, "Check readiness").start();
+		
+		// checkReadiness();
 
 		setInstance(this);
 	}
@@ -104,10 +113,13 @@ public class CmsContextImpl implements CmsContext {
 	 * Checks whether the deployment is available according to expectations, and
 	 * mark it as available.
 	 */
-	private void checkReadiness() {
+	private boolean checkReadiness() {
 		if (isAvailable())
-			return;
-		if (cmsDeployment != null && userAdmin != null) {
+			return true;
+		if (cmsDeployment == null)
+			return false;
+
+		if (((CmsDeploymentImpl) cmsDeployment).allExpectedServicesAvailable() && userAdmin != null) {
 			String data = KernelUtils.getFrameworkProp(KernelUtils.OSGI_INSTANCE_AREA);
 			String state = KernelUtils.getFrameworkProp(KernelUtils.OSGI_CONFIGURATION_AREA);
 			availableSince = System.currentTimeMillis();
@@ -124,8 +136,11 @@ public class CmsContextImpl implements CmsContext {
 			if (log.isTraceEnabled())
 				log.trace("Kernel initialization took " + initDuration + "ms");
 			tributeToFreeSoftware(initDuration);
+
+			return true;
 		} else {
-			throw new IllegalStateException("Deployment is not available");
+			return false;
+			// throw new IllegalStateException("Deployment is not available");
 		}
 	}
 

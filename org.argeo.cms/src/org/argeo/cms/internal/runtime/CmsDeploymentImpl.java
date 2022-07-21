@@ -10,7 +10,11 @@ import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
+import org.argeo.cms.CmsSshd;
+import org.argeo.cms.internal.http.CmsAuthenticator;
+import org.argeo.cms.internal.http.PublicCmsAuthenticator;
 
+import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
@@ -18,67 +22,36 @@ import com.sun.net.httpserver.HttpServer;
 public class CmsDeploymentImpl implements CmsDeployment {
 	private final CmsLog log = CmsLog.getLog(getClass());
 
-	// Readiness
-//	private HttpService httpService;
-
 	private CmsState cmsState;
-//	private DeployConfig deployConfig;
 
+	// Expectations
 	private boolean httpExpected = false;
+	private boolean sshdExpected = false;
+
+	// HTTP
 	private HttpServer httpServer;
 	private Map<String, HttpHandler> httpHandlers = new TreeMap<>();
+	private Map<String, CmsAuthenticator> httpAuthenticators = new TreeMap<>();
+
+	// SSHD
+	private CmsSshd cmsSshd;
 
 	public void start() {
-//		httpExpected = deployConfig.getProps(KernelConstants.JETTY_FACTORY_PID, "default") != null;
-//		if (deployConfig.hasDomain()) {
-//			loadIpaJaasConfiguration();
-//		}
-
 		log.debug(() -> "CMS deployment available");
 	}
 
-//	public void addFactoryDeployConfig(String factoryPid, Dictionary<String, Object> props) {
-//		deployConfig.putFactoryDeployConfig(factoryPid, props);
-//		deployConfig.save();
-//		try {
-//			deployConfig.loadConfigs();
-//		} catch (IOException e) {
-//			throw new IllegalStateException(e);
-//		}
-//	}
-//
-//	public Dictionary<String, Object> getProps(String factoryPid, String cn) {
-//		return deployConfig.getProps(factoryPid, cn);
-//	}
-
-//	public boolean isHttpAvailableOrNotExpected() {
-//		return (httpExpected ? httpService != null : true);
-//	}
-
-//	private void loadIpaJaasConfiguration() {
-//		if (System.getProperty(KernelConstants.JAAS_CONFIG_PROP) == null) {
-//			String jaasConfig = KernelConstants.JAAS_CONFIG_IPA;
-//			URL url = getClass().getClassLoader().getResource(jaasConfig);
-//			KernelUtils.setJaasConfiguration(url);
-//			log.debug("Set IPA JAAS configuration.");
-//		}
-//	}
-
 	public void stop() {
-//		if (deployConfig != null) {
-//			deployConfig.save();
-//		}
 	}
-
-//	public void setDeployConfig(DeployConfig deployConfig) {
-//		this.deployConfig = deployConfig;
-//	}
 
 	public void setCmsState(CmsState cmsState) {
 		this.cmsState = cmsState;
+
 		String httpPort = this.cmsState.getDeployProperty(CmsDeployProperty.HTTP_PORT.getProperty());
 		String httpsPort = this.cmsState.getDeployProperty(CmsDeployProperty.HTTPS_PORT.getProperty());
 		httpExpected = httpPort != null || httpsPort != null;
+
+		String sshdPort = this.cmsState.getDeployProperty(CmsDeployProperty.SSHD_PORT.getProperty());
+		sshdExpected = sshdPort != null;
 	}
 
 	public void setHttpServer(HttpServer httpServer) {
@@ -86,8 +59,8 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		// create contexts whose handles had already been published
 		for (String contextPath : httpHandlers.keySet()) {
 			HttpHandler httpHandler = httpHandlers.get(contextPath);
-			httpServer.createContext(contextPath, httpHandler);
-			log.debug(() -> "Added handler " + contextPath + " : " + httpHandler.getClass().getName());
+			CmsAuthenticator authenticator = httpAuthenticators.get(contextPath);
+			createHttpContext(contextPath, httpHandler, authenticator);
 		}
 	}
 
@@ -97,12 +70,22 @@ public class CmsDeploymentImpl implements CmsDeployment {
 			log.warn("Property " + CONTEXT_PATH + " not set on HTTP handler " + properties + ". Ignoring it.");
 			return;
 		}
+		boolean isPublic = Boolean.parseBoolean(properties.get(CmsConstants.CONTEXT_PUBLIC));
+		CmsAuthenticator authenticator = isPublic ? new PublicCmsAuthenticator() : new CmsAuthenticator();
 		httpHandlers.put(contextPath, httpHandler);
+		httpAuthenticators.put(contextPath, authenticator);
 		if (httpServer == null)
 			return;
-		httpServer.createContext(contextPath, httpHandler);
-		log.debug(() -> "Added handler " + contextPath + " : " + httpHandler.getClass().getName());
+		else
+			createHttpContext(contextPath, httpHandler, authenticator);
+	}
 
+	public void createHttpContext(String contextPath, HttpHandler httpHandler, CmsAuthenticator authenticator) {
+		HttpContext httpContext = httpServer.createContext(contextPath);
+		// we want to set the authenticator BEFORE the handler actually becomes active
+		httpContext.setAuthenticator(authenticator);
+		httpContext.setHandler(httpHandler);
+		log.debug(() -> "Added handler " + contextPath + " : " + httpHandler.getClass().getName());
 	}
 
 	public void removeHttpHandler(HttpHandler httpHandler, Map<String, String> properties) {
@@ -115,8 +98,17 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		httpServer.removeContext(contextPath);
 		log.debug(() -> "Removed handler " + contextPath + " : " + httpHandler.getClass().getName());
 	}
-//	public void setHttpService(HttpService httpService) {
-//		this.httpService = httpService;
-//	}
+
+	public boolean allExpectedServicesAvailable() {
+		if (httpExpected && httpServer == null)
+			return false;
+		if (sshdExpected && cmsSshd == null)
+			return false;
+		return true;
+	}
+
+	public void setCmsSshd(CmsSshd cmsSshd) {
+		this.cmsSshd = cmsSshd;
+	}
 
 }

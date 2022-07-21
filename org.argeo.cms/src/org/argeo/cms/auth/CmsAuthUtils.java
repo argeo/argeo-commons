@@ -135,8 +135,7 @@ class CmsAuthUtils {
 		// TODO move it to a service in order to avoid static synchronization
 		if (request != null) {
 			RemoteAuthSession httpSession = request.getSession();
-			assert httpSession != null;
-			String httpSessId = httpSession.getId();
+			String httpSessId = httpSession != null ? httpSession.getId() : null;
 			boolean anonymous = authorization.getName() == null;
 			String remoteUser = !anonymous ? authorization.getName() : CmsConstants.ROLE_ANONYMOUS;
 			request.setAttribute(RemoteAuthRequest.REMOTE_USER, remoteUser);

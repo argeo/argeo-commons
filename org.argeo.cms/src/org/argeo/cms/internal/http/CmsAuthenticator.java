@@ -5,7 +5,6 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsAuth;
-import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.auth.RemoteAuthRequest;
@@ -21,7 +20,7 @@ public class CmsAuthenticator extends Authenticator {
 //	final static String HEADER_AUTHORIZATION = "Authorization";
 //	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
-	private final static CmsLog log = CmsLog.getLog(CmsAuthenticator.class);
+//	private final static CmsLog log = CmsLog.getLog(CmsAuthenticator.class);
 
 	// TODO make it configurable
 	private final String httpAuthRealm = "Argeo";

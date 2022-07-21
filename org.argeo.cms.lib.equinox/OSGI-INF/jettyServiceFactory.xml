@@ -3,7 +3,6 @@
    <implementation class="org.argeo.cms.equinox.http.jetty.EquinoxJettyServer"/>
    <property name="service.pid" type="String" value="org.argeo.equinox.jetty.config"/>
    <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
-   <reference bind="setDefaultAuthenticator" cardinality="1..1" interface="com.sun.net.httpserver.Authenticator" policy="static"/>
    <service>
       <provide interface="com.sun.net.httpserver.HttpServer"/>
    </service>

@@ -27,11 +27,11 @@ import org.argeo.cms.servlet.CmsServletContext;
  * the initialisation of a new web socket.
  */
 public class CmsWebSocketConfigurator extends Configurator {
-	public final static String WEBSOCKET_SUBJECT = "org.argeo.cms.websocket.subject";
-	public final static String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
+//	public final static String WEBSOCKET_SUBJECT = "org.argeo.cms.websocket.subject";
+//	public final static String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
 
 	private final static CmsLog log = CmsLog.getLog(CmsWebSocketConfigurator.class);
-	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+//	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	@Override
 	public boolean checkOrigin(String originHeaderValue) {
@@ -98,8 +98,10 @@ public class CmsWebSocketConfigurator extends Configurator {
 			} else {
 				lc = RemoteAuthUtils.anonymousLogin(remoteAuthRequest, remoteAuthResponse);
 			}
-			if (lc == null)
+			if (lc == null) {
 				rejectResponse(response, e);
+				return;
+			}
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentThreadContextClassLoader);
 		}

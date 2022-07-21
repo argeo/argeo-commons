@@ -83,6 +83,7 @@ public interface CmsConstants {
 	 * COMPONENT PROPERTIES
 	 */
 	String CONTEXT_PATH = "context.path";
+	String CONTEXT_PUBLIC = "context.public";
 	String EVENT_TOPICS = "event.topics";
 
 	/*

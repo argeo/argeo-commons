@@ -16,7 +16,8 @@ public class RemoteCmsSessionImpl extends CmsSessionImpl {
 
 	public RemoteCmsSessionImpl(UUID uuid, Subject initialSubject, Authorization authorization, Locale locale,
 			RemoteAuthRequest request) {
-		super(uuid, initialSubject, authorization, locale, request.getSession().getId());
+		super(uuid, initialSubject, authorization, locale,
+				request.getSession() != null ? request.getSession().getId() : null);
 		httpSession = request.getSession();
 	}
 
@@ -24,6 +25,8 @@ public class RemoteCmsSessionImpl extends CmsSessionImpl {
 	public boolean isValid() {
 		if (isClosed())
 			return false;
+		if (httpSession == null)
+			return true;
 		return httpSession.isValid();
 	}
 }

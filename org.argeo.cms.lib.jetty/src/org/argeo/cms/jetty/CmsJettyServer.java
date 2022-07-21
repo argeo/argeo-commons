@@ -41,7 +41,7 @@ public class CmsJettyServer extends JettyHttpServer {
 
 	private CmsState cmsState;
 
-	private Authenticator defaultAuthenticator;
+//	private Authenticator defaultAuthenticator;
 
 	protected void addServlets(ServletContextHandler servletContextHandler) throws ServletException {
 	}
@@ -78,12 +78,12 @@ public class CmsJettyServer extends JettyHttpServer {
 
 	}
 
-	@Override
-	public synchronized HttpContext createContext(String path) {
-		HttpContext httpContext = super.createContext(path);
-		httpContext.setAuthenticator(defaultAuthenticator);
-		return httpContext;
-	}
+//	@Override
+//	public synchronized HttpContext createContext(String path) {
+//		HttpContext httpContext = super.createContext(path);
+//		httpContext.setAuthenticator(defaultAuthenticator);
+//		return httpContext;
+//	}
 
 	protected void enableWebSocket(ServletContextHandler servletContextHandler) {
 		String webSocketEnabled = getDeployProperty(CmsDeployProperty.WEBSOCKET_ENABLED);
@@ -119,8 +119,8 @@ public class CmsJettyServer extends JettyHttpServer {
 		this.cmsState = cmsState;
 	}
 
-	public void setDefaultAuthenticator(Authenticator defaultAuthenticator) {
-		this.defaultAuthenticator = defaultAuthenticator;
-	}
+//	public void setDefaultAuthenticator(Authenticator defaultAuthenticator) {
+//		this.defaultAuthenticator = defaultAuthenticator;
+//	}
 
 }

@@ -2,4 +2,7 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="CMS SSH Server" immediate="true">
    <implementation class="org.argeo.cms.ssh.CmsSshServer"/>
    <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
+   <service>
+      <provide interface="org.argeo.cms.CmsSshd"/>
+   </service>
 </scr:component>

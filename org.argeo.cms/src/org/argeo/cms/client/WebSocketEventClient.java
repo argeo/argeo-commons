@@ -50,6 +50,7 @@ public class WebSocketEventClient {
 		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder()
 				.header(HttpHeader.AUTHORIZATION.getName(), HttpHeader.NEGOTIATE + " " + token)
 				.buildAsync(uri, listener);
+
 		WebSocket webSocket = ws.get();
 		webSocket.request(Long.MAX_VALUE);
 

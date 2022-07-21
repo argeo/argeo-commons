@@ -11,7 +11,6 @@ import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.scp.server.ScpCommandFactory;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.gss.GSSAuthenticator;
-import org.apache.sshd.server.config.keys.DefaultAuthorizedKeysAuthenticator;
 import org.apache.sshd.server.forward.AcceptAllForwardingFilter;
 import org.apache.sshd.server.jaas.JaasPasswordAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
@@ -22,8 +21,9 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
+import org.argeo.cms.CmsSshd;
 
-public class CmsSshServer {
+public class CmsSshServer implements CmsSshd {
 	private final static CmsLog log = CmsLog.getLog(CmsSshServer.class);
 	private static final String DEFAULT_SSH_HOST_KEY_PATH = CmsConstants.NODE + '/' + CmsConstants.NODE + ".ser";
 
@@ -94,7 +94,7 @@ public class CmsSshServer {
 			});
 
 			// Authentication
-			//sshd.setPublickeyAuthenticator(new DefaultAuthorizedKeysAuthenticator(true));
+			// sshd.setPublickeyAuthenticator(new DefaultAuthorizedKeysAuthenticator(true));
 			sshd.setPublickeyAuthenticator(null);
 			// sshd.setKeyboardInteractiveAuthenticator(null);
 			JaasPasswordAuthenticator jaasPasswordAuthenticator = new JaasPasswordAuthenticator();

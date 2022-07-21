@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immmediate="true" name="Status Handler">
-   <implementation class="org.argeo.cms.websocket.server.StatusEndpoints"/>
+   <implementation class="org.argeo.cms.websocket.server.StatusHandler"/>
    <service>
       <provide interface="com.sun.net.httpserver.HttpHandler"/>
    </service>
    <property name="context.path" type="String" value="/cms/status"/>
+   <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
 </scr:component>

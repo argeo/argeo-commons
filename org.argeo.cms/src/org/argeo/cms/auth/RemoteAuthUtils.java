@@ -131,7 +131,7 @@ public class RemoteAuthUtils {
 		// anonymous
 		ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
-			Thread.currentThread().setContextClassLoader(CmsAuthenticator.class.getClassLoader());
+			Thread.currentThread().setContextClassLoader(RemoteAuthUtils.class.getClassLoader());
 			LoginContext lc = CmsAuth.ANONYMOUS
 					.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthRequest, remoteAuthResponse));
 			lc.login();

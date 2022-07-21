@@ -13,7 +13,6 @@ OSGI-INF/uuidFactory.xml,\
 OSGI-INF/transactionManager.xml,\
 OSGI-INF/cmsUserAdmin.xml,\
 OSGI-INF/cmsUserManager.xml,\
-OSGI-INF/cmsAuthenticator.xml,\
 OSGI-INF/cmsContentRepository.xml,\
 OSGI-INF/cmsAcrHttpHandler.xml,\
 OSGI-INF/cmsDeployment.xml,\
