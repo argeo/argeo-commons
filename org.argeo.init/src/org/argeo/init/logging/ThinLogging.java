@@ -334,6 +334,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 					case "org.osgi.service.log.Logger":
 					case "org.eclipse.osgi.internal.log.LoggerImpl":
 					case "org.argeo.api.cms.CmsLog":
+					case "org.argeo.init.osgi.OsgiBootUtils":
 					case "org.slf4j.impl.ArgeoLogger":
 					case "org.argeo.cms.internal.osgi.CmsOsgiLogger":
 					case "org.eclipse.jetty.util.log.Slf4jLog":
