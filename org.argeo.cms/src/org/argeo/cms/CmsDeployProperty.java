@@ -71,6 +71,8 @@ public enum CmsDeployProperty {
 	//
 	/** Request an HTTP server on this port. */
 	SSHD_PORT("argeo.sshd.port"),
+	/** Path to admin authorized keys file. */
+	SSHD_AUTHORIZEDKEYS("argeo.sshd.authorizedkeys"),
 	//
 	// INTERNATIONALIZATION
 	//

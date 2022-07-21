@@ -7,15 +7,18 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
@@ -47,6 +50,10 @@ public class CmsStateImpl implements CmsState {
 	private final Map<CmsDeployProperty, String> deployPropertyDefaults;
 
 	public CmsStateImpl() {
+		this.deployPropertyDefaults = Collections.unmodifiableMap(createDeployPropertiesDefaults());
+	}
+
+	protected Map<CmsDeployProperty, String> createDeployPropertiesDefaults() {
 		Map<CmsDeployProperty, String> deployPropertyDefaults = new HashMap<>();
 		deployPropertyDefaults.put(CmsDeployProperty.NODE_INIT, "../../init");
 		deployPropertyDefaults.put(CmsDeployProperty.LOCALE, Locale.getDefault().toString());
@@ -66,7 +73,13 @@ public class CmsStateImpl implements CmsState {
 		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORETYPE, PkiUtils.PKCS12);
 		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD, PkiUtils.DEFAULT_KEYSTORE_PASSWORD);
 
-		this.deployPropertyDefaults = Collections.unmodifiableMap(deployPropertyDefaults);
+		// SSH
+		Path authorizedKeysPath = getDataPath(KernelConstants.NODE_SSHD_AUTHORIZED_KEYS_PATH);
+		if (authorizedKeysPath != null) {
+			deployPropertyDefaults.put(CmsDeployProperty.SSHD_AUTHORIZEDKEYS,
+					authorizedKeysPath.toAbsolutePath().toString());
+		}
+		return deployPropertyDefaults;
 	}
 
 	public void start() {
@@ -112,7 +125,7 @@ public class CmsStateImpl implements CmsState {
 				log.debug("## CMS starting... (" + uuid + ")\n" + sb + "\n");
 			}
 
-			Path nodeBase = getDataPath(CmsConstants.NODE);
+			Path nodeBase = getDataPath(KernelConstants.DIR_PRIVATE);
 			if (nodeBase != null && !Files.exists(nodeBase)) {// first init
 				firstInit();
 			}
@@ -123,6 +136,21 @@ public class CmsStateImpl implements CmsState {
 	}
 
 	private void initSecurity() {
+		// private directory permissions
+		Path privateDir = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_PRIVATE);
+		if (privateDir != null) {
+			// TODO rather check whether we can read and write
+			Set<PosixFilePermission> posixPermissions = new HashSet<>();
+			posixPermissions.add(PosixFilePermission.OWNER_READ);
+			posixPermissions.add(PosixFilePermission.OWNER_WRITE);
+			posixPermissions.add(PosixFilePermission.OWNER_EXECUTE);
+			try {
+				Files.setPosixFilePermissions(privateDir, posixPermissions);
+			} catch (IOException e) {
+				log.error("Cannot set permissions on " + privateDir);
+			}
+		}
+
 		if (getDeployProperty(CmsDeployProperty.JAVA_LOGIN_CONFIG) == null) {
 			String jaasConfig = KernelConstants.JAAS_CONFIG;
 			URL url = getClass().getResource(jaasConfig);
@@ -154,7 +182,7 @@ public class CmsStateImpl implements CmsState {
 					getDeployProperty(CmsDeployProperty.SSL_KEYSTORETYPE));
 			try (Reader key = Files.newBufferedReader(pemKeyPath, StandardCharsets.US_ASCII);
 					Reader cert = Files.newBufferedReader(pemCertPath, StandardCharsets.US_ASCII);) {
-				PkiUtils.loadPem(keyStore, key, keyStorePassword, cert);
+				PkiUtils.loadPrivateCertificatePem(keyStore, CmsConstants.NODE, key, keyStorePassword, cert);
 				Files.createDirectories(keyStorePath.getParent());
 				PkiUtils.saveKeyStore(keyStorePath, keyStorePassword, keyStore);
 				if (log.isDebugEnabled())
@@ -174,7 +202,7 @@ public class CmsStateImpl implements CmsState {
 			KeyStore trustStore = PkiUtils.getKeyStore(trustStorePath, trustStorePassword,
 					getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORETYPE));
 			try (Reader cert = Files.newBufferedReader(ipaCaCertPath, StandardCharsets.US_ASCII);) {
-				PkiUtils.loadPem(trustStore, null, trustStorePassword, cert);
+				PkiUtils.loadTrustedCertificatePem(trustStore, trustStorePassword, cert);
 				Files.createDirectories(keyStorePath.getParent());
 				PkiUtils.saveKeyStore(trustStorePath, trustStorePassword, trustStore);
 				if (log.isDebugEnabled())

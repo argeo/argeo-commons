@@ -88,7 +88,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 
 	protected List<Dictionary<String, Object>> getUserDirectoryConfigs() {
 		List<Dictionary<String, Object>> res = new ArrayList<>();
-		Path nodeBase = cmsState.getDataPath(KernelConstants.DIR_NODE);
+		Path nodeBase = cmsState.getDataPath(KernelConstants.DIR_PRIVATE);
 		List<String> uris = new ArrayList<>();
 
 		// node roles
@@ -191,7 +191,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		try {
 			if (uri == null) {
 				String baseDn = (String) properties.get(DirectoryConf.baseDn.name());
-				u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_NODE + '/' + baseDn + ".ldif");
+				u = KernelUtils.getOsgiInstanceUri(KernelConstants.DIR_PRIVATE + '/' + baseDn + ".ldif");
 			} else if (realm != null) {
 				u = null;
 			} else {

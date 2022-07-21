@@ -36,7 +36,7 @@ public class OS {
 
 	public String[] getDefaultShellCommand() {
 		if (!isMSWindows())
-			return new String[] { "/bin/sh", "-l", "-i" };
+			return new String[] { "/bin/bash", "-l", "-i" };
 		else
 			return new String[] { "cmd.exe", "/C" };
 	}
