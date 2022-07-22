@@ -22,10 +22,11 @@ A2_BASE = $(A2_OUTPUT)
 
 DEP_CATEGORIES = \
 org.argeo.cms \
+swt/org.argeo.cms \
 org.argeo.tp \
 org.argeo.tp.apache \
 org.argeo.tp.jetty \
-org.argeo.tp.eclipse \
+osgi/equinox/org.argeo.tp.eclipse \
 osgi/osgi/org.argeo.tp.osgi \
 swt/rcp/org.argeo.tp.swt \
 lib/linux/x86_64/swt/rcp/org.argeo.tp.swt \
