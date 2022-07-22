@@ -18,14 +18,7 @@ ExecStart=/usr/lib/jvm/java-17-openjdk-amd64/bin/java \
 -Dosgi.configuration.area=/var/lib/argeo.d/%I/state \
 -Dosgi.instance.area=/var/lib/argeo.d/%I/data \
 -Dargeo.node.repo.indexesBase=/var/cache/argeo.d/%I/indexes \
--Dorg.osgi.framework.system.packages.extra=\
-com.sun.net.httpserver,\
-com.sun.jndi.ldap,\
-com.sun.jndi.ldap.sasl,\
-com.sun.jndi.dns,\
-com.sun.security.jgss,\
-com.sun.nio.file,\
-com.sun.nio.sctp \
+-Dorg.osgi.framework.system.packages.extra=com.sun.net.httpserver,com.sun.jndi.ldap,com.sun.jndi.ldap.sasl,com.sun.jndi.dns,com.sun.security.jgss,com.sun.nio.file,com.sun.nio.sctp \
 -Declipse.ignoreApp=true \
 -Dosgi.noShutdown=true \
 -Dorg.eclipse.equinox.http.jetty.autostart=false \
