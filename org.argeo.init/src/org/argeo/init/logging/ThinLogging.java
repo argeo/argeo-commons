@@ -37,8 +37,12 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	final static String DEFAULT_LEVEL_PROPERTY = "log";
 	final static String LEVEL_PROPERTY_PREFIX = DEFAULT_LEVEL_PROPERTY + ".";
 
-	final static String JOURNALD_PROPERTY = "argeo.logging.journald";
-	final static String CALL_LOCATION_PROPERTY = "argeo.logging.callLocation";
+	final static String PROP_ARGEO_LOGGING_SYNCHRONOUS = "argeo.logging.synchronous";
+	final static String PROP_ARGEO_LOGGING_JOURNALD = "argeo.logging.journald";
+	final static String PROP_ARGEO_LOGGING_CALL_LOCATION = "argeo.logging.callLocation";
+
+	final static String ENV_INVOCATION_ID = "INVOCATION_ID";
+	final static String ENV_GIO_LAUNCHED_DESKTOP_FILE_PID = "GIO_LAUNCHED_DESKTOP_FILE_PID";
 
 	private final static AtomicLong nextEntry = new AtomicLong(0l);
 
@@ -56,7 +60,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	private final boolean journald;
 	private final Level callLocationLevel;
 
-	private boolean synchronous = true;
+	private boolean synchronous = Boolean.parseBoolean(System.getProperty(PROP_ARGEO_LOGGING_SYNCHRONOUS));
 
 	ThinLogging() {
 //		executor = Executors.newCachedThreadPool((r) -> {
@@ -78,7 +82,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		}
 
 		// initial default level
-		levels.put("", Level.WARNING);
+		levels.put(DEFAULT_LEVEL_NAME, Level.WARNING);
 
 		// Logging system config
 		// journald
@@ -88,13 +92,13 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 //			System.out.println(key + "=" + env.get(key));
 //		}
 
-		String journaldStr = System.getProperty(JOURNALD_PROPERTY, "auto");
+		String journaldStr = System.getProperty(PROP_ARGEO_LOGGING_JOURNALD, "auto");
 		switch (journaldStr) {
 		case "auto":
-			String systemdInvocationId = System.getenv("INVOCATION_ID");
+			String systemdInvocationId = System.getenv(ENV_INVOCATION_ID);
 			if (systemdInvocationId != null) {// in systemd
-				// check whether we are indirectly in a desktop app (e.g. eclipse)
-				String desktopFilePid = System.getenv("GIO_LAUNCHED_DESKTOP_FILE_PID");
+				// check whether we are indirectly in a desktop app (typically an IDE)
+				String desktopFilePid = System.getenv(ENV_GIO_LAUNCHED_DESKTOP_FILE_PID);
 				if (desktopFilePid != null) {
 					Long javaPid = ProcessHandle.current().pid();
 					if (!javaPid.toString().equals(desktopFilePid)) {
@@ -117,10 +121,10 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			break;
 		default:
 			throw new IllegalArgumentException(
-					"Unsupported value '" + journaldStr + "' for property " + JOURNALD_PROPERTY);
+					"Unsupported value '" + journaldStr + "' for property " + PROP_ARGEO_LOGGING_JOURNALD);
 		}
 
-		String callLocationStr = System.getProperty(CALL_LOCATION_PROPERTY, Level.WARNING.getName());
+		String callLocationStr = System.getProperty(PROP_ARGEO_LOGGING_CALL_LOCATION, Level.WARNING.getName());
 		callLocationLevel = Level.valueOf(callLocationStr);
 	}
 
@@ -136,7 +140,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 		publisher.close();
 		try {
-			// we ait a bit in order to make sure all messages are flushed
+			// we wait a bit in order to make sure all messages are flushed
 			// TODO synchronize more efficiently
 			// executor.awaitTermination(300, TimeUnit.MILLISECONDS);
 			ForkJoinPool.commonPool().awaitTermination(300, TimeUnit.MILLISECONDS);
@@ -148,27 +152,12 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	private Level computeApplicableLevel(String name) {
 		Map.Entry<String, Level> entry = levels.floorEntry(name);
 		assert entry != null;
-		return entry.getValue();
+		if (name.startsWith(entry.getKey()))
+			return entry.getValue();
+		else
+			return levels.get(DEFAULT_LEVEL_NAME);// default
 
 	}
-
-//	private boolean isLoggable(String name, Level level) {
-//		Objects.requireNonNull(name);
-//		Objects.requireNonNull(level);
-//
-//		if (updatingConfiguration) {
-//			synchronized (levels) {
-//				try {
-//					levels.wait();
-//					// TODO make exit more robust
-//				} catch (InterruptedException e) {
-//					throw new IllegalStateException(e);
-//				}
-//			}
-//		}
-//
-//		return level.getSeverity() >= computeApplicableLevel(name).getSeverity();
-//	}
 
 	public Logger getLogger(String name, Module module) {
 		if (!loggers.containsKey(name)) {
@@ -222,7 +211,6 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			updatingConfiguration = false;
 			levels.notifyAll();
 		}
-
 	}
 
 	Flow.Publisher<Map<String, Serializable>> getLogEntryPublisher() {
@@ -445,6 +433,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		private PrintStream err;
 		private int writeToErrLevel = Level.WARNING.getSeverity();
 
+		private Subscription subscription;
+
 		protected PrintStreamSubscriber() {
 			this(System.out, System.err);
 		}
@@ -460,7 +450,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 		@Override
 		public void onSubscribe(Subscription subscription) {
-			subscription.request(Long.MAX_VALUE);
+			this.subscription = subscription;
+			this.subscription.request(1);
 		}
 
 		@Override
@@ -471,6 +462,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 				out.print(toPrint(item));
 			}
 			// TODO flush for journald?
+			this.subscription.request(1);
 		}
 
 		@Override
@@ -532,10 +524,9 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		protected String toPrint(Map<String, Serializable> logEntry) {
 			StringBuilder sb = new StringBuilder();
 			StringTokenizer st = new StringTokenizer((String) logEntry.get(KEY_MSG), "\r\n");
-			assert st.hasMoreTokens();
 
 			// first line
-			String firstLine = st.nextToken();
+			String firstLine = st.hasMoreTokens() ? st.nextToken() : "";
 			sb.append(firstLinePrefix(logEntry));
 			sb.append(firstLine);
 			sb.append(firstLineSuffix(logEntry));

@@ -20,42 +20,23 @@ import org.osgi.framework.launch.FrameworkFactory;
 public class OsgiBootUtils {
 	private final static Logger logger = System.getLogger(OsgiBootUtils.class.getName());
 
-//	/** ISO8601 (as per log4j) and difference to UTC */
-//	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS Z");
-
-//	static boolean debug = System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_DEBUG) == null ? false
-//			: !System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_DEBUG).trim().equals("false");
-
-	@Deprecated
 	public static void info(Object obj) {
-//		System.out.println("# OSGiBOOT      # " + dateFormat.format(new Date()) + " # " + obj);
 		logger.log(Level.INFO, () -> Objects.toString(obj));
 	}
 
-	@Deprecated
 	public static void debug(Object obj) {
-//		if (debug)
-//			System.out.println("# OSGiBOOT DBG  # " + dateFormat.format(new Date()) + " # " + obj);
 		logger.log(Level.TRACE, () -> Objects.toString(obj));
 	}
 
-	@Deprecated
 	public static void warn(Object obj) {
-//		System.out.println("# OSGiBOOT WARN # " + dateFormat.format(new Date()) + " # " + obj);
 		logger.log(Level.WARNING, () -> Objects.toString(obj));
 	}
 
-	@Deprecated
 	public static void error(Object obj, Throwable e) {
-//		System.err.println("# OSGiBOOT ERR  # " + dateFormat.format(new Date()) + " # " + obj);
-//		if (e != null)
-//			e.printStackTrace();
 		logger.log(Level.ERROR, () -> Objects.toString(obj), e);
 	}
 
-	@Deprecated
 	public static boolean isDebug() {
-//		return debug;
 		return logger.isLoggable(Level.TRACE);
 	}
 

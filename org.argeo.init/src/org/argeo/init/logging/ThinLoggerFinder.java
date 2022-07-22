@@ -32,7 +32,13 @@ public class ThinLoggerFinder extends LoggerFinder {
 
 	private static void init() {
 		logging = new ThinLogging();
+		reloadConfiguration();
+	}
 
+	/** Reload configuration form system properties */
+	public static void reloadConfiguration() {
+		if (logging == null)
+			return;
 		Map<String, Object> configuration = new HashMap<>();
 		for (Object key : System.getProperties().keySet()) {
 			Objects.requireNonNull(key);
