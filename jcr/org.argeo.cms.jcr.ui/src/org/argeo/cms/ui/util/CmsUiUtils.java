@@ -15,6 +15,8 @@ import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.CmsUiConstants;
+import org.argeo.cms.ux.AbstractImageManager;
+import org.argeo.cms.ux.CmsUxUtils;
 import org.argeo.jcr.JcrUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.service.ResourceManager;
@@ -140,36 +142,23 @@ public class CmsUiUtils {
 //		String src = (serverBase != null ? serverBase : "") + NodeUtils.getDataPath(fileNode);
 		String src;
 		src = (serverBase != null ? serverBase : "") + getDataPathForUrl(fileNode);
-		return imgBuilder(src, width, height).append("/>").toString();
-	}
-
-	public static String img(String src, String width, String height) {
-		return imgBuilder(src, width, height).append("/>").toString();
-	}
-
-	public static String img(String src, Cms2DSize size) {
-		return img(src, Integer.toString(size.getWidth()), Integer.toString(size.getHeight()));
-	}
-
-	public static StringBuilder imgBuilder(String src, String width, String height) {
-		return new StringBuilder(64).append("<img width='").append(width).append("' height='").append(height)
-				.append("' src='").append(src).append("'");
+		return CmsUxUtils.imgBuilder(src, width, height).append("/>").toString();
 	}
 
 	public static String noImg(Cms2DSize size) {
 		ResourceManager rm = RWT.getResourceManager();
-		return CmsUiUtils.img(rm.getLocation(CmsUiConstants.NO_IMAGE), size);
+		return CmsUxUtils.img(rm.getLocation(AbstractImageManager.NO_IMAGE), size);
 	}
 
 	public static String noImg() {
-		return noImg(CmsUiConstants.NO_IMAGE_SIZE);
+		return noImg(AbstractImageManager.NO_IMAGE_SIZE);
 	}
 
 	public static Image noImage(Cms2DSize size) {
 		ResourceManager rm = RWT.getResourceManager();
 		InputStream in = null;
 		try {
-			in = rm.getRegisteredContent(CmsUiConstants.NO_IMAGE);
+			in = rm.getRegisteredContent(AbstractImageManager.NO_IMAGE);
 			ImageData id = new ImageData(in);
 			ImageData scaled = id.scaledTo(size.getWidth(), size.getHeight());
 			Image image = new Image(Display.getCurrent(), scaled);

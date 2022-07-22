@@ -15,9 +15,9 @@ import org.argeo.api.cms.ux.UxContext;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.SimpleSwtUxContext;
+import org.argeo.cms.swt.acr.AcrSwtImageManager;
 import org.argeo.cms.swt.auth.CmsLoginShell;
 import org.argeo.cms.swt.dialogs.CmsFeedback;
-import org.argeo.cms.ui.util.SimpleImageManager;
 import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
@@ -82,7 +82,7 @@ public class CmsLoginLifecycle implements CmsView {
 		if (CurrentUser.getUsername(getSubject()) == null)
 			return false;
 		uxContext = new SimpleSwtUxContext();
-		imageManager = new SimpleImageManager();
+		imageManager = (CmsImageManager) new AcrSwtImageManager();
 
 		eventBroker.subscribe(UIEvents.UILifeCycle.APP_STARTUP_COMPLETE, new EventHandler() {
 			@Override

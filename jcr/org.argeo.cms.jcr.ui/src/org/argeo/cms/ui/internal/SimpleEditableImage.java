@@ -6,6 +6,8 @@ import org.argeo.api.cms.ux.Cms2DSize;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ui.util.CmsUiUtils;
 import org.argeo.cms.ui.widgets.EditableImage;
+import org.argeo.cms.ux.AbstractImageManager;
+import org.argeo.cms.ux.CmsUxUtils;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Text;
@@ -41,9 +43,9 @@ public class SimpleEditableImage extends EditableImage {
 	protected String createImgTag() throws RepositoryException {
 		String imgTag;
 		if (src != null)
-			imgTag = CmsUiUtils.img(src, imageSize);
+			imgTag = CmsUxUtils.img(src, imageSize);
 		else
-			imgTag = CmsUiUtils.noImg(imageSize != null ? imageSize : NO_IMAGE_SIZE);
+			imgTag = CmsUiUtils.noImg(imageSize != null ? imageSize : AbstractImageManager.NO_IMAGE_SIZE);
 		return imgTag;
 	}
 

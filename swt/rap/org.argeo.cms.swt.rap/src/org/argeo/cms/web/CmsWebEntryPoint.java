@@ -27,8 +27,8 @@ import org.argeo.cms.servlet.ServletHttpRequest;
 import org.argeo.cms.servlet.ServletHttpResponse;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.SimpleSwtUxContext;
+import org.argeo.cms.swt.acr.AcrSwtImageManager;
 import org.argeo.cms.swt.dialogs.CmsFeedback;
-import org.argeo.cms.ui.util.DefaultImageManager;
 import org.argeo.eclipse.ui.specific.UiContext;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.EntryPoint;
@@ -111,7 +111,7 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 			public Void run() {
 				try {
 					uxContext = new SimpleSwtUxContext();
-					imageManager = new DefaultImageManager();
+					imageManager = (CmsImageManager) new AcrSwtImageManager();
 					CmsSession cmsSession = getCmsSession();
 					if (cmsSession != null) {
 						UiContext.setLocale(cmsSession.getLocale());

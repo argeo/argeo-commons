@@ -1,7 +1,9 @@
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/cms-admin-rap.xml
 
-Import-Package: org.eclipse.swt,\
+Import-Package: \
+org.argeo.api.acr, \
+org.eclipse.swt,\
 org.eclipse.swt.graphics,\
 org.eclipse.e4.ui.workbench,\
 org.eclipse.rap.rwt.client,\

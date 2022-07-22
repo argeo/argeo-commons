@@ -1,7 +1,5 @@
 package org.argeo.cms.ui;
 
-import org.argeo.api.cms.ux.Cms2DSize;
-
 /** Commons constants */
 @Deprecated
 public interface CmsUiConstants {
@@ -20,9 +18,6 @@ public interface CmsUiConstants {
 	// STANDARD RESOURCES
 	public final static String LOADING_IMAGE = "icons/loading.gif";
 
-	public final static String NO_IMAGE = "icons/noPic-square-640px.png";
-	public final static Cms2DSize NO_IMAGE_SIZE = new Cms2DSize(320, 320);
-	public final static Float NO_IMAGE_RATIO = 1f;
 	// MISCEALLENEOUS
 	String DATE_TIME_FORMAT = "dd/MM/yyyy, HH:mm";
 }

@@ -41,7 +41,7 @@ swt/rap/org.argeo.cms.swt.rap \
 swt/rap/org.argeo.cms.swt.rap.cli \
 swt/rap/org.argeo.cms.e4.rap \
 jcr/org.argeo.cms.jcr \
-jcr/org.argeo.cms.ui \
+jcr/org.argeo.cms.jcr.ui \
 
 JAVADOC_BUNDLES =  \
 org.argeo.api.uuid \
