@@ -37,9 +37,9 @@ import org.osgi.framework.wiring.FrameworkWiring;
  * methods, configured via properties.
  */
 public class OsgiBoot implements OsgiBootConstants {
-	final static String PROP_ARGEO_OSGI_START = "argeo.osgi.start";
-	final static String PROP_ARGEO_OSGI_MAX_START_LEVEL = "argeo.osgi.maxStartLevel";
-	final static String PROP_ARGEO_OSGI_SOURCES = "argeo.osgi.sources";
+	public final static String PROP_ARGEO_OSGI_START = "argeo.osgi.start";
+	public final static String PROP_ARGEO_OSGI_MAX_START_LEVEL = "argeo.osgi.maxStartLevel";
+	public final static String PROP_ARGEO_OSGI_SOURCES = "argeo.osgi.sources";
 
 	@Deprecated
 	final static String PROP_ARGEO_OSGI_BUNDLES = "argeo.osgi.bundles";
@@ -55,7 +55,8 @@ public class OsgiBoot implements OsgiBootConstants {
 	final static String PROP_ARGEO_OSGI_BOOT_APPCLASS = "argeo.osgi.boot.appclass";
 	final static String PROP_ARGEO_OSGI_BOOT_APPARGS = "argeo.osgi.boot.appargs";
 
-	final static String DEFAULT_BASE_URL = "reference:file:";
+	@Deprecated
+	public final static String DEFAULT_BASE_URL = "reference:file:";
 	final static String DEFAULT_MAX_START_LEVEL = "32";
 
 	// OSGi standard properties
@@ -595,6 +596,7 @@ public class OsgiBoot implements OsgiBootConstants {
 	}
 
 	/** Implements the path matching logic */
+	@Deprecated
 	public List<String> getBundlesUrls(String baseUrl, String bundlePatterns) {
 		List<String> urls = new ArrayList<String>();
 		if (bundlePatterns == null)
