@@ -32,10 +32,9 @@ import org.osgi.service.useradmin.UserAdmin;
 public class CmsContextImpl implements CmsContext {
 
 	private final CmsLog log = CmsLog.getLog(getClass());
-//	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-//	private EgoRepository egoRepository;
 	private static CompletableFuture<CmsContextImpl> instance = new CompletableFuture<CmsContextImpl>();
+//	private static CmsContextImpl instance = null;
 
 	private CmsState cmsState;
 	private CmsDeployment cmsDeployment;
@@ -57,39 +56,12 @@ public class CmsContextImpl implements CmsContext {
 	private Map<String, SubmissionPublisher<Map<String, Object>>> topics = new TreeMap<>();
 //	private IdentityHashMap<CmsEventSubscriber, List<CmsEventFlowSubscriber>> subscriptions = new IdentityHashMap<>();
 
-//	public CmsContextImpl() {
-//		initTrackers();
-//	}
-
 	public void start() {
 		List<String> codes = CmsStateImpl.getDeployProperties(cmsState, CmsDeployProperty.LOCALE);
 		locales = getLocaleList(codes);
 		if (locales.size() == 0)
 			throw new IllegalStateException("At least one locale must be set");
 		defaultLocale = locales.get(0);
-//		Object defaultLocaleValue = KernelUtils.getFrameworkProp(CmsConstants.I18N_DEFAULT_LOCALE);
-//		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
-//				: new Locale(ENGLISH.getLanguage());
-		// node repository
-//		new ServiceTracker<Repository, Repository>(bc, Repository.class, null) {
-//			@Override
-//			public Repository addingService(ServiceReference<Repository> reference) {
-//				Object cn = reference.getProperty(NodeConstants.CN);
-//				if (cn != null && cn.equals(NodeConstants.EGO_REPOSITORY)) {
-////					egoRepository = (EgoRepository) bc.getService(reference);
-//					if (log.isTraceEnabled())
-//						log.trace("Home repository is available");
-//				}
-//				return super.addingService(reference);
-//			}
-//
-//			@Override
-//			public void removedService(ServiceReference<Repository> reference, Repository service) {
-//				super.removedService(reference, service);
-////				egoRepository = null;
-//			}
-//
-//		}.open();
 
 		new Thread(() -> {
 			while (!checkReadiness()) {
@@ -99,7 +71,7 @@ public class CmsContextImpl implements CmsContext {
 				}
 			}
 		}, "Check readiness").start();
-		
+
 		// checkReadiness();
 
 		setInstance(this);
@@ -232,11 +204,11 @@ public class CmsContextImpl implements CmsContext {
 	}
 
 	@Override
-	public synchronized Long getAvailableSince() {
+	public Long getAvailableSince() {
 		return availableSince;
 	}
 
-	public synchronized boolean isAvailable() {
+	public boolean isAvailable() {
 		return availableSince != null;
 	}
 
@@ -249,17 +221,26 @@ public class CmsContextImpl implements CmsContext {
 	 * STATIC
 	 */
 
-	public synchronized static CmsContextImpl getCmsContext() {
+	public static CmsContextImpl getCmsContext() {
 		return getInstance();
 	}
 
 	/** Required by SPNEGO login module. */
-	public synchronized static GSSCredential getAcceptorCredentials() {
+	public static GSSCredential getAcceptorCredentials() {
 		// TODO find a cleaner way
 		return ((CmsUserAdmin) getInstance().userAdmin).getAcceptorCredentials();
 	}
 
-	private synchronized static void setInstance(CmsContextImpl cmsContextImpl) {
+	private static void setInstance(CmsContextImpl cmsContextImpl) {
+//		if (cmsContextImpl != null) {
+//			if (instance != null)
+//				throw new IllegalStateException("CMS Context is already set");
+//			instance = cmsContextImpl;
+//		} else {
+//			instance = null;
+//		}
+//		CmsContextImpl.class.notifyAll();
+		
 		if (cmsContextImpl != null) {
 			if (instance.isDone())
 				throw new IllegalStateException("CMS Context is already set");
@@ -269,7 +250,16 @@ public class CmsContextImpl implements CmsContext {
 		}
 	}
 
-	private synchronized static CmsContextImpl getInstance() {
+	private static CmsContextImpl getInstance() {
+//		while (instance == null) {
+//			try {
+//				CmsContextImpl.class.wait();
+//			} catch (InterruptedException e) {
+//				throw new IllegalStateException("Cannot wait for CMS context instance", e);
+//			}
+//		}
+//		return instance;
+
 		try {
 			return instance.get();
 		} catch (InterruptedException | ExecutionException e) {
@@ -286,14 +276,14 @@ public class CmsContextImpl implements CmsContext {
 	 */
 
 	@Override
-	public synchronized CmsSession getCmsSession(Subject subject) {
+	public CmsSession getCmsSession(Subject subject) {
 		if (subject.getPrivateCredentials(CmsSessionId.class).isEmpty())
 			return null;
 		CmsSessionId cmsSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next();
 		return getCmsSessionByUuid(cmsSessionId.getUuid());
 	}
 
-	public synchronized void registerCmsSession(CmsSessionImpl cmsSession) {
+	public void registerCmsSession(CmsSessionImpl cmsSession) {
 		if (cmsSessionsByUuid.containsKey(cmsSession.getUuid())
 				|| cmsSessionsByLocalId.containsKey(cmsSession.getLocalId()))
 			throw new IllegalStateException("CMS session " + cmsSession + " is already registered.");
@@ -301,7 +291,7 @@ public class CmsContextImpl implements CmsContext {
 		cmsSessionsByLocalId.put(cmsSession.getLocalId(), cmsSession);
 	}
 
-	public synchronized void unregisterCmsSession(CmsSessionImpl cmsSession) {
+	public void unregisterCmsSession(CmsSessionImpl cmsSession) {
 		if (!cmsSessionsByUuid.containsKey(cmsSession.getUuid())
 				|| !cmsSessionsByLocalId.containsKey(cmsSession.getLocalId()))
 			throw new IllegalStateException("CMS session " + cmsSession + " is not registered.");
@@ -314,7 +304,7 @@ public class CmsContextImpl implements CmsContext {
 	 * The {@link CmsSession} related to this UUID, or <code>null</null> if not
 	 * registered.
 	 */
-	public synchronized CmsSessionImpl getCmsSessionByUuid(UUID uuid) {
+	public CmsSessionImpl getCmsSessionByUuid(UUID uuid) {
 		return cmsSessionsByUuid.get(uuid);
 	}
 
@@ -322,7 +312,7 @@ public class CmsContextImpl implements CmsContext {
 	 * The {@link CmsSession} related to this local id, or <code>null</null> if not
 	 * registered.
 	 */
-	public synchronized CmsSessionImpl getCmsSessionByLocalId(String localId) {
+	public CmsSessionImpl getCmsSessionByLocalId(String localId) {
 		return cmsSessionsByLocalId.get(localId);
 	}
 
