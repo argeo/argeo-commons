@@ -1,5 +1,7 @@
 package org.argeo.cms.ui.rcp.servlet;
 
+import static java.lang.System.Logger.Level.DEBUG;
+
 import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
@@ -9,31 +11,22 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
-import javax.servlet.Servlet;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.http.HttpService;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
 /** Publishes one {@link CmsRcpServlet} per {@link CmsApp}. */
 public class CmsRcpServletFactory {
 	private final static Logger logger = System.getLogger(CmsRcpServletFactory.class.getName());
-
-	private BundleContext bundleContext = FrameworkUtil.getBundle(CmsRcpServletFactory.class).getBundleContext();
-
-	private CompletableFuture<EventAdmin> eventAdmin = new CompletableFuture<>();
-
-	private Map<String, ServiceRegistration<Servlet>> registrations = Collections.synchronizedMap(new HashMap<>());
+	private HttpServer httpServer;
+//	private BundleContext bundleContext = FrameworkUtil.getBundle(CmsRcpServletFactory.class).getBundleContext();
+//
+//	private Map<String, ServiceRegistration<Servlet>> registrations = Collections.synchronizedMap(new HashMap<>());
 
 	public void init() {
 
@@ -51,33 +44,40 @@ public class CmsRcpServletFactory {
 	}
 
 	public void addCmsApp(CmsApp cmsApp, Map<String, String> properties) {
-		String contextName = properties.get(CmsApp.CONTEXT_NAME_PROPERTY);
+		final String contextName = properties.get(CmsApp.CONTEXT_NAME_PROPERTY);
 		if (contextName != null) {
-			eventAdmin.thenAccept((eventAdmin) -> {
-				CmsRcpServlet servlet = new CmsRcpServlet(eventAdmin, cmsApp);
-				Hashtable<String, String> serviceProperties = new Hashtable<>();
-				serviceProperties.put("osgi.http.whiteboard.servlet.pattern", "/" + contextName + "/*");
-				ServiceRegistration<Servlet> sr = bundleContext.registerService(Servlet.class, servlet,
-						serviceProperties);
-				registrations.put(contextName, sr);
+			httpServer.createContext("/" + contextName, new HttpHandler() {
+
+				@Override
+				public void handle(HttpExchange exchange) throws IOException {
+					String path = exchange.getRequestURI().getPath();
+					String uiName = path != null ? path.substring(path.lastIndexOf('/') + 1) : "";
+					CmsRcpDisplayFactory.openCmsApp(cmsApp, uiName, null);
+					exchange.sendResponseHeaders(200, -1);
+					logger.log(Level.DEBUG, "Opened RCP UI  " + uiName + " of  CMS App /" + contextName);
+				}
 			});
+			logger.log(Level.DEBUG, "Registered RCP CMS APP /" + contextName);
+//			CmsRcpServlet servlet = new CmsRcpServlet(cmsApp);
+//			Hashtable<String, String> serviceProperties = new Hashtable<>();
+//			serviceProperties.put("osgi.http.whiteboard.servlet.pattern", "/" + contextName + "/*");
+//			ServiceRegistration<Servlet> sr = bundleContext.registerService(Servlet.class, servlet, serviceProperties);
+//			registrations.put(contextName, sr);
 		}
 	}
 
 	public void removeCmsApp(CmsApp cmsApp, Map<String, String> properties) {
 		String contextName = properties.get(CmsApp.CONTEXT_NAME_PROPERTY);
 		if (contextName != null) {
-			ServiceRegistration<Servlet> sr = registrations.get(contextName);
-			sr.unregister();
+			httpServer.removeContext("/" + contextName);
+//			ServiceRegistration<Servlet> sr = registrations.get(contextName);
+//			sr.unregister();
 		}
 	}
 
-	public void setEventAdmin(EventAdmin eventAdmin) {
-		this.eventAdmin.complete(eventAdmin);
-	}
-
-	public void setHttpService(HttpService httpService, Map<String, Object> properties) {
-		Integer httpPort = Integer.parseInt(properties.get("http.port").toString());
+	public void setHttpServer(HttpServer httpServer) {
+		this.httpServer = httpServer;
+		Integer httpPort = httpServer.getAddress().getPort();
 		String baseUrl = "http://localhost:" + httpPort + "/";
 		Path runFile = CmsRcpDisplayFactory.getUrlRunFile();
 		try {
@@ -99,7 +99,7 @@ public class CmsRcpServletFactory {
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot write run file to " + runFile, e);
 		}
-		logger.log(Level.DEBUG, "RCP available under " + baseUrl + ", written to " + runFile);
+		logger.log(DEBUG, "RCP available under " + baseUrl + ", written to " + runFile);
 	}
 
 	protected boolean isPortAvailable(int port) {

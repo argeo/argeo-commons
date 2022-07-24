@@ -279,7 +279,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 				loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, subject, this);
 			loginContext.login();
 			cmsView.authChange(loginContext);
-			cmsContext.sendEvent("cms", Collections.singletonMap("msg", "New login"));
+			cmsContext.getCmsEventBus().sendEvent("cms", Collections.singletonMap("msg", "New login"));
 			return true;
 		} catch (LoginException e) {
 			if (log.isTraceEnabled())

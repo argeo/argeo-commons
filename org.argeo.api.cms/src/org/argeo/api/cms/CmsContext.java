@@ -2,7 +2,7 @@ package org.argeo.api.cms;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.UUID;
 
 import javax.security.auth.Subject;
 
@@ -29,11 +29,9 @@ public interface CmsContext {
 	/** Get the CMS session of this subject. */
 	CmsSession getCmsSession(Subject subject);
 
-	CmsState getCmsState();
+	CmsEventBus getCmsEventBus();
 
-	void sendEvent(String topic, Map<String, Object> event);
+	/** A new time based {@link UUID} (v1) using the current time */
+	UUID timeUUID();
 
-	void addEventSubscriber(String topic, CmsEventSubscriber eventSubscriber);
-
-	void removeEventSubscriber(String topic, CmsEventSubscriber eventSubscriber);
 }

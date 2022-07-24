@@ -82,7 +82,7 @@ public class CmsCli extends CommandsCli {
 				protected void postActivation(ComponentRegister register) {
 					if (ui) {
 						Component<? extends CmsUserApp> cmsAppC = register.find(CmsUserApp.class, null).first();
-						CmsRcpDisplayFactory.openCmsApp(null, cmsAppC.get(), "data", (e) -> {
+						CmsRcpDisplayFactory.openCmsApp(cmsAppC.get(), "data", (e) -> {
 							// asynchronous in order to avoid deadlock in UI thread
 							ForkJoinPool.commonPool().execute(() -> stop());
 						});

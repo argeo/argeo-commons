@@ -14,7 +14,6 @@ import javax.security.auth.login.LoginException;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
-import org.argeo.cms.internal.http.CmsAuthenticator;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.util.http.HttpHeader;
 import org.ietf.jgss.GSSContext;
@@ -148,7 +147,7 @@ public class RemoteAuthUtils {
 	public static int askForWwwAuth(RemoteAuthResponse remoteAuthResponse, String realm, boolean forceBasic) {
 		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
 		// realm=\"" + httpAuthRealm + "\"");
-		if (SpnegoLoginModule.hasAcceptorCredentials() && !forceBasic)// SPNEGO
+		if (hasAcceptorCredentials() && !forceBasic)// SPNEGO
 			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(), HttpHeader.NEGOTIATE);
 		else
 			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(),
@@ -163,6 +162,10 @@ public class RemoteAuthUtils {
 		// response.setContentType("text/html; charset=UTF-8");
 
 		return 401;
+	}
+
+	private static boolean hasAcceptorCredentials() {
+		return CmsContextImpl.getCmsContext().getAcceptorCredentials() != null;
 	}
 
 }

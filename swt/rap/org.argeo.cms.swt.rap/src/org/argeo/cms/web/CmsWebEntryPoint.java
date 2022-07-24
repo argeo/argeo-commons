@@ -3,9 +3,7 @@ package org.argeo.cms.web;
 import static org.eclipse.rap.rwt.internal.service.ContextProvider.getApplicationContext;
 
 import java.security.PrivilegedAction;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.security.auth.Subject;
@@ -14,17 +12,17 @@ import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.ux.CmsImageManager;
-import org.argeo.api.cms.ux.CmsUi;
 import org.argeo.api.cms.ux.CmsView;
-import org.argeo.api.cms.ux.UxContext;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.servlet.ServletHttpRequest;
 import org.argeo.cms.servlet.ServletHttpResponse;
+import org.argeo.cms.swt.AbstractSwtCmsView;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.SimpleSwtUxContext;
 import org.argeo.cms.swt.acr.AcrSwtImageManager;
@@ -41,30 +39,15 @@ import org.eclipse.swt.SWTError;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
+import org.eclipse.swt.widgets.Widget;
 
 /** The {@link CmsView} for a {@link CmsWebApp}. */
 @SuppressWarnings("restriction")
-public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationListener {
+public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView, BrowserNavigationListener {
 	private static final long serialVersionUID = 7733510691684570402L;
 	private final static CmsLog log = CmsLog.getLog(CmsWebEntryPoint.class);
 
-	private EventAdmin eventAdmin;
-
 	private final CmsWebApp cmsWebApp;
-	private final String uiName;
-
-	private LoginContext loginContext;
-	private String state;
-	private Throwable exception;
-	private UxContext uxContext;
-	private CmsImageManager imageManager;
-
-	private Display display;
-	private CmsUi ui;
-
-	private String uid;
 
 	// Client services
 	// private final JavaScriptExecutor jsExecutor;
@@ -74,10 +57,10 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	private boolean multipleShells = false;
 
 	public CmsWebEntryPoint(CmsWebApp cmsWebApp, String uiName) {
+		super(uiName);
 		assert cmsWebApp != null;
 		assert uiName != null;
 		this.cmsWebApp = cmsWebApp;
-		this.uiName = uiName;
 		uid = UUID.randomUUID().toString();
 
 		// Initial login
@@ -134,19 +117,6 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 				return null;
 			}
 		});
-	}
-
-	protected Subject getSubject() {
-		return loginContext.getSubject();
-	}
-
-	public <T> T doAs(PrivilegedAction<T> action) {
-		return Subject.doAs(getSubject(), action);
-	}
-
-	@Override
-	public boolean isAnonymous() {
-		return CurrentUser.isAnonymous(getSubject());
 	}
 
 	@Override
@@ -221,16 +191,6 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	}
 
 	@Override
-	public UxContext getUxContext() {
-		return uxContext;
-	}
-
-	@Override
-	public String getUid() {
-		return uid;
-	}
-
-	@Override
 	public void navigateTo(String state) {
 		exception = null;
 		String title = setState(state);
@@ -251,14 +211,8 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 	}
 
 	@Override
-	public void sendEvent(String topic, Map<String, Object> properties) {
-		if (properties == null)
-			properties = new HashMap<>();
-		if (properties.containsKey(CMS_VIEW_UID_PROPERTY) && !properties.get(CMS_VIEW_UID_PROPERTY).equals(uid))
-			throw new IllegalArgumentException("Property " + CMS_VIEW_UID_PROPERTY + " is set to another CMS view uid ("
-					+ properties.get(CMS_VIEW_UID_PROPERTY) + ") then " + uid);
-		properties.put(CMS_VIEW_UID_PROPERTY, uid);
-		eventAdmin.sendEvent(new Event(topic, properties));
+	public CmsEventBus getCmsEventBus() {
+		return cmsWebApp.getCmsEventBus();
 	}
 
 	@Override
@@ -272,24 +226,6 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		if (cmsSession == null)
 			throw new IllegalStateException("No CMS session available for " + getSubject());
 		return cmsSession;
-	}
-
-	@Override
-	public Object getData(String key) {
-		if (ui != null) {
-			return ui.getData(key);
-		} else {
-			throw new IllegalStateException("UI is not initialized");
-		}
-	}
-
-	@Override
-	public void setData(String key, Object value) {
-		if (ui != null) {
-			ui.setData(key, value);
-		} else {
-			throw new IllegalStateException("UI is not initialized");
-		}
 	}
 
 	/*
@@ -360,9 +296,4 @@ public class CmsWebEntryPoint implements EntryPoint, CmsView, BrowserNavigationL
 		}
 		return shell;
 	}
-
-	public void setEventAdmin(EventAdmin eventAdmin) {
-		this.eventAdmin = eventAdmin;
-	}
-
 }

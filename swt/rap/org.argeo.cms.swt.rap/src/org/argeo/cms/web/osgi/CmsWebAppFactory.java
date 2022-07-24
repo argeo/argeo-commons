@@ -6,17 +6,17 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsEventBus;
 import org.argeo.cms.web.CmsWebApp;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.service.event.EventAdmin;
 
 /** Publish a CmsApp as a RAP application. */
 public class CmsWebAppFactory {
 	private BundleContext bundleContext = FrameworkUtil.getBundle(CmsWebAppFactory.class).getBundleContext();
 	private final static String CONTEXT_NAME = "contextName";
 
-	private EventAdmin eventAdmin;
+	private CmsEventBus cmsEventBus;
 
 	private Map<String, CmsWebApp> registrations = Collections.synchronizedMap(new HashMap<>());
 
@@ -24,7 +24,7 @@ public class CmsWebAppFactory {
 		String contextName = properties.get(CmsApp.CONTEXT_NAME_PROPERTY);
 		if (contextName != null) {
 			CmsWebApp cmsWebApp = new CmsWebApp();
-			cmsWebApp.setEventAdmin(eventAdmin);
+			cmsWebApp.setCmsEventBus(cmsEventBus);
 			cmsWebApp.setCmsApp(cmsApp);
 			Hashtable<String, String> serviceProperties = new Hashtable<>();
 			if (!contextName.equals(""))
@@ -47,8 +47,9 @@ public class CmsWebAppFactory {
 		}
 	}
 
-	public void setEventAdmin(EventAdmin eventAdmin) {
-		this.eventAdmin = eventAdmin;
+	public void setCmsEventBus(CmsEventBus cmsEventBus) {
+		this.cmsEventBus = cmsEventBus;
 	}
+
 
 }

@@ -3,24 +3,11 @@ package org.argeo.cms.jetty;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.websocket.DeploymentException;
-import javax.websocket.server.ServerContainer;
-import javax.websocket.server.ServerEndpointConfig;
-import com.sun.net.httpserver.Authenticator;
-import com.sun.net.httpserver.HttpContext;
 
-import org.argeo.api.cms.CmsState;
-import org.argeo.cms.CmsDeployProperty;
-import org.argeo.cms.websocket.server.CmsWebSocketConfigurator;
-import org.argeo.cms.websocket.server.TestEndpoint;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
-import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
 
 public class CmsJettyServer extends JettyHttpServer {
 	private static final String CONTEXT_TEMPDIR = "javax.servlet.context.tempdir";
@@ -37,9 +24,7 @@ public class CmsJettyServer extends JettyHttpServer {
 
 	// WebSocket
 //	private ServerContainer wsServerContainer;
-	private ServerEndpointConfig.Configurator wsEndpointConfigurator;
-
-	private CmsState cmsState;
+//	private ServerEndpointConfig.Configurator wsEndpointConfigurator;
 
 //	private Authenticator defaultAuthenticator;
 
@@ -74,7 +59,7 @@ public class CmsJettyServer extends JettyHttpServer {
 	@Override
 	protected void configureRootContextHandler(ServletContextHandler servletContextHandler) throws ServletException {
 		addServlets(servletContextHandler);
-		enableWebSocket(servletContextHandler);
+//		enableWebSocket(servletContextHandler);
 
 	}
 
@@ -85,39 +70,31 @@ public class CmsJettyServer extends JettyHttpServer {
 //		return httpContext;
 //	}
 
-	protected void enableWebSocket(ServletContextHandler servletContextHandler) {
-		String webSocketEnabled = getDeployProperty(CmsDeployProperty.WEBSOCKET_ENABLED);
-		// web socket
-		if (webSocketEnabled != null && webSocketEnabled.equals(Boolean.toString(true))) {
-//			JavaxWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
-//
-//				@Override
-//				public void accept(ServletContext servletContext, ServerContainer serverContainer)
-//						throws DeploymentException {
-////					wsServerContainer = serverContainer;
-//
-//					CmsWebSocketConfigurator wsEndpointConfigurator = new CmsWebSocketConfigurator();
-//
-//					ServerEndpointConfig config = ServerEndpointConfig.Builder
-//							.create(TestEndpoint.class, "/ws/test/events/{topic}").configurator(wsEndpointConfigurator)
-//							.build();
-//					try {
-//						serverContainer.addEndpoint(config);
-//					} catch (DeploymentException e) {
-//						throw new IllegalStateException("Cannot initalise the WebSocket server runtime.", e);
-//					}
-//				}
-//			});
-		}
-	}
-
-	protected String getDeployProperty(CmsDeployProperty deployProperty) {
-		return cmsState.getDeployProperty(deployProperty.getProperty());
-	}
-
-	public void setCmsState(CmsState cmsState) {
-		this.cmsState = cmsState;
-	}
+//	protected void enableWebSocket(ServletContextHandler servletContextHandler) {
+//		String webSocketEnabled = getDeployProperty(CmsDeployProperty.WEBSOCKET_ENABLED);
+//		// web socket
+//		if (webSocketEnabled != null && webSocketEnabled.equals(Boolean.toString(true))) {
+////			JavaxWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
+////
+////				@Override
+////				public void accept(ServletContext servletContext, ServerContainer serverContainer)
+////						throws DeploymentException {
+//////					wsServerContainer = serverContainer;
+////
+////					CmsWebSocketConfigurator wsEndpointConfigurator = new CmsWebSocketConfigurator();
+////
+////					ServerEndpointConfig config = ServerEndpointConfig.Builder
+////							.create(TestEndpoint.class, "/ws/test/events/{topic}").configurator(wsEndpointConfigurator)
+////							.build();
+////					try {
+////						serverContainer.addEndpoint(config);
+////					} catch (DeploymentException e) {
+////						throw new IllegalStateException("Cannot initalise the WebSocket server runtime.", e);
+////					}
+////				}
+////			});
+//		}
+//	}
 
 //	public void setDefaultAuthenticator(Authenticator defaultAuthenticator) {
 //		this.defaultAuthenticator = defaultAuthenticator;

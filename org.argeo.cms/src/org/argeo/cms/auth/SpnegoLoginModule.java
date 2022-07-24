@@ -122,7 +122,7 @@ public class SpnegoLoginModule implements LoginModule {
 	private GSSContext checkToken(byte[] authToken) {
 		GSSManager manager = GSSManager.getInstance();
 		try {
-			GSSContext gContext = manager.createContext(CmsContextImpl.getAcceptorCredentials());
+			GSSContext gContext = manager.createContext(CmsContextImpl.getCmsContext().getAcceptorCredentials());
 
 			if (gContext == null) {
 				log.debug("SpnegoUserRealm: failed to establish GSSContext");
@@ -143,8 +143,4 @@ public class SpnegoLoginModule implements LoginModule {
 
 	}
 
-	@Deprecated
-	public static boolean hasAcceptorCredentials() {
-		return CmsContextImpl.getAcceptorCredentials() != null;
-	}
 }

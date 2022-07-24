@@ -14,6 +14,7 @@ import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.osgi.useradmin.OsUserUtils;
 import org.argeo.util.directory.ldap.IpaUtils;
 import org.argeo.util.naming.LdapAttrs;
@@ -54,13 +55,7 @@ public class SingleUserLoginModule implements LoginModule {
 			Object username = sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			if (username == null)
 				throw new LoginException("No username available");
-			String hostname;
-			try {
-				hostname = InetAddress.getLocalHost().getHostName();
-			} catch (UnknownHostException e) {
-				log.warn("Using localhost as hostname", e);
-				hostname = "localhost";
-			}
+			String hostname = CmsContextImpl.getCmsContext().getCmsState().getHostname();
 			String baseDn = ("." + hostname).replaceAll("\\.", ",dc=");
 			X500Principal principal = new X500Principal(LdapAttrs.uid + "=" + username + baseDn);
 			authorizationName = principal.getName();
@@ -74,8 +69,8 @@ public class SingleUserLoginModule implements LoginModule {
 			locale = Locale.getDefault();
 		Authorization authorization = new SingleUserAuthorization(authorizationName);
 		CmsAuthUtils.addAuthorization(subject, authorization);
-		
-		// Add standard Java OS login 
+
+		// Add standard Java OS login
 		OsUserUtils.loginAsSystemUser(subject);
 
 		// additional principals (must be after Authorization registration)

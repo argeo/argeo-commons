@@ -2,5 +2,5 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CMS Web App Factory">
    <implementation class="org.argeo.cms.web.osgi.CmsWebAppFactory"/>
    <reference bind="addCmsApp" cardinality="0..n" interface="org.argeo.api.cms.CmsApp" name="CmsApp" policy="dynamic" unbind="removeCmsApp"/>
-   <reference bind="setEventAdmin" cardinality="1..1" interface="org.osgi.service.event.EventAdmin" name="EventAdmin" policy="static"/>
+   <reference bind="setCmsEventBus" cardinality="1..1" interface="org.argeo.api.cms.CmsEventBus" name="CmsEventBus" policy="static"/>
 </scr:component>

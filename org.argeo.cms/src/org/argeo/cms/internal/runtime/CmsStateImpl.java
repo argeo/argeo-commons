@@ -2,7 +2,9 @@ package org.argeo.cms.internal.runtime;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +23,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.security.auth.login.Configuration;
 
@@ -43,7 +50,7 @@ public class CmsStateImpl implements CmsState {
 
 	private UUID uuid;
 //	private final boolean cleanState;
-//	private String hostname;
+	private String hostname;
 
 	private UuidFactory uuidFactory;
 
@@ -96,11 +103,27 @@ public class CmsStateImpl implements CmsState {
 //			this.uuid = UUID.fromString(stateUuidStr);
 			this.uuid = uuidFactory.timeUUID();
 //		this.cleanState = stateUuid.equals(frameworkUuid);
-//			try {
-//				this.hostname = InetAddress.getLocalHost().getHostName();
-//			} catch (UnknownHostException e) {
-//				log.error("Cannot set hostname: " + e);
-//			}
+
+			// hostname
+			this.hostname = getDeployProperty(CmsDeployProperty.HOST);
+			// TODO verify we have access to the IP address
+			if (hostname == null) {
+				final String LOCALHOST_IP = "::1";
+				ForkJoinTask<String> hostnameFJT = ForkJoinPool.commonPool().submit(() -> {
+					try {
+						String hostname = InetAddress.getLocalHost().getHostName();
+						return hostname;
+					} catch (UnknownHostException e) {
+						throw new IllegalStateException("Cannot get local hostname", e);
+					}
+				});
+				try {
+					this.hostname = hostnameFJT.get(5, TimeUnit.SECONDS);
+				} catch (InterruptedException | ExecutionException | TimeoutException e) {
+					this.hostname = LOCALHOST_IP;
+					log.warn("Could not get local hostname, using " + this.hostname);
+				}
+			}
 
 			availableSince = System.currentTimeMillis();
 			if (log.isDebugEnabled()) {
@@ -371,6 +394,10 @@ public class CmsStateImpl implements CmsState {
 
 	public void setUuidFactory(UuidFactory uuidFactory) {
 		this.uuidFactory = uuidFactory;
+	}
+
+	public String getHostname() {
+		return hostname;
 	}
 
 	/**

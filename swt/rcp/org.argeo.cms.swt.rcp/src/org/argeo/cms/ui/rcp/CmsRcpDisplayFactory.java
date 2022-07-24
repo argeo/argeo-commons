@@ -4,9 +4,8 @@ import java.nio.file.Path;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.util.OS;
-import org.eclipse.swt.widgets.Display;
-import org.osgi.service.event.EventAdmin;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.widgets.Display;
 
 /** Creates the SWT {@link Display} in a dedicated thread. */
 public class CmsRcpDisplayFactory {
@@ -72,11 +71,9 @@ public class CmsRcpDisplayFactory {
 		return display;
 	}
 
-	public static void openCmsApp(EventAdmin eventAdmin, CmsApp cmsApp, String uiName,
-			DisposeListener disposeListener) {
+	public static void openCmsApp(CmsApp cmsApp, String uiName, DisposeListener disposeListener) {
 		CmsRcpDisplayFactory.getDisplay().syncExec(() -> {
 			CmsRcpApp cmsRcpApp = new CmsRcpApp(uiName);
-			cmsRcpApp.setEventAdmin(eventAdmin);
 			cmsRcpApp.setCmsApp(cmsApp, null);
 			cmsRcpApp.initRcpApp();
 			if (disposeListener != null)

@@ -10,7 +10,7 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-import org.argeo.api.cms.CmsContext;
+import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsEventSubscriber;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -20,15 +20,15 @@ public class EventEndpoint implements CmsEventSubscriber {
 	private BundleContext bc = FrameworkUtil.getBundle(TestEndpoint.class).getBundleContext();
 
 	private RemoteEndpoint.Basic remote;
-	private CmsContext cmsContext;
+	private CmsEventBus cmsEventBus;
 
 //	private String topic = "cms";
 
 	@OnOpen
 	public void onOpen(Session session, @PathParam("topic") String topic) {
 		if (bc != null) {
-			cmsContext = bc.getService(bc.getServiceReference(CmsContext.class));
-			cmsContext.addEventSubscriber(topic, this);
+			cmsEventBus = bc.getService(bc.getServiceReference(CmsEventBus.class));
+			cmsEventBus.addEventSubscriber(topic, this);
 		}
 		remote = session.getBasicRemote();
 
@@ -36,7 +36,7 @@ public class EventEndpoint implements CmsEventSubscriber {
 
 	@OnClose
 	public void onClose(@PathParam("topic") String topic) {
-		cmsContext.removeEventSubscriber(topic, this);
+		cmsEventBus.removeEventSubscriber(topic, this);
 	}
 
 	@Override

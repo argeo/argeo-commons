@@ -10,6 +10,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import javax.servlet.ServletException;
 
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.util.http.HttpServerUtils;
 import org.eclipse.jetty.http.UriCompliance;
@@ -41,7 +42,8 @@ public class JettyHttpServer extends HttpsServer {
 	protected ServerConnector httpConnector;
 	protected ServerConnector httpsConnector;
 
-	private InetSocketAddress address;
+	private InetSocketAddress httpAddress;
+	private InetSocketAddress httpsAddress;
 
 	private ThreadPoolExecutor executor;
 
@@ -52,6 +54,8 @@ public class JettyHttpServer extends HttpsServer {
 	protected final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
 
 	private boolean started;
+
+	private CmsState cmsState;
 
 	@Override
 	public void bind(InetSocketAddress addr, int backlog) throws IOException {
@@ -182,7 +186,7 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public InetSocketAddress getAddress() {
-		return address;
+		return httpAddress;
 	}
 
 	@Override
@@ -195,8 +199,6 @@ public class JettyHttpServer extends HttpsServer {
 		return httpsConfigurator;
 	}
 
-	
-	
 	protected void configureConnectors() {
 		HttpConfiguration httpConfiguration = new HttpConfiguration();
 
@@ -210,6 +212,10 @@ public class JettyHttpServer extends HttpsServer {
 
 		// try {
 		if (httpPortStr != null || httpsPortStr != null) {
+			// TODO deal with hostname resolving taking too much time
+//			String fallBackHostname = InetAddress.getLocalHost().getHostName();
+			String fallBackHostname = cmsState != null ? cmsState.getHostname() : "::1";
+
 			boolean httpEnabled = httpPortStr != null;
 			// props.put(JettyHttpConstants.HTTP_ENABLED, httpEnabled);
 			boolean httpsEnabled = httpsPortStr != null;
@@ -226,6 +232,8 @@ public class JettyHttpServer extends HttpsServer {
 				httpConnector.setPort(httpPort);
 				httpConnector.setHost(httpHost);
 				httpConnector.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
+
+				httpAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname, httpPort);
 			}
 
 			if (httpsEnabled) {
@@ -261,6 +269,8 @@ public class JettyHttpServer extends HttpsServer {
 				int httpsPort = Integer.parseInt(httpsPortStr);
 				httpsConnector.setPort(httpsPort);
 				httpsConnector.setHost(httpHost);
+
+				httpsAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname, httpsPort);
 			}
 
 		}
@@ -268,7 +278,8 @@ public class JettyHttpServer extends HttpsServer {
 	}
 
 	protected String getDeployProperty(CmsDeployProperty deployProperty) {
-		return System.getProperty(deployProperty.getProperty());
+		return cmsState != null ? cmsState.getDeployProperty(deployProperty.getProperty())
+				: System.getProperty(deployProperty.getProperty());
 	}
 
 	private String httpPortsMsg() {
@@ -297,7 +308,10 @@ public class JettyHttpServer extends HttpsServer {
 
 	}
 
-	
+	public void setCmsState(CmsState cmsState) {
+		this.cmsState = cmsState;
+	}
+
 	public boolean isStarted() {
 		return started;
 	}

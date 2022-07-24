@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAppListener;
+import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsTheme;
 import org.argeo.api.cms.ux.CmsView;
@@ -21,7 +22,6 @@ import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.swt.widgets.Display;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.event.EventAdmin;
 
 /** An RWT web app integrating with a {@link CmsApp}. */
 public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, CmsAppListener {
@@ -29,8 +29,8 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	private BundleContext bundleContext;
 	private CmsApp cmsApp;
-//	private String cmsAppId;
-	private EventAdmin eventAdmin;
+
+	private CmsEventBus cmsEventBus;
 
 	private ServiceRegistration<ApplicationConfiguration> rwtAppReg;
 
@@ -103,7 +103,6 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 			String entryPointName = !uiName.equals("") ? "/" + uiName : "/";
 			application.addEntryPoint(entryPointName, () -> {
 				CmsWebEntryPoint entryPoint = new CmsWebEntryPoint(this, uiName);
-				entryPoint.setEventAdmin(eventAdmin);
 				return entryPoint;
 			}, properties);
 			if (log.isDebugEnabled())
@@ -156,8 +155,12 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 		}
 	}
 
-	public void setEventAdmin(EventAdmin eventAdmin) {
-		this.eventAdmin = eventAdmin;
+	public void setCmsEventBus(CmsEventBus cmsEventBus) {
+		this.cmsEventBus = cmsEventBus;
+	}
+
+	public CmsEventBus getCmsEventBus() {
+		return cmsEventBus;
 	}
 
 	public void setContextName(String contextName) {

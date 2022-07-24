@@ -6,19 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Flow;
-import java.util.concurrent.Flow.Subscription;
-import java.util.concurrent.SubmissionPublisher;
 
 import javax.security.auth.Subject;
 
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
-import org.argeo.api.cms.CmsEventSubscriber;
+import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsSessionId;
@@ -40,6 +36,7 @@ public class CmsContextImpl implements CmsContext {
 	private CmsDeployment cmsDeployment;
 	private UserAdmin userAdmin;
 	private UuidFactory uuidFactory;
+	private CmsEventBus cmsEventBus;
 //	private ProvidedRepository contentRepository;
 
 	// i18n
@@ -51,10 +48,6 @@ public class CmsContextImpl implements CmsContext {
 	// CMS sessions
 	private Map<UUID, CmsSessionImpl> cmsSessionsByUuid = new HashMap<>();
 	private Map<String, CmsSessionImpl> cmsSessionsByLocalId = new HashMap<>();
-
-	// CMS events
-	private Map<String, SubmissionPublisher<Map<String, Object>>> topics = new TreeMap<>();
-//	private IdentityHashMap<CmsEventSubscriber, List<CmsEventFlowSubscriber>> subscriptions = new IdentityHashMap<>();
 
 	public void start() {
 		List<String> codes = CmsStateImpl.getDeployProperties(cmsState, CmsDeployProperty.LOCALE);
@@ -199,6 +192,11 @@ public class CmsContextImpl implements CmsContext {
 	}
 
 	@Override
+	public UUID timeUUID() {
+		return uuidFactory.timeUUID();
+	}
+
+	@Override
 	public List<Locale> getLocales() {
 		return locales;
 	}
@@ -212,9 +210,17 @@ public class CmsContextImpl implements CmsContext {
 		return availableSince != null;
 	}
 
-	@Override
 	public CmsState getCmsState() {
 		return cmsState;
+	}
+
+	@Override
+	public CmsEventBus getCmsEventBus() {
+		return cmsEventBus;
+	}
+
+	public void setCmsEventBus(CmsEventBus cmsEventBus) {
+		this.cmsEventBus = cmsEventBus;
 	}
 
 	/*
@@ -226,9 +232,9 @@ public class CmsContextImpl implements CmsContext {
 	}
 
 	/** Required by SPNEGO login module. */
-	public static GSSCredential getAcceptorCredentials() {
+	public GSSCredential getAcceptorCredentials() {
 		// TODO find a cleaner way
-		return ((CmsUserAdmin) getInstance().userAdmin).getAcceptorCredentials();
+		return ((CmsUserAdmin) userAdmin).getAcceptorCredentials();
 	}
 
 	private static void setInstance(CmsContextImpl cmsContextImpl) {
@@ -240,12 +246,14 @@ public class CmsContextImpl implements CmsContext {
 //			instance = null;
 //		}
 //		CmsContextImpl.class.notifyAll();
-		
+
 		if (cmsContextImpl != null) {
 			if (instance.isDone())
 				throw new IllegalStateException("CMS Context is already set");
 			instance.complete(cmsContextImpl);
 		} else {
+			if (!instance.isDone())
+				instance.cancel(true);
 			instance = new CompletableFuture<CmsContextImpl>();
 		}
 	}
@@ -314,88 +322,6 @@ public class CmsContextImpl implements CmsContext {
 	 */
 	public CmsSessionImpl getCmsSessionByLocalId(String localId) {
 		return cmsSessionsByLocalId.get(localId);
-	}
-
-	/*
-	 * CMS Events
-	 */
-	public void sendEvent(String topic, Map<String, Object> event) {
-		SubmissionPublisher<Map<String, Object>> publisher = topics.get(topic);
-		if (publisher == null)
-			return; // no one is interested
-		publisher.submit(event);
-	}
-
-	public void addEventSubscriber(String topic, CmsEventSubscriber subscriber) {
-		synchronized (topics) {
-			if (!topics.containsKey(topic))
-				topics.put(topic, new SubmissionPublisher<>());
-		}
-		SubmissionPublisher<Map<String, Object>> publisher = topics.get(topic);
-		CmsEventFlowSubscriber flowSubscriber = new CmsEventFlowSubscriber(topic, subscriber);
-		publisher.subscribe(flowSubscriber);
-	}
-
-	public void removeEventSubscriber(String topic, CmsEventSubscriber subscriber) {
-		SubmissionPublisher<Map<String, Object>> publisher = topics.get(topic);
-		if (publisher == null) {
-			log.error("There should be an event topic " + topic);
-			return;
-		}
-		for (Flow.Subscriber<? super Map<String, Object>> flowSubscriber : publisher.getSubscribers()) {
-			if (flowSubscriber instanceof CmsEventFlowSubscriber)
-				((CmsEventFlowSubscriber) flowSubscriber).unsubscribe();
-		}
-		synchronized (topics) {
-			if (!publisher.hasSubscribers()) {
-				publisher.close();
-				topics.remove(topic);
-			}
-		}
-	}
-
-	static class CmsEventFlowSubscriber implements Flow.Subscriber<Map<String, Object>> {
-		private String topic;
-		private CmsEventSubscriber eventSubscriber;
-
-		private Subscription subscription;
-
-		public CmsEventFlowSubscriber(String topic, CmsEventSubscriber eventSubscriber) {
-			this.topic = topic;
-			this.eventSubscriber = eventSubscriber;
-		}
-
-		@Override
-		public void onSubscribe(Subscription subscription) {
-			this.subscription = subscription;
-			subscription.request(Long.MAX_VALUE);
-		}
-
-		@Override
-		public void onNext(Map<String, Object> item) {
-			eventSubscriber.onEvent(topic, item);
-
-		}
-
-		@Override
-		public void onError(Throwable throwable) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onComplete() {
-			// TODO Auto-generated method stub
-
-		}
-
-		void unsubscribe() {
-			if (subscription != null)
-				subscription.cancel();
-			else
-				throw new IllegalStateException("No subscription to cancel");
-		}
-
 	}
 
 }

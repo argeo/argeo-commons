@@ -9,8 +9,9 @@ org.apache.xerces.jaxp;resolution:=optional,\
 
 Service-Component:\
 OSGI-INF/cmsOsgiLogger.xml,\
-OSGI-INF/cmsState.xml,\
 OSGI-INF/uuidFactory.xml,\
+OSGI-INF/cmsEventBus.xml,\
+OSGI-INF/cmsState.xml,\
 OSGI-INF/transactionManager.xml,\
 OSGI-INF/cmsUserAdmin.xml,\
 OSGI-INF/cmsUserManager.xml,\
