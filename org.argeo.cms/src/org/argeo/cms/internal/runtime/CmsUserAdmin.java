@@ -177,8 +177,13 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 			} catch (Exception e) {
 				throw new RuntimeException("Cannot interpret " + uri + " as an uri", e);
 			}
-			Dictionary<String, Object> properties = DirectoryConf.uriAsProperties(u.toString());
-			res.add(properties);
+
+			try {
+				Dictionary<String, Object> properties = DirectoryConf.uriAsProperties(u.toString());
+				res.add(properties);
+			} catch (Exception e) {
+				log.error("Cannot load user directory " + u, e);
+			}
 		}
 
 		return res;
