@@ -1,8 +1,9 @@
 package org.argeo.api.cms.ux;
 
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 
 import javax.security.auth.login.LoginContext;
 
@@ -56,20 +57,14 @@ public interface CmsView {
 
 	}
 
-	default <T> T doAs(PrivilegedAction<T> action) {
-		throw new UnsupportedOperationException();
-	}
+	/**
+	 * Make sure that this action is executed with the proper subject and in a
+	 * proper thread.
+	 */
+	<T> T doAs(Callable<T> action);
 
-	default Void runAs(Runnable runnable) {
-		return doAs(new PrivilegedAction<Void>() {
-
-			@Override
-			public Void run() {
-				if (runnable != null)
-					runnable.run();
-				return null;
-			}
-		});
+	default void runAs(Runnable runnable) {
+		doAs(Executors.callable(runnable));
 	}
 
 	default void stateChanged(String state, String title) {

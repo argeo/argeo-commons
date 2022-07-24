@@ -34,12 +34,12 @@ import org.eclipse.rap.rwt.client.service.BrowserNavigation;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationEvent;
 import org.eclipse.rap.rwt.client.service.BrowserNavigationListener;
 import org.eclipse.rap.rwt.internal.lifecycle.RWTLifeCycle;
+import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Widget;
 
 /** The {@link CmsView} for a {@link CmsWebApp}. */
 @SuppressWarnings("restriction")
@@ -55,6 +55,8 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 
 	/** Experimental OS-like multi windows. */
 	private boolean multipleShells = false;
+
+	private ServerPushSession serverPushSession;
 
 	public CmsWebEntryPoint(CmsWebApp cmsWebApp, String uiName) {
 		super(uiName);
@@ -86,6 +88,7 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 		browserNavigation = RWT.getClient().getService(BrowserNavigation.class);
 		if (browserNavigation != null)
 			browserNavigation.addBrowserNavigationListener(this);
+
 	}
 
 	protected void createContents(Composite parent) {
@@ -108,6 +111,11 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 					ui = cmsWebApp.getCmsApp().initUi(parent);
 					if (ui instanceof Composite)
 						((Composite) ui).setLayoutData(CmsSwtUtils.fillAll());
+					serverPushSession = new ServerPushSession();
+
+					// required in order to doAs to work
+					// TODO check whether it would be worth optimising
+					serverPushSession.start();
 					// we need ui to be set before refresh so that CmsView can store UI context data
 					// in it.
 					cmsWebApp.getCmsApp().refreshUi(ui, null);
@@ -213,6 +221,11 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 	@Override
 	public CmsEventBus getCmsEventBus() {
 		return cmsWebApp.getCmsEventBus();
+	}
+
+	@Override
+	public CmsApp getCmsApp() {
+		return cmsWebApp.getCmsApp();
 	}
 
 	@Override

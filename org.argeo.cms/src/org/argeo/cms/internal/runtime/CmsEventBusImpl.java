@@ -72,13 +72,12 @@ public class CmsEventBusImpl implements CmsEventBus {
 		@Override
 		public void onSubscribe(Subscription subscription) {
 			this.subscription = subscription;
-			subscription.request(1);
+			this.subscription.request(Long.MAX_VALUE);
 		}
 
 		@Override
 		public void onNext(Map<String, Object> item) {
 			eventSubscriber.onEvent(topic, item);
-			subscription.request(1);
 		}
 
 		@Override

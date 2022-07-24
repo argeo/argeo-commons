@@ -2,6 +2,7 @@ package org.argeo.cms.e4.rap;
 
 import java.security.AccessController;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -178,6 +179,11 @@ public class CmsLoginLifecycle implements CmsView {
 
 	protected String getState() {
 		return state;
+	}
+
+	@Override
+	public <T> T doAs(Callable<T> action) {
+		throw new UnsupportedOperationException();
 	}
 
 }

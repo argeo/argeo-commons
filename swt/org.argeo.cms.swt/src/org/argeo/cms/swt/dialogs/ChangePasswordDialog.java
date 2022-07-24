@@ -1,7 +1,7 @@
 package org.argeo.cms.swt.dialogs;
 
-import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.concurrent.Callable;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsView;
@@ -22,7 +22,7 @@ public class ChangePasswordDialog extends CmsMessageDialog {
 	private CmsUserManager cmsUserManager;
 	private CmsView cmsView;
 
-	private PrivilegedAction<Integer> doIt;
+	private Callable<Integer> doIt;
 
 	public ChangePasswordDialog(Shell parentShell, String message, int kind, CmsUserManager cmsUserManager) {
 		super(parentShell, message, kind);

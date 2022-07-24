@@ -59,9 +59,10 @@ public class LocaleUtils {
 	/** Where the search for a message is actually performed. */
 	public static String local(String key, Locale locale, String resource, ClassLoader classLoader) {
 		ResourceBundle rb = ResourceBundle.getBundle(resource, locale, classLoader);
-		assert key.length() > 2;
-		if (isLocaleKey(key))
+		if (isLocaleKey(key)) {
+			assert key.length() > 1;
 			key = key.substring(1);
+		}
 		if (rb.containsKey(key))
 			return rb.getString(key);
 		else // for simple cases, the key will actually be the English word
