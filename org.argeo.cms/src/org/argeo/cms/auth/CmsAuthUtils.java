@@ -20,6 +20,7 @@ import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.cms.AnonymousPrincipal;
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsSessionId;
 import org.argeo.api.cms.DataAdminPrincipal;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
@@ -144,7 +145,7 @@ class CmsAuthUtils {
 			CmsSessionImpl cmsSession;
 			CmsSessionImpl currentLocalSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessId);
 			if (currentLocalSession != null) {
-				boolean currentLocalSessionAnonymous = currentLocalSession.getAuthorization().getName() == null;
+				boolean currentLocalSessionAnonymous = currentLocalSession.isAnonymous();
 				if (!anonymous) {
 					if (currentLocalSessionAnonymous) {
 						currentLocalSession.close();
@@ -191,6 +192,7 @@ class CmsAuthUtils {
 					throw new IllegalStateException(
 							"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
+			request.setAttribute(CmsSession.class.getName(), cmsSession);
 		} else {
 			CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(SINGLE_USER_LOCAL_ID);
 			if (cmsSession == null) {

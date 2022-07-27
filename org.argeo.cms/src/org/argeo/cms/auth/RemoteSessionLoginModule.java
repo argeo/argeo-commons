@@ -94,6 +94,8 @@ public class RemoteSessionLoginModule implements LoginModule {
 						if (log.isTraceEnabled())
 							log.trace("Retrieved authorization from " + cmsSession);
 					}
+				}else {
+					request.createSession();
 				}
 			}
 			sharedState.put(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST, request);
@@ -116,7 +118,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		byte[] outToken = (byte[]) sharedState.get(CmsAuthUtils.SHARED_STATE_SPNEGO_OUT_TOKEN);
 		if (outToken != null) {
-			response.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(),
+			response.setHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(),
 					"Negotiate " + java.util.Base64.getEncoder().encodeToString(outToken));
 		}
 
@@ -154,7 +156,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 	}
 
 	private void extractHttpAuth(final RemoteAuthRequest httpRequest) {
-		String authHeader = httpRequest.getHeader(HttpHeader.AUTHORIZATION.getName());
+		String authHeader = httpRequest.getHeader(HttpHeader.AUTHORIZATION.getHeaderName());
 		extractHttpAuth(authHeader);
 	}
 

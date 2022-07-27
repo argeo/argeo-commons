@@ -2,6 +2,7 @@ package org.argeo.cms.servlet;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.http.HttpHeaders;
 import java.security.PrivilegedAction;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.servlet.internal.HttpUtils;
+import org.argeo.util.http.HttpHeader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.context.ServletContextHelper;
@@ -55,9 +57,10 @@ public class CmsServletContext extends ServletContextHelper {
 			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthRequest, remoteAuthResponse));
 			lc.login();
 		} catch (LoginException e) {
-			// FIXME better analyse failure so as not to try endlessly
 			if (authIsRequired(remoteAuthRequest, remoteAuthResponse)) {
-				int statusCode = RemoteAuthUtils.askForWwwAuth(remoteAuthResponse, httpAuthRealm, forceBasic);
+				int statusCode = RemoteAuthUtils.askForWwwAuth(remoteAuthRequest,
+						remoteAuthResponse, httpAuthRealm,
+						forceBasic);
 				response.setStatus(statusCode);
 				return false;
 
@@ -70,24 +73,24 @@ public class CmsServletContext extends ServletContextHelper {
 			Thread.currentThread().setContextClassLoader(currentThreadContextClassLoader);
 		}
 
-		Subject subject = lc.getSubject();
-		Subject.doAs(subject, new PrivilegedAction<Void>() {
-
-			@Override
-			public Void run() {
-				// TODO also set login context in order to log out ?
-				RemoteAuthUtils.configureRequestSecurity(remoteAuthRequest);
-				return null;
-			}
-
-		});
+//		Subject subject = lc.getSubject();
+//		Subject.doAs(subject, new PrivilegedAction<Void>() {
+//
+//			@Override
+//			public Void run() {
+//				// TODO also set login context in order to log out ?
+//				RemoteAuthUtils.configureRequestSecurity(remoteAuthRequest);
+//				return null;
+//			}
+//
+//		});
 		return true;
 	}
 
-	@Override
-	public void finishSecurity(HttpServletRequest request, HttpServletResponse response) {
-		RemoteAuthUtils.clearRequestSecurity(new ServletHttpRequest(request));
-	}
+//	@Override
+//	public void finishSecurity(HttpServletRequest request, HttpServletResponse response) {
+//		RemoteAuthUtils.clearRequestSecurity(new ServletHttpRequest(request));
+//	}
 
 	protected boolean authIsRequired(RemoteAuthRequest remoteAuthRequest, RemoteAuthResponse remoteAuthResponse) {
 		return false;

@@ -40,10 +40,10 @@ public class SpnegoHttpClient {
 			lc.login();
 
 			HttpClient httpClient = openHttpClient(lc.getSubject());
-			String token = RemoteAuthUtils.getGssToken(lc.getSubject(), "HTTP", server);
+			String token = RemoteAuthUtils.createGssToken(lc.getSubject(), "HTTP", server);
 
 			HttpRequest request = HttpRequest.newBuilder().uri(u.toURI()) //
-					.header(HttpHeader.AUTHORIZATION.getName(), HttpHeader.NEGOTIATE + " " + token) //
+					.header(HttpHeader.AUTHORIZATION.getHeaderName(), HttpHeader.NEGOTIATE + " " + token) //
 					.build();
 			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);

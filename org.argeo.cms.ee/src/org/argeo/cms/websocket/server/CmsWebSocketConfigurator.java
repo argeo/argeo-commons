@@ -1,10 +1,8 @@
 package org.argeo.cms.websocket.server;
 
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.websocket.Extension;
@@ -27,11 +25,10 @@ import org.argeo.cms.servlet.CmsServletContext;
  * the initialisation of a new web socket.
  */
 public class CmsWebSocketConfigurator extends Configurator {
-//	public final static String WEBSOCKET_SUBJECT = "org.argeo.cms.websocket.subject";
-//	public final static String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
 
 	private final static CmsLog log = CmsLog.getLog(CmsWebSocketConfigurator.class);
-//	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+
+	private final String httpAuthRealm = "Argeo";
 
 	@Override
 	public boolean checkOrigin(String originHeaderValue) {
@@ -90,10 +87,10 @@ public class CmsWebSocketConfigurator extends Configurator {
 			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthRequest, remoteAuthResponse));
 			lc.login();
 		} catch (LoginException e) {
-			// FIXME better analyse failure so as not to try endlessly
 			if (authIsRequired(remoteAuthRequest, remoteAuthResponse)) {
-				int statusCode = RemoteAuthUtils.askForWwwAuth(remoteAuthResponse, "Argeo", true);
-				remoteAuthResponse.setHeader("Status-Code", Integer.toString(statusCode));
+				int statusCode = RemoteAuthUtils.askForWwwAuth(remoteAuthRequest, remoteAuthResponse, httpAuthRealm,
+						true);
+//				remoteAuthResponse.setHeader("Status-Code", Integer.toString(statusCode));
 				return;
 			} else {
 				lc = RemoteAuthUtils.anonymousLogin(remoteAuthRequest, remoteAuthResponse);
@@ -106,17 +103,17 @@ public class CmsWebSocketConfigurator extends Configurator {
 			Thread.currentThread().setContextClassLoader(currentThreadContextClassLoader);
 		}
 
-		Subject subject = lc.getSubject();
-		Subject.doAs(subject, new PrivilegedAction<Void>() {
-
-			@Override
-			public Void run() {
-				// TODO also set login context in order to log out ?
-				RemoteAuthUtils.configureRequestSecurity(remoteAuthRequest);
-				return null;
-			}
-
-		});
+//		Subject subject = lc.getSubject();
+//		Subject.doAs(subject, new PrivilegedAction<Void>() {
+//
+//			@Override
+//			public Void run() {
+//				// TODO also set login context in order to log out ?
+//				RemoteAuthUtils.configureRequestSecurity(remoteAuthRequest);
+//				return null;
+//			}
+//
+//		});
 	}
 
 	protected boolean authIsRequired(RemoteAuthRequest remoteAuthRequest, RemoteAuthResponse remoteAuthResponse) {

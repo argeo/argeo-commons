@@ -1,9 +1,6 @@
 package org.argeo.cms.internal.auth;
 
 import java.io.Serializable;
-import java.security.AccessControlContext;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,11 +9,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import javax.crypto.SecretKey;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -27,17 +22,14 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.useradmin.Authorization;
 
 /** Default CMS session implementation. */
 public class CmsSessionImpl implements CmsSession, Serializable {
 	private static final long serialVersionUID = 1867719354246307225L;
-//	private final static BundleContext bc = FrameworkUtil.getBundle(CmsSessionImpl.class).getBundleContext();
 	private final static CmsLog log = CmsLog.getLog(CmsSessionImpl.class);
 
-	// private final Subject initialSubject;
-	private transient AccessControlContext accessControlContext;
+	private transient Subject subject;
 	private final UUID uuid;
 	private final String localSessionId;
 	private Authorization authorization;
@@ -49,8 +41,6 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 	private ZonedDateTime end;
 	private final Locale locale;
 
-	private ServiceRegistration<CmsSession> serviceRegistration;
-
 	private Map<String, Object> views = new HashMap<>();
 
 	private List<Consumer<CmsSession>> onCloseCallbacks = Collections.synchronizedList(new ArrayList<>());
@@ -61,15 +51,7 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 
 		this.creationTime = ZonedDateTime.now();
 		this.locale = locale;
-		this.accessControlContext = Subject.doAs(initialSubject, new PrivilegedAction<AccessControlContext>() {
-
-			@Override
-			public AccessControlContext run() {
-				return AccessController.getContext();
-			}
-
-		});
-		// this.initialSubject = initialSubject;
+		this.subject = initialSubject;
 		this.localSessionId = localSessionId;
 		this.authorization = authorization;
 		if (authorization.getName() != null) {
@@ -102,7 +84,7 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		} catch (LoginException e) {
 			log.warn("Could not logout " + getSubject() + ": " + e);
 		} finally {
-			accessControlContext = null;
+			subject = null;
 		}
 		log.debug("Closed " + this);
 	}
@@ -113,7 +95,7 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 	}
 
 	public Subject getSubject() {
-		return Subject.getSubject(accessControlContext);
+		return subject;
 	}
 
 //	public Set<SecretKey> getSecretKeys() {

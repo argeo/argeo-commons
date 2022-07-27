@@ -1,7 +1,5 @@
 package org.argeo.cms.auth;
 
-import java.security.AccessControlContext;
-import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Base64;
 import java.util.function.Supplier;
@@ -15,7 +13,9 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.util.CurrentSubject;
 import org.argeo.util.http.HttpHeader;
+import org.argeo.util.http.HttpResponseStatus;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -44,47 +44,49 @@ public class RemoteAuthUtils {
 	 * Useful to log in to JCR.
 	 */
 	public final static <T> T doAs(Supplier<T> supplier, RemoteAuthRequest req) {
-		ClassLoader currentContextCl = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(RemoteAuthUtils.class.getClassLoader());
-		try {
-			return Subject.doAs(
-					Subject.getSubject((AccessControlContext) req.getAttribute(AccessControlContext.class.getName())),
-					new PrivilegedAction<T>() {
-
-						@Override
-						public T run() {
-							return supplier.get();
-						}
-
-					});
-		} finally {
-			Thread.currentThread().setContextClassLoader(currentContextCl);
-		}
+		CmsSession cmsSession = getCmsSession(req);
+		return CurrentSubject.callAs(cmsSession.getSubject(), () -> supplier.get());
+//		ClassLoader currentContextCl = Thread.currentThread().getContextClassLoader();
+//		Thread.currentThread().setContextClassLoader(RemoteAuthUtils.class.getClassLoader());
+//		try {
+//			return Subject.doAs(
+//					Subject.getSubject((AccessControlContext) req.getAttribute(AccessControlContext.class.getName())),
+//					new PrivilegedAction<T>() {
+//
+//						@Override
+//						public T run() {
+//							return supplier.get();
+//						}
+//
+//					});
+//		} finally {
+//			Thread.currentThread().setContextClassLoader(currentContextCl);
+//		}
 	}
 
-	public final static void configureRequestSecurity(RemoteAuthRequest req) {
-		if (req.getAttribute(AccessControlContext.class.getName()) != null)
-			throw new IllegalStateException("Request already authenticated.");
-		AccessControlContext acc = AccessController.getContext();
-		req.setAttribute(REMOTE_USER, CurrentUser.getUsername());
-		req.setAttribute(AccessControlContext.class.getName(), acc);
-	}
-
-	public final static void clearRequestSecurity(RemoteAuthRequest req) {
-		if (req.getAttribute(AccessControlContext.class.getName()) == null)
-			throw new IllegalStateException("Cannot clear non-authenticated request.");
-		req.setAttribute(REMOTE_USER, null);
-		req.setAttribute(AccessControlContext.class.getName(), null);
-	}
+//	public final static void configureRequestSecurity(RemoteAuthRequest req) {
+//		if (req.getAttribute(AccessControlContext.class.getName()) != null)
+//			throw new IllegalStateException("Request already authenticated.");
+//		AccessControlContext acc = AccessController.getContext();
+//		req.setAttribute(REMOTE_USER, CurrentUser.getUsername());
+//		req.setAttribute(AccessControlContext.class.getName(), acc);
+//	}
+//
+//	public final static void clearRequestSecurity(RemoteAuthRequest req) {
+//		if (req.getAttribute(AccessControlContext.class.getName()) == null)
+//			throw new IllegalStateException("Cannot clear non-authenticated request.");
+//		req.setAttribute(REMOTE_USER, null);
+//		req.setAttribute(AccessControlContext.class.getName(), null);
+//	}
 
 	public static CmsSession getCmsSession(RemoteAuthRequest req) {
-		Subject subject = Subject
-				.getSubject((AccessControlContext) req.getAttribute(AccessControlContext.class.getName()));
-		CmsSession cmsSession = CmsContextImpl.getCmsContext().getCmsSession(subject);
+		CmsSession cmsSession = (CmsSession) req.getAttribute(CmsSession.class.getName());
+		if (cmsSession == null)
+			throw new IllegalStateException("Request must have a CMS session attribute");
 		return cmsSession;
 	}
 
-	public static String getGssToken(Subject subject, String service, String server) {
+	public static String createGssToken(Subject subject, String service, String server) {
 		if (subject.getPrivateCredentials(KerberosTicket.class).isEmpty())
 			throw new IllegalArgumentException("Subject " + subject + " is not GSS authenticated.");
 		return Subject.doAs(subject, (PrivilegedAction<String>) () -> {
@@ -144,13 +146,25 @@ public class RemoteAuthUtils {
 		}
 	}
 
-	public static int askForWwwAuth(RemoteAuthResponse remoteAuthResponse, String realm, boolean forceBasic) {
+	public static int askForWwwAuth(RemoteAuthRequest remoteAuthRequest, RemoteAuthResponse remoteAuthResponse,
+			String realm, boolean forceBasic) {
+		boolean negotiateFailed = false;
+		if (remoteAuthRequest.getHeader(HttpHeader.AUTHORIZATION.getHeaderName()) != null) {
+			// we already tried, so we give up in order not too loop endlessly
+			if (remoteAuthRequest.getHeader(HttpHeader.AUTHORIZATION.getHeaderName())
+					.startsWith(HttpHeader.NEGOTIATE)) {
+				negotiateFailed = true;
+			} else {
+				return HttpResponseStatus.FORBIDDEN.getStatusCode();
+			}
+		}
+
 		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
 		// realm=\"" + httpAuthRealm + "\"");
-		if (hasAcceptorCredentials() && !forceBasic)// SPNEGO
-			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(), HttpHeader.NEGOTIATE);
+		if (hasAcceptorCredentials() && !forceBasic && !negotiateFailed)// SPNEGO
+			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(), HttpHeader.NEGOTIATE);
 		else
-			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getName(),
+			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(),
 					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + realm + "\"");
 
 		// response.setDateHeader("Date", System.currentTimeMillis());
@@ -161,7 +175,7 @@ public class RemoteAuthUtils {
 		// response.setHeader("Keep-Alive", "timeout=5, max=97");
 		// response.setContentType("text/html; charset=UTF-8");
 
-		return 401;
+		return HttpResponseStatus.UNAUTHORIZED.getStatusCode();
 	}
 
 	private static boolean hasAcceptorCredentials() {

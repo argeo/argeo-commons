@@ -91,16 +91,12 @@ public class UserAdminLoginModule implements LoginModule {
 			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
 			// // TODO locale?
 		} else if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
+				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_SPNEGO_TOKEN)) {
+			// SPNEGO login has succeeded, that's enough for us at this stage
+			return true;
+		} else if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN)) {
 			String certDn = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
-//			LdapName ldapName;
-//			try {
-//				ldapName = new LdapName(certificateName);
-//			} catch (InvalidNameException e) {
-//				e.printStackTrace();
-//				return false;
-//			}
-//			username = ldapName.getRdn(ldapName.size() - 1).getValue().toString();
 			username = certDn;
 			certificateChain = sharedState.get(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN);
 			password = null;
@@ -110,11 +106,6 @@ public class UserAdminLoginModule implements LoginModule {
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			password = null;
 			preauth = true;
-//		} else if (singleUser) {
-//			username = OsUserUtils.getOsUsername();
-//			password = null;
-//			// TODO retrieve from http session
-//			locale = Locale.getDefault();
 		} else {
 
 			// ask for username and password

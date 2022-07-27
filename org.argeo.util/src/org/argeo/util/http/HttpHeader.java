@@ -16,13 +16,13 @@ public enum HttpHeader {
 		this.name = headerName;
 	}
 
-	public String getName() {
+	public String getHeaderName() {
 		return name;
 	}
 
 	@Override
 	public String toString() {
-		return getName();
+		return getHeaderName();
 	}
 
 }

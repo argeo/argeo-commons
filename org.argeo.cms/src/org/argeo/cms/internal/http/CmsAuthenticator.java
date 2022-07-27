@@ -10,7 +10,6 @@ import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthUtils;
-import org.argeo.util.CurrentSubject;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpExchange;
@@ -38,9 +37,9 @@ public class CmsAuthenticator extends Authenticator {
 			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthExchange, remoteAuthExchange));
 			lc.login();
 		} catch (LoginException e) {
-			// FIXME better analyse failure so as not to try endlessly
-			if (authIsRequired(remoteAuthExchange,remoteAuthExchange)) {
-				int statusCode = RemoteAuthUtils.askForWwwAuth(remoteAuthExchange, httpAuthRealm, forceBasic);
+			if (authIsRequired(remoteAuthExchange, remoteAuthExchange)) {
+				int statusCode = RemoteAuthUtils.askForWwwAuth(remoteAuthExchange, remoteAuthExchange, httpAuthRealm,
+						forceBasic);
 				return new Authenticator.Retry(statusCode);
 
 			} else {
@@ -54,10 +53,10 @@ public class CmsAuthenticator extends Authenticator {
 
 		Subject subject = lc.getSubject();
 
-		CurrentSubject.callAs(subject, () -> {
-			RemoteAuthUtils.configureRequestSecurity(remoteAuthExchange);
-			return null;
-		});
+//		CurrentSubject.callAs(subject, () -> {
+//			RemoteAuthUtils.configureRequestSecurity(remoteAuthExchange);
+//			return null;
+//		});
 //		Subject.doAs(subject, new PrivilegedAction<Void>() {
 //
 //			@Override
@@ -73,8 +72,7 @@ public class CmsAuthenticator extends Authenticator {
 		return new Authenticator.Success(httpPrincipal);
 	}
 
-	protected boolean authIsRequired(RemoteAuthRequest remoteAuthRequest,
-			RemoteAuthResponse remoteAuthResponse) {
+	protected boolean authIsRequired(RemoteAuthRequest remoteAuthRequest, RemoteAuthResponse remoteAuthResponse) {
 		return true;
 	}
 

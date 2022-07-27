@@ -2,10 +2,8 @@ package org.argeo.cms.integration;
 
 import java.io.IOException;
 import java.security.AccessControlContext;
-import java.security.PrivilegedAction;
 import java.util.Map;
 
-import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -45,31 +43,31 @@ public class CmsPrivateServletContext extends ServletContextHelper {
 		if ((pathInfo != null && (servletPath + pathInfo).equals(loginPage)) || servletPath.contentEquals(loginServlet))
 			return true;
 		try {
-			lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, new RemoteAuthCallbackHandler(request, response));
+			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(request, response));
 			lc.login();
 		} catch (LoginException e) {
 			lc = processUnauthorized(req, resp);
 			if (lc == null)
 				return false;
 		}
-		Subject.doAs(lc.getSubject(), new PrivilegedAction<Void>() {
-
-			@Override
-			public Void run() {
-				// TODO also set login context in order to log out ?
-				RemoteAuthUtils.configureRequestSecurity(request);
-				return null;
-			}
-
-		});
+//		Subject.doAs(lc.getSubject(), new PrivilegedAction<Void>() {
+//
+//			@Override
+//			public Void run() {
+//				// TODO also set login context in order to log out ?
+//				RemoteAuthUtils.configureRequestSecurity(request);
+//				return null;
+//			}
+//
+//		});
 
 		return true;
 	}
 
-	@Override
-	public void finishSecurity(HttpServletRequest req, HttpServletResponse resp) {
-		RemoteAuthUtils.clearRequestSecurity(new ServletHttpRequest(req));
-	}
+//	@Override
+//	public void finishSecurity(HttpServletRequest req, HttpServletResponse resp) {
+//		RemoteAuthUtils.clearRequestSecurity(new ServletHttpRequest(req));
+//	}
 
 	protected LoginContext processUnauthorized(HttpServletRequest request, HttpServletResponse response) {
 		try {

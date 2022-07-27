@@ -44,11 +44,11 @@ public class WebSocketEventClient {
 		System.setProperty("java.security.auth.login.config", jaasUrl.toExternalForm());
 		LoginContext lc = new LoginContext("SINGLE_USER");
 		lc.login();
-		String token = RemoteAuthUtils.getGssToken(lc.getSubject(), "HTTP", uri.getHost());
+		String token = RemoteAuthUtils.createGssToken(lc.getSubject(), "HTTP", uri.getHost());
 
 		HttpClient client = HttpClient.newHttpClient();
 		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder()
-				.header(HttpHeader.AUTHORIZATION.getName(), HttpHeader.NEGOTIATE + " " + token)
+				.header(HttpHeader.AUTHORIZATION.getHeaderName(), HttpHeader.NEGOTIATE + " " + token)
 				.buildAsync(uri, listener);
 
 		WebSocket webSocket = ws.get();
