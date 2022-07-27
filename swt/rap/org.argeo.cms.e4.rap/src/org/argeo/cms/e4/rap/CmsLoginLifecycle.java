@@ -4,11 +4,13 @@ import java.security.AccessController;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import javax.inject.Inject;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsView;
@@ -35,6 +37,9 @@ import org.osgi.service.event.EventHandler;
 public class CmsLoginLifecycle implements CmsView {
 	private final static CmsLog log = CmsLog.getLog(CmsLoginLifecycle.class);
 
+	@Inject
+	private CmsContext cmsContext;
+	
 	private UxContext uxContext;
 	private CmsImageManager imageManager;
 
@@ -63,8 +68,7 @@ public class CmsLoginLifecycle implements CmsView {
 		Subject subject = Subject.getSubject(AccessController.getContext());
 		Display display = Display.getCurrent();
 //		UiContext.setData(CmsView.KEY, this);
-		// FIXME get CMS context
-		CmsLoginShell loginShell = new CmsLoginShell(this, null);
+		CmsLoginShell loginShell = new CmsLoginShell(this, cmsContext);
 		CmsSwtUtils.registerCmsView(loginShell.getShell(), this);
 		loginShell.setSubject(subject);
 		try {
