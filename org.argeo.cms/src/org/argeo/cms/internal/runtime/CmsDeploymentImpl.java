@@ -74,10 +74,11 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		CmsAuthenticator authenticator = isPublic ? new PublicCmsAuthenticator() : new CmsAuthenticator();
 		httpHandlers.put(contextPath, httpHandler);
 		httpAuthenticators.put(contextPath, authenticator);
-		if (httpServer == null)
+		if (httpServer == null) {
 			return;
-		else
+		} else {
 			createHttpContext(contextPath, httpHandler, authenticator);
+		}
 	}
 
 	public void createHttpContext(String contextPath, HttpHandler httpHandler, CmsAuthenticator authenticator) {

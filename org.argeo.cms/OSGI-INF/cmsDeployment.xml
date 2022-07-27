@@ -4,7 +4,7 @@
    <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
    <reference bind="setCmsSshd" cardinality="0..1" interface="org.argeo.cms.CmsSshd" policy="dynamic"/>
    <reference bind="setHttpServer" cardinality="0..1" interface="com.sun.net.httpserver.HttpServer" policy="dynamic"/>
-   <reference bind="addHttpHandler" unbind="removeHttpHandler" cardinality="0..1" interface="com.sun.net.httpserver.HttpHandler" policy="dynamic"/>
+   <reference bind="addHttpHandler" unbind="removeHttpHandler" cardinality="0..n" interface="com.sun.net.httpserver.HttpHandler" policy="dynamic"/>
    <service>
       <provide interface="org.argeo.api.cms.CmsDeployment"/>
    </service>
