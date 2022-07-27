@@ -71,7 +71,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		if (this.cmsContext != null) {
 			defaultLocale = this.cmsContext.getDefaultLocale();
 			List<Locale> locales = this.cmsContext.getLocales();
-			if (locales != null)
+			if (locales != null && locales.size() > 1)
 				localeChoice = new LocaleChoice(locales, defaultLocale);
 		} else {
 			defaultLocale = Locale.getDefault();
