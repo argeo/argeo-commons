@@ -58,11 +58,11 @@ public class CmsActivator implements BundleActivator {
 		} catch (Exception e) {
 			log.error("CMS activator shutdown failed", e);
 		}
-		
+
 		new GogoShellKiller().start();
 	}
 
-	private void initSecurity() {
+	protected void initSecurity() {
 		// code-level permissions
 		String osgiSecurity = bundleContext.getProperty(Constants.FRAMEWORK_SECURITY);
 		if (osgiSecurity != null && Constants.FRAMEWORK_SECURITY_OSGI.equals(osgiSecurity)) {
@@ -104,7 +104,6 @@ public class CmsActivator implements BundleActivator {
 //			bundleContext.registerService(ArgeoLogger.class, logger, null);
 //	}
 
-
 	public static <T> void registerService(Class<T> clss, T service, Dictionary<String, ?> properties) {
 		if (bundleContext != null) {
 			bundleContext.registerService(clss, service, properties);
@@ -138,7 +137,6 @@ public class CmsActivator implements BundleActivator {
 		destroy();
 		bundleContext = null;
 	}
-
 
 	public static BundleContext getBundleContext() {
 		return bundleContext;

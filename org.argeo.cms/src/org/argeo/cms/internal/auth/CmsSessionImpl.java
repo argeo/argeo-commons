@@ -76,9 +76,9 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		try {
 			LoginContext lc;
 			if (isAnonymous()) {
-				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS, getSubject());
+				lc = CmsAuth.ANONYMOUS.newLoginContext(getSubject());
 			} else {
-				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER, getSubject());
+				lc = CmsAuth.USER.newLoginContext(getSubject());
 			}
 			lc.logout();
 		} catch (LoginException e) {

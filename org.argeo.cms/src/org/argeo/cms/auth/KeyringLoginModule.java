@@ -1,6 +1,5 @@
 package org.argeo.cms.auth;
 
-import java.security.AccessController;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,6 +15,7 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
 import org.argeo.cms.security.PBEKeySpecCallback;
+import org.argeo.util.CurrentSubject;
 import org.argeo.util.PasswordEncryption;
 
 /** Adds a secret key to the private credentials */
@@ -28,7 +28,7 @@ public class KeyringLoginModule implements LoginModule {
 			Map<String, ?> options) {
 		this.subject = subject;
 		if (subject == null) {
-			subject = Subject.getSubject(AccessController.getContext());
+			this.subject = CurrentSubject.current();
 		}
 		this.callbackHandler = callbackHandler;
 	}

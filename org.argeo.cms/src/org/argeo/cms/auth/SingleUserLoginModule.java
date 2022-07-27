@@ -1,7 +1,5 @@
 package org.argeo.cms.auth;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.Map;
 
@@ -13,7 +11,6 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
-import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.osgi.useradmin.OsUserUtils;
 import org.argeo.util.directory.ldap.IpaUtils;
@@ -22,7 +19,7 @@ import org.osgi.service.useradmin.Authorization;
 
 /** Login module for when the system is owned by a single user. */
 public class SingleUserLoginModule implements LoginModule {
-	private final static CmsLog log = CmsLog.getLog(SingleUserLoginModule.class);
+//	private final static CmsLog log = CmsLog.getLog(SingleUserLoginModule.class);
 
 	private Subject subject;
 	private Map<String, Object> sharedState = null;
