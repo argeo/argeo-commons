@@ -17,3 +17,4 @@ org.argeo.cms.swt.auth,\
 org.apache.jackrabbit.*;version="[2,3)",\
 javax.servlet.*;version="[3,5)",\
 *
+

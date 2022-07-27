@@ -4,6 +4,8 @@ org.eclipse.core.commands.common,\
 javax.servlet.*;version="[3,5)",\
 *
 
+Private-Package: *.internal.*, config.*, icons.*
+
 Bundle-ActivationPolicy: lazy
 			
 Service-Component: \

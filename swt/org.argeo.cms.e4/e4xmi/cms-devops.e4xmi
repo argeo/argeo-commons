@@ -60,8 +60,6 @@
       </children>
       <children xsi:type="advanced:Perspective" xmi:id="_u5ZakFhJEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.perspective.monitoring" label="Monitoring" iconURI="platform:/plugin/org.argeo.cms.swt/icons/bundles.gif">
         <children xsi:type="basic:PartStack" xmi:id="_7i7t8FhJEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.partstack.6">
-          <children xsi:type="basic:Part" xmi:id="_Z-3cMFhbEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.osgiConfigurations" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.OsgiConfigurationsView" label="OSGi Configurations" iconURI="platform:/plugin/org.argeo.cms.swt/icons/node.gif"/>
-          <children xsi:type="basic:Part" xmi:id="_8dM90FhJEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.cmsSessions" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.CmsSessionsView" label="CMS Sessions" iconURI="platform:/plugin/org.argeo.cms.swt/icons/person-logged-in.png"/>
           <children xsi:type="basic:Part" xmi:id="_KqRZIFhNEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.modules" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.ModulesView" label="Modules" iconURI="platform:/plugin/org.argeo.cms.swt/icons/bundles.gif"/>
           <children xsi:type="basic:Part" xmi:id="_dXtIoFhNEeiknZQLx-vtnA" elementId="org.argeo.cms.e4.part.bundles" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.monitoring.BundlesView" label="Bundles" iconURI="platform:/plugin/org.argeo.cms.swt/icons/bundles.gif"/>
         </children>
