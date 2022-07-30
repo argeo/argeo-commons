@@ -26,7 +26,7 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 
 	private UUID uuid;
 
-	private UuidFactory uuidFactory = MacAddressUuidFactory.DEFAULT;
+	private UuidFactory uuidFactory = new MacAddressUuidFactory();
 
 	// the single session
 	private CmsContentSession contentSession;

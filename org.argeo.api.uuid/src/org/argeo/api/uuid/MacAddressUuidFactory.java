@@ -14,8 +14,6 @@ import java.util.UUID;
  * @see https://datatracker.ietf.org/doc/html/rfc4122.html#section-4.1.6
  */
 public class MacAddressUuidFactory extends ConcurrentUuidFactory {
-	public final static UuidFactory DEFAULT = new MacAddressUuidFactory();
-
 	public MacAddressUuidFactory() {
 		this(0, localHardwareAddressAsNodeId());
 	}
