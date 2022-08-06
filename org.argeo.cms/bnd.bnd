@@ -1,7 +1,6 @@
 Bundle-Activator: org.argeo.cms.internal.osgi.CmsActivator
 
 Import-Package: \
-com.sun.security.jgss,\
 org.osgi.*;version=0.0.0,\
 *
 

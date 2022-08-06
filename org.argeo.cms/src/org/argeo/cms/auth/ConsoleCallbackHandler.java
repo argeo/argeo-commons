@@ -1,9 +1,10 @@
-package org.argeo.cms.internal.auth;
+package org.argeo.cms.auth;
 
 import java.io.Console;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -18,29 +19,36 @@ public class ConsoleCallbackHandler implements CallbackHandler {
 	@Override
 	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 		Console console = System.console();
-		if (console == null)
-			throw new IllegalStateException("No console available");
+//		if (console == null)
+//			throw new IllegalStateException("No console available");
 
-		PrintWriter writer = console.writer();
+		Scanner scanner = null;
+		PrintWriter writer;
+		if (console == null) {// IDE
+			scanner = new Scanner(System.in);
+			writer = new PrintWriter(System.out, true);
+		} else {
+			writer = console.writer();
+
+		}
 		for (int i = 0; i < callbacks.length; i++) {
 			if (callbacks[i] instanceof TextOutputCallback) {
 				TextOutputCallback callback = (TextOutputCallback) callbacks[i];
-				writer.write(callback.getMessage());
+				writer.printf(callback.getMessage());
 			} else if (callbacks[i] instanceof NameCallback) {
 				NameCallback callback = (NameCallback) callbacks[i];
-				writer.write(callback.getPrompt());
+				writer.printf(callback.getPrompt());
 				if (callback.getDefaultName() != null)
-					writer.write(" (" + callback.getDefaultName() + ")");
-				writer.write(" : ");
-				String answer = console.readLine();
+					writer.printf(" (" + callback.getDefaultName() + ")");
+				String answer = console != null ? console.readLine() : scanner.next();
 				if (callback.getDefaultName() != null && answer.trim().equals(""))
 					callback.setName(callback.getDefaultName());
 				else
 					callback.setName(answer);
 			} else if (callbacks[i] instanceof PasswordCallback) {
 				PasswordCallback callback = (PasswordCallback) callbacks[i];
-				writer.write(callback.getPrompt());
-				char[] answer = console.readPassword();
+				writer.printf(callback.getPrompt());
+				char[] answer = console != null ? console.readPassword() : scanner.next().toCharArray();
 				callback.setPassword(answer);
 				Arrays.fill(answer, ' ');
 			}

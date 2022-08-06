@@ -1,7 +1,9 @@
 package org.argeo.cms.internal.runtime;
 
+import org.argeo.api.cms.CmsConstants;
+
 /** Internal CMS constants. */
-public interface KernelConstants {
+interface KernelConstants {
 	// Directories
 	String DIR_PRIVATE = "private";
 
@@ -15,6 +17,20 @@ public interface KernelConstants {
 
 	// KERBEROS
 	String DEFAULT_KERBEROS_SERVICE = "HTTP";
+
+	String DEFAULT_KEYSTORE_PATH = DIR_PRIVATE + '/' + CmsConstants.NODE + ".p12";
+
+	String DEFAULT_TRUSTSTORE_PATH = DIR_PRIVATE + "/trusted.p12";
+
+	String DEFAULT_PEM_KEY_PATH = DIR_PRIVATE + '/' + CmsConstants.NODE + ".key";
+
+	String DEFAULT_PEM_CERT_PATH = DIR_PRIVATE + '/' + CmsConstants.NODE + ".crt";
+
+	String IPA_PEM_CA_CERT_PATH = "/etc/ipa/ca.crt";
+
+	String DEFAULT_KEYSTORE_PASSWORD = "changeit";
+
+	String PKCS12 = "PKCS12";
 
 	// HTTP client
 	// String COOKIE_POLICY_BROWSER_COMPATIBILITY = "compatibility";

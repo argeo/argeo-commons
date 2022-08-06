@@ -1,5 +1,6 @@
 package org.argeo.cms.internal.runtime;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.InetAddress;
@@ -66,19 +67,19 @@ public class CmsStateImpl implements CmsState {
 		deployPropertyDefaults.put(CmsDeployProperty.LOCALE, Locale.getDefault().toString());
 
 		// certificates
-		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
-		deployPropertyDefaults.put(CmsDeployProperty.SSL_PASSWORD, PkiUtils.DEFAULT_KEYSTORE_PASSWORD);
-		Path keyStorePath = getDataPath(PkiUtils.DEFAULT_KEYSTORE_PATH);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORETYPE, KernelConstants.PKCS12);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_PASSWORD, KernelConstants.DEFAULT_KEYSTORE_PASSWORD);
+		Path keyStorePath = getDataPath(KernelConstants.DEFAULT_KEYSTORE_PATH);
 		if (keyStorePath != null) {
 			deployPropertyDefaults.put(CmsDeployProperty.SSL_KEYSTORE, keyStorePath.toAbsolutePath().toString());
 		}
 
-		Path trustStorePath = getDataPath(PkiUtils.DEFAULT_TRUSTSTORE_PATH);
+		Path trustStorePath = getDataPath(KernelConstants.DEFAULT_TRUSTSTORE_PATH);
 		if (trustStorePath != null) {
 			deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORE, trustStorePath.toAbsolutePath().toString());
 		}
-		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORETYPE, PkiUtils.PKCS12);
-		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD, PkiUtils.DEFAULT_KEYSTORE_PASSWORD);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTORETYPE, KernelConstants.PKCS12);
+		deployPropertyDefaults.put(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD, KernelConstants.DEFAULT_KEYSTORE_PASSWORD);
 
 		// SSH
 		Path authorizedKeysPath = getDataPath(KernelConstants.NODE_SSHD_AUTHORIZED_KEYS_PATH);
@@ -193,8 +194,8 @@ public class CmsStateImpl implements CmsState {
 	private void initCertificates() {
 		// server certificate
 		Path keyStorePath = Paths.get(getDeployProperty(CmsDeployProperty.SSL_KEYSTORE));
-		Path pemKeyPath = getDataPath(PkiUtils.DEFAULT_PEM_KEY_PATH);
-		Path pemCertPath = getDataPath(PkiUtils.DEFAULT_PEM_CERT_PATH);
+		Path pemKeyPath = getDataPath(KernelConstants.DEFAULT_PEM_KEY_PATH);
+		Path pemCertPath = getDataPath(KernelConstants.DEFAULT_PEM_CERT_PATH);
 		char[] keyStorePassword = getDeployProperty(CmsDeployProperty.SSL_PASSWORD).toCharArray();
 
 		// Keystore
@@ -204,7 +205,7 @@ public class CmsStateImpl implements CmsState {
 			KeyStore keyStore = PkiUtils.getKeyStore(keyStorePath, keyStorePassword,
 					getDeployProperty(CmsDeployProperty.SSL_KEYSTORETYPE));
 			try (Reader key = Files.newBufferedReader(pemKeyPath, StandardCharsets.US_ASCII);
-					Reader cert = Files.newBufferedReader(pemCertPath, StandardCharsets.US_ASCII);) {
+					BufferedInputStream cert = new BufferedInputStream(Files.newInputStream(pemCertPath));) {
 				PkiUtils.loadPrivateCertificatePem(keyStore, CmsConstants.NODE, key, keyStorePassword, cert);
 				Files.createDirectories(keyStorePath.getParent());
 				PkiUtils.saveKeyStore(keyStorePath, keyStorePassword, keyStore);
@@ -220,11 +221,11 @@ public class CmsStateImpl implements CmsState {
 		char[] trustStorePassword = getDeployProperty(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD).toCharArray();
 
 		// IPA CA
-		Path ipaCaCertPath = Paths.get(PkiUtils.IPA_PEM_CA_CERT_PATH);
+		Path ipaCaCertPath = Paths.get(KernelConstants.IPA_PEM_CA_CERT_PATH);
 		if (Files.exists(ipaCaCertPath)) {
 			KeyStore trustStore = PkiUtils.getKeyStore(trustStorePath, trustStorePassword,
 					getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORETYPE));
-			try (Reader cert = Files.newBufferedReader(ipaCaCertPath, StandardCharsets.US_ASCII);) {
+			try (BufferedInputStream cert = new BufferedInputStream(Files.newInputStream(ipaCaCertPath));) {
 				PkiUtils.loadTrustedCertificatePem(trustStore, trustStorePassword, cert);
 				Files.createDirectories(keyStorePath.getParent());
 				PkiUtils.saveKeyStore(trustStorePath, trustStorePassword, trustStore);
@@ -235,16 +236,8 @@ public class CmsStateImpl implements CmsState {
 			}
 		}
 
-		if (!Files.exists(keyStorePath))
-			PkiUtils.createSelfSignedKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
-//		props.put(JettyHttpConstants.SSL_KEYSTORETYPE, PkiUtils.PKCS12);
-//		props.put(JettyHttpConstants.SSL_KEYSTORE, keyStorePath.toString());
-//		props.put(JettyHttpConstants.SSL_PASSWORD, new String(keyStorePassword));
-
-//		props.put(InternalHttpConstants.SSL_KEYSTORETYPE, "PKCS11");
-//		props.put(InternalHttpConstants.SSL_KEYSTORE, "../../nssdb");
-//		props.put(InternalHttpConstants.SSL_PASSWORD, keyStorePassword);
-
+//		if (!Files.exists(keyStorePath))
+//			PkiUtils.createSelfSignedKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
 	}
 
 	public void stop() {
