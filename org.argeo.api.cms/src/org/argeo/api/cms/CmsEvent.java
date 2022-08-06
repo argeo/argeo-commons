@@ -10,12 +10,11 @@ public interface CmsEvent {
 	String name();
 
 	default String topic() {
-		return getTopicBase() + "/" + name();
+		return getTopicBase() + "." + name();
 	}
 
-	default 	String getTopicBase() {
-		return "argeo/cms";
+	default String getTopicBase() {
+		return "argeo.cms";
 	}
-
 
 }

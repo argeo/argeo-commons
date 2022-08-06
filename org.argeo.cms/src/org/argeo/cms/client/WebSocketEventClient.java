@@ -40,13 +40,13 @@ public class WebSocketEventClient {
 		};
 
 		// SPNEGO
-		URL jaasUrl = SpnegoHttpClient.class.getResource("jaas.cfg");
+		URL jaasUrl = SpnegoHttpClient.class.getResource("jaas-client-ipa.cfg");
 		System.setProperty("java.security.auth.login.config", jaasUrl.toExternalForm());
-		LoginContext lc = new LoginContext("SINGLE_USER");
+		LoginContext lc = new LoginContext(SpnegoHttpClient.CLIENT_LOGIN_CONTEXT);
 		lc.login();
 		String token = RemoteAuthUtils.createGssToken(lc.getSubject(), "HTTP", uri.getHost());
 
-		HttpClient client = HttpClient.newHttpClient();
+		HttpClient client = SpnegoHttpClient.openHttpClient(lc.getSubject());
 		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder()
 				.header(HttpHeader.AUTHORIZATION.getHeaderName(), HttpHeader.NEGOTIATE + " " + token)
 				.buildAsync(uri, listener);

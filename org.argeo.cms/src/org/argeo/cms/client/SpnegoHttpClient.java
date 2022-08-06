@@ -66,7 +66,7 @@ public class SpnegoHttpClient {
 		}
 	}
 
-	private static HttpClient openHttpClient(Subject subject) {
+	static HttpClient openHttpClient(Subject subject) {
 		HttpClient client = HttpClient.newBuilder() //
 				.sslContext(ipaSslContext()) //
 				.version(HttpClient.Version.HTTP_1_1) //
