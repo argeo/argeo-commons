@@ -22,8 +22,8 @@ import org.argeo.api.cms.CmsLog;
 public abstract class AbstractSsh {
 	private final static CmsLog log = CmsLog.getLog(AbstractSsh.class);
 
-	private static SshClient sshClient;
-	private static SftpFileSystemProvider sftpFileSystemProvider;
+	private SshClient sshClient;
+	private SftpFileSystemProvider sftpFileSystemProvider;
 
 	private boolean passwordSet = false;
 	private ClientSession session;

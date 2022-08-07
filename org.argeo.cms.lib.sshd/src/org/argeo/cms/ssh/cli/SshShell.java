@@ -14,7 +14,6 @@ import org.apache.sshd.agent.SshAgent;
 import org.apache.sshd.agent.SshAgentFactory;
 import org.apache.sshd.agent.local.LocalAgentFactory;
 import org.apache.sshd.agent.unix.UnixAgentFactory;
-import org.apache.sshd.client.config.keys.ClientIdentityLoader;
 import org.apache.sshd.common.NamedResource;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.argeo.api.cli.CommandArgsException;
@@ -83,7 +82,7 @@ public class SshShell implements DescribedCommand<String> {
 						return keyPath;
 					}
 				};
-				KeyPair keyPair = ClientIdentityLoader.DEFAULT
+				KeyPair keyPair = new DefaultClientIdentityLoader()
 						.loadClientIdentities(null, namedResource, FilePasswordProvider.of(new String(keyPassword)))
 						.iterator().next();
 				sshAgent.addIdentity(keyPair, "NO COMMENT");
