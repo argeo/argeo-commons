@@ -10,10 +10,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 /** Utilities around the standard Java file abstractions. */
 public class FsUtils {
 
-	/**
-	 * Deletes this path, recursively if needed. Does nothing if the path does not
-	 * exist.
-	 */
+	/** Deletes this path, recursively if needed. */
 	public static void copyDirectory(Path source, Path target) {
 		if (!Files.exists(source) || !Files.isDirectory(source))
 			throw new IllegalArgumentException(source + " is not a directory");
@@ -22,13 +19,13 @@ public class FsUtils {
 		try {
 			Files.createDirectories(target);
 			Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
+
 				@Override
-				public FileVisitResult postVisitDirectory(Path directory, IOException e) throws IOException {
-					if (e != null)
-						throw e;
+				public FileVisitResult preVisitDirectory(Path directory, BasicFileAttributes attrs) throws IOException {
 					Path relativePath = source.relativize(directory);
 					Path targetDirectory = target.resolve(relativePath);
-					Files.createDirectory(targetDirectory);
+					if (!Files.exists(targetDirectory))
+						Files.createDirectory(targetDirectory);
 					return FileVisitResult.CONTINUE;
 				}
 
