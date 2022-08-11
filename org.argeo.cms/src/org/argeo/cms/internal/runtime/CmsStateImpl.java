@@ -149,9 +149,10 @@ public class CmsStateImpl implements CmsState {
 				log.debug("## CMS starting... (" + uuid + ")\n" + sb + "\n");
 			}
 
-			Path nodeBase = getDataPath(KernelConstants.DIR_PRIVATE);
-			if (nodeBase != null && !Files.exists(nodeBase)) {// first init
+			Path privateBase = getDataPath(KernelConstants.DIR_PRIVATE);
+			if (privateBase != null && !Files.exists(privateBase)) {// first init
 				firstInit();
+				Files.createDirectories(privateBase);
 			}
 
 		} catch (RuntimeException | IOException e) {

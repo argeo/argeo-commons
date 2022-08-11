@@ -55,11 +55,11 @@ class KernelUtils implements KernelConstants {
 		Path executionDir = Paths.get(getFrameworkProp("user.dir"));
 		if (relativePath == null)
 			return executionDir;
-		try {
-			return executionDir.resolve(relativePath).toRealPath();
-		} catch (IOException e) {
-			throw new IllegalArgumentException("Cannot get canonical file", e);
-		}
+//		try {
+		return executionDir.resolve(relativePath);
+//		} catch (IOException e) {
+//			throw new IllegalArgumentException("Cannot get canonical file", e);
+//		}
 	}
 
 //	static File getOsgiInstanceDir() {
