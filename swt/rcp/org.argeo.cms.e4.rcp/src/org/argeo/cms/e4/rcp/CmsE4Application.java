@@ -2,6 +2,7 @@ package org.argeo.cms.e4.rcp;
 
 import java.security.PrivilegedExceptionAction;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
@@ -202,6 +203,11 @@ public class CmsE4Application implements IApplication, CmsView {
 	@Override
 	public String getUid() {
 		return uid;
+	}
+
+	@Override
+	public <T> T doAs(Callable<T> action) {
+		throw new UnsupportedOperationException();
 	}
 
 }

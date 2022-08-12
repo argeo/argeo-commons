@@ -148,6 +148,11 @@ public class CmsRcpApp extends AbstractSwtCmsView implements CmsView {
 		return cmsApp.getCmsContext().getCmsEventBus();
 	}
 
+	@Override
+	public CmsApp getCmsApp() {
+		return cmsApp;
+	}
+
 	/*
 	 * DEPENDENCY INJECTION
 	 */
