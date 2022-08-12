@@ -85,6 +85,8 @@ public interface CmsConstants {
 	String CONTEXT_PATH = "context.path";
 	String CONTEXT_PUBLIC = "context.public";
 	String EVENT_TOPICS = "event.topics";
+	String ACR_MOUNT_PATH = "acr.mount.path";
+
 
 	/*
 	 * FILE SYSTEM

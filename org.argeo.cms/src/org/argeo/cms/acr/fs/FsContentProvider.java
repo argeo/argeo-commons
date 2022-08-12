@@ -24,9 +24,8 @@ import org.argeo.api.acr.spi.ProvidedSession;
 public class FsContentProvider implements ContentProvider {
 	final static String XMLNS_ = "xmlns:";
 
-	private final String mountPath;
-	private final Path rootPath;
-//	private final boolean isRoot;
+	protected String mountPath;
+	protected Path rootPath;
 
 	private NavigableMap<String, String> prefixes = new TreeMap<>();
 
@@ -40,15 +39,11 @@ public class FsContentProvider implements ContentProvider {
 		initNamespaces();
 	}
 
-//	@Deprecated
-//	public FsContentProvider(String mountPath, Path rootPath, boolean isRoot) {
-//		this.mountPath = mountPath;
-//		this.rootPath = rootPath;
-////		this.isRoot = isRoot;
-////		initNamespaces();
-//	}
+	protected FsContentProvider() {
 
-	private void initNamespaces() {
+	}
+
+	protected void initNamespaces() {
 		try {
 			UserDefinedFileAttributeView udfav = Files.getFileAttributeView(rootPath,
 					UserDefinedFileAttributeView.class);
@@ -103,7 +98,7 @@ public class FsContentProvider implements ContentProvider {
 		return mountPath;
 	}
 
-	boolean isMountRoot(Path path) {
+	boolean isMountBase(Path path) {
 		try {
 			return Files.isSameFile(rootPath, path);
 		} catch (IOException e) {

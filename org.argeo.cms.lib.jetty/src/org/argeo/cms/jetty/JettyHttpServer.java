@@ -112,6 +112,17 @@ public class JettyHttpServer extends HttpsServer {
 			server.start();
 			//
 
+			// Addresses
+			String httpHost = getDeployProperty(CmsDeployProperty.HOST);
+			String fallBackHostname = cmsState != null ? cmsState.getHostname() : "::1";
+			if (httpConnector != null)
+				httpAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname,
+						httpConnector.getLocalPort());
+			if (httpsConnector != null)
+				httpsAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname,
+						httpsConnector.getLocalPort());
+
+			// Clean up
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(), "Jetty shutdown"));
 
 			log.info(httpPortsMsg());
@@ -214,7 +225,6 @@ public class JettyHttpServer extends HttpsServer {
 		if (httpPortStr != null || httpsPortStr != null) {
 			// TODO deal with hostname resolving taking too much time
 //			String fallBackHostname = InetAddress.getLocalHost().getHostName();
-			String fallBackHostname = cmsState != null ? cmsState.getHostname() : "::1";
 
 			boolean httpEnabled = httpPortStr != null;
 			// props.put(JettyHttpConstants.HTTP_ENABLED, httpEnabled);
@@ -233,7 +243,6 @@ public class JettyHttpServer extends HttpsServer {
 				httpConnector.setHost(httpHost);
 				httpConnector.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
 
-				httpAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname, httpPort);
 			}
 
 			if (httpsEnabled) {
@@ -269,8 +278,6 @@ public class JettyHttpServer extends HttpsServer {
 				int httpsPort = Integer.parseInt(httpsPortStr);
 				httpsConnector.setPort(httpsPort);
 				httpsConnector.setHost(httpHost);
-
-				httpsAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname, httpsPort);
 			}
 
 		}

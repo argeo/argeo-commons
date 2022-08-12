@@ -16,6 +16,7 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.acr.ContentUtils;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.JcrException;
@@ -23,7 +24,6 @@ import org.argeo.jcr.JcrUtils;
 
 /** A JCR workspace accessed as an {@link ContentProvider}. */
 public class JcrContentProvider implements ContentProvider, NamespaceContext {
-	public final static String ACR_MOUNT_PATH_PROPERTY = "acr.mount.path";
 
 	private Repository jcrRepository;
 	private Session adminSession;
@@ -33,7 +33,7 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 	private Map<ProvidedSession, JcrSessionAdapter> sessionAdapters = Collections.synchronizedMap(new HashMap<>());
 
 	public void start(Map<String, String> properties) {
-		mountPath = properties.get(ACR_MOUNT_PATH_PROPERTY);
+		mountPath = properties.get(CmsConstants.ACR_MOUNT_PATH);
 		if ("/".equals(mountPath))
 			throw new IllegalArgumentException("JCR content provider cannot be root /");
 		Objects.requireNonNull(mountPath);

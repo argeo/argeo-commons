@@ -38,4 +38,3 @@ OSGI-INF/jcrServletContext.xml,\
 OSGI-INF/dataServletContext.xml,\
 OSGI-INF/filesServletContext.xml,\
 OSGI-INF/filesServlet.xml,\
-OSGI-INF/jcrContentProvider.xml

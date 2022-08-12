@@ -56,16 +56,16 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 
 	private final FsContentProvider provider;
 	private final Path path;
-	private final boolean isRoot;
+	private final boolean isMountBase;
 	private final QName name;
 
 	protected FsContent(ProvidedSession session, FsContentProvider contentProvider, Path path) {
 		super(session);
 		this.provider = contentProvider;
 		this.path = path;
-		this.isRoot = contentProvider.isMountRoot(path);
+		this.isMountBase = contentProvider.isMountBase(path);
 		// TODO check file names with ':' ?
-		if (isRoot) {
+		if (isMountBase) {
 			String mountPath = provider.getMountPath();
 			if (mountPath != null && !mountPath.equals("/")) {
 				Content mountPoint = session.getMountPoint(mountPath);
@@ -265,7 +265,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 
 	@Override
 	public Content getParent() {
-		if (isRoot) {
+		if (isMountBase) {
 			String mountPath = provider.getMountPath();
 			if (mountPath == null || mountPath.equals("/"))
 				return null;
