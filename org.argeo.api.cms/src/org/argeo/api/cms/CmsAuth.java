@@ -30,6 +30,10 @@ public enum CmsAuth {
 		return new LoginContext(getLoginContextName(), subject);
 	}
 
+	public LoginContext newLoginContext() throws LoginException {
+		return new LoginContext(getLoginContextName());
+	}
+
 	/*
 	 * LOGIN CONTEXTS
 	 */

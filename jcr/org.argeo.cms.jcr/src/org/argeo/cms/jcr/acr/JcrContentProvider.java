@@ -30,6 +30,9 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 
 	private String mountPath;
 
+	// cache
+	private String jcrWorkspace;
+
 	private Map<ProvidedSession, JcrSessionAdapter> sessionAdapters = Collections.synchronizedMap(new HashMap<>());
 
 	public void start(Map<String, String> properties) {
@@ -37,7 +40,8 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 		if ("/".equals(mountPath))
 			throw new IllegalArgumentException("JCR content provider cannot be root /");
 		Objects.requireNonNull(mountPath);
-		adminSession = CmsJcrUtils.openDataAdminSession(jcrRepository, null);
+		jcrWorkspace = ContentUtils.getParentPath(mountPath)[1];
+		adminSession = CmsJcrUtils.openDataAdminSession(jcrRepository, jcrWorkspace);
 	}
 
 	public void stop() {
@@ -51,7 +55,6 @@ public class JcrContentProvider implements ContentProvider, NamespaceContext {
 
 	@Override
 	public ProvidedContent get(ProvidedSession contentSession, String relativePath) {
-		String jcrWorkspace = ContentUtils.getParentPath(mountPath)[1];
 		String jcrPath = "/" + relativePath;
 		return new JcrContent(contentSession, this, jcrWorkspace, jcrPath);
 	}

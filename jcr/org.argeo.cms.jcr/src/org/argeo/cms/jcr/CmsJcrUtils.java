@@ -20,6 +20,7 @@ import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.jcr.JcrUtils;
 
 /** Utilities related to Argeo model in JCR */
 public class CmsJcrUtils {
@@ -245,7 +246,7 @@ public class CmsJcrUtils {
 	public static Session openDataAdminSession(Repository repository, String workspaceName) {
 		LoginContext loginContext;
 		try {
-			loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_DATA_ADMIN);
+			loginContext = CmsAuth.DATA_ADMIN.newLoginContext();
 			loginContext.login();
 		} catch (LoginException e1) {
 			throw new RuntimeException("Could not login as data admin", e1);
@@ -260,8 +261,8 @@ public class CmsJcrUtils {
 				@Override
 				public Session run() {
 					try {
-						return repository.login(workspaceName);
-					} catch (NoSuchWorkspaceException e) {
+						return JcrUtils.loginOrCreateWorkspace(repository, workspaceName);
+					} catch (NoSuchWorkspaceException e) {// should not happen
 						throw new IllegalArgumentException("No workspace " + workspaceName + " available", e);
 					} catch (RepositoryException e) {
 						throw new RuntimeException("Cannot open data admin session", e);
