@@ -278,6 +278,8 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 				throw new IllegalArgumentException(dn + " does not start with base DN " + getDirectory().getBaseDn());
 			Attributes attrs = ldapConnection.getAttributes(dn);
 			return new LdapHierarchyUnit(getDirectory(), dn, attrs);
+		} catch (NameNotFoundException e) {
+			return null;
 		} catch (NamingException e) {
 			throw new IllegalStateException("Cannot get hierarchy unit " + dn, e);
 		}

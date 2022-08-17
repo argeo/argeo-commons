@@ -32,6 +32,7 @@ import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.DirectoryConf;
+import org.argeo.util.directory.HierarchyUnit;
 import org.argeo.util.directory.ldap.SharedSecret;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.NamingUtils;
@@ -61,6 +62,9 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	private UserAdmin userAdmin;
 //	private Map<String, String> serviceProperties;
 	private WorkTransaction userTransaction;
+
+	private final String[] knownProps = { LdapAttrs.cn.name(), LdapAttrs.sn.name(), LdapAttrs.givenName.name(),
+			LdapAttrs.uid.name() };
 
 //	private Map<UserDirectory, Hashtable<String, Object>> userDirectories = Collections
 //			.synchronizedMap(new LinkedHashMap<>());
@@ -123,9 +127,6 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		}
 		return false;
 	}
-
-	private final String[] knownProps = { LdapAttrs.cn.name(), LdapAttrs.sn.name(), LdapAttrs.givenName.name(),
-			LdapAttrs.uid.name() };
 
 	public Set<User> listUsersInGroup(String groupDn, String filter) {
 		Group group = (Group) userAdmin.getRole(groupDn);
@@ -205,6 +206,37 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		return buildDistinguishedName(localId, getDefaultDomainName(), type);
 	}
 
+	/*
+	 * EDITION
+	 */
+	@Override
+	public User createUser(String username, Map<String, Object> properties, Map<String, Object> credentials) {
+		try {
+			userTransaction.begin();
+			User user = (User) userAdmin.createRole(username, Role.USER);
+			if (properties != null) {
+				for (String key : properties.keySet())
+					user.getProperties().put(key, properties.get(key));
+			}
+			if (credentials != null) {
+				for (String key : credentials.keySet())
+					user.getCredentials().put(key, credentials.get(key));
+			}
+			userTransaction.commit();
+			return user;
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				log.error("Could not roll back", e1);
+			}
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException("Cannot create user " + username, e);
+		}
+	}
+
 	@Override
 	public String getDefaultDomainName() {
 		Map<String, String> dns = getKnownBaseDns(true);
@@ -214,27 +246,6 @@ public class CmsUserManagerImpl implements CmsUserManager {
 			throw new IllegalStateException("Current context contains " + dns.size() + " base dns: "
 					+ dns.keySet().toString() + ". Unable to chose a default one.");
 	}
-
-//	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
-//		Map<String, String> dns = new HashMap<String, String>();
-//		String[] propertyKeys = serviceProperties.keySet().toArray(new String[serviceProperties.size()]);
-//		for (String uri : propertyKeys) {
-//			if (!uri.startsWith("/"))
-//				continue;
-//			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
-//			String readOnly = UserAdminConf.readOnly.getValue(props);
-//			String baseDn = UserAdminConf.baseDn.getValue(props);
-//
-//			if (onlyWritable && "true".equals(readOnly))
-//				continue;
-//			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
-//				continue;
-//			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
-//				continue;
-//			dns.put(baseDn, uri);
-//		}
-//		return dns;
-//	}
 
 	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
 		Map<String, String> dns = new HashMap<String, String>();
@@ -460,6 +471,27 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		if (possible.size() == 0)
 			throw new IllegalStateException("No user directory found for user " + name);
 		return possible.lastEntry().getValue();
+	}
+
+	public HierarchyUnit createHierarchyUnit(UserDirectory directory, String path) {
+		HierarchyUnit hi = directory.getHierarchyUnit(path);
+		if (hi != null)
+			return hi;
+		try {
+			userTransaction.begin();
+			HierarchyUnit hierarchyUnit = directory.createHierarchyUnit(path);
+			userTransaction.commit();
+			return hierarchyUnit;
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot create hierarchy unit " + path + " in directory " + directory, e1);
+		}
 	}
 
 //	public User createUserFromPerson(Node person) {

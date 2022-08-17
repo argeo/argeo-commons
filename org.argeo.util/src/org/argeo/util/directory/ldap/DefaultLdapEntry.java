@@ -119,7 +119,7 @@ public class DefaultLdapEntry implements LdapEntry {
 
 	public Dictionary<String, Object> getCredentials() {
 		if (credentials == null)
-			credentials = new AttributeDictionary(false);
+			credentials = new AttributeDictionary(true);
 		return credentials;
 	}
 
@@ -374,29 +374,43 @@ public class DefaultLdapEntry implements LdapEntry {
 
 		@Override
 		public Object put(String key, Object value) {
-			if (key == null) {
-				// TODO persist to other sources (like PKCS12)
-				char[] password = DirectoryDigestUtils.bytesToChars(value);
-				byte[] hashedPassword = sha1hash(password);
-				return put(LdapAttrs.userPassword.name(), hashedPassword);
-			}
-			if (key.startsWith("X-")) {
-				return put(LdapAttrs.authPassword.name(), value);
-			}
-
-			getDirectory().checkEdit();
-			if (!isEditing())
-				startEditing();
-
-			if (!(value instanceof String || value instanceof byte[]))
-				throw new IllegalArgumentException("Value must be String or byte[]");
-
-			if (includeFilter && !attrFilter.contains(key))
-				throw new IllegalArgumentException("Key " + key + " not included");
-			else if (!includeFilter && attrFilter.contains(key))
-				throw new IllegalArgumentException("Key " + key + " excluded");
-
 			try {
+				if (key == null) {
+					// TODO persist to other sources (like PKCS12)
+					char[] password = DirectoryDigestUtils.bytesToChars(value);
+					byte[] hashedPassword = sha1hash(password);
+					return put(LdapAttrs.userPassword.name(), hashedPassword);
+				}
+				if (key.startsWith("X-")) {
+					return put(LdapAttrs.authPassword.name(), value);
+				}
+				if (key.equals(LdapAttrs.objectClasses.name())) {
+					Attribute attribute = new BasicAttribute(LdapAttrs.objectClass.name());
+					String[] objectClasses = value.toString().split("\n");
+					for (String objectClass : objectClasses) {
+						if (objectClass.trim().equals(""))
+							continue;
+						attribute.add(objectClass);
+					}
+					Attribute previousAttribute = getModifiedAttributes().put(attribute);
+					if (previousAttribute != null)
+						return previousAttribute.get();
+					else
+						return null;
+				}
+
+				getDirectory().checkEdit();
+				if (!isEditing())
+					startEditing();
+
+				if (!(value instanceof String || value instanceof byte[]))
+					throw new IllegalArgumentException("Value must be String or byte[]");
+
+				if (includeFilter && !attrFilter.contains(key))
+					throw new IllegalArgumentException("Key " + key + " not included");
+				else if (!includeFilter && attrFilter.contains(key))
+					throw new IllegalArgumentException("Key " + key + " excluded");
+
 				Attribute attribute = getModifiedAttributes().get(key.toString());
 				// if (attribute == null) // block unit tests
 				attribute = new BasicAttribute(key.toString());

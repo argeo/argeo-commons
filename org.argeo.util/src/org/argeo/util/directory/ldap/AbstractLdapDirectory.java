@@ -34,6 +34,7 @@ import org.argeo.util.transaction.WorkControl;
 import org.argeo.util.transaction.WorkingCopyXaResource;
 import org.argeo.util.transaction.XAResourceProvider;
 
+/** A {@link Directory} based either on LDAP or LDIF. */
 public abstract class AbstractLdapDirectory implements Directory, XAResourceProvider {
 	protected static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
 	protected static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
@@ -146,23 +147,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	}
 
 	/*
-	 * ABSTRACT METHODS
-	 */
-
-//	public abstract HierarchyUnit doGetHierarchyUnit(LdapName dn);
-//
-//	public abstract Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly);
-//
-//	protected abstract Boolean daoHasEntry(LdapName dn);
-//
-//	protected abstract LdapEntry daoGetEntry(LdapName key) throws NameNotFoundException;
-//
-//	protected abstract List<LdapEntry> doGetEntries(LdapName searchBase, Filter f, boolean deep);
-//
-//	/** Returns the groups this user is a direct member of. */
-//	protected abstract List<LdapName> getDirectGroups(LdapName dn);
-	/*
-	 * INITIALIZATION
+	 * INITIALISATION
 	 */
 
 	public void init() {
@@ -325,6 +310,25 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	@Override
 	public Directory getDirectory() {
 		return this;
+	}
+
+	@Override
+	public HierarchyUnit createHierarchyUnit(String path) {
+		checkEdit();
+		LdapEntryWorkingCopy wc = getWorkingCopy();
+		LdapName dn = pathToName(path);
+		if ((getDirectoryDao().entryExists(dn) && !wc.getDeletedData().containsKey(dn))
+				|| wc.getNewData().containsKey(dn))
+			throw new IllegalArgumentException("Already a hierarchy unit " + path);
+		BasicAttributes attrs = new BasicAttributes(true);
+		attrs.put(LdapAttrs.objectClass.name(), LdapObjs.organizationalUnit.name());
+		Rdn nameRdn = dn.getRdn(dn.size() - 1);
+		// TODO deal with multiple attr RDN
+		attrs.put(nameRdn.getType(), nameRdn.getValue());
+		wc.getModifiedData().put(dn, attrs);
+		LdapHierarchyUnit newHierarchyUnit = new LdapHierarchyUnit(this, dn, attrs);
+		wc.getNewData().put(dn, newHierarchyUnit);
+		return newHierarchyUnit;
 	}
 
 	/*

@@ -94,6 +94,20 @@ public class LangUtils {
 		return res;
 	}
 
+	/** Converts a {@link Dictionary} to a {@link Map}. */
+	public static Map<String, Object> dictToMap(Dictionary<String, ?> properties) {
+		if (properties == null) {
+			return null;
+		}
+		Map<String, Object> res = new HashMap<>(properties.size());
+		Enumeration<String> keys = properties.keys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			res.put(key, properties.get(key));
+		}
+		return res;
+	}
+
 	/**
 	 * Get a string property from this map, expecting to find it, or
 	 * <code>null</code> if not found.
