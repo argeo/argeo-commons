@@ -174,7 +174,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 		if (!(ud instanceof DirectoryUserAdmin))
 			throw new IllegalArgumentException("Only " + DirectoryUserAdmin.class.getName() + " is supported");
 		DirectoryUserAdmin userDirectory = (DirectoryUserAdmin) ud;
-		String basePath = userDirectory.getContext();
+		String basePath = userDirectory.getBase();
 		if (isSystemRolesBaseDn(basePath)) {
 			this.systemRoles = userDirectory;
 			systemRoles.setExternalRoles(this);
@@ -303,7 +303,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 	}
 
 	public Set<UserDirectory> getUserDirectories() {
-		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getContext().compareTo(o2.getContext()));
+		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getBase().compareTo(o2.getBase()));
 		res.addAll(businessRoles.values());
 		res.add(systemRoles);
 		return res;

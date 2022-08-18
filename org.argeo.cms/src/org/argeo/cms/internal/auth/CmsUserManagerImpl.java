@@ -23,16 +23,19 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.auth.SystemRole;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.util.directory.ldap.LdapEntry;
 import org.argeo.util.directory.ldap.SharedSecret;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.NamingUtils;
@@ -238,6 +241,116 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
+	public Group getOrCreateGroup(HierarchyUnit groups, String commonName) {
+		try {
+			String dn = LdapAttrs.cn.name() + "=" + commonName + "," + groups.getBase();
+			Group group = (Group) getUserAdmin().getRole(dn);
+			if (group != null)
+				return group;
+			userTransaction.begin();
+			group = (Group) userAdmin.createRole(dn, Role.GROUP);
+			userTransaction.commit();
+			return group;
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				log.error("Could not roll back", e1);
+			}
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException("Cannot create group " + commonName + " in " + groups, e);
+		}
+	}
+
+	@Override
+	public Group getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole) {
+		try {
+			String dn = LdapAttrs.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole.getName()) + ","
+					+ roles.getBase();
+			Group group = (Group) getUserAdmin().getRole(dn);
+			if (group != null)
+				return group;
+			userTransaction.begin();
+			group = (Group) userAdmin.createRole(dn, Role.GROUP);
+			userTransaction.commit();
+			return group;
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				log.error("Could not roll back", e1);
+			}
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException("Cannot create system role " + systemRole + " in " + roles, e);
+		}
+	}
+
+	@Override
+	public HierarchyUnit getOrCreateHierarchyUnit(UserDirectory directory, String path) {
+		HierarchyUnit hi = directory.getHierarchyUnit(path);
+		if (hi != null)
+			return hi;
+		try {
+			userTransaction.begin();
+			HierarchyUnit hierarchyUnit = directory.createHierarchyUnit(path);
+			userTransaction.commit();
+			return hierarchyUnit;
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot create hierarchy unit " + path + " in directory " + directory, e1);
+		}
+	}
+
+	@Override
+	public void addObjectClasses(Role role, Set<String> objectClasses, Map<String, Object> additionalProperties) {
+		try {
+			userTransaction.begin();
+			LdapEntry.addObjectClasses(role.getProperties(), objectClasses);
+			for (String key : additionalProperties.keySet()) {
+				role.getProperties().put(key, additionalProperties.get(key));
+			}
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot add object classes " + objectClasses + " to " + role, e1);
+		}
+	}
+
+	@Override
+	public void addMember(Group group, Role role) {
+		try {
+			userTransaction.begin();
+			group.addMember(role);
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot add object classes " + role + " to group " + group, e1);
+		}
+	}
+
+	@Override
 	public String getDefaultDomainName() {
 		Map<String, String> dns = getKnownBaseDns(true);
 		if (dns.size() == 1)
@@ -251,7 +364,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		Map<String, String> dns = new HashMap<String, String>();
 		for (UserDirectory userDirectory : userDirectories) {
 			Boolean readOnly = userDirectory.isReadOnly();
-			String baseDn = userDirectory.getContext();
+			String baseDn = userDirectory.getBase();
 
 			if (onlyWritable && readOnly)
 				continue;
@@ -266,7 +379,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	public Set<UserDirectory> getUserDirectories() {
-		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getContext().compareTo(o2.getContext()));
+		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getBase().compareTo(o2.getBase()));
 		res.addAll(userDirectories);
 		return res;
 	}
@@ -464,34 +577,13 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		String name = user.getName();
 		NavigableMap<String, UserDirectory> possible = new TreeMap<>();
 		for (UserDirectory userDirectory : userDirectories) {
-			if (name.endsWith(userDirectory.getContext())) {
-				possible.put(userDirectory.getContext(), userDirectory);
+			if (name.endsWith(userDirectory.getBase())) {
+				possible.put(userDirectory.getBase(), userDirectory);
 			}
 		}
 		if (possible.size() == 0)
 			throw new IllegalStateException("No user directory found for user " + name);
 		return possible.lastEntry().getValue();
-	}
-
-	public HierarchyUnit createHierarchyUnit(UserDirectory directory, String path) {
-		HierarchyUnit hi = directory.getHierarchyUnit(path);
-		if (hi != null)
-			return hi;
-		try {
-			userTransaction.begin();
-			HierarchyUnit hierarchyUnit = directory.createHierarchyUnit(path);
-			userTransaction.commit();
-			return hierarchyUnit;
-		} catch (Exception e1) {
-			try {
-				if (!userTransaction.isNoTransactionStatus())
-					userTransaction.rollback();
-			} catch (Exception e2) {
-				if (log.isTraceEnabled())
-					log.trace("Cannot rollback transaction", e2);
-			}
-			throw new RuntimeException("Cannot create hierarchy unit " + path + " in directory " + directory, e1);
-		}
 	}
 
 //	public User createUserFromPerson(Node person) {

@@ -6,7 +6,6 @@ import java.util.List;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.util.directory.HierarchyUnit;
@@ -27,9 +26,9 @@ public class OsUserDirectory extends AbstractLdapDirectoryDao {
 		try {
 			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + directory.getUserBaseRdn() + ","
 					+ directory.getBaseDn());
-			Attributes attributes = new BasicAttributes();
-			attributes.put(LdapAttrs.uid.name(), osUsername);
-			osUser = newUser(osUserDn, attributes);
+//			Attributes attributes = new BasicAttributes();
+//			attributes.put(LdapAttrs.uid.name(), osUsername);
+			osUser = newUser(osUserDn);
 		} catch (NamingException e) {
 			throw new IllegalStateException("Cannot create system user", e);
 		}

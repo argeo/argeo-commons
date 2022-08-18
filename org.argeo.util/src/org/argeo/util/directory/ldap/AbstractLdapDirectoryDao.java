@@ -22,13 +22,13 @@ public abstract class AbstractLdapDirectoryDao implements LdapDirectoryDao {
 	}
 
 	@Override
-	public LdapEntry newUser(LdapName name, Attributes attrs) {
-		return getDirectory().newUser(name, attrs);
+	public LdapEntry newUser(LdapName name) {
+		return getDirectory().newUser(name);
 	}
 
 	@Override
-	public LdapEntry newGroup(LdapName name, Attributes attrs) {
-		return getDirectory().newGroup(name, attrs);
+	public LdapEntry newGroup(LdapName name) {
+		return getDirectory().newGroup(name);
 	}
 
 }

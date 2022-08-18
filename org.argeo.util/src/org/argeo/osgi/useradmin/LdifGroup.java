@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.naming.InvalidNameException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.util.directory.ldap.AbstractLdapDirectory;
@@ -15,8 +14,8 @@ import org.osgi.service.useradmin.Role;
 class LdifGroup extends LdifUser implements DirectoryGroup {
 	private final String memberAttributeId;
 
-	LdifGroup(AbstractLdapDirectory userAdmin, LdapName dn, Attributes attributes) {
-		super(userAdmin, dn, attributes);
+	LdifGroup(AbstractLdapDirectory userAdmin, LdapName dn) {
+		super(userAdmin, dn);
 		memberAttributeId = userAdmin.getMemberAttributeId();
 	}
 

@@ -48,8 +48,11 @@ public class WorkingCopyXaResource<WC extends WorkingCopy<?, ?, ?>> implements X
 	}
 
 	private synchronized void cleanUp(Xid xid) {
-		wc(xid).cleanUp();
-		workingCopies.remove(xid);
+		WC wc = workingCopies.get(xid);
+		if (wc != null) {
+			wc.cleanUp();
+			workingCopies.remove(xid);
+		}
 		editingXid = null;
 	}
 

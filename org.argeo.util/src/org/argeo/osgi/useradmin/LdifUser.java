@@ -1,6 +1,5 @@
 package org.argeo.osgi.useradmin;
 
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
 import org.argeo.util.directory.ldap.AbstractLdapDirectory;
@@ -8,8 +7,8 @@ import org.argeo.util.directory.ldap.DefaultLdapEntry;
 
 /** Directory user implementation */
 class LdifUser extends DefaultLdapEntry implements DirectoryUser {
-	LdifUser(AbstractLdapDirectory userAdmin, LdapName dn, Attributes attributes) {
-		super(userAdmin, dn, attributes);
+	LdifUser(AbstractLdapDirectory userAdmin, LdapName dn) {
+		super(userAdmin, dn);
 	}
 
 	@Override

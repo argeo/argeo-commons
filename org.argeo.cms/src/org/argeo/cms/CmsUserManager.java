@@ -7,9 +7,11 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 
+import org.argeo.cms.auth.SystemRole;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.HierarchyUnit;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
@@ -55,8 +57,20 @@ public interface CmsUserManager {
 	/*
 	 * EDITION
 	 */
-	/** Creates a new user.*/
+	/** Creates a new user. */
 	User createUser(String username, Map<String, Object> properties, Map<String, Object> credentials);
+
+	/** Creates a group. */
+	Group getOrCreateGroup(HierarchyUnit groups, String commonName);
+
+	/** Creates a new system role. */
+	Group getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole);
+
+	/** Add additional object classes to this role. */
+	void addObjectClasses(Role role, Set<String> objectClasses, Map<String, Object> additionalProperties);
+
+	/** Add a member to this group. */
+	void addMember(Group group, Role role);
 
 	/* MISCELLANEOUS */
 	/** Returns the dn of a role given its local ID */
@@ -92,5 +106,5 @@ public interface CmsUserManager {
 	UserDirectory getDirectory(Role role);
 
 	/** Create a new hierarchy unit. Does nothing if it already exists. */
-	HierarchyUnit createHierarchyUnit(UserDirectory directory, String path);
+	HierarchyUnit getOrCreateHierarchyUnit(UserDirectory directory, String path);
 }

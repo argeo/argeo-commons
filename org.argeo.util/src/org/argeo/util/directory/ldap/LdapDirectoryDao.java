@@ -24,9 +24,9 @@ public interface LdapDirectoryDao extends WorkingCopyProcessor<LdapEntryWorkingC
 
 	HierarchyUnit doGetHierarchyUnit(LdapName dn);
 
-	LdapEntry newUser(LdapName name, Attributes attrs);
+	LdapEntry newUser(LdapName name);
 
-	LdapEntry newGroup(LdapName name, Attributes attrs);
+	LdapEntry newGroup(LdapName name);
 
 	void init();
 

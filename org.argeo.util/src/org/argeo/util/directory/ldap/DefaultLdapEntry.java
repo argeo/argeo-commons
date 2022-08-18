@@ -32,18 +32,18 @@ public class DefaultLdapEntry implements LdapEntry {
 
 	private final LdapName dn;
 
-	private Attributes publishedAttributes;
+//	private Attributes publishedAttributes;
 
 	// Temporarily expose the fields
 	protected AttributeDictionary properties;
 	protected AttributeDictionary credentials;
 
-	protected DefaultLdapEntry(AbstractLdapDirectory directory, LdapName dn, Attributes attributes) {
+	protected DefaultLdapEntry(AbstractLdapDirectory directory, LdapName dn) {
 		Objects.requireNonNull(directory);
 		Objects.requireNonNull(dn);
 		this.directory = directory;
 		this.dn = dn;
-		this.publishedAttributes = attributes;
+//		this.publishedAttributes = attributes;
 //		properties = new AttributeDictionary(false);
 //		credentials = new AttributeDictionary(true);
 	}
@@ -54,10 +54,10 @@ public class DefaultLdapEntry implements LdapEntry {
 	}
 
 	public synchronized Attributes getAttributes() {
-		// lazy loading
-		if (publishedAttributes == null)
-			publishedAttributes = getDirectory().getDirectoryDao().doGetAttributes(dn);
-		return isEditing() ? getModifiedAttributes() : publishedAttributes;
+//		// lazy loading
+//		if (publishedAttributes == null)
+//			publishedAttributes = getDirectory().getDirectoryDao().doGetAttributes(dn);
+		return isEditing() ? getModifiedAttributes() : getDirectory().getDirectoryDao().doGetAttributes(dn);
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class DefaultLdapEntry implements LdapEntry {
 	}
 
 	public synchronized void publishAttributes(Attributes modifiedAttributes) {
-		publishedAttributes = modifiedAttributes;
+//		publishedAttributes = modifiedAttributes;
 	}
 
 	/*
@@ -376,6 +376,7 @@ public class DefaultLdapEntry implements LdapEntry {
 		public Object put(String key, Object value) {
 			try {
 				if (key == null) {
+					// FIXME remove this "feature", a key should be specified
 					// TODO persist to other sources (like PKCS12)
 					char[] password = DirectoryDigestUtils.bytesToChars(value);
 					byte[] hashedPassword = sha1hash(password);
@@ -384,6 +385,13 @@ public class DefaultLdapEntry implements LdapEntry {
 				if (key.startsWith("X-")) {
 					return put(LdapAttrs.authPassword.name(), value);
 				}
+
+				// start editing
+				getDirectory().checkEdit();
+				if (!isEditing())
+					startEditing();
+
+				// object classes special case.
 				if (key.equals(LdapAttrs.objectClasses.name())) {
 					Attribute attribute = new BasicAttribute(LdapAttrs.objectClass.name());
 					String[] objectClasses = value.toString().split("\n");
@@ -398,10 +406,6 @@ public class DefaultLdapEntry implements LdapEntry {
 					else
 						return null;
 				}
-
-				getDirectory().checkEdit();
-				if (!isEditing())
-					startEditing();
 
 				if (!(value instanceof String || value instanceof byte[]))
 					throw new IllegalArgumentException("Value must be String or byte[]");

@@ -54,6 +54,10 @@ public class LdapNameUtils {
 		return getLastRdn(dn).toString();
 	}
 
+	public static String getLastRdnValue(String dn) {
+		return getLastRdnValue(toLdapName(dn));
+	}
+
 	public static String getLastRdnValue(LdapName dn) {
 		return getLastRdn(dn).getValue().toString();
 	}

@@ -36,8 +36,9 @@ import org.osgi.service.useradmin.Role;
 /** A user admin based on a LDIF files. */
 public class LdifDao extends AbstractLdapDirectoryDao {
 	private NavigableMap<LdapName, LdapEntry> entries = new TreeMap<>();
-
 	private NavigableMap<LdapName, LdapHierarchyUnit> hierarchy = new TreeMap<>();
+
+	private NavigableMap<LdapName, Attributes> values = new TreeMap<>();
 
 	public LdifDao(AbstractLdapDirectory directory) {
 		super(directory);
@@ -104,6 +105,8 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 					lowerCase.add(id);
 				}
 
+				values.put(key, attributes);
+
 				// analyse object classes
 				NamingEnumeration<?> objectClasses = attributes.get(objectClass.name()).getAll();
 				// System.out.println(key);
@@ -111,14 +114,14 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 					String objectClass = objectClasses.next().toString();
 					// System.out.println(" " + objectClass);
 					if (objectClass.toLowerCase().equals(inetOrgPerson.name().toLowerCase())) {
-						entries.put(key, newUser(key, attributes));
+						entries.put(key, newUser(key));
 						break objectClasses;
 					} else if (objectClass.toLowerCase().equals(getDirectory().getGroupObjectClass().toLowerCase())) {
-						entries.put(key, newGroup(key, attributes));
+						entries.put(key, newGroup(key));
 						break objectClasses;
 					} else if (objectClass.equalsIgnoreCase(LdapObjs.organizationalUnit.name())) {
 						// TODO skip if it does not contain groups or users
-						hierarchy.put(key, new LdapHierarchyUnit(getDirectory(), key, attributes));
+						hierarchy.put(key, new LdapHierarchyUnit(getDirectory(), key));
 						break objectClasses;
 					}
 				}
@@ -151,11 +154,9 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 
 	@Override
 	public Attributes doGetAttributes(LdapName name) {
-		try {
-			return doGetEntry(name).getAttributes();
-		} catch (NameNotFoundException e) {
-			throw new IllegalStateException(name + " doe not exist in " + getDirectory().getBaseDn(), e);
-		}
+		if (!values.containsKey(name))
+			throw new IllegalStateException(name + " doe not exist in " + getDirectory().getBaseDn());
+		return values.get(name);
 	}
 
 	@Override

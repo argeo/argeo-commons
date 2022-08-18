@@ -7,12 +7,6 @@ import org.argeo.util.transaction.WorkControl;
 
 /** An information directory (typicylly LDAP). */
 public interface Directory extends HierarchyUnit {
-	/**
-	 * The base of the hierarchy defined by this directory. This could typically be
-	 * an LDAP base DN.
-	 */
-	String getContext();
-
 	String getName();
 
 	/** Whether this directory is read only. */

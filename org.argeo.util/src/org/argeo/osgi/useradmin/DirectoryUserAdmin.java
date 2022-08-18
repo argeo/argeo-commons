@@ -346,13 +346,13 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 			return getRole(name);
 		} else {
 			wc.getModifiedData().put(dn, attrs);
-			LdapEntry newRole = newRole(dn, type, attrs);
+			LdapEntry newRole = doCreateRole(dn, type, attrs);
 			wc.getNewData().put(dn, newRole);
 			return (Role) newRole;
 		}
 	}
 
-	protected LdapEntry newRole(LdapName dn, int type, Attributes attrs) {
+	private LdapEntry doCreateRole(LdapName dn, int type, Attributes attrs) {
 		LdapEntry newRole;
 		BasicAttribute objClass = new BasicAttribute(objectClass.name());
 		if (type == Role.USER) {
@@ -367,14 +367,14 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 			objClass.add(top.name());
 			objClass.add(extensibleObject.name());
 			attrs.put(objClass);
-			newRole = newUser(dn, attrs);
+			newRole = newUser(dn);
 		} else if (type == Role.GROUP) {
 			String groupObjClass = getGroupObjectClass();
 			objClass.add(groupObjClass);
 			// objClass.add(LdifName.extensibleObject.name());
 			objClass.add(top.name());
 			attrs.put(objClass);
-			newRole = newGroup(dn, attrs);
+			newRole = newGroup(dn);
 		} else
 			throw new IllegalArgumentException("Unsupported type " + type);
 		return newRole;
@@ -416,7 +416,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 
 	@Override
 	public Iterable<? extends Role> getHierarchyUnitRoles(HierarchyUnit hierarchyUnit, String filter, boolean deep) {
-		LdapName dn = LdapNameUtils.toLdapName(hierarchyUnit.getContext());
+		LdapName dn = LdapNameUtils.toLdapName(hierarchyUnit.getBase());
 		try {
 			return getRoles(dn, filter, deep);
 		} catch (InvalidSyntaxException e) {
@@ -427,13 +427,13 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	/*
 	 * ROLES CREATION
 	 */
-	protected LdapEntry newUser(LdapName name, Attributes attrs) {
+	protected LdapEntry newUser(LdapName name) {
 		// TODO support devices, applications, etc.
-		return new LdifUser(this, name, attrs);
+		return new LdifUser(this, name);
 	}
 
-	protected LdapEntry newGroup(LdapName name, Attributes attrs) {
-		return new LdifGroup(this, name, attrs);
+	protected LdapEntry newGroup(LdapName name) {
+		return new LdifGroup(this, name);
 
 	}
 

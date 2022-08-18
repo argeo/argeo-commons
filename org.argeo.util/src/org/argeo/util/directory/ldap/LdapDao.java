@@ -93,23 +93,23 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
 					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getGroupObjectClass());
 				}
-				res = newGroup(name, attrs);
+				res = newGroup(name);
 			} else if (getDirectory().getSystemRoleBaseRdn().equals(technicalRdn)) {
 				if (attrs.size() == 0) {// exists but not accessible
 					attrs = new BasicAttributes();
 					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
 					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getGroupObjectClass());
 				}
-				res = newGroup(name, attrs);
+				res = newGroup(name);
 			} else if (getDirectory().getUserBaseRdn().equals(technicalRdn)) {
 				if (attrs.size() == 0) {// exists but not accessible
 					attrs = new BasicAttributes();
 					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
 					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getUserObjectClass());
 				}
-				res = newUser(name, attrs);
+				res = newUser(name);
 			} else {
-				res = new DefaultLdapEntry(getDirectory(), name, attrs);
+				res = new DefaultLdapEntry(getDirectory(), name);
 			}
 			return res;
 		} catch (NameNotFoundException e) {
@@ -146,9 +146,11 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 		ArrayList<LdapEntry> res = new ArrayList<>();
 		try {
 			String searchFilter = f != null ? f.toString()
-					: "(|(" + objectClass + "=" + getDirectory().getUserObjectClass() + ")(" + objectClass + "="
-							+ getDirectory().getGroupObjectClass() + "))";
+					: "(|(" + objectClass.name() + "=" + getDirectory().getUserObjectClass() + ")(" + objectClass.name()
+							+ "=" + getDirectory().getGroupObjectClass() + "))";
 			SearchControls searchControls = new SearchControls();
+			// only attribute needed is objectClass
+			searchControls.setReturningAttributes(new String[] { objectClass.name() });
 			// FIXME make one level consistent with deep
 			searchControls.setSearchScope(deep ? SearchControls.SUBTREE_SCOPE : SearchControls.ONELEVEL_SCOPE);
 
@@ -163,10 +165,10 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 				LdapEntry role;
 				if (objectClassAttr.contains(getDirectory().getGroupObjectClass())
 						|| objectClassAttr.contains(getDirectory().getGroupObjectClass().toLowerCase()))
-					role = newGroup(dn, attrs);
+					role = newGroup(dn);
 				else if (objectClassAttr.contains(getDirectory().getUserObjectClass())
 						|| objectClassAttr.contains(getDirectory().getUserObjectClass().toLowerCase()))
-					role = newUser(dn, attrs);
+					role = newUser(dn);
 				else {
 //					log.warn("Unsupported LDAP type for " + searchResult.getName());
 					continue results;
@@ -248,14 +250,16 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+			// no attributes needed
+			searchControls.setReturningAttributes(new String[0]);
 
 			NamingEnumeration<SearchResult> results = ldapConnection.search(searchBase, searchFilter, searchControls);
 
 			while (results.hasMoreElements()) {
 				SearchResult searchResult = (SearchResult) results.nextElement();
 				LdapName dn = toDn(searchBase, searchResult);
-				Attributes attrs = searchResult.getAttributes();
-				LdapHierarchyUnit hierarchyUnit = new LdapHierarchyUnit(getDirectory(), dn, attrs);
+//				Attributes attrs = searchResult.getAttributes();
+				LdapHierarchyUnit hierarchyUnit = new LdapHierarchyUnit(getDirectory(), dn);
 				if (functionalOnly) {
 					if (hierarchyUnit.isFunctional())
 						res.add(hierarchyUnit);
@@ -276,8 +280,9 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 				return getDirectory();
 			if (!dn.startsWith(getDirectory().getBaseDn()))
 				throw new IllegalArgumentException(dn + " does not start with base DN " + getDirectory().getBaseDn());
-			Attributes attrs = ldapConnection.getAttributes(dn);
-			return new LdapHierarchyUnit(getDirectory(), dn, attrs);
+			if (!ldapConnection.entryExists(dn))
+				return null;
+			return new LdapHierarchyUnit(getDirectory(), dn);
 		} catch (NameNotFoundException e) {
 			return null;
 		} catch (NamingException e) {

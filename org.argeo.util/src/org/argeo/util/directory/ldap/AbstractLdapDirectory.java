@@ -161,9 +161,9 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	/*
 	 * CREATION
 	 */
-	protected abstract LdapEntry newUser(LdapName name, Attributes attrs);
+	protected abstract LdapEntry newUser(LdapName name);
 
-	protected abstract LdapEntry newGroup(LdapName name, Attributes attrs);
+	protected abstract LdapEntry newGroup(LdapName name);
 
 	/*
 	 * EDITION
@@ -255,11 +255,11 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 					} else {
 						// user doesn't have the right to retrieve role, but we know it exists
 						// otherwise memberOf would not work
-						Attributes a = new BasicAttributes();
-						a.put(LdapNameUtils.getLastRdn(groupDn).getType(),
-								LdapNameUtils.getLastRdn(groupDn).getValue());
-						a.put(LdapAttrs.objectClass.name(), LdapObjs.groupOfNames.name());
-						group = newGroup(groupDn, a);
+//						Attributes a = new BasicAttributes();
+//						a.put(LdapNameUtils.getLastRdn(groupDn).getType(),
+//								LdapNameUtils.getLastRdn(groupDn).getValue());
+//						a.put(LdapAttrs.objectClass.name(), LdapObjs.groupOfNames.name());
+						group = newGroup(groupDn);
 						allRoles.add(group);
 					}
 				}
@@ -267,10 +267,13 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 				throw new IllegalStateException("Cannot get memberOf groups for " + user, e);
 			}
 		} else {
-			for (LdapName groupDn : getDirectoryDao().getDirectGroups(user.getDn())) {
-				// TODO check for loops
+			directGroups: for (LdapName groupDn : getDirectoryDao().getDirectGroups(user.getDn())) {
 				LdapEntry group = doGetRole(groupDn);
 				if (group != null) {
+					if (allRoles.contains(group)) {
+						// important in order to avoi loops
+						continue directGroups;
+					}
 					allRoles.add(group);
 					collectGroups(group, allRoles);
 				}
@@ -326,7 +329,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 		// TODO deal with multiple attr RDN
 		attrs.put(nameRdn.getType(), nameRdn.getValue());
 		wc.getModifiedData().put(dn, attrs);
-		LdapHierarchyUnit newHierarchyUnit = new LdapHierarchyUnit(this, dn, attrs);
+		LdapHierarchyUnit newHierarchyUnit = new LdapHierarchyUnit(this, dn);
 		wc.getNewData().put(dn, newHierarchyUnit);
 		return newHierarchyUnit;
 	}
@@ -336,7 +339,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	 */
 
 	@Override
-	public String getContext() {
+	public String getBase() {
 		return getBaseDn().toString();
 	}
 

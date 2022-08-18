@@ -1,6 +1,5 @@
 package org.argeo.util.directory.ldap;
 
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
@@ -10,12 +9,12 @@ import org.argeo.util.directory.HierarchyUnit;
 public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit {
 	private final boolean functional;
 
-	public LdapHierarchyUnit(AbstractLdapDirectory directory, LdapName dn, Attributes attributes) {
-		super(directory, dn, attributes);
+	public LdapHierarchyUnit(AbstractLdapDirectory directory, LdapName dn) {
+		super(directory, dn);
 
 		Rdn rdn = LdapNameUtils.getLastRdn(dn);
 		functional = !(directory.getUserBaseRdn().equals(rdn) || directory.getGroupBaseRdn().equals(rdn)
-				|| directory.getSystemRoleBaseRdn().equals(rdn) );
+				|| directory.getSystemRoleBaseRdn().equals(rdn));
 	}
 
 	@Override
@@ -41,7 +40,7 @@ public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit
 	}
 
 	@Override
-	public String getContext() {
+	public String getBase() {
 		return getDn().toString();
 	}
 

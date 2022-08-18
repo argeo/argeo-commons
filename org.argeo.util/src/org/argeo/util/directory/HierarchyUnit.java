@@ -12,7 +12,11 @@ public interface HierarchyUnit {
 
 	boolean isFunctional();
 
-	String getContext();
+	/**
+	 * The base of this organisational unit within the hierarchy. This would
+	 * typically be an LDAP base DN.
+	 */
+	String getBase();
 
 	Directory getDirectory();
 
