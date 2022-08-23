@@ -54,10 +54,10 @@ public abstract class AbstractSwtCmsView implements CmsView {
 					+ properties.get(CMS_VIEW_UID_PROPERTY) + ") then " + uid);
 		properties.put(CMS_VIEW_UID_PROPERTY, uid);
 
-		log.debug(() -> uid + ": send event to " + topic);
+		log.trace(() -> uid + ": send event to " + topic);
 
 		getCmsEventBus().sendEvent(topic, properties);
-		//getCmsApp().onEvent(topic, properties);
+		// getCmsApp().onEvent(topic, properties);
 	}
 
 //	public void runAs(Runnable runnable) {
@@ -68,7 +68,7 @@ public abstract class AbstractSwtCmsView implements CmsView {
 		try {
 			CompletableFuture<T> result = new CompletableFuture<>();
 			Runnable toDo = () -> {
-				log.debug(() -> uid + ": process doAs");
+				log.trace(() -> uid + ": process doAs");
 				Subject subject = CurrentSubject.current();
 				T res;
 				if (subject != null) {
