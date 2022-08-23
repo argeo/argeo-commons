@@ -155,7 +155,7 @@ class EgoRepository extends JcrRepositoryWrapper {
 //		if (workspaceName != null)
 //			return;
 		// skip system users
-		if (username.endsWith(CmsConstants.ROLES_BASEDN))
+		if (username.endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))
 			return;
 
 		try {

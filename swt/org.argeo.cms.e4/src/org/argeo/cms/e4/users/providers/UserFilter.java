@@ -37,7 +37,7 @@ public class UserFilter extends ViewerFilter {
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		User user = (User) element;
-		if (!showSystemRole && user.getName().matches(".*(" + CmsConstants.ROLES_BASEDN + ")"))
+		if (!showSystemRole && user.getName().matches(".*(" + CmsConstants.SYSTEM_ROLES_BASEDN + ")"))
 			// UserAdminUtils.getProperty(user, LdifName.dn.name())
 			// .toLowerCase().endsWith(AuthConstants.ROLES_BASEDN))
 			return false;

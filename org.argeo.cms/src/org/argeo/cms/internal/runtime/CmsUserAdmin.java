@@ -65,7 +65,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 	private CmsState cmsState;
 
 	public CmsUserAdmin() {
-		super(CmsConstants.ROLES_BASEDN, CmsConstants.TOKENS_BASEDN);
+		super(CmsConstants.SYSTEM_ROLES_BASEDN, CmsConstants.TOKENS_BASEDN);
 	}
 
 	public void start() {
@@ -93,7 +93,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 
 		// node roles
 		String nodeRolesUri = null;// getFrameworkProp(CmsConstants.ROLES_URI);
-		String baseNodeRoleDn = CmsConstants.ROLES_BASEDN;
+		String baseNodeRoleDn = CmsConstants.SYSTEM_ROLES_BASEDN;
 		if (nodeRolesUri == null && nodeBase != null) {
 			nodeRolesUri = baseNodeRoleDn + ".ldif";
 			Path nodeRolesFile = nodeBase.resolve(nodeRolesUri);

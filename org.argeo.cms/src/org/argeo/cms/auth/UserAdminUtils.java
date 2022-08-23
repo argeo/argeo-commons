@@ -136,7 +136,7 @@ public class UserAdminUtils {
 	/** Simply retrieves a display name of the relevant domain */
 	public final static String getDomainName(User user) {
 		String dn = user.getName();
-		if (dn.endsWith(CmsConstants.ROLES_BASEDN))
+		if (dn.endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))
 			return "System roles";
 		if (dn.endsWith(CmsConstants.TOKENS_BASEDN))
 			return "Tokens";

@@ -22,7 +22,7 @@ public class RoleIconLP extends UserAdminAbstractLP {
 	public Image getImage(Object element) {
 		User user = (User) element;
 		String dn = user.getName();
-		if (dn.endsWith(CmsConstants.ROLES_BASEDN))
+		if (dn.endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))
 			return SecurityAdminImages.ICON_ROLE;
 		else if (user.getType() == Role.GROUP) {
 			String businessCategory = UserAdminUtils.getProperty(user, LdapAttrs.businessCategory);

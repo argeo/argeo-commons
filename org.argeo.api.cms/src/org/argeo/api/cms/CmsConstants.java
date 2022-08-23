@@ -49,17 +49,18 @@ public interface CmsConstants {
 	/*
 	 * RESERVED ROLES
 	 */
-	String ROLES_BASEDN = "ou=roles,ou=node";
+	String NODE_BASEDN = "ou=node";
+	String SYSTEM_ROLES_BASEDN = "ou=roles," + NODE_BASEDN;
 	String TOKENS_BASEDN = "ou=tokens,ou=node";
-	String ROLE_ADMIN = "cn=admin," + ROLES_BASEDN;
-	String ROLE_USER_ADMIN = "cn=userAdmin," + ROLES_BASEDN;
-	String ROLE_DATA_ADMIN = "cn=dataAdmin," + ROLES_BASEDN;
+	String ROLE_ADMIN = "cn=admin," + SYSTEM_ROLES_BASEDN;
+	String ROLE_USER_ADMIN = "cn=userAdmin," + SYSTEM_ROLES_BASEDN;
+	String ROLE_DATA_ADMIN = "cn=dataAdmin," + SYSTEM_ROLES_BASEDN;
 	// Special system groups that cannot be edited:
 	// user U anonymous = everyone
-	String ROLE_USER = "cn=user," + ROLES_BASEDN;
-	String ROLE_ANONYMOUS = "cn=anonymous," + ROLES_BASEDN;
+	String ROLE_USER = "cn=user," + SYSTEM_ROLES_BASEDN;
+	String ROLE_ANONYMOUS = "cn=anonymous," + SYSTEM_ROLES_BASEDN;
 	// Account lifecycle
-	String ROLE_REGISTERING = "cn=registering," + ROLES_BASEDN;
+	String ROLE_REGISTERING = "cn=registering," + SYSTEM_ROLES_BASEDN;
 
 	/*
 	 * PATHS
@@ -86,7 +87,6 @@ public interface CmsConstants {
 	String CONTEXT_PUBLIC = "context.public";
 	String EVENT_TOPICS = "event.topics";
 	String ACR_MOUNT_PATH = "acr.mount.path";
-
 
 	/*
 	 * FILE SYSTEM

@@ -46,7 +46,7 @@ class UserLP extends ColumnLabelProvider {
 		if (COL_ICON.equals(currType)) {
 			User user = (User) element;
 			String dn = user.getName();
-			if (dn.endsWith(CmsConstants.ROLES_BASEDN))
+			if (dn.endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))
 				return UsersImages.ICON_ROLE;
 			else if (user.getType() == Role.GROUP)
 				return UsersImages.ICON_GROUP;

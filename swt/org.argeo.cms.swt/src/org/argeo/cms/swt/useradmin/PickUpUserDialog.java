@@ -214,7 +214,7 @@ public class PickUpUserDialog extends TrayDialog {
 
 				if (!showSystemRoleBtn.getSelection())
 					typeStr = "(& " + typeStr + "(!(" + LdapAttrs.DN + "=*"
-							+ CmsConstants.ROLES_BASEDN + ")))";
+							+ CmsConstants.SYSTEM_ROLES_BASEDN + ")))";
 
 				if (filterBuilder.length() > 1) {
 					builder.append("(&" + typeStr);

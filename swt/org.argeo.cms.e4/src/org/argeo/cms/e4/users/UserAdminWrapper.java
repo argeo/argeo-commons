@@ -95,7 +95,7 @@ public class UserAdminWrapper {
 
 			if (onlyWritable && readOnly)
 				continue;
-			if (baseDn.equalsIgnoreCase(CmsConstants.ROLES_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.SYSTEM_ROLES_BASEDN))
 				continue;
 			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;

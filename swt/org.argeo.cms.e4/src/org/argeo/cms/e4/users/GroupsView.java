@@ -198,7 +198,7 @@ public class GroupsView {
 							.append("))");
 
 					if (!showSystemRoles)
-						builder.append("(!(").append(LdapAttrs.DN).append("=*").append(CmsConstants.ROLES_BASEDN)
+						builder.append("(!(").append(LdapAttrs.DN).append("=*").append(CmsConstants.SYSTEM_ROLES_BASEDN)
 								.append("))");
 					builder.append("(|");
 					builder.append(tmpBuilder.toString());
@@ -207,7 +207,7 @@ public class GroupsView {
 					if (!showSystemRoles)
 						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")
 								.append(LdapObjs.groupOfNames.name()).append(")(!(").append(LdapAttrs.DN).append("=*")
-								.append(CmsConstants.ROLES_BASEDN).append("))(!(").append(LdapAttrs.DN).append("=*")
+								.append(CmsConstants.SYSTEM_ROLES_BASEDN).append("))(!(").append(LdapAttrs.DN).append("=*")
 								.append(CmsConstants.TOKENS_BASEDN).append(")))");
 					else
 						builder.append("(&(").append(LdapAttrs.objectClass.name()).append("=")

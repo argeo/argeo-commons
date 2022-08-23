@@ -13,6 +13,10 @@ import javax.xml.namespace.QName;
 
 public class NamespaceUtils {
 
+	public static ContentName parsePrefixedName(String nameWithPrefix) {
+		return parsePrefixedName(RuntimeNamespaceContext.getNamespaceContext(), nameWithPrefix);
+	}
+
 	public static ContentName parsePrefixedName(NamespaceContext nameSpaceContext, String nameWithPrefix) {
 		Objects.requireNonNull(nameWithPrefix, "Name cannot be null");
 		if (nameWithPrefix.charAt(0) == '{') {

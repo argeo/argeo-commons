@@ -166,7 +166,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		List<User> users = new ArrayList<User>();
 		for (Role role : roles) {
 			if ((includeUsers && role.getType() == Role.USER || role.getType() == Role.GROUP) && !users.contains(role)
-					&& (includeSystemRoles || !role.getName().toLowerCase().endsWith(CmsConstants.ROLES_BASEDN))) {
+					&& (includeSystemRoles || !role.getName().toLowerCase().endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))) {
 				if (match(role, filter))
 					users.add((User) role);
 			}
@@ -368,7 +368,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 			if (onlyWritable && readOnly)
 				continue;
-			if (baseDn.equalsIgnoreCase(CmsConstants.ROLES_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.SYSTEM_ROLES_BASEDN))
 				continue;
 			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;

@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 
 public interface SystemRole {
@@ -15,7 +16,8 @@ public interface SystemRole {
 		for (ImpliedByPrincipal role : roles) {
 			if (role.isSystemRole()) {
 				if (role.getRoleName().equals(getName())) {
-					if (role.getContext().equalsIgnoreCase(context))
+					if (role.getContext().equalsIgnoreCase(context)
+							|| role.getContext().equals(CmsConstants.NODE_BASEDN))
 						return true;
 				}
 			}
