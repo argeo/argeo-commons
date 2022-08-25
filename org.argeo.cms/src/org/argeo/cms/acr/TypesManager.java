@@ -65,7 +65,7 @@ class TypesManager {
 	private XSModel xsModel;
 	private SortedMap<QName, Map<QName, CrAttributeType>> types;
 
-	private boolean validating = true;
+	private boolean validating = false;
 
 	private final static boolean limited = false;
 
@@ -99,6 +99,7 @@ class TypesManager {
 		if (xsdSystemId != null) {
 			sources.add(new StreamSource(xsdSystemId));
 			reload();
+			log.debug(() -> "Registered types " + namespace + " from " + xsdSystemId);
 		}
 	}
 
@@ -452,7 +453,8 @@ class TypesManager {
 		try {
 			validator.validate(source);
 		} catch (SAXException e) {
-			throw new IllegalArgumentException("Provided source is not valid", e);
+			log.error(source + " is not valid ", e);
+			// throw new IllegalArgumentException("Provided source is not valid", e);
 		}
 	}
 

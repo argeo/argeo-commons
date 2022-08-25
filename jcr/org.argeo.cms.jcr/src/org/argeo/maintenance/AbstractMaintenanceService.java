@@ -10,6 +10,7 @@ import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jcr.CmsJcrUtils;
 import org.argeo.jcr.Jcr;
@@ -28,6 +29,8 @@ public abstract class AbstractMaintenanceService {
 //	private UserAdminService userAdminService;
 	private UserAdmin userAdmin;
 	private WorkTransaction userTransaction;
+
+	private ProvidedRepository contentRepository;
 
 	public void init() {
 		makeSureRolesExists(getRequiredRoles());
@@ -216,5 +219,14 @@ public abstract class AbstractMaintenanceService {
 	public void setUserTransaction(WorkTransaction userTransaction) {
 		this.userTransaction = userTransaction;
 	}
+
+	public void setContentRepository(ProvidedRepository contentRepository) {
+		this.contentRepository = contentRepository;
+	}
+
+	protected ProvidedRepository getContentRepository() {
+		return contentRepository;
+	}
+
 
 }

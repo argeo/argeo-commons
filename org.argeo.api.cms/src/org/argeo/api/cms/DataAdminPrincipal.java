@@ -2,6 +2,8 @@ package org.argeo.api.cms;
 
 import java.security.Principal;
 
+import javax.security.auth.Subject;
+
 /** Allows to modify any data. */
 public final class DataAdminPrincipal implements Principal {
 	private final String name = CmsConstants.ROLE_DATA_ADMIN;
@@ -26,4 +28,7 @@ public final class DataAdminPrincipal implements Principal {
 		return name.toString();
 	}
 
+	public static boolean isDataAdmin(Subject subject) {
+		return !subject.getPrincipals(DataAdminPrincipal.class).isEmpty();
+	}
 }

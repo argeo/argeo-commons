@@ -216,4 +216,10 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	TypesManager getTypesManager() {
 		return typesManager;
 	}
+
+	CmsContentSession getSystemSession() {
+		return systemSession;
+	}
+	
+	
 }

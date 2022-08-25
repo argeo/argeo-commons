@@ -61,8 +61,8 @@ public class NamespaceUtils {
 
 	};
 
-	/** singleton */
-	private NamespaceUtils() {
+	public static boolean hasNamespace(QName qName) {
+		return !qName.getNamespaceURI().equals(XMLConstants.NULL_NS_URI);
 	}
 
 	/*
@@ -125,6 +125,10 @@ public class NamespaceUtils {
 		Set<String> prefixes = mapping.apply(namespaceURI);
 		assert prefixes != null;
 		return prefixes.iterator();
+	}
+
+	/** singleton */
+	private NamespaceUtils() {
 	}
 
 }

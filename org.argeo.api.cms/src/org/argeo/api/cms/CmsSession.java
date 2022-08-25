@@ -39,4 +39,8 @@ public interface CmsSession {
 	void registerView(String uid, Object view);
 
 	void addOnCloseCallback(Consumer<CmsSession> onClose);
+
+	public static boolean hasCmsSession(Subject subject) {
+		return !subject.getPrivateCredentials(CmsSessionId.class).isEmpty();
+	}
 }

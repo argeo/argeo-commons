@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -32,12 +33,17 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 	// TODO centralise in some executor?
 	private final ThreadLocal<XPath> xPath;
 
+	private TransformerFactory transformerFactory;
+
 	private String mountPath;
 
 	public DomContentProvider(String mountPath, Document document) {
 		this.mountPath = mountPath;
 		this.document = document;
 		this.document.normalizeDocument();
+
+		transformerFactory = TransformerFactory.newInstance();
+
 		XPathFactory xPathFactory = XPathFactory.newInstance();
 		xPath = new ThreadLocal<>() {
 
@@ -143,6 +149,10 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		List<String> res = new ArrayList<>();
 		res.add(getPrefix(namespaceURI));
 		return Collections.unmodifiableList(res).iterator();
+	}
+
+	TransformerFactory getTransformerFactory() {
+		return transformerFactory;
 	}
 
 }

@@ -2,6 +2,7 @@ package org.argeo.api.acr;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,6 +128,34 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 
 	default <A> CompletableFuture<A> write(Class<A> clss) {
 		throw new UnsupportedOperationException("Cannot write content " + this + " as " + clss.getName());
+	}
+
+	/*
+	 * CHILDREN
+	 */
+
+	default boolean hasChild(QName name) {
+		for (Content child : this) {
+			if (child.getName().equals(name))
+				return true;
+		}
+		return false;
+	}
+
+	default Content anyOrAddChild(QName name, QName... classes) {
+		Content child = anyChild(name);
+		if (child != null)
+			return child;
+		return this.add(name, classes);
+	}
+
+	/** Any child with this name, or null if there is none */
+	default Content anyChild(QName name) {
+		for (Content child : this) {
+			if (child.getName().equals(name))
+				return child;
+		}
+		return null;
 	}
 
 	/*

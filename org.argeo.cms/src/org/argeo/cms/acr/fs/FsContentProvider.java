@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.argeo.api.acr.ContentResourceException;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
+import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
@@ -111,14 +112,14 @@ public class FsContentProvider implements ContentProvider {
 		return new FsContent(session, this, rootPath.resolve(relativePath));
 	}
 
-	/*
-	 * NAMESPACE CONTEXT
-	 */
-
 	@Override
 	public boolean exists(ProvidedSession session, String relativePath) {
 		return Files.exists(rootPath.resolve(relativePath));
 	}
+
+	/*
+	 * NAMESPACE CONTEXT
+	 */
 
 	@Override
 	public String getNamespaceURI(String prefix) {
@@ -127,8 +128,19 @@ public class FsContentProvider implements ContentProvider {
 
 	@Override
 	public Iterator<String> getPrefixes(String namespaceURI) {
-		return NamespaceUtils.getPrefixes((ns) -> prefixes.entrySet().stream().filter(e -> e.getValue().equals(ns))
-				.map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet()), namespaceURI);
+		Iterator<String> res = NamespaceUtils.getPrefixes((ns) -> prefixes.entrySet().stream()
+				.filter(e -> e.getValue().equals(ns)).map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet()),
+				namespaceURI);
+		if (!res.hasNext()) {
+			String prefix = RuntimeNamespaceContext.getNamespaceContext().getPrefix(namespaceURI);
+			if (prefix != null) {
+				registerPrefix(prefix, namespaceURI);
+				return getPrefixes(namespaceURI);
+			} else {
+				throw new IllegalArgumentException("Unknown namespace " + namespaceURI);
+			}
+		}
+		return res;
 	}
 
 }

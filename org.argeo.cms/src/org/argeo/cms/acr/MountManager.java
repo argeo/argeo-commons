@@ -52,8 +52,13 @@ class MountManager {
 		if (entry == null)
 			throw new IllegalArgumentException("No entry provider found for " + path);
 		String mountPath = entry.getKey();
-		if (!path.startsWith(mountPath))
-			throw new IllegalArgumentException("Path " + path + " doesn't have a content provider");
+		if (!path.startsWith(mountPath)) {
+			// FIXME make it more robust and find when there is no content provider
+			String[] parent = ContentUtils.getParentPath(path);
+			return findContentProvider(parent[0]);
+			// throw new IllegalArgumentException("Path " + path + " doesn't have a content
+			// provider");
+		}
 		ContentProvider contentProvider = entry.getValue();
 		assert mountPath.equals(contentProvider.getMountPath());
 		return contentProvider;

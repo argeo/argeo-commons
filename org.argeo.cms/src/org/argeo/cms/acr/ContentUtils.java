@@ -6,12 +6,18 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
+import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
+import org.argeo.api.acr.CrName;
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.CurrentSubject;
 import org.osgi.service.useradmin.Role;
 
 /** Utilities and routines around {@link Content}. */
@@ -113,17 +119,56 @@ public class ContentUtils {
 			throw new IllegalArgumentException("Path " + path + " contains //");
 	}
 
-	/** Singleton. */
-	private ContentUtils() {
-
-	}
-
 	public static Content roleToContent(CmsUserManager userManager, ContentSession contentSession, Role role) {
 		UserDirectory userDirectory = userManager.getDirectory(role);
 		String path = CmsContentRepository.DIRECTORY_BASE + SLASH + userDirectory.getName() + SLASH
 				+ userDirectory.getRolePath(role);
 		Content content = contentSession.get(path);
 		return content;
+	}
+
+	/*
+	 * CONSUMER UTILS
+	 */
+
+	public static Content createCollections(ContentSession session, String path) {
+		if (session.exists(path)) {
+			Content content = session.get(path);
+			if (!content.isContentClass(CrName.collection.qName())) {
+				throw new IllegalStateException("Content " + path + " already exists, but is not a collection");
+			} else {
+				return content;
+			}
+		} else {
+			String[] parentPath = getParentPath(path);
+			Content parent = createCollections(session, parentPath[0]);
+			Content content = parent.add(parentPath[1], CrName.collection.qName());
+			return content;
+		}
+	}
+
+	public static ContentSession openDataAdminSession(ContentRepository repository) {
+		LoginContext loginContext;
+		try {
+			loginContext = CmsAuth.DATA_ADMIN.newLoginContext();
+			loginContext.login();
+		} catch (LoginException e1) {
+			throw new RuntimeException("Could not login as data admin", e1);
+		} finally {
+		}
+
+		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread().setContextClassLoader(ContentUtils.class.getClassLoader());
+			return CurrentSubject.callAs(loginContext.getSubject(), () -> repository.get());
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentCl);
+		}
+	}
+
+	/** Singleton. */
+	private ContentUtils() {
+
 	}
 
 }

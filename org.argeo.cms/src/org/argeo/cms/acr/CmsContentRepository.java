@@ -13,9 +13,11 @@ import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsState;
+import org.argeo.api.cms.DataAdminPrincipal;
 import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.util.CurrentSubject;
 
 /**
  * Multi-session {@link ProvidedRepository}, integrated with a CMS.
@@ -40,7 +42,14 @@ public class CmsContentRepository extends AbstractContentRepository {
 
 	@Override
 	public ContentSession get(Locale locale) {
-		// Subject subject = Subject.getSubject(AccessController.getContext());
+		if (!CmsSession.hasCmsSession(CurrentSubject.current())) {
+			if (DataAdminPrincipal.isDataAdmin(CurrentSubject.current())) {
+				// TODO open multiple data admin sessions?
+				return getSystemSession();
+			}
+			throw new IllegalStateException("Caller must be authenticated");
+		}
+
 		CmsSession cmsSession = CurrentUser.getCmsSession();
 		CmsContentSession contentSession = userSessions.get(cmsSession);
 		if (contentSession == null) {

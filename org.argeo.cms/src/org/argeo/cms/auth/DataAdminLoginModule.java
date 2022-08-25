@@ -45,4 +45,5 @@ public class DataAdminLoginModule implements LoginModule {
 		subject.getPrincipals().removeAll(subject.getPrincipals(DataAdminPrincipal.class));
 		return true;
 	}
+
 }

@@ -1,8 +1,8 @@
 package org.argeo.cms.acr;
 
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -34,7 +34,7 @@ class CmsContentSession implements ProvidedSession {
 
 	private CompletableFuture<ContentSession> edition;
 
-	private Set<ContentProvider> modifiedProviders = new TreeSet<>();
+	private Set<ContentProvider> modifiedProviders = new HashSet<>();
 
 	private Content sessionRunDir;
 

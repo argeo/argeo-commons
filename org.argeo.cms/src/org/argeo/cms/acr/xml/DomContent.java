@@ -1,7 +1,6 @@
 package org.argeo.cms.acr.xml;
 
 import java.nio.CharBuffer;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,16 +12,22 @@ import java.util.concurrent.CompletableFuture;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
-import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
 import org.w3c.dom.Attr;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -257,6 +262,9 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			String textContent = element.getTextContent();
 			CharBuffer buf = CharBuffer.wrap(textContent);
 			return (A) buf;
+		} else if (Source.class.isAssignableFrom(clss)) {
+			DOMSource source = new DOMSource(element);
+			return (A) source;
 		}
 		return super.adapt(clss);
 	}
@@ -268,6 +276,42 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			res.thenAccept((s) -> {
 				getSession().notifyModification(this);
 				element.setTextContent(s);
+			});
+			return (CompletableFuture<A>) res;
+		} else if (Source.class.isAssignableFrom(clss)) {
+			CompletableFuture<Source> res = new CompletableFuture<>();
+			res.thenAccept((source) -> {
+				try {
+					Transformer transformer = provider.getTransformerFactory().newTransformer();
+					DocumentFragment documentFragment = element.getOwnerDocument().createDocumentFragment();
+					DOMResult result = new DOMResult(documentFragment);
+					transformer.transform(source, result);
+					// Node parentNode = element.getParentNode();
+					Element resultElement = (Element) documentFragment.getFirstChild();
+					QName resultName = toQName(resultElement);
+					if (!resultName.equals(getName()))
+						throw new IllegalArgumentException(resultName + "+ is not compatible with " + getName());
+
+					// attributes
+					NamedNodeMap attrs = resultElement.getAttributes();
+					for (int i = 0; i < attrs.getLength(); i++) {
+						Attr attr2 = (Attr) element.getOwnerDocument().importNode(attrs.item(i), true);
+						element.getAttributes().setNamedItem(attr2);
+					}
+
+					// Move all the children
+					while (element.hasChildNodes()) {
+						element.removeChild(element.getFirstChild());
+					}
+					while (resultElement.hasChildNodes()) {
+						element.appendChild(resultElement.getFirstChild());
+					}
+//					parentNode.replaceChild(resultNode, element);
+//					element = (Element)resultNode;
+					
+				} catch (DOMException | TransformerException e) {
+					throw new RuntimeException("Cannot write to element", e);
+				}
 			});
 			return (CompletableFuture<A>) res;
 		}

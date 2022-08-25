@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.time.Instant;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import javax.xml.namespace.QName;
 
@@ -322,4 +324,24 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		return provider;
 	}
 
+	/*
+	 * READ / WRITE
+	 */
+	public <A> CompletableFuture<A> write(Class<A> clss) {
+		if (isContentClass(CrName.collection.qName())) {
+			throw new IllegalStateException("Cannot directly write to a collection");
+		}
+		if (InputStream.class.isAssignableFrom(clss)) {
+			CompletableFuture<InputStream> res = new CompletableFuture<>();
+			res.thenAccept((in) -> {
+				try {
+					Files.copy(in, path, StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e) {
+					throw new RuntimeException("Cannot write to " + path, e);
+				}
+			});
+			return (CompletableFuture<A>) res;
+		}
+		return super.write(clss);
+	}
 }
