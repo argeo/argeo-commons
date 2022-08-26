@@ -42,7 +42,7 @@ import org.xml.sax.SAXException;
 public class JcrContentUtils {
 	private final static CmsLog log = CmsLog.getLog(JcrContentUtils.class);
 
-	public static void copyFiles(Node folder, Content collection) {
+	public static void copyFiles(Node folder, Content collection, String... additionalCollectionTypes) {
 		try {
 			nodes: for (NodeIterator it = folder.getNodes(); it.hasNext();) {
 				Node node = it.nextNode();
@@ -54,8 +54,16 @@ public class JcrContentUtils {
 					}
 				} else if (node.isNodeType(NodeType.NT_FOLDER)) {
 					Content subCol = collection.add(name, CrName.collection.qName());
-					copyFiles(node, subCol);
+					copyFiles(node, subCol, additionalCollectionTypes);
 				} else {
+					for (String collectionType : additionalCollectionTypes) {
+						if (node.isNodeType(collectionType)) {
+							Content subCol = collection.add(name, CrName.collection.qName());
+							copyFiles(node, subCol, additionalCollectionTypes);
+							continue nodes;
+						}
+					}
+
 					QName qName = NamespaceUtils.parsePrefixedName(name);
 					if (NamespaceUtils.hasNamespace(qName)) {
 						if (node.getIndex() > 1) {
@@ -130,11 +138,11 @@ public class JcrContentUtils {
 				String namespaceUri = attr.getValue();
 				if (!namespaceUris.contains(namespaceUri)) {
 					toRemove.add(attr);
-					//log.debug("Removing "+i+" " + namespaceUri);
+					// log.debug("Removing "+i+" " + namespaceUri);
 				}
 			}
 		}
-		for(Attr attr:toRemove)
+		for (Attr attr : toRemove)
 			documentElement.removeAttributeNode(attr);
 
 	}
