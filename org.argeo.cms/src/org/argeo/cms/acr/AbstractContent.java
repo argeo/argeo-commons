@@ -22,6 +22,9 @@ import org.argeo.util.LangUtils;
 public abstract class AbstractContent extends AbstractMap<QName, Object> implements ProvidedContent {
 	private final ProvidedSession session;
 
+	// cache
+	private String _path = null;
+
 	public AbstractContent(ProvidedSession session) {
 		this.session = session;
 	}
@@ -88,6 +91,8 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 
 	@Override
 	public String getPath() {
+		if (_path != null)
+			return _path;
 		List<Content> ancestors = new ArrayList<>();
 		collectAncestors(ancestors, this);
 		StringBuilder path = new StringBuilder();
@@ -97,7 +102,8 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 			if (!CrName.root.qName().equals(name))
 				path.append('/').append(name);
 		}
-		return path.toString();
+		_path = path.toString();
+		return _path;
 	}
 
 	private void collectAncestors(List<Content> ancestors, Content content) {
@@ -230,5 +236,13 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 			return LangUtils.size(keys());
 		}
 
+	}
+
+	/*
+	 * OBJECT METHODS
+	 */
+	@Override
+	public String toString() {
+		return "content " + getPath();
 	}
 }
