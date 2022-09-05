@@ -44,6 +44,7 @@ public class JcrContentUtils {
 
 	public static void copyFiles(Node folder, Content collection, String... additionalCollectionTypes) {
 		try {
+			log.debug("Copy collection " + collection);
 			nodes: for (NodeIterator it = folder.getNodes(); it.hasNext();) {
 				Node node = it.nextNode();
 				String name = node.getName();
@@ -65,25 +66,23 @@ public class JcrContentUtils {
 					}
 
 					QName qName = NamespaceUtils.parsePrefixedName(name);
-					if (NamespaceUtils.hasNamespace(qName)) {
-						if (node.getIndex() > 1) {
-							log.warn("Same name siblings not supported, skipping " + node);
-							continue nodes;
-						}
-						Content content = collection.add(qName, qName);
-						Source source = toSource(node);
-						((ProvidedContent) content).getSession().edit((s) -> {
-							((ProvidedSession) s).notifyModification((ProvidedContent) content);
-							content.write(Source.class).complete(source);
-//							ContentUtils.traverse(content,
-//									(c, depth) -> ContentUtils.print(c, System.out, depth, false));
-						}).toCompletableFuture().join();
-
-					} else {
-						// ignore
-						log.debug(() -> "Ignored " + node);
+//					if (NamespaceUtils.hasNamespace(qName)) {
+					if (node.getIndex() > 1) {
+						log.warn("Same name siblings not supported, skipping " + node);
 						continue nodes;
 					}
+					Content content = collection.add(qName, qName);
+					Source source = toSource(node);
+					((ProvidedContent) content).getSession().edit((s) -> {
+						((ProvidedSession) s).notifyModification((ProvidedContent) content);
+						content.write(Source.class).complete(source);
+					}).toCompletableFuture().join();
+
+//					} else {
+//						// ignore
+//						log.debug(() -> "Ignored " + node);
+//						continue nodes;
+//					}
 				}
 			}
 		} catch (RepositoryException e) {
