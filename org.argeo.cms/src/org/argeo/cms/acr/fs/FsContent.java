@@ -24,6 +24,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
@@ -327,6 +331,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	/*
 	 * READ / WRITE
 	 */
+	@SuppressWarnings("unchecked")
 	public <A> CompletableFuture<A> write(Class<A> clss) {
 		if (isContentClass(CrName.collection.qName())) {
 			throw new IllegalStateException("Cannot directly write to a collection");
@@ -341,7 +346,21 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 				}
 			});
 			return (CompletableFuture<A>) res;
+		} else if (Source.class.isAssignableFrom(clss)) {
+			CompletableFuture<Source> res = new CompletableFuture<Source>();
+			res.thenAccept((source) -> {
+//				Path targetPath = path.getParent().resolve(path.getFileName()+".xml");
+				Path targetPath = path;
+				try (OutputStream out = Files.newOutputStream(targetPath)) {
+					StreamResult result = new StreamResult(out);
+					TransformerFactory.newDefaultInstance().newTransformer().transform(source, result);
+				} catch (IOException | TransformerException e) {
+					throw new RuntimeException("Cannot write to " + path, e);
+				}
+			});
+			return (CompletableFuture<A>) res;
+		} else {
+			return super.write(clss);
 		}
-		return super.write(clss);
 	}
 }
