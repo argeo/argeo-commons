@@ -92,7 +92,21 @@ public class JcrContentUtils {
 		}
 	}
 
-	private static Source toSource(Node node) {
+	private static Source toSource(Node node) throws RepositoryException {
+
+//		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+//			node.getSession().exportDocumentView(node.getPath(), out, true, false);
+//			DocumentBuilder documentBuilder = DocumentBuilderFactory.newNSInstance().newDocumentBuilder();
+//			Document document;
+//			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray())) {
+//				document = documentBuilder.parse(in);
+//			}
+//			cleanJcrDom(document);
+//			return new DOMSource(document);
+//		} catch (IOException | SAXException | ParserConfigurationException e) {
+//			throw new RuntimeException(e);
+//		}
+
 		try (PipedInputStream in = new PipedInputStream();) {
 
 			CompletableFuture<Document> toDo = CompletableFuture.supplyAsync(() -> {

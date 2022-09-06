@@ -137,13 +137,16 @@ class CmsContentSession implements ProvidedSession {
 			work.accept(this);
 			return this;
 		}).thenApply((s) -> {
-			// TODO optimise
-			for (ContentProvider provider : modifiedProviders) {
-				if (provider instanceof DomContentProvider) {
-					((DomContentProvider) provider).persist(s);
+			synchronized (CmsContentSession.this) {
+				// TODO optimise
+				for (ContentProvider provider : modifiedProviders) {
+					if (provider instanceof DomContentProvider) {
+						((DomContentProvider) provider).persist(s);
+					}
 				}
+				modifiedProviders.clear();
+				return s;
 			}
-			return s;
 		});
 		return edition.minimalCompletionStage();
 	}
@@ -154,7 +157,7 @@ class CmsContentSession implements ProvidedSession {
 	}
 
 	@Override
-	public void notifyModification(ProvidedContent content) {
+	public synchronized void notifyModification(ProvidedContent content) {
 		ContentProvider contentProvider = content.getProvider();
 		modifiedProviders.add(contentProvider);
 	}
