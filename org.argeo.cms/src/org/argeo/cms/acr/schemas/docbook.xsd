@@ -374,7 +374,62 @@
   </xs:element>
   <xs:element name="info">
     <xs:complexType>
-      <xs:sequence><xs:any minOccurs="0"/></xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="docbook:title"/>
+          <xs:element ref="docbook:titleabbrev"/>
+          <xs:element ref="docbook:subtitle"/>
+        </xs:choice>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="docbook:abstract"/>
+          <xs:element ref="docbook:address"/>
+          <xs:element ref="docbook:artpagenums"/>
+          <xs:element ref="docbook:author"/>
+          <xs:element ref="docbook:authorgroup"/>
+          <xs:element ref="docbook:authorinitials"/>
+          <xs:element ref="docbook:bibliocoverage"/>
+          <xs:element ref="docbook:biblioid"/>
+          <xs:element ref="docbook:bibliosource"/>
+          <xs:element ref="docbook:collab"/>
+          <xs:element ref="docbook:confgroup"/>
+          <xs:element ref="docbook:contractsponsor"/>
+          <xs:element ref="docbook:contractnum"/>
+          <xs:element ref="docbook:copyright"/>
+          <xs:element ref="docbook:cover"/>
+          <xs:element ref="docbook:date"/>
+          <xs:element ref="docbook:edition"/>
+          <xs:element ref="docbook:editor"/>
+          <xs:element ref="docbook:issuenum"/>
+          <xs:element ref="docbook:keywordset"/>
+          <xs:element ref="docbook:legalnotice"/>
+          <xs:element ref="docbook:mediaobject"/>
+          <xs:element ref="docbook:org"/>
+          <xs:element ref="docbook:orgname"/>
+          <xs:element ref="docbook:othercredit"/>
+          <xs:element ref="docbook:pagenums"/>
+          <xs:element ref="docbook:printhistory"/>
+          <xs:element ref="docbook:pubdate"/>
+          <xs:element ref="docbook:publisher"/>
+          <xs:element ref="docbook:publishername"/>
+          <xs:element ref="docbook:releaseinfo"/>
+          <xs:element ref="docbook:revhistory"/>
+          <xs:element ref="docbook:seriesvolnums"/>
+          <xs:element ref="docbook:subjectset"/>
+          <xs:element ref="docbook:volumenum"/>
+          <xs:element ref="docbook:annotation"/>
+          <xs:element ref="docbook:extendedlink"/>
+          <xs:element ref="docbook:bibliomisc"/>
+          <xs:element ref="docbook:bibliomset"/>
+          <xs:element ref="docbook:bibliorelation"/>
+          <xs:element ref="docbook:biblioset"/>
+          <xs:element ref="docbook:itermset"/>
+          <xs:element ref="docbook:productname"/>
+          <xs:element ref="docbook:productnumber"/>
+        </xs:choice>
+        <xs:sequence>
+          <xs:any minOccurs="0" maxOccurs="unbounded" namespace="##other"/>
+        </xs:sequence>
+      </xs:choice>
       <xs:attribute name="role"/>
       <xs:attributeGroup ref="docbook:db.common.attributes"/>
     </xs:complexType>
