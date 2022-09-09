@@ -361,6 +361,11 @@ public class JcrContent extends AbstractContent {
 		return QName.valueOf(name);
 	}
 
+	@Override
+	public int getSiblingIndex() {
+		return Jcr.getIndex(getJcrNode());
+	}
+
 	/*
 	 * STATIC UTLITIES
 	 */

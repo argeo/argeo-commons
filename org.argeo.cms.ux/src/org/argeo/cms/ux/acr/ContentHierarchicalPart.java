@@ -13,6 +13,8 @@ public class ContentHierarchicalPart extends AbstractDataPart<Content, Content> 
 	@Override
 	public List<Content> getChildren(Content content) {
 		List<Content> res = new ArrayList<>();
+		if (isLeaf(content))
+			return res;
 		if (content == null)
 			return res;
 		for (Iterator<Content> it = content.iterator(); it.hasNext();) {
@@ -20,6 +22,10 @@ public class ContentHierarchicalPart extends AbstractDataPart<Content, Content> 
 		}
 
 		return res;
+	}
+
+	protected boolean isLeaf(Content content) {
+		return false;
 	}
 
 	@Override

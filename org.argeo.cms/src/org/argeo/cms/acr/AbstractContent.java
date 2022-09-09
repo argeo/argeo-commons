@@ -14,6 +14,7 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.util.LangUtils;
@@ -23,7 +24,7 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	private final ProvidedSession session;
 
 	// cache
-	private String _path = null;
+//	private String _path = null;
 
 	public AbstractContent(ProvidedSession session) {
 		this.session = session;
@@ -57,7 +58,7 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	public <A> Optional<List<A>> getMultiple(QName key, Class<A> clss) {
 		Object value = get(key);
 		if (value == null)
-			return null;
+			return Optional.empty();
 		if (value instanceof List) {
 			try {
 				List<A> res = (List<A>) value;
@@ -91,19 +92,25 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 
 	@Override
 	public String getPath() {
-		if (_path != null)
-			return _path;
+//		if (_path != null)
+//			return _path;
 		List<Content> ancestors = new ArrayList<>();
 		collectAncestors(ancestors, this);
 		StringBuilder path = new StringBuilder();
-		for (Content c : ancestors) {
+		ancestors: for (Content c : ancestors) {
 			QName name = c.getName();
-			// FIXME
-			if (!CrName.root.qName().equals(name))
-				path.append('/').append(name);
+			if (CrName.root.qName().equals(name))
+				continue ancestors;
+
+			path.append('/');
+			path.append(NamespaceUtils.toPrefixedName(name));
+			int siblingIndex = c.getSiblingIndex();
+			if (siblingIndex != 1)
+				path.append('[').append(siblingIndex).append(']');
 		}
-		_path = path.toString();
-		return _path;
+//		_path = path.toString();
+//		return _path;
+		return path.toString();
 	}
 
 	private void collectAncestors(List<Content> ancestors, Content content) {

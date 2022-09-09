@@ -4,16 +4,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 import javax.jcr.nodetype.NodeType;
 import javax.xml.XMLConstants;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,6 +52,9 @@ public class JcrContentUtils {
 	public static void copyFiles(Node folder, Content collection, String... additionalCollectionTypes) {
 		try {
 			log.debug("Copy collection " + collection);
+
+			NamespaceContext jcrNamespaceContext = new JcrSessionNamespaceContext(folder.getSession());
+
 			nodes: for (NodeIterator it = folder.getNodes(); it.hasNext();) {
 				Node node = it.nextNode();
 				String name = node.getName();
@@ -57,9 +67,14 @@ public class JcrContentUtils {
 					Content subCol = collection.add(name, CrName.collection.qName());
 					copyFiles(node, subCol, additionalCollectionTypes);
 				} else {
+					List<QName> contentClasses = typesAsContentClasses(node, jcrNamespaceContext);
 					for (String collectionType : additionalCollectionTypes) {
 						if (node.isNodeType(collectionType)) {
-							Content subCol = collection.add(name, CrName.collection.qName());
+							contentClasses.add(CrName.collection.qName());
+							Content subCol = collection.add(name,
+									contentClasses.toArray(new QName[contentClasses.size()]));
+							setAttributes(node, subCol, jcrNamespaceContext);
+//							setContentClasses(node, subCol, jcrNamespaceContext);
 							copyFiles(node, subCol, additionalCollectionTypes);
 							continue nodes;
 						}
@@ -71,12 +86,19 @@ public class JcrContentUtils {
 						log.warn("Same name siblings not supported, skipping " + node);
 						continue nodes;
 					}
-					Content content = collection.add(qName, qName);
+					Content content = collection.add(qName, contentClasses.toArray(new QName[contentClasses.size()]));
 					Source source = toSource(node);
 					((ProvidedContent) content).getSession().edit((s) -> {
 						((ProvidedSession) s).notifyModification((ProvidedContent) content);
 						content.write(Source.class).complete(source);
+//						try {
+//							//setContentClasses(node, content, jcrNamespaceContext);
+//						} catch (RepositoryException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
 					}).toCompletableFuture().join();
+					setAttributes(node, content, jcrNamespaceContext);
 
 //					} else {
 //						// ignore
@@ -96,14 +118,15 @@ public class JcrContentUtils {
 
 //		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 //			node.getSession().exportDocumentView(node.getPath(), out, true, false);
-//			DocumentBuilder documentBuilder = DocumentBuilderFactory.newNSInstance().newDocumentBuilder();
-//			Document document;
-//			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray())) {
-//				document = documentBuilder.parse(in);
-//			}
-//			cleanJcrDom(document);
-//			return new DOMSource(document);
-//		} catch (IOException | SAXException | ParserConfigurationException e) {
+//			System.out.println(new String(out.toByteArray(), StandardCharsets.UTF_8));
+////			DocumentBuilder documentBuilder = DocumentBuilderFactory.newNSInstance().newDocumentBuilder();
+////			Document document;
+////			try (ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray())) {
+////				document = documentBuilder.parse(in);
+////			}
+////			cleanJcrDom(document);
+////			return new DOMSource(document);
+//		} catch (IOException e) {
 //			throw new RuntimeException(e);
 //		}
 
@@ -133,7 +156,50 @@ public class JcrContentUtils {
 
 	}
 
+	public static void setAttributes(Node source, Content target, NamespaceContext jcrNamespaceContext)
+			throws RepositoryException {
+		properties: for (PropertyIterator pit = source.getProperties(); pit.hasNext();) {
+			Property p = pit.nextProperty();
+			// TODO migrate JCR title, last modified, etc. ?
+			if (p.getName().startsWith("jcr:"))
+				continue properties;
+			if (p.isMultiple()) {
+				List<String> attr = new ArrayList<>();
+				for (Value value : p.getValues()) {
+					attr.add(value.getString());
+				}
+				target.put(NamespaceUtils.parsePrefixedName(jcrNamespaceContext, p.getName()), attr);
+			} else {
+				target.put(NamespaceUtils.parsePrefixedName(jcrNamespaceContext, p.getName()), p.getString());
+			}
+		}
+	}
+
+	public static List<QName> typesAsContentClasses(Node source, NamespaceContext jcrNamespaceContext)
+			throws RepositoryException {
+		// TODO super types?
+		List<QName> contentClasses = new ArrayList<>();
+		contentClasses
+				.add(NamespaceUtils.parsePrefixedName(jcrNamespaceContext, source.getPrimaryNodeType().getName()));
+		for (NodeType nodeType : source.getMixinNodeTypes()) {
+			contentClasses.add(NamespaceUtils.parsePrefixedName(jcrNamespaceContext, nodeType.getName()));
+		}
+		// filter out JCR types
+		for (Iterator<QName> it = contentClasses.iterator(); it.hasNext();) {
+			QName type = it.next();
+			if (type.getNamespaceURI().equals(JCR_NT_NAMESPACE_URI)
+					|| type.getNamespaceURI().equals(JCR_MIX_NAMESPACE_URI)) {
+				it.remove();
+			}
+		}
+		// target.addContentClasses(contentClasses.toArray(new
+		// QName[contentClasses.size()]));
+		return contentClasses;
+	}
+
 	static final String JCR_NAMESPACE_URI = "http://www.jcp.org/jcr/1.0";
+	static final String JCR_NT_NAMESPACE_URI = "http://www.jcp.org/jcr/nt/1.0";
+	static final String JCR_MIX_NAMESPACE_URI = "http://www.jcp.org/jcr/mix/1.0";
 
 	public static void cleanJcrDom(Document document) {
 		Element documentElement = document.getDocumentElement();
@@ -176,6 +242,7 @@ public class JcrContentUtils {
 			if (namespaceUri == null)
 				continue attributes;
 			if (JCR_NAMESPACE_URI.equals(namespaceUri)) {
+				// FIXME probably wrong to change attributes length
 				element.removeAttributeNode(attr);
 				continue attributes;
 			}

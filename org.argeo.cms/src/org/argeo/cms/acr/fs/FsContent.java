@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 
 import javax.xml.namespace.QName;
@@ -73,7 +74,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		// TODO check file names with ':' ?
 		if (isMountBase) {
 			String mountPath = provider.getMountPath();
-			if (mountPath != null && !mountPath.equals("/")) {
+			if (mountPath != null && !mountPath.equals(ContentUtils.ROOT_SLASH)) {
 				Content mountPoint = session.getMountPoint(mountPath);
 				this.name = mountPoint.getName();
 			} else {
@@ -82,9 +83,8 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		} else {
 
 			// TODO should we support prefixed name for known types?
-			// QName providerName = NamespaceUtils.parsePrefixedName(provider,
-			// path.getFileName().toString());
-			QName providerName = new QName(path.getFileName().toString());
+			QName providerName = NamespaceUtils.parsePrefixedName(provider, path.getFileName().toString());
+//			QName providerName = new QName(path.getFileName().toString());
 			// TODO remove extension if mounted?
 			this.name = new ContentName(providerName, session);
 		}
@@ -147,7 +147,17 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			// TODO perform trivial file conversion to other formats
 		}
 		if (value instanceof byte[]) {
-			res = (A) new String((byte[]) value, StandardCharsets.UTF_8);
+			String str = new String((byte[]) value, StandardCharsets.UTF_8);
+			String[] arr = str.split("\n");
+			if (arr.length == 1) {
+				res = (A) arr[0];
+			} else {
+				List<String> lst = new ArrayList<>();
+				for (String s : arr) {
+					lst.add(s);
+				}
+				res = (A) lst;
+			}
 		}
 		if (res == null)
 			try {
@@ -189,8 +199,20 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	@Override
 	public Object put(QName key, Object value) {
 		Object previous = get(key);
+
+		String toWrite;
+		if (value instanceof List) {
+			StringJoiner sj = new StringJoiner("\n");
+			for (Object obj : (List<?>) value) {
+				sj.add(obj.toString());
+			}
+			toWrite = sj.toString();
+		} else {
+			toWrite = value.toString();
+		}
+
 		UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
-		ByteBuffer bb = ByteBuffer.wrap(value.toString().getBytes(StandardCharsets.UTF_8));
+		ByteBuffer bb = ByteBuffer.wrap(toWrite.getBytes(StandardCharsets.UTF_8));
 		try {
 			udfav.write(NamespaceUtils.toPrefixedName(provider, key), bb);
 		} catch (IOException e) {
@@ -252,6 +274,8 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			throw new ContentResourceException("Cannot create new content", e);
 		}
 
+		if (classes.length > 0)
+			fsContent.addContentClasses(classes);
 		if (getSession().getRepository().shouldMount(classes)) {
 			ContentProvider contentProvider = getSession().getRepository().getMountContentProvider(fsContent, true,
 					classes);
@@ -313,10 +337,30 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	@Override
 	public List<QName> getContentClasses() {
 		List<QName> res = new ArrayList<>();
+		Optional<List<String>> value = getMultiple(CrName.cc.qName(), String.class);
+		if (!value.isEmpty()) {
+			for (String s : value.get()) {
+				QName name = NamespaceUtils.parsePrefixedName(provider, s);
+				res.add(name);
+			}
+		}
 		if (Files.isDirectory(path))
 			res.add(CrName.collection.qName());
-		// TODO add other types
 		return res;
+	}
+
+	@Override
+	public void addContentClasses(QName... contentClass) {
+		List<String> toWrite = new ArrayList<>();
+		for (QName cc : getContentClasses()) {
+			if (cc.equals(CrName.collection.qName()))
+				continue; // skip
+			toWrite.add(NamespaceUtils.toPrefixedName(provider, cc));
+		}
+		for (QName cc : contentClass) {
+			toWrite.add(NamespaceUtils.toPrefixedName(provider, cc));
+		}
+		put(CrName.cc.qName(), toWrite);
 	}
 
 	/*

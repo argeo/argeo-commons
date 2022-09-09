@@ -15,6 +15,7 @@ public enum CrName {
 	 */
 	uuid, // the UUID of a content
 	mount,
+	cc, // content class
 
 	/*
 	 * ATTRIBUTES FROM FILE SEMANTICS

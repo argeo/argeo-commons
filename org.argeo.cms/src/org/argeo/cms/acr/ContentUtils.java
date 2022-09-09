@@ -64,6 +64,7 @@ public class ContentUtils {
 
 	public static final char SLASH = '/';
 	public static final String ROOT_SLASH = "" + SLASH;
+	public static final String EMPTY = "";
 
 	/**
 	 * Split a path (with '/' separator) in an array of length 2, the first part
@@ -83,7 +84,7 @@ public class ContentUtils {
 		}
 
 		if (parentIndex == -1) // no '/'
-			return new String[] { "", path };
+			return new String[] { EMPTY, path };
 
 		return new String[] { parentIndex != 0 ? path.substring(0, parentIndex) : "" + SLASH,
 				path.substring(parentIndex + 1) };
@@ -98,7 +99,7 @@ public class ContentUtils {
 
 	public static List<String> toPathSegments(String path) {
 		List<String> res = new ArrayList<>();
-		if ("".equals(path) || ROOT_SLASH.equals(path))
+		if (EMPTY.equals(path) || ROOT_SLASH.equals(path))
 			return res;
 		collectPathSegments(path, res);
 		return res;
@@ -106,10 +107,10 @@ public class ContentUtils {
 
 	private static void collectPathSegments(String path, List<String> segments) {
 		String[] parent = getParentPath(path);
-		if ("".equals(parent[1])) // root
+		if (EMPTY.equals(parent[1])) // root
 			return;
 		segments.add(0, parent[1]);
-		if ("".equals(parent[0])) // end
+		if (EMPTY.equals(parent[0])) // end
 			return;
 		collectPathSegments(parent[0], segments);
 	}

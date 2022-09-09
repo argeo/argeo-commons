@@ -48,9 +48,11 @@ class MountManager {
 	}
 
 	synchronized ContentProvider findContentProvider(String path) {
+//		if (ContentUtils.EMPTY.equals(path))
+//			return partitions.firstEntry().getValue();
 		Map.Entry<String, ContentProvider> entry = partitions.floorEntry(path);
 		if (entry == null)
-			throw new IllegalArgumentException("No entry provider found for " + path);
+			throw new IllegalArgumentException("No entry provider found for path '" + path + "'");
 		String mountPath = entry.getKey();
 		if (!path.startsWith(mountPath)) {
 			// FIXME make it more robust and find when there is no content provider

@@ -35,6 +35,13 @@ public interface CmsConstants {
 	String GUESTS_WORKSPACE = "guests";
 	String PUBLIC_WORKSPACE = "public";
 	String SECURITY_WORKSPACE = "security";
+	String MIGRATION_WORKSPACE = "migration";
+	
+	/*
+	 * ACR CONVENTIONS
+	 */
+	String SRV_BASE = "/srv";
+	
 
 	/*
 	 * BASE DNs

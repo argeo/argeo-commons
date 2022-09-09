@@ -95,6 +95,10 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	 */
 	List<QName> getContentClasses();
 
+	default void addContentClasses(QName... contentClass) {
+		throw new UnsupportedOperationException("Adding content classes to " + getPath() + " is not supported");
+	}
+
 	/** AND */
 	default boolean isContentClass(QName... contentClass) {
 		List<QName> contentClasses = getContentClasses();
@@ -113,6 +117,14 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 				return true;
 		}
 		return false;
+	}
+
+	/*
+	 * SIBLINGS
+	 */
+
+	default int getSiblingIndex() {
+		return 1;
 	}
 
 	/*

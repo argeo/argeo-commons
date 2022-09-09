@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -20,6 +21,7 @@ import javax.xml.transform.dom.DOMSource;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
+import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
@@ -55,14 +57,22 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 
 	@Override
 	public QName getName() {
-		if (element.getParentNode() == null) {// root
+		if (isLocalRoot()) {// root
 			String mountPath = provider.getMountPath();
 			if (mountPath != null) {
+				if (ContentUtils.ROOT_SLASH.equals(mountPath)) {
+					return CrName.root.qName();
+				}
 				Content mountPoint = getSession().getMountPoint(mountPath);
-				return mountPoint.getName();
+				QName mountPointName = mountPoint.getName();
+				return mountPointName;
 			}
 		}
 		return toQName(this.element);
+	}
+
+	protected boolean isLocalRoot() {
+		return element.getParentNode() == null || element.getParentNode() instanceof Document;
 	}
 
 	protected QName toQName(Node node) {
@@ -212,15 +222,18 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	@Override
 	public Content getParent() {
 		Node parentNode = element.getParentNode();
-		if (parentNode == null) {
+		if (isLocalRoot()) {
 			String mountPath = provider.getMountPath();
 			if (mountPath == null)
 				return null;
+			if (ContentUtils.ROOT_SLASH.equals(mountPath)) {
+				return null;
+			}
 			String[] parent = ContentUtils.getParentPath(mountPath);
+			if (ContentUtils.EMPTY.equals(parent[0]))
+				return null;
 			return getSession().get(parent[0]);
 		}
-		if (parentNode instanceof Document)
-			return null;
 		if (!(parentNode instanceof Element))
 			throw new IllegalStateException("Parent is not an element");
 		return new DomContent(this, (Element) parentNode);
@@ -308,7 +321,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 					}
 //					parentNode.replaceChild(resultNode, element);
 //					element = (Element)resultNode;
-					
+
 				} catch (DOMException | TransformerException e) {
 					throw new RuntimeException("Cannot write to element", e);
 				}
@@ -318,14 +331,51 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		return super.write(clss);
 	}
 
+	@Override
+	public int getSiblingIndex() {
+		Node curr = element.getPreviousSibling();
+		int count = 1;
+		while (curr != null) {
+			if (curr instanceof Element) {
+				if (Objects.equals(curr.getNamespaceURI(), element.getNamespaceURI())
+						&& Objects.equals(curr.getLocalName(), element.getLocalName())) {
+					count++;
+				}
+			}
+			curr = curr.getPreviousSibling();
+		}
+		return count;
+	}
+
 	/*
 	 * TYPING
 	 */
 	@Override
 	public List<QName> getContentClasses() {
 		List<QName> res = new ArrayList<>();
-		res.add(getName());
+		if (isLocalRoot()) {
+			String mountPath = provider.getMountPath();
+			if (mountPath != null) {
+				Content mountPoint = getSession().getMountPoint(mountPath);
+				res.addAll(mountPoint.getContentClasses());
+			}
+		} else {
+			res.add(getName());
+		}
 		return res;
+	}
+
+	@Override
+	public void addContentClasses(QName... contentClass) {
+		if (isLocalRoot()) {
+			String mountPath = provider.getMountPath();
+			if (mountPath != null) {
+				Content mountPoint = getSession().getMountPoint(mountPath);
+				mountPoint.addContentClasses(contentClass);
+			}
+		} else {
+			super.addContentClasses(contentClass);
+		}
 	}
 
 	/*
