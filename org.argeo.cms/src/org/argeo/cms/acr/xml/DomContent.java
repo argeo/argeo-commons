@@ -139,7 +139,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			else
 				return Optional.empty();
 		} else
-			return null;
+			return Optional.empty();
 	}
 
 	@Override

@@ -7,6 +7,8 @@ public interface ContentPart {
 	Content getContent();
 
 	@Deprecated
-	Content getNode();
+	default Content getNode() {
+		return getContent();
+	}
 
 }

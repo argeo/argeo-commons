@@ -11,7 +11,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
-/** A structured UI related to a JCR context. */
+/** A structured UI related to an ACR context. */
 public class SwtSection extends ContentComposite {
 	private static final long serialVersionUID = -5933796173755739207L;
 
