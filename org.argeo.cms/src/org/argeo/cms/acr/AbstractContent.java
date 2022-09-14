@@ -55,34 +55,27 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <A> Optional<List<A>> getMultiple(QName key, Class<A> clss) {
+	public <A> List<A> getMultiple(QName key, Class<A> clss) {
 		Object value = get(key);
 		if (value == null)
-			return Optional.empty();
+			return new ArrayList<>();
 		if (value instanceof List) {
-			try {
-				List<A> res = (List<A>) value;
-				return Optional.of(res);
-			} catch (ClassCastException e) {
-				List<A> res = new ArrayList<>();
-				List<?> lst = (List<?>) value;
-				try {
-					for (Object o : lst) {
-						A item = (A) o;
-						res.add(item);
-					}
-					return Optional.of(res);
-				} catch (ClassCastException e1) {
-					return Optional.empty();
-				}
+			if (isDefaultAttrTypeRequested(clss))
+				return (List<A>) value;
+			List<A> res = new ArrayList<>();
+			List<?> lst = (List<?>) value;
+			for (Object o : lst) {
+				A item = clss.isAssignableFrom(String.class) ? (A) o.toString() : (A) o;
+				res.add(item);
 			}
+			return res;
 		} else {// singleton
-			try {
-				A res = (A) value;
-				return Optional.of(Collections.singletonList(res));
-			} catch (ClassCastException e) {
-				return Optional.empty();
-			}
+//			try {
+			A res = (A) value;
+			return Collections.singletonList(res);
+//			} catch (ClassCastException e) {
+//				return Optional.empty();
+//			}
 		}
 	}
 

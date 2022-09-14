@@ -65,6 +65,17 @@ public class NamespaceUtils {
 		return !qName.getNamespaceURI().equals(XMLConstants.NULL_NS_URI);
 	}
 
+	public static void checkNoPrefix(String unqualified) {
+		if (unqualified.indexOf(':') >= 0)
+			throw new IllegalArgumentException("Name " + unqualified + " has a prefix");
+	}
+
+	public static QName unqualified(String name) {
+		checkNoPrefix(name);
+		return new ContentName(XMLConstants.NULL_NS_URI, name, XMLConstants.DEFAULT_NS_PREFIX);
+
+	}
+
 	/*
 	 * DEFAULT NAMESPACE CONTEXT OPERATIONS as specified in NamespaceContext
 	 */

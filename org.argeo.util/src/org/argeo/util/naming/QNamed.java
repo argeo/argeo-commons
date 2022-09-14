@@ -3,6 +3,7 @@ package org.argeo.util.naming;
 import javax.xml.namespace.QName;
 
 /** A (possibly) qualified name. To be used in enums. */
+@Deprecated
 public interface QNamed {
 	String name();
 

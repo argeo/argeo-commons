@@ -6,7 +6,6 @@ public class Cms2DSize {
 	private Integer height;
 
 	public Cms2DSize() {
-
 	}
 
 	public Cms2DSize(Integer width, Integer height) {
@@ -29,6 +28,11 @@ public class Cms2DSize {
 
 	public void setHeight(Integer height) {
 		this.height = height;
+	}
+
+	@Override
+	public String toString() {
+		return Cms2DSize.class.getSimpleName() + "[" + width + "," + height + "]";
 	}
 
 }

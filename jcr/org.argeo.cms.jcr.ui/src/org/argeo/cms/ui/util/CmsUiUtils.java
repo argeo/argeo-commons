@@ -154,23 +154,23 @@ public class CmsUiUtils {
 		return noImg(AbstractImageManager.NO_IMAGE_SIZE);
 	}
 
-	public static Image noImage(Cms2DSize size) {
-		ResourceManager rm = RWT.getResourceManager();
-		InputStream in = null;
-		try {
-			in = rm.getRegisteredContent(AbstractImageManager.NO_IMAGE);
-			ImageData id = new ImageData(in);
-			ImageData scaled = id.scaledTo(size.getWidth(), size.getHeight());
-			Image image = new Image(Display.getCurrent(), scaled);
-			return image;
-		} finally {
-			try {
-				in.close();
-			} catch (IOException e) {
-				// silent
-			}
-		}
-	}
+//	public static Image noImage(Cms2DSize size) {
+//		ResourceManager rm = RWT.getResourceManager();
+//		InputStream in = null;
+//		try {
+//			in = rm.getRegisteredContent(AbstractImageManager.NO_IMAGE);
+//			ImageData id = new ImageData(in);
+//			ImageData scaled = id.scaledTo(size.getWidth(), size.getHeight());
+//			Image image = new Image(Display.getCurrent(), scaled);
+//			return image;
+//		} finally {
+//			try {
+//				in.close();
+//			} catch (IOException e) {
+//				// silent
+//			}
+//		}
+//	}
 
 	/** Lorem ipsum text to be used during development. */
 	public final static String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
