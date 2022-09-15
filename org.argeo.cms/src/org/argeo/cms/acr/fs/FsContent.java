@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -196,6 +197,8 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			try {
 				for (String name : udfav.list()) {
 					QName providerName = NamespaceUtils.parsePrefixedName(provider, name);
+					if (providerName.getNamespaceURI().equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI))
+						continue; // skip prefix mapping
 					QName sessionName = new ContentName(providerName, getSession());
 					result.add(sessionName);
 				}

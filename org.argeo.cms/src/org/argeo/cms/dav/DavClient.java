@@ -1,7 +1,9 @@
-package org.argeo.util.dav;
+package org.argeo.cms.dav;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -13,6 +15,8 @@ import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
+import org.argeo.util.http.HttpResponseStatus;
+
 public class DavClient {
 
 	private HttpClient httpClient;
@@ -21,6 +25,14 @@ public class DavClient {
 		httpClient = HttpClient.newBuilder() //
 //				.sslContext(insecureContext()) //
 				.version(HttpClient.Version.HTTP_1_1) //
+//				.authenticator(new Authenticator() {
+//
+//					@Override
+//					protected PasswordAuthentication getPasswordAuthentication() {
+//						return new PasswordAuthentication("root", "demo".toCharArray());
+//					}
+//
+//				}) //
 				.build();
 	}
 
@@ -64,12 +76,12 @@ public class DavClient {
 					  <D:propname/>
 					</D:propfind>""";
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.DEPTH.name(), "1") //
+					.header(DavHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_1.getValue()) //
 					.method(DavMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
 					.build();
 
-//			HttpResponse<String> responseStr = httpClient.send(request, BodyHandlers.ofString());
-//			System.out.println(responseStr.body());
+			HttpResponse<String> responseStr = httpClient.send(request, BodyHandlers.ofString());
+			System.out.println(responseStr.body());
 
 			HttpResponse<InputStream> response = httpClient.send(request, BodyHandlers.ofInputStream());
 			MultiStatusReader msReader = new MultiStatusReader(response.body(), uri.getPath());
@@ -83,14 +95,14 @@ public class DavClient {
 	public boolean exists(URI uri) {
 		try {
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.DEPTH.name(), "0") //
+					.header(DavHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_0.getValue()) //
 					.method(DavMethod.HEAD.name(), BodyPublishers.noBody()) //
 					.build();
 			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);
 			System.out.println(response.body());
 			int responseStatusCode = response.statusCode();
-			if (responseStatusCode == 404)
+			if (responseStatusCode == HttpResponseStatus.NOT_FOUND.getCode())
 				return false;
 			if (responseStatusCode >= 200 && responseStatusCode < 300)
 				return true;
@@ -110,7 +122,7 @@ public class DavClient {
 					  <D:allprop/>
 					</D:propfind>""";
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.DEPTH.name(), "0") //
+					.header(DavHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_0.getValue()) //
 					.method(DavMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
 					.build();
 
@@ -130,8 +142,10 @@ public class DavClient {
 
 	public static void main(String[] args) {
 		DavClient davClient = new DavClient();
+//		Iterator<DavResponse> responses = davClient
+//				.listChildren(URI.create("http://localhost/unstable/a2/org.argeo.tp.sdk/"));
 		Iterator<DavResponse> responses = davClient
-				.listChildren(URI.create("http://localhost/unstable/a2/org.argeo.tp.sdk/"));
+				.listChildren(URI.create("http://root:demo@localhost:7070/api/acr/srv/example"));
 		while (responses.hasNext()) {
 			DavResponse response = responses.next();
 			System.out.println(response.getHref() + (response.isCollection() ? " (collection)" : ""));

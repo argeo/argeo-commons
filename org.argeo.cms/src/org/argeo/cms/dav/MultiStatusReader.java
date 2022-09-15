@@ -1,6 +1,7 @@
-package org.argeo.util.dav;
+package org.argeo.cms.dav;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -16,6 +17,10 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+/**
+ * Asynchronously iterate over the response statuses of the response to a
+ * PROPFIND request.
+ */
 class MultiStatusReader implements Iterator<DavResponse> {
 	private CompletableFuture<Boolean> empty = new CompletableFuture<Boolean>();
 	private AtomicBoolean processed = new AtomicBoolean(false);
@@ -32,13 +37,12 @@ class MultiStatusReader implements Iterator<DavResponse> {
 	public MultiStatusReader(InputStream in, String ignoredHref) {
 		this.ignoredHref = ignoredHref;
 		ForkJoinPool.commonPool().execute(() -> process(in));
-
 	}
 
 	protected void process(InputStream in) {
 		try {
 			XMLInputFactory inputFactory = XMLInputFactory.newFactory();
-			XMLStreamReader reader = inputFactory.createXMLStreamReader(in);
+			XMLStreamReader reader = inputFactory.createXMLStreamReader(in, StandardCharsets.UTF_8.name());
 
 			DavResponse currentResponse = null;
 			boolean collectiongProperties = false;
@@ -133,6 +137,7 @@ class MultiStatusReader implements Iterator<DavResponse> {
 			if (!empty.isDone())
 				empty.complete(true);
 		} catch (FactoryConfigurationError | XMLStreamException e) {
+			empty.completeExceptionally(e);
 			throw new IllegalStateException("Cannot process DAV response", e);
 		} finally {
 			processed();
@@ -170,7 +175,7 @@ class MultiStatusReader implements Iterator<DavResponse> {
 		} catch (InterruptedException | ExecutionException e) {
 			throw new IllegalStateException("Cannot determine hasNext", e);
 		} finally {
-			notifyAll();
+			// notifyAll();
 		}
 	}
 
@@ -185,7 +190,7 @@ class MultiStatusReader implements Iterator<DavResponse> {
 		} catch (InterruptedException e) {
 			throw new IllegalStateException("Cannot get next", e);
 		} finally {
-			notifyAll();
+			// notifyAll();
 		}
 	}
 

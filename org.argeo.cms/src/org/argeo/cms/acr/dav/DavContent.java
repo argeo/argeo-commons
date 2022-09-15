@@ -16,7 +16,7 @@ import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
-import org.argeo.util.dav.DavResponse;
+import org.argeo.cms.dav.DavResponse;
 
 public class DavContent extends AbstractContent {
 	private final DavContentProvider provider;

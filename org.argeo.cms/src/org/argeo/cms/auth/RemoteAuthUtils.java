@@ -155,7 +155,7 @@ public class RemoteAuthUtils {
 					.startsWith(HttpHeader.NEGOTIATE)) {
 				negotiateFailed = true;
 			} else {
-				return HttpResponseStatus.FORBIDDEN.getStatusCode();
+				return HttpResponseStatus.FORBIDDEN.getCode();
 			}
 		}
 
@@ -175,7 +175,7 @@ public class RemoteAuthUtils {
 		// response.setHeader("Keep-Alive", "timeout=5, max=97");
 		// response.setContentType("text/html; charset=UTF-8");
 
-		return HttpResponseStatus.UNAUTHORIZED.getStatusCode();
+		return HttpResponseStatus.UNAUTHORIZED.getCode();
 	}
 
 	private static boolean hasAcceptorCredentials() {

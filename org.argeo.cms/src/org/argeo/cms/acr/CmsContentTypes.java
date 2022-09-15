@@ -24,7 +24,7 @@ public enum CmsContentTypes {
 	//
 	XLINK_1999("xlink", "http://www.w3.org/1999/xlink", "xlink.xsd", "http://www.w3.org/XML/2008/06/xlink.xsd"),
 	//
-//	WEBDAV("dav", "DAV:", "webdav.xsd", "https://raw.githubusercontent.com/lookfirst/sardine/master/webdav.xsd"),
+	WEBDAV("D", "DAV:", null, "https://raw.githubusercontent.com/lookfirst/sardine/master/webdav.xsd"),
 	//
 	XSLT_2_0("xsl", "http://www.w3.org/1999/XSL/Transform", "schema-for-xslt20.xsd",
 			"https://www.w3.org/2007/schema-for-xslt20.xsd"),

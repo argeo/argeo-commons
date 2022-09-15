@@ -1,21 +1,8 @@
-package org.argeo.util.naming;
+package org.argeo.util.internal;
 
 import javax.xml.namespace.QName;
 
-/** A (possibly) qualified name. To be used in enums. */
-@Deprecated
-public interface QNamed {
-	String name();
-
-	default QName qName() {
-		return new DisplayQName(getNamespace(), name(), getDefaultPrefix());
-	}
-
-	String getNamespace();
-
-	String getDefaultPrefix();
-
-	static class DisplayQName extends QName {
+public class DisplayQName extends QName {
 		private static final long serialVersionUID = 2376484886212253123L;
 
 		public DisplayQName(String namespaceURI, String localPart, String prefix) {
@@ -34,4 +21,3 @@ public interface QNamed {
 		}
 
 	}
-}

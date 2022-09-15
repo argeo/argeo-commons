@@ -1,4 +1,4 @@
-package org.argeo.util.dav;
+package org.argeo.cms.dav;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class DavResponse {
 		return properties;
 	}
 
-	void setHref(String href) {
+	public void setHref(String href) {
 		this.href = href;
 	}
 
@@ -34,7 +34,7 @@ public class DavResponse {
 		return collection;
 	}
 
-	void setCollection(boolean collection) {
+	public void setCollection(boolean collection) {
 		this.collection = collection;
 	}
 

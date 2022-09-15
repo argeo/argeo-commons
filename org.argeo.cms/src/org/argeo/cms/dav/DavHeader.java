@@ -1,4 +1,4 @@
-package org.argeo.util.dav;
+package org.argeo.cms.dav;
 
 /** Standard HTTP headers. */
 public enum DavHeader {
@@ -11,13 +11,13 @@ public enum DavHeader {
 		this.name = headerName;
 	}
 
-	public String getName() {
+	public String getHeaderName() {
 		return name;
 	}
 
 	@Override
 	public String toString() {
-		return getName();
+		return getHeaderName();
 	}
 
 }

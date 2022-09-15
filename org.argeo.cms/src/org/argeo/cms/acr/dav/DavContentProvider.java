@@ -8,8 +8,8 @@ import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.util.dav.DavClient;
-import org.argeo.util.dav.DavResponse;
+import org.argeo.cms.dav.DavClient;
+import org.argeo.cms.dav.DavResponse;
 
 public class DavContentProvider implements ContentProvider {
 	private String mountPath;

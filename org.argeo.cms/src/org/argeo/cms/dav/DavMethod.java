@@ -1,4 +1,4 @@
-package org.argeo.util.dav;
+package org.argeo.cms.dav;
 
 public enum DavMethod {
 	// Generic HTTP

@@ -8,20 +8,21 @@ package org.argeo.util.http;
 public enum HttpResponseStatus {
 	// Successful responses (200–299)
 	OK(200), //
+	MULTI_STATUS(207), // WebDav
 	// Client error responses (400–499)
 	UNAUTHORIZED(401), //
 	FORBIDDEN(403), //
 	NOT_FOUND(404), //
 	;
 
-	private final int statusCode;
+	private final int code;
 
 	HttpResponseStatus(int statusCode) {
-		this.statusCode = statusCode;
+		this.code = statusCode;
 	}
 
-	public int getStatusCode() {
-		return statusCode;
+	public int getCode() {
+		return code;
 	}
 
 }

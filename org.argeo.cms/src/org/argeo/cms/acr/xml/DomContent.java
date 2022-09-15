@@ -122,6 +122,8 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		for (int i = 0; i < attributes.getLength(); i++) {
 			Attr attr = (Attr) attributes.item(i);
 			QName key = toQName(attr);
+			if (key.getNamespaceURI().equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI))
+				continue;// skip prefix mapping
 			result.add(key);
 		}
 		return result;

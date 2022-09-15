@@ -2,6 +2,10 @@ package org.argeo.util.naming;
 
 import java.util.function.Supplier;
 
+import javax.xml.namespace.QName;
+
+import org.argeo.util.internal.DisplayQName;
+
 /**
  * Standard LDAP attributes as per:<br>
  * - <a href= "https://www.ldap.com/ldap-oid-reference">Standard LDAP</a><br>
@@ -9,7 +13,7 @@ import java.util.function.Supplier;
  * "https://github.com/krb5/krb5/blob/master/src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema">Kerberos
  * LDAP (partial)</a>
  */
-public enum LdapAttrs implements SpecifiedName, Supplier<String>, QNamed {
+public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 	/** */
 	uid("0.9.2342.19200300.100.1.1", "RFC 4519"),
 	/** */
@@ -293,10 +297,16 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String>, QNamed {
 //	private final static String LDAP_ = "ldap:";
 
 	private final String oid, spec;
+	private final QName value;
 
 	LdapAttrs(String oid, String spec) {
 		this.oid = oid;
 		this.spec = spec;
+		this.value = new DisplayQName(LdapObjs.LDAP_NAMESPACE_URI, name(), LdapObjs.LDAP_DEFAULT_PREFIX);
+	}
+
+	public QName qName() {
+		return value;
 	}
 
 	@Override
@@ -319,19 +329,9 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String>, QNamed {
 		return get();
 	}
 
+	@Override
 	public String get() {
-		String prefix = getDefaultPrefix();
-		return prefix != null ? prefix + ":" + name() : name();
-	}
-
-	@Override
-	public String getDefaultPrefix() {
-		return LdapObjs.LDAP_DEFAULT_PREFIX;
-	}
-
-	@Override
-	public String getNamespace() {
-		return LdapObjs.LDAP_NAMESPACE_URI;
+		return LdapObjs.LDAP_DEFAULT_PREFIX + ":" + name();
 	}
 
 	@Override
