@@ -5,4 +5,5 @@
       <provide interface="com.sun.net.httpserver.HttpHandler"/>
    </service>
    <property name="context.path" type="String" value="/api/acr" />
+   <reference bind="setContentRepository" cardinality="1..1" interface="org.argeo.api.acr.spi.ProvidedRepository" name="ProvidedRepository" policy="static"/>
 </scr:component>

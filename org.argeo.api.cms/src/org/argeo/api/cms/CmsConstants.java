@@ -36,12 +36,11 @@ public interface CmsConstants {
 	String PUBLIC_WORKSPACE = "public";
 	String SECURITY_WORKSPACE = "security";
 	String MIGRATION_WORKSPACE = "migration";
-	
+
 	/*
 	 * ACR CONVENTIONS
 	 */
 	String SRV_BASE = "/srv";
-	
 
 	/*
 	 * BASE DNs
@@ -76,6 +75,7 @@ public interface CmsConstants {
 	String PATH_JCR = "/jcr";
 	String PATH_FILES = "/files";
 	// String PATH_JCR_PUB = "/pub";
+	String PATH_API_ACR = "/api/acr";
 
 	/*
 	 * FILE SYSTEMS

@@ -98,7 +98,7 @@ class MultiStatusReader implements Iterator<DavResponse> {
 									value = reader.getText();
 							}
 
-							if (name.getNamespaceURI().equals(DavResponse.MODE_DAV_NAMESPACE))
+							if (name.getNamespaceURI().equals(DavResponse.MOD_DAV_NAMESPACE))
 								continue elements; // skip mod_dav properties
 
 							assert currentResponse != null;

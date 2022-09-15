@@ -41,7 +41,7 @@ public class AcrSwtImageManager extends AbstractSwtImageManager<Content> {
 	/** A path in the node repository */
 	protected String getDataPath(Content node) {
 		// TODO make it more configurable?
-		StringBuilder buf = new StringBuilder(CmsConstants.PATH_DATA);
+		StringBuilder buf = new StringBuilder(CmsConstants.PATH_API_ACR);
 		buf.append(node.getPath());
 		return buf.toString();
 	}

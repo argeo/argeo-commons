@@ -61,6 +61,8 @@ class CmsContentSession implements ProvidedSession {
 
 	@Override
 	public Content get(String path) {
+		if (!path.startsWith(ContentUtils.ROOT_SLASH))
+			throw new IllegalArgumentException(path + " is not an absolute path");
 		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
 		String mountPath = contentProvider.getMountPath();
 		String relativePath = extractRelativePath(mountPath, path);

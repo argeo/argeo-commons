@@ -1,9 +1,7 @@
 package org.argeo.api.acr;
 
-import javax.xml.namespace.QName;
-
 /** Standard names. */
-public enum CrName {
+public enum CrName implements QNamed {
 
 	/*
 	 * TYPES
@@ -14,7 +12,7 @@ public enum CrName {
 	 * ATTRIBUTES
 	 */
 	uuid, // the UUID of a content
-	mount,
+	mount, // a mount point
 	cc, // content class
 
 	/*
@@ -45,24 +43,24 @@ public enum CrName {
 	public final static String ROLE_NAMESPACE_URI = "http://www.argeo.org/ns/role";
 	public final static String ROLE_DEFAULT_PREFIX = "role";
 
-	private final ContentName value;
+//	private final ContentName value;
 
-	CrName() {
-		value = new ContentName(CR_NAMESPACE_URI, name(), RuntimeNamespaceContext.getNamespaceContext());
-	}
-
-	public QName qName() {
-		return value;
-	}
-
-//	@Override
-//	public String getNamespaceURI() {
-//		return CR_NAMESPACE_URI;
+//	CrName() {
+//		value = new ContentName(CR_NAMESPACE_URI, name(), RuntimeNamespaceContext.getNamespaceContext());
 //	}
 //
-//	@Override
-//	public String getDefaultPrefix() {
-//		return CR_DEFAULT_PREFIX;
+//	public QName qName() {
+//		return value;
 //	}
+
+	@Override
+	public String getNamespace() {
+		return CR_NAMESPACE_URI;
+	}
+
+	@Override
+	public String getDefaultPrefix() {
+		return CR_DEFAULT_PREFIX;
+	}
 
 }

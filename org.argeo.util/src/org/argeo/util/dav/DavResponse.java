@@ -10,7 +10,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 public class DavResponse {
-	final static String MODE_DAV_NAMESPACE = "http://apache.org/dav/props/";
+	final static String MOD_DAV_NAMESPACE = "http://apache.org/dav/props/";
 
 	private String href;
 	private boolean collection;

@@ -13,17 +13,21 @@ public class DavServerHandler implements HttpHandler {
 	public void handle(HttpExchange exchange) throws IOException {
 		String method = exchange.getRequestMethod();
 		if (DavMethod.PROPFIND.name().equals(method)) {
-			handle(exchange);
+			handlePROPFIND(exchange);
 		} else if (HttpMethod.GET.name().equals(method)) {
-			exchange.getResponseBody().write("Hello Dav!".getBytes());
+			handleGET(exchange);
 		} else {
 			throw new IllegalArgumentException("Unsupported method " + method);
 		}
 
 	}
 
+	protected void handleGET(HttpExchange exchange) {
+		throw new UnsupportedOperationException();
+	}
+
 	protected DavResponse handlePROPFIND(HttpExchange exchange) {
-		return null;
+		throw new UnsupportedOperationException();
 	}
 
 }
