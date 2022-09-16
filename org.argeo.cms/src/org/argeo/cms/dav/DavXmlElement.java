@@ -10,6 +10,7 @@ public enum DavXmlElement implements QNamed {
 	response, //
 	multistatus, //
 	href, //
+	/** MUST be the same as DName.collection */
 	collection, //
 	prop, //
 	resourcetype, //

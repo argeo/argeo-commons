@@ -31,6 +31,7 @@ import javax.xml.transform.dom.DOMSource;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.DName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
@@ -64,13 +65,13 @@ public class JcrContentUtils {
 						file.write(InputStream.class).complete(in);
 					}
 				} else if (node.isNodeType(NodeType.NT_FOLDER)) {
-					Content subCol = collection.add(name, CrName.collection.qName());
+					Content subCol = collection.add(name, DName.collection.qName());
 					copyFiles(node, subCol, additionalCollectionTypes);
 				} else {
 					List<QName> contentClasses = typesAsContentClasses(node, jcrNamespaceContext);
 					for (String collectionType : additionalCollectionTypes) {
 						if (node.isNodeType(collectionType)) {
-							contentClasses.add(CrName.collection.qName());
+							contentClasses.add(DName.collection.qName());
 							Content subCol = collection.add(name,
 									contentClasses.toArray(new QName[contentClasses.size()]));
 							setAttributes(node, subCol, jcrNamespaceContext);

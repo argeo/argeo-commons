@@ -11,6 +11,7 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.DName;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.directory.Directory;
@@ -69,7 +70,7 @@ class HierarchyUnitContent extends AbstractDirectoryContent {
 	@Override
 	public List<QName> getContentClasses() {
 		List<QName> contentClasses = super.getContentClasses();
-		contentClasses.add(CrName.collection.qName());
+		contentClasses.add(DName.collection.qName());
 		return contentClasses;
 	}
 

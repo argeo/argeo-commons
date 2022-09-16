@@ -6,24 +6,24 @@ public enum CrName implements QNamed {
 	/*
 	 * TYPES
 	 */
-	collection, // a collection type
+//	collection, // a collection type
 
 	/*
 	 * ATTRIBUTES
 	 */
 	uuid, // the UUID of a content
 	mount, // a mount point
-	cc, // content class
+//	cc, // content class
 
 	/*
 	 * ATTRIBUTES FROM FILE SEMANTICS
 	 */
-	creationTime, //
-	lastModifiedTime, //
-	size, //
+//	creationTime, //
+//	lastModifiedTime, //
+//	size, //
 	fileKey, //
-	owner, //
-	group, //
+//	owner, //
+//	group, //
 	permissions, //
 
 	/*

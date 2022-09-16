@@ -14,6 +14,7 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.DName;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.osgi.useradmin.UserDirectory;
@@ -135,7 +136,7 @@ public class ContentUtils {
 	public static Content createCollections(ContentSession session, String path) {
 		if (session.exists(path)) {
 			Content content = session.get(path);
-			if (!content.isContentClass(CrName.collection.qName())) {
+			if (!content.isContentClass(DName.collection.qName())) {
 				throw new IllegalStateException("Content " + path + " already exists, but is not a collection");
 			} else {
 				return content;
@@ -143,7 +144,7 @@ public class ContentUtils {
 		} else {
 			String[] parentPath = getParentPath(path);
 			Content parent = createCollections(session, parentPath[0]);
-			Content content = parent.add(parentPath[1], CrName.collection.qName());
+			Content content = parent.add(parentPath[1], DName.collection.qName());
 			return content;
 		}
 	}

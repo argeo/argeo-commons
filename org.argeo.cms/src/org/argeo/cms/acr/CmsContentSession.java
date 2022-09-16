@@ -13,6 +13,7 @@ import javax.security.auth.Subject;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.DName;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
@@ -180,7 +181,7 @@ class CmsContentSession implements ProvidedSession {
 			else {
 				Content runDir = get(CmsContentRepository.RUN_BASE);
 				// TODO deal with no run dir available?
-				sessionRunDir = runDir.add(uuid.toString(), CrName.collection.qName());
+				sessionRunDir = runDir.add(uuid.toString(),DName.collection.qName());
 			}
 		}
 		return sessionRunDir;

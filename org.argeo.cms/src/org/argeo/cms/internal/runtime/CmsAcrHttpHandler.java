@@ -15,7 +15,7 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
-import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.DName;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.acr.ContentUtils;
@@ -95,7 +95,7 @@ public class CmsAcrHttpHandler implements HttpHandler {
 		DavResponse davResponse = new DavResponse();
 		String href = CmsConstants.PATH_API_ACR + content.getPath();
 		davResponse.setHref(href);
-		if (content.hasContentClass(CrName.collection))
+		if (content.hasContentClass(DName.collection))
 			davResponse.setCollection(true);
 		if (davPropfind.isAllprop()) {
 			for (Map.Entry<QName, Object> entry : content.entrySet()) {
@@ -124,7 +124,7 @@ public class CmsAcrHttpHandler implements HttpHandler {
 		consumer.accept(davResponse);
 
 		// recurse only on collections
-		if (content.hasContentClass(CrName.collection)) {
+		if (content.hasContentClass(DName.collection)) {
 			if (davPropfind.getDepth() == DavDepth.DEPTH_INFINITY
 					|| (davPropfind.getDepth() == DavDepth.DEPTH_1 && currentDepth == 0)) {
 				for (Content child : content) {
@@ -136,7 +136,7 @@ public class CmsAcrHttpHandler implements HttpHandler {
 
 	protected void processMapEntry(DavResponse davResponse, QName key, Object value) {
 		// ignore content classes
-		if (CrName.cc.qName().equals(key))
+		if (DName.resourcetype.qName().equals(key))
 			return;
 		String str;
 		if (value instanceof Collection) {
@@ -157,7 +157,7 @@ public class CmsAcrHttpHandler implements HttpHandler {
 		ContentSession session = RemoteAuthUtils.doAs(() -> contentRepository.get(),
 				new RemoteAuthHttpExchange(exchange));
 		Content content = session.get(ContentUtils.ROOT_SLASH + relativePath);
-		Optional<Long> size = content.get(CrName.size, Long.class);
+		Optional<Long> size = content.get(DName.getcontentlength, Long.class);
 		try (InputStream in = content.open(InputStream.class)) {
 			exchange.sendResponseHeaders(HttpResponseStatus.OK.getCode(), size.orElse(0l));
 			StreamUtils.copy(in, exchange.getResponseBody());

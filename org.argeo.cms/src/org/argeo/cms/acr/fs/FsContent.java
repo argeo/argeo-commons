@@ -36,6 +36,7 @@ import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.ContentResourceException;
 import org.argeo.api.acr.CrAttributeType;
 import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.DName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
@@ -55,14 +56,15 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	private static final Map<QName, String> POSIX_KEYS;
 	static {
 		BASIC_KEYS = new HashMap<>();
-		BASIC_KEYS.put(CrName.creationTime.qName(), "basic:creationTime");
-		BASIC_KEYS.put(CrName.lastModifiedTime.qName(), "basic:lastModifiedTime");
-		BASIC_KEYS.put(CrName.size.qName(), "basic:size");
+		BASIC_KEYS.put(DName.creationdate.qName(), "basic:creationTime");
+		BASIC_KEYS.put(DName.getlastmodified.qName(), "basic:lastModifiedTime");
+		BASIC_KEYS.put(DName.getcontentlength.qName(), "basic:size");
+
 		BASIC_KEYS.put(CrName.fileKey.qName(), "basic:fileKey");
 
 		POSIX_KEYS = new HashMap<>(BASIC_KEYS);
-		POSIX_KEYS.put(CrName.owner.qName(), "owner:owner");
-		POSIX_KEYS.put(CrName.group.qName(), "posix:group");
+		POSIX_KEYS.put(DName.owner.qName(), "owner:owner");
+		POSIX_KEYS.put(DName.group.qName(), "posix:group");
 		POSIX_KEYS.put(CrName.permissions.qName(), "posix:permissions");
 	}
 
@@ -284,7 +286,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		FsContent fsContent;
 		try {
 			Path newPath = path.resolve(NamespaceUtils.toPrefixedName(provider, name));
-			if (ContentName.contains(classes, CrName.collection.qName()))
+			if (ContentName.contains(classes, DName.collection.qName()))
 				Files.createDirectory(newPath);
 			else
 				Files.createFile(newPath);
@@ -360,13 +362,13 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	@Override
 	public List<QName> getContentClasses() {
 		List<QName> res = new ArrayList<>();
-		List<String> value = getMultiple(CrName.cc.qName(), String.class);
+		List<String> value = getMultiple(DName.resourcetype.qName(), String.class);
 		for (String s : value) {
 			QName name = NamespaceUtils.parsePrefixedName(provider, s);
 			res.add(name);
 		}
 		if (Files.isDirectory(path))
-			res.add(CrName.collection.qName());
+			res.add(DName.collection.qName());
 		return res;
 	}
 
@@ -374,14 +376,14 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	public void addContentClasses(QName... contentClass) {
 		List<String> toWrite = new ArrayList<>();
 		for (QName cc : getContentClasses()) {
-			if (cc.equals(CrName.collection.qName()))
+			if (cc.equals(DName.collection.qName()))
 				continue; // skip
 			toWrite.add(NamespaceUtils.toPrefixedName(provider, cc));
 		}
 		for (QName cc : contentClass) {
 			toWrite.add(NamespaceUtils.toPrefixedName(provider, cc));
 		}
-		put(CrName.cc.qName(), toWrite);
+		put(DName.resourcetype.qName(), toWrite);
 	}
 
 	/*
@@ -398,7 +400,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	 */
 	@SuppressWarnings("unchecked")
 	public <A> CompletableFuture<A> write(Class<A> clss) {
-		if (isContentClass(CrName.collection.qName())) {
+		if (isContentClass(DName.collection.qName())) {
 			throw new IllegalStateException("Cannot directly write to a collection");
 		}
 		if (InputStream.class.isAssignableFrom(clss)) {
