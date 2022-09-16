@@ -10,12 +10,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Consumer;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentNotFoundException;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.DName;
+import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.auth.RemoteAuthUtils;
@@ -32,6 +34,12 @@ import com.sun.net.httpserver.HttpExchange;
 /** A partial WebDav implementation based on ACR. */
 public class CmsAcrHttpHandler extends DavHttpHandler {
 	private ProvidedRepository contentRepository;
+
+	@Override
+	protected NamespaceContext getNamespaceContext(HttpExchange httpExchange, String path) {
+		// TODO be smarter?
+		return RuntimeNamespaceContext.getNamespaceContext();
+	}
 
 	@Override
 	protected void handleGET(HttpExchange exchange, String path) throws IOException {

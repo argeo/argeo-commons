@@ -24,7 +24,6 @@ import com.sun.net.httpserver.HttpHandler;
  * ACR-specific code more readable and maintainable.
  */
 public abstract class DavHttpHandler implements HttpHandler {
-	private NamespaceContext namespaceContext;
 
 	@Override
 	public void handle(HttpExchange exchange) throws IOException {
@@ -49,6 +48,7 @@ public abstract class DavHttpHandler implements HttpHandler {
 				MultiStatusWriter multiStatusWriter = new MultiStatusWriter();
 				CompletableFuture<Void> published = handlePROPFIND(exchange, subPath, davPropfind, multiStatusWriter);
 				exchange.sendResponseHeaders(HttpResponseStatus.MULTI_STATUS.getCode(), 0l);
+				NamespaceContext namespaceContext = getNamespaceContext(exchange, subPath);
 				try (OutputStream out = exchange.getResponseBody()) {
 					multiStatusWriter.process(namespaceContext, out, published.minimalCompletionStage(),
 							davPropfind.isPropname());
@@ -67,6 +67,8 @@ public abstract class DavHttpHandler implements HttpHandler {
 		}
 
 	}
+
+	protected abstract NamespaceContext getNamespaceContext(HttpExchange httpExchange, String path);
 
 	protected abstract CompletableFuture<Void> handlePROPFIND(HttpExchange exchange, String path,
 			DavPropfind davPropfind, Consumer<DavResponse> consumer) throws IOException;
@@ -90,10 +92,6 @@ public abstract class DavHttpHandler implements HttpHandler {
 		methods.add(HttpMethod.COPY.name());
 
 		exchange.getResponseHeaders().add(HttpHeader.ALLOW.getHeaderName(), methods.toString());
-	}
-
-	public void setNamespaceContext(NamespaceContext namespaceContext) {
-		this.namespaceContext = namespaceContext;
 	}
 
 }
