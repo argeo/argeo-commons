@@ -6,7 +6,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.argeo.api.acr.QNamed;
 
-public enum DavXmlElement implements QNamed {
+enum DavXmlElement implements QNamed {
 	response, //
 	multistatus, //
 	href, //

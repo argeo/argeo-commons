@@ -20,7 +20,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-public class MultiStatusWriter implements Consumer<DavResponse> {
+class MultiStatusWriter implements Consumer<DavResponse> {
 	private BlockingQueue<DavResponse> queue = new ArrayBlockingQueue<>(64);
 
 //	private OutputStream out;

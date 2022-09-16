@@ -48,7 +48,8 @@ public class DirectoryContentProvider implements ContentProvider {
 			}
 		}
 		if (userDirectory == null)
-			throw new ContentNotFoundException("Cannot find user directory " + userDirectoryName);
+			throw new ContentNotFoundException(session, mountPath + "/" + relativePath,
+					"Cannot find user directory " + userDirectoryName);
 		if (segments.size() == 1) {
 			return new DirectoryContent(session, this, userDirectory);
 		} else {
@@ -71,7 +72,8 @@ public class DirectoryContentProvider implements ContentProvider {
 			}
 			HierarchyUnit hierarchyUnit = userDirectory.getHierarchyUnit(pathWithinUserDirectory);
 			if (hierarchyUnit == null)
-				throw new ContentNotFoundException(
+				throw new ContentNotFoundException(session,
+						mountPath + "/" + relativePath + "/" + pathWithinUserDirectory,
 						"Cannot find " + pathWithinUserDirectory + " within " + userDirectoryName);
 			return new HierarchyUnitContent(session, this, hierarchyUnit);
 		}

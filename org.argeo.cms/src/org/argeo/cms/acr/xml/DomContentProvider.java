@@ -76,7 +76,8 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		if (nodes.getLength() > 1)
 			throw new IllegalArgumentException("Multiple content found for " + relativePath + " under " + mountPath);
 		if (nodes.getLength() == 0)
-			throw new ContentNotFoundException("Path " + relativePath + " under " + mountPath + " was not found");
+			throw new ContentNotFoundException(session, mountPath + "/" + relativePath,
+					"Path " + relativePath + " under " + mountPath + " was not found");
 		Element element = (Element) nodes.item(0);
 		return new DomContent(session, this, element);
 	}

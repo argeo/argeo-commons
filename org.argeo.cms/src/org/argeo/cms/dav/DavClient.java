@@ -2,8 +2,6 @@ package org.argeo.cms.dav;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -15,6 +13,8 @@ import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
+import org.argeo.util.http.HttpHeader;
+import org.argeo.util.http.HttpMethod;
 import org.argeo.util.http.HttpResponseStatus;
 
 public class DavClient {
@@ -56,8 +56,8 @@ public class DavClient {
 							""";
 			System.out.println(body);
 			HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)) //
-					.header("Depth", "1") //
-					.method(DavMethod.PROPPATCH.name(), BodyPublishers.ofString(body)) //
+					.header(HttpHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_1.getValue()) //
+					.method(HttpMethod.PROPPATCH.name(), BodyPublishers.ofString(body)) //
 					.build();
 			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);
@@ -76,8 +76,8 @@ public class DavClient {
 					  <D:propname/>
 					</D:propfind>""";
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_1.getValue()) //
-					.method(DavMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
+					.header(HttpHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_1.getValue()) //
+					.method(HttpMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
 					.build();
 
 			HttpResponse<String> responseStr = httpClient.send(request, BodyHandlers.ofString());
@@ -95,8 +95,8 @@ public class DavClient {
 	public boolean exists(URI uri) {
 		try {
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_0.getValue()) //
-					.method(DavMethod.HEAD.name(), BodyPublishers.noBody()) //
+					.header(HttpHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_0.getValue()) //
+					.method(HttpMethod.HEAD.name(), BodyPublishers.noBody()) //
 					.build();
 			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);
@@ -122,8 +122,8 @@ public class DavClient {
 					  <D:allprop/>
 					</D:propfind>""";
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(DavHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_0.getValue()) //
-					.method(DavMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
+					.header(HttpHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_0.getValue()) //
+					.method(HttpMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
 					.build();
 
 //			HttpResponse<String> responseStr = httpClient.send(request, BodyHandlers.ofString());

@@ -1,6 +1,19 @@
 package org.argeo.util.http;
 
+/** Generic HTTP methods. */
 public enum HttpMethod {
-	GET,//
+	OPTIONS, //
+	HEAD, //
+	GET, //
+	POST, //
+	PUT, //
+	DELETE, //
+
+	// WebDav
+	PROPFIND, //
+	PROPPATCH, //
+	MKCOL, //
+	MOVE, //
+	COPY, //
 	;
 }

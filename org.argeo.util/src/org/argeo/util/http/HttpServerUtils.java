@@ -7,22 +7,35 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 
 public class HttpServerUtils {
+	private final static String SLASH = "/";
 
-	public static String relativize(HttpContext httpContext, String path) {
-		Objects.requireNonNull(path);
-		if (!path.startsWith(httpContext.getPath()))
-			throw new IllegalArgumentException(path + " does not belong to context" + httpContext.getPath());
-		String relativePath = path.substring(httpContext.getPath().length());
+	private static String extractPathWithingContext(HttpContext httpContext, String fullPath, boolean startWithSlash) {
+		Objects.requireNonNull(fullPath);
+		String contextPath = httpContext.getPath();
+		if (!fullPath.startsWith(contextPath))
+			throw new IllegalArgumentException(fullPath + " does not belong to context" + contextPath);
+		String path = fullPath.substring(contextPath.length());
 		// TODO optimise?
-		if (relativePath.startsWith("/"))
-			relativePath = relativePath.substring(1);
-		return relativePath;
+		if (!startWithSlash && path.startsWith(SLASH)) {
+			path = path.substring(1);
+		} else if (startWithSlash && !path.startsWith(SLASH)) {
+			path = SLASH + path;
+		}
+		return path;
 	}
 
+	/** Path within the context, NOT starting with a slash. */
 	public static String relativize(HttpExchange exchange) {
 		URI uri = exchange.getRequestURI();
 		HttpContext httpContext = exchange.getHttpContext();
-		return relativize(httpContext, uri.getPath());
+		return extractPathWithingContext(httpContext, uri.getPath(), false);
+	}
+
+	/** Path within the context, starting with a slash. */
+	public static String subPath(HttpExchange exchange) {
+		URI uri = exchange.getRequestURI();
+		HttpContext httpContext = exchange.getHttpContext();
+		return extractPathWithingContext(httpContext, uri.getPath(), true);
 	}
 
 	/** singleton */

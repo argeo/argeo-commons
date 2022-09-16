@@ -1,5 +1,7 @@
 package org.argeo.cms.dav;
 
+import org.argeo.util.http.HttpHeader;
+
 import com.sun.net.httpserver.HttpExchange;
 
 public enum DavDepth {
@@ -21,7 +23,7 @@ public enum DavDepth {
 	}
 
 	public static DavDepth fromHttpExchange(HttpExchange httpExchange) {
-		String value = httpExchange.getRequestHeaders().getFirst(DavHeader.DEPTH.getHeaderName());
+		String value = httpExchange.getRequestHeaders().getFirst(HttpHeader.DEPTH.getHeaderName());
 		if (value == null)
 			return null;
 		DavDepth depth = switch (value) {
