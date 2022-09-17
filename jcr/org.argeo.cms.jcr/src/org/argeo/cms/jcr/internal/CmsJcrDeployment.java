@@ -21,7 +21,6 @@ import java.util.Set;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.security.auth.callback.CallbackHandler;
 import javax.servlet.Servlet;
 
 import org.apache.jackrabbit.commons.cnd.CndImporter;
@@ -35,12 +34,9 @@ import org.argeo.cms.jcr.internal.servlet.CmsRemotingServlet;
 import org.argeo.cms.jcr.internal.servlet.CmsWebDavServlet;
 import org.argeo.cms.jcr.internal.servlet.JcrHttpUtils;
 import org.argeo.cms.osgi.DataModelNamespace;
-import org.argeo.cms.security.CryptoKeyring;
-import org.argeo.cms.security.Keyring;
 import org.argeo.jcr.Jcr;
 import org.argeo.jcr.JcrException;
 import org.argeo.jcr.JcrUtils;
-import org.argeo.util.LangUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -50,7 +46,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
-import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.whiteboard.HttpWhiteboardConstants;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -246,21 +241,21 @@ public class CmsJcrDeployment {
 		registerRepositoryServlets(CmsConstants.EGO_REPOSITORY, egoRepository);
 
 		// Keyring only if Argeo extensions are available
-		if (argeoDataModelExtensionsAvailable) {
-			new ServiceTracker<CallbackHandler, CallbackHandler>(bc, CallbackHandler.class, null) {
-
-				@Override
-				public CallbackHandler addingService(ServiceReference<CallbackHandler> reference) {
-					NodeKeyRing nodeKeyring = new NodeKeyRing(egoRepository);
-					CallbackHandler callbackHandler = bc.getService(reference);
-					nodeKeyring.setDefaultCallbackHandler(callbackHandler);
-					bc.registerService(LangUtils.names(Keyring.class, CryptoKeyring.class, ManagedService.class),
-							nodeKeyring, LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_KEYRING_PID));
-					return callbackHandler;
-				}
-
-			}.open();
-		}
+//		if (argeoDataModelExtensionsAvailable) {
+//			new ServiceTracker<CallbackHandler, CallbackHandler>(bc, CallbackHandler.class, null) {
+//
+//				@Override
+//				public CallbackHandler addingService(ServiceReference<CallbackHandler> reference) {
+//					NodeKeyRing nodeKeyring = new NodeKeyRing(egoRepository);
+//					CallbackHandler callbackHandler = bc.getService(reference);
+//					nodeKeyring.setDefaultCallbackHandler(callbackHandler);
+//					bc.registerService(LangUtils.names(Keyring.class, CryptoKeyring.class, ManagedService.class),
+//							nodeKeyring, LangUtils.dict(Constants.SERVICE_PID, CmsConstants.NODE_KEYRING_PID));
+//					return callbackHandler;
+//				}
+//
+//			}.open();
+//		}
 	}
 
 	/** Session is logged out. */

@@ -27,14 +27,12 @@ import javax.security.auth.spi.LoginModule;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.cms.security.CryptoKeyring;
 import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.util.directory.ldap.IpaUtils;
 import org.argeo.util.naming.LdapAttrs;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
@@ -248,28 +246,28 @@ public class UserAdminLoginModule implements LoginModule {
 		CmsAuthUtils.addAuthorization(subject, authorization);
 
 		// Unlock keyring (underlying login to the JCR repository)
-		char[] password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
-		if (password != null) {
-			ServiceReference<CryptoKeyring> keyringSr = bc.getServiceReference(CryptoKeyring.class);
-			if (keyringSr != null) {
-				CryptoKeyring keyring = bc.getService(keyringSr);
-				Subject.doAs(subject, new PrivilegedAction<Void>() {
-
-					@Override
-					public Void run() {
-						try {
-							keyring.unlock(password);
-						} catch (Exception e) {
-							e.printStackTrace();
-							log.warn("Could not unlock keyring with the password provided by " + authorization.getName()
-									+ ": " + e.getMessage());
-						}
-						return null;
-					}
-
-				});
-			}
-		}
+//		char[] password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
+//		if (password != null) {
+//			ServiceReference<CryptoKeyring> keyringSr = bc.getServiceReference(CryptoKeyring.class);
+//			if (keyringSr != null) {
+//				CryptoKeyring keyring = bc.getService(keyringSr);
+//				Subject.doAs(subject, new PrivilegedAction<Void>() {
+//
+//					@Override
+//					public Void run() {
+//						try {
+//							keyring.unlock(password);
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//							log.warn("Could not unlock keyring with the password provided by " + authorization.getName()
+//									+ ": " + e.getMessage());
+//						}
+//						return null;
+//					}
+//
+//				});
+//			}
+//		}
 
 		// Register CmsSession with initial subject
 		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
