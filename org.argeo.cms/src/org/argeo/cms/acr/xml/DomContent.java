@@ -1,5 +1,12 @@
 package org.argeo.cms.acr.xml;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,15 +16,19 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
+import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
@@ -331,6 +342,27 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			return (CompletableFuture<A>) res;
 		}
 		return super.write(clss);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <C extends Closeable> C open(Class<C> clss) throws IOException, IllegalArgumentException {
+		if (InputStream.class.isAssignableFrom(clss)) {
+			PipedOutputStream out = new PipedOutputStream();
+			ForkJoinPool.commonPool().execute(() -> {
+				try {
+					Source source = new DOMSource(element);
+					Result result = new StreamResult(out);
+					provider.getTransformerFactory().newTransformer().transform(source, result);
+					out.flush();
+					out.close();
+				} catch (TransformerException | IOException e) {
+					throw new RuntimeException("Cannot read " + getPath(), e);
+				}
+			});
+			return (C) new PipedInputStream(out);
+		}
+		return super.open(clss);
 	}
 
 	@Override

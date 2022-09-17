@@ -1,5 +1,8 @@
 package org.argeo.cms.dav;
 
+import java.util.Comparator;
+import java.util.Objects;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -21,6 +24,7 @@ enum DavXmlElement implements QNamed {
 	propname, //
 	include, //
 	propstat, //
+	status, //
 
 	// locking
 	lockscope, //
@@ -35,6 +39,19 @@ enum DavXmlElement implements QNamed {
 
 	final static String WEBDAV_NAMESPACE_URI = "DAV:";
 	final static String WEBDAV_DEFAULT_PREFIX = "D";
+
+	final static Comparator<QName> QNAME_COMPARATOR = new Comparator<QName>() {
+
+		@Override
+		public int compare(QName qn1, QName qn2) {
+			if (Objects.equals(qn1.getNamespaceURI(), qn2.getNamespaceURI())) {// same namespace
+				return qn1.getLocalPart().compareTo(qn2.getLocalPart());
+			} else {
+				return qn1.getNamespaceURI().compareTo(qn2.getNamespaceURI());
+			}
+		}
+
+	};
 
 //	private final QName value;
 //
@@ -71,7 +88,7 @@ enum DavXmlElement implements QNamed {
 			return;
 		}
 		startElement(xsWriter);
-		xsWriter.writeCData(value);
+		xsWriter.writeCharacters(value);
 		xsWriter.writeEndElement();
 	}
 

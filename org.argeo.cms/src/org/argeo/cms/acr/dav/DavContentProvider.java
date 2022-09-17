@@ -10,6 +10,7 @@ import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.dav.DavClient;
 import org.argeo.cms.dav.DavResponse;
+import org.argeo.util.http.HttpStatus;
 
 public class DavContentProvider implements ContentProvider {
 	private String mountPath;
@@ -45,7 +46,7 @@ public class DavContentProvider implements ContentProvider {
 
 	DavContent getDavContent(ProvidedSession session, URI uri) {
 		DavResponse response = davClient.get(uri);
-		return new DavContent(session, this, uri, response.getPropertyNames());
+		return new DavContent(session, this, uri, response.getPropertyNames(HttpStatus.OK));
 	}
 
 	@Override

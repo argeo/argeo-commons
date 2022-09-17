@@ -17,6 +17,7 @@ import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
 import org.argeo.cms.dav.DavResponse;
+import org.argeo.util.http.HttpStatus;
 
 public class DavContent extends AbstractContent {
 	private final DavContentProvider provider;
@@ -103,7 +104,7 @@ public class DavContent extends AbstractContent {
 			DavResponse response = responses.next();
 			String relativePath = response.getHref();
 			URI contentUri = provider.relativePathToUri(relativePath);
-			return new DavContent(getSession(), provider, contentUri, response.getPropertyNames());
+			return new DavContent(getSession(), provider, contentUri, response.getPropertyNames(HttpStatus.OK));
 		}
 
 	}

@@ -27,7 +27,7 @@ import org.argeo.cms.dav.DavPropfind;
 import org.argeo.cms.dav.DavResponse;
 import org.argeo.cms.internal.http.RemoteAuthHttpExchange;
 import org.argeo.util.StreamUtils;
-import org.argeo.util.http.HttpResponseStatus;
+import org.argeo.util.http.HttpStatus;
 
 import com.sun.net.httpserver.HttpExchange;
 
@@ -50,7 +50,7 @@ public class CmsAcrHttpHandler extends DavHttpHandler {
 		Content content = session.get(path);
 		Optional<Long> size = content.get(DName.getcontentlength, Long.class);
 		try (InputStream in = content.open(InputStream.class)) {
-			exchange.sendResponseHeaders(HttpResponseStatus.OK.getCode(), size.orElse(0l));
+			exchange.sendResponseHeaders(HttpStatus.OK.getCode(), size.orElse(0l));
 			StreamUtils.copy(in, exchange.getResponseBody());
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot process " + path, e);
@@ -87,20 +87,22 @@ public class CmsAcrHttpHandler extends DavHttpHandler {
 			davResponse.setCollection(true);
 		if (davPropfind.isAllprop()) {
 			for (Map.Entry<QName, Object> entry : content.entrySet()) {
-				davResponse.getPropertyNames().add(entry.getKey());
+				davResponse.getPropertyNames(HttpStatus.OK).add(entry.getKey());
 				processMapEntry(davResponse, entry.getKey(), entry.getValue());
 			}
 			davResponse.getResourceTypes().addAll(content.getContentClasses());
 		} else if (davPropfind.isPropname()) {
 			for (QName key : content.keySet()) {
-				davResponse.getPropertyNames().add(key);
+				davResponse.getPropertyNames(HttpStatus.OK).add(key);
 			}
 		} else {
 			for (QName key : davPropfind.getProps()) {
 				if (content.containsKey(key)) {
-					davResponse.getPropertyNames().add(key);
+					davResponse.getPropertyNames(HttpStatus.OK).add(key);
 					Object value = content.get(key);
 					processMapEntry(davResponse, key, value);
+				} else {
+					davResponse.getPropertyNames(HttpStatus.NOT_FOUND).add(key);
 				}
 				if (DName.resourcetype.qName().equals(key)) {
 					davResponse.getResourceTypes().addAll(content.getContentClasses());

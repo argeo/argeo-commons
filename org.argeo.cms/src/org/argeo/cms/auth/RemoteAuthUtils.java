@@ -15,7 +15,7 @@ import org.argeo.api.cms.CmsSession;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.util.CurrentSubject;
 import org.argeo.util.http.HttpHeader;
-import org.argeo.util.http.HttpResponseStatus;
+import org.argeo.util.http.HttpStatus;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -155,7 +155,7 @@ public class RemoteAuthUtils {
 					.startsWith(HttpHeader.NEGOTIATE)) {
 				negotiateFailed = true;
 			} else {
-				return HttpResponseStatus.FORBIDDEN.getCode();
+				return HttpStatus.FORBIDDEN.getCode();
 			}
 		}
 
@@ -175,7 +175,7 @@ public class RemoteAuthUtils {
 		// response.setHeader("Keep-Alive", "timeout=5, max=97");
 		// response.setContentType("text/html; charset=UTF-8");
 
-		return HttpResponseStatus.UNAUTHORIZED.getCode();
+		return HttpStatus.UNAUTHORIZED.getCode();
 	}
 
 	private static boolean hasAcceptorCredentials() {

@@ -2,7 +2,9 @@ package org.argeo.cms.dav;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -16,6 +18,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+
+import org.argeo.util.http.HttpStatus;
 
 /**
  * Asynchronously iterate over the response statuses of the response to a
@@ -46,6 +50,8 @@ class MultiStatusReader implements Iterator<DavResponse> {
 
 			DavResponse currentResponse = null;
 			boolean collectiongProperties = false;
+			Set<QName> currentPropertyNames = null;
+			HttpStatus currentStatus = null;
 
 			final QName COLLECTION = DavXmlElement.collection.qName(); // optimisation
 			elements: while (reader.hasNext()) {
@@ -69,8 +75,14 @@ class MultiStatusReader implements Iterator<DavResponse> {
 //						case collection:
 //							currentResponse.setCollection(true);
 //							break;
+						case status:
+							reader.next();
+							String statusLine = reader.getText();
+							currentStatus = HttpStatus.parseStatusLine(statusLine);
+							break;
 						case prop:
 							collectiongProperties = true;
+							currentPropertyNames = new HashSet<>();
 							break;
 						case resourcetype:
 							while (reader.hasNext()) {
@@ -106,7 +118,7 @@ class MultiStatusReader implements Iterator<DavResponse> {
 								continue elements; // skip mod_dav properties
 
 							assert currentResponse != null;
-							currentResponse.getPropertyNames().add(name);
+							currentPropertyNames.add(name);
 							if (value != null)
 								currentResponse.getProperties().put(name, value);
 
@@ -118,6 +130,10 @@ class MultiStatusReader implements Iterator<DavResponse> {
 					DavXmlElement davXmlElement = DavXmlElement.toEnum(name);
 					if (davXmlElement != null)
 						switch (davXmlElement) {
+						case propstat:
+							currentResponse.getPropertyNames(currentStatus).addAll(currentPropertyNames);
+							currentPropertyNames = null;
+							break;
 						case response:
 							assert currentResponse != null;
 							if (ignoredHref == null || !ignoredHref.equals(currentResponse.getHref())) {

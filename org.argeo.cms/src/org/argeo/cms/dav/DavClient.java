@@ -2,6 +2,8 @@ package org.argeo.cms.dav;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -15,7 +17,7 @@ import javax.xml.namespace.QName;
 
 import org.argeo.util.http.HttpHeader;
 import org.argeo.util.http.HttpMethod;
-import org.argeo.util.http.HttpResponseStatus;
+import org.argeo.util.http.HttpStatus;
 
 public class DavClient {
 
@@ -25,14 +27,14 @@ public class DavClient {
 		httpClient = HttpClient.newBuilder() //
 //				.sslContext(insecureContext()) //
 				.version(HttpClient.Version.HTTP_1_1) //
-//				.authenticator(new Authenticator() {
-//
-//					@Override
-//					protected PasswordAuthentication getPasswordAuthentication() {
-//						return new PasswordAuthentication("root", "demo".toCharArray());
-//					}
-//
-//				}) //
+				.authenticator(new Authenticator() {
+
+					@Override
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication("root", "demo".toCharArray());
+					}
+
+				}) //
 				.build();
 	}
 
@@ -102,7 +104,7 @@ public class DavClient {
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);
 			System.out.println(response.body());
 			int responseStatusCode = response.statusCode();
-			if (responseStatusCode == HttpResponseStatus.NOT_FOUND.getCode())
+			if (responseStatusCode == HttpStatus.NOT_FOUND.getCode())
 				return false;
 			if (responseStatusCode >= 200 && responseStatusCode < 300)
 				return true;
@@ -149,7 +151,7 @@ public class DavClient {
 		while (responses.hasNext()) {
 			DavResponse response = responses.next();
 			System.out.println(response.getHref() + (response.isCollection() ? " (collection)" : ""));
-			System.out.println("  " + response.getPropertyNames());
+			//System.out.println("  " + response.getPropertyNames(HttpStatus.OK));
 
 		}
 //		davClient.setProperty("http://localhost/unstable/a2/org.argeo.tp.sdk/org.opentest4j.1.2.jar",

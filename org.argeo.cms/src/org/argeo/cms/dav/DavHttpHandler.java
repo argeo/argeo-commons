@@ -12,7 +12,7 @@ import javax.xml.namespace.NamespaceContext;
 import org.argeo.api.acr.ContentNotFoundException;
 import org.argeo.util.http.HttpHeader;
 import org.argeo.util.http.HttpMethod;
-import org.argeo.util.http.HttpResponseStatus;
+import org.argeo.util.http.HttpStatus;
 import org.argeo.util.http.HttpServerUtils;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -20,7 +20,7 @@ import com.sun.net.httpserver.HttpHandler;
 
 /**
  * Centralise patterns which are not ACR specific. Not really meant as a
- * framework for building WebDav servers, but rather to make uppe-level of
+ * framework for building WebDav servers, but rather to make upper-level of
  * ACR-specific code more readable and maintainable.
  */
 public abstract class DavHttpHandler implements HttpHandler {
@@ -34,7 +34,7 @@ public abstract class DavHttpHandler implements HttpHandler {
 				handleGET(exchange, subPath);
 			} else if (HttpMethod.OPTIONS.name().equals(method)) {
 				handleOPTIONS(exchange, subPath);
-				exchange.sendResponseHeaders(HttpResponseStatus.NO_CONTENT.getCode(), -1);
+				exchange.sendResponseHeaders(HttpStatus.NO_CONTENT.getCode(), -1);
 			} else if (HttpMethod.PROPFIND.name().equals(method)) {
 				DavDepth depth = DavDepth.fromHttpExchange(exchange);
 				if (depth == null) {
@@ -45,9 +45,9 @@ public abstract class DavHttpHandler implements HttpHandler {
 				try (InputStream in = exchange.getRequestBody()) {
 					davPropfind = DavPropfind.load(depth, in);
 				}
-				MultiStatusWriter multiStatusWriter = new MultiStatusWriter();
+				MultiStatusWriter multiStatusWriter = new MultiStatusWriter(exchange.getProtocol());
 				CompletableFuture<Void> published = handlePROPFIND(exchange, subPath, davPropfind, multiStatusWriter);
-				exchange.sendResponseHeaders(HttpResponseStatus.MULTI_STATUS.getCode(), 0l);
+				exchange.sendResponseHeaders(HttpStatus.MULTI_STATUS.getCode(), 0l);
 				NamespaceContext namespaceContext = getNamespaceContext(exchange, subPath);
 				try (OutputStream out = exchange.getResponseBody()) {
 					multiStatusWriter.process(namespaceContext, out, published.minimalCompletionStage(),
@@ -57,13 +57,14 @@ public abstract class DavHttpHandler implements HttpHandler {
 				throw new IllegalArgumentException("Unsupported method " + method);
 			}
 		} catch (ContentNotFoundException e) {
-			exchange.sendResponseHeaders(HttpResponseStatus.NOT_FOUND.getCode(), -1);
+			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.getCode(), -1);
 		}
 		// TODO return a structured error message
 		catch (UnsupportedOperationException e) {
-			exchange.sendResponseHeaders(HttpResponseStatus.NOT_IMPLEMENTED.getCode(), -1);
+			e.printStackTrace();
+			exchange.sendResponseHeaders(HttpStatus.NOT_IMPLEMENTED.getCode(), -1);
 		} catch (Exception e) {
-			exchange.sendResponseHeaders(HttpResponseStatus.INTERNAL_SERVER_ERROR.getCode(), -1);
+			exchange.sendResponseHeaders(HttpStatus.INTERNAL_SERVER_ERROR.getCode(), -1);
 		}
 
 	}

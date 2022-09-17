@@ -20,6 +20,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.argeo.util.http.HttpStatus;
+
 class MultiStatusWriter implements Consumer<DavResponse> {
 	private BlockingQueue<DavResponse> queue = new ArrayBlockingQueue<>(64);
 
@@ -30,6 +32,12 @@ class MultiStatusWriter implements Consumer<DavResponse> {
 	private AtomicBoolean done = new AtomicBoolean(false);
 
 	private AtomicBoolean polling = new AtomicBoolean();
+
+	private String protocol;
+
+	public MultiStatusWriter(String protocol) {
+		this.protocol = protocol;
+	}
 
 	public void process(NamespaceContext namespaceContext, OutputStream out, CompletionStage<Void> published,
 			boolean propname) throws IOException {
@@ -54,9 +62,9 @@ class MultiStatusWriter implements Consumer<DavResponse> {
 					davResponse = queue.poll(10, TimeUnit.MILLISECONDS);
 					if (davResponse == null)
 						continue poll;
-					System.err.println(davResponse.getHref());
+					//System.err.println(davResponse.getHref());
 				} catch (InterruptedException e) {
-					System.err.println(e);
+					//System.err.println(e);
 					continue poll;
 				} finally {
 					polling.set(false);
@@ -79,13 +87,14 @@ class MultiStatusWriter implements Consumer<DavResponse> {
 	protected void writeDavResponse(XMLStreamWriter xsWriter, DavResponse davResponse, boolean propname)
 			throws XMLStreamException {
 		Set<String> namespaces = new HashSet<>();
-		for (QName key : davResponse.getPropertyNames()) {
-			if (key.getNamespaceURI().equals(DavXmlElement.WEBDAV_NAMESPACE_URI))
-				continue; // skip
-			if (key.getNamespaceURI().equals(XMLConstants.W3C_XML_SCHEMA_NS_URI))
-				continue; // skip
-			namespaces.add(key.getNamespaceURI());
-		}
+		for (HttpStatus status : davResponse.getStatuses())
+			for (QName key : davResponse.getPropertyNames(status)) {
+				if (key.getNamespaceURI().equals(DavXmlElement.WEBDAV_NAMESPACE_URI))
+					continue; // skip
+				if (key.getNamespaceURI().equals(XMLConstants.W3C_XML_SCHEMA_NS_URI))
+					continue; // skip
+				namespaces.add(key.getNamespaceURI());
+			}
 		DavXmlElement.response.startElement(xsWriter);
 		// namespaces
 		for (String ns : namespaces)
@@ -94,30 +103,45 @@ class MultiStatusWriter implements Consumer<DavResponse> {
 		DavXmlElement.href.setSimpleValue(xsWriter, davResponse.getHref());
 
 		{
-			DavXmlElement.propstat.startElement(xsWriter);
-			{
-				DavXmlElement.prop.startElement(xsWriter);
-				if (!davResponse.getResourceTypes().isEmpty() || davResponse.isCollection()) {
-					DavXmlElement.resourcetype.startElement(xsWriter);
-					if (davResponse.isCollection())
-						DavXmlElement.collection.emptyElement(xsWriter);
-					for (QName resourceType : davResponse.getResourceTypes()) {
-						xsWriter.writeEmptyElement(resourceType.getNamespaceURI(), resourceType.getLocalPart());
+			for (HttpStatus status : davResponse.getStatuses()) {
+				DavXmlElement.propstat.startElement(xsWriter);
+				{
+					DavXmlElement.prop.startElement(xsWriter);
+
+					// resourcetype
+					if (HttpStatus.OK.equals(status))
+						if (propname) {
+							DavXmlElement.resourcetype.emptyElement(xsWriter);
+						} else {
+							if (!davResponse.getResourceTypes().isEmpty() || davResponse.isCollection()) {
+								DavXmlElement.resourcetype.startElement(xsWriter);
+								if (davResponse.isCollection())
+									DavXmlElement.collection.emptyElement(xsWriter);
+								for (QName resourceType : davResponse.getResourceTypes()) {
+									xsWriter.writeEmptyElement(resourceType.getNamespaceURI(),
+											resourceType.getLocalPart());
+								}
+								xsWriter.writeEndElement();// resource type
+							}
+						}
+
+					properties: for (QName key : davResponse.getPropertyNames(status)) {
+						if (DavXmlElement.resourcetype.qName().equals(key))
+							continue properties;
+
+						if (propname) {
+							xsWriter.writeEmptyElement(key.getNamespaceURI(), key.getLocalPart());
+						} else {
+							xsWriter.writeStartElement(key.getNamespaceURI(), key.getLocalPart());
+							xsWriter.writeCData(davResponse.getProperties().get(key));
+							xsWriter.writeEndElement();
+						}
 					}
-					xsWriter.writeEndElement();// resource type
+					xsWriter.writeEndElement();// prop
 				}
-				for (QName key : davResponse.getPropertyNames()) {
-					if (propname) {
-						xsWriter.writeEmptyElement(key.getNamespaceURI(), key.getLocalPart());
-					} else {
-						xsWriter.writeStartElement(key.getNamespaceURI(), key.getLocalPart());
-						xsWriter.writeCData(davResponse.getProperties().get(key));
-						xsWriter.writeEndElement();
-					}
-				}
-				xsWriter.writeEndElement();// prop
+				DavXmlElement.status.setSimpleValue(xsWriter, status.getStatusLine(protocol));
+				xsWriter.writeEndElement();// propstat
 			}
-			xsWriter.writeEndElement();// propstat
 		}
 		xsWriter.writeEndElement();// response
 	}
