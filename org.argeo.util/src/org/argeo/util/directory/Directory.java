@@ -1,6 +1,5 @@
 package org.argeo.util.directory;
 
-import java.util.Dictionary;
 import java.util.Optional;
 
 import org.argeo.util.transaction.WorkControl;
@@ -22,16 +21,8 @@ public interface Directory extends HierarchyUnit {
 	void setTransactionControl(WorkControl transactionControl);
 
 	/*
-	 * METADATA
-	 */
-	/** Metadata of this directory. */
-	public Dictionary<String, Object> getProperties();
-
-	/*
 	 * HIERARCHY
 	 */
-	/** The first level of hierarchy units. */
-	Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly);
 
 	/** The hierarchy unit at this path. */
 	HierarchyUnit getHierarchyUnit(String path);

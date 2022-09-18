@@ -4,12 +4,24 @@ import java.util.Dictionary;
 
 /** A unit within the high-level organisational structure of a directory. */
 public interface HierarchyUnit {
+	/** Name to use in paths. */
 	String getHierarchyUnitName();
 
+	/**
+	 * The parent {@link HierarchyUnit}, or <code>null</code> if a
+	 * {@link Directory}.
+	 */
 	HierarchyUnit getParent();
 
+	/** Direct children {@link HierarchyUnit}s. */
 	Iterable<HierarchyUnit> getDirectHierarchyUnits(boolean functionalOnly);
 
+	/**
+	 * Whether this is an arbitrary named and placed {@link HierarchyUnit}.
+	 * 
+	 * @return <code>true</code> if functional, <code>false</code> is technical
+	 *         (e.g. People, Groups, etc.)
+	 */
 	boolean isFunctional();
 
 	/**
@@ -18,7 +30,9 @@ public interface HierarchyUnit {
 	 */
 	String getBase();
 
+	/** The related {@link Directory}. */
 	Directory getDirectory();
 
+	/** Its metadata (typically LDAP attributes). */
 	Dictionary<String, Object> getProperties();
 }

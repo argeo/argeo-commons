@@ -141,7 +141,8 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	public Role getRoleByPath(String path) {
 		LdapEntry entry = doGetRole(pathToName(path));
 		if (!(entry instanceof Role)) {
-			throw new IllegalStateException("Path must be a UserAdmin Role.");
+			return null;
+//			throw new IllegalStateException("Path must be a UserAdmin Role.");
 		} else {
 			return (Role) entry;
 		}

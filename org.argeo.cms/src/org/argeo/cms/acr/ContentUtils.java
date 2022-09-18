@@ -13,12 +13,13 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
-import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.DName;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.osgi.useradmin.UserDirectory;
 import org.argeo.util.CurrentSubject;
+import org.argeo.util.directory.Directory;
+import org.argeo.util.directory.HierarchyUnit;
 import org.osgi.service.useradmin.Role;
 
 /** Utilities and routines around {@link Content}. */
@@ -64,6 +65,7 @@ public class ContentUtils {
 //	}
 
 	public static final char SLASH = '/';
+	public static final String SLASH_STRING = Character.toString(SLASH);
 	public static final String ROOT_SLASH = "" + SLASH;
 	public static final String EMPTY = "";
 
@@ -121,12 +123,37 @@ public class ContentUtils {
 			throw new IllegalArgumentException("Path " + path + " contains //");
 	}
 
+	/*
+	 * DIRECTORY
+	 */
+
 	public static Content roleToContent(CmsUserManager userManager, ContentSession contentSession, Role role) {
 		UserDirectory userDirectory = userManager.getDirectory(role);
-		String path = CmsContentRepository.DIRECTORY_BASE + SLASH + userDirectory.getName() + SLASH
-				+ userDirectory.getRolePath(role);
+		String path = directoryPath(userDirectory) + userDirectory.getRolePath(role);
 		Content content = contentSession.get(path);
 		return content;
+	}
+
+	public static Content hierarchyUnitToContent(ContentSession contentSession, HierarchyUnit hierarchyUnit) {
+		Directory directory = hierarchyUnit.getDirectory();
+		StringJoiner relativePath = new StringJoiner(SLASH_STRING);
+		buildHierarchyUnitPath(hierarchyUnit, relativePath);
+		String path = directoryPath(directory) + relativePath.toString();
+		Content content = contentSession.get(path);
+		return content;
+	}
+
+	/** The path to this {@link Directory}. Ends with a /. */
+	private static String directoryPath(Directory directory) {
+		return CmsContentRepository.DIRECTORY_BASE + SLASH + directory.getName() + SLASH;
+	}
+
+	/** Recursively build a relative path of a {@link HierarchyUnit}. */
+	private static void buildHierarchyUnitPath(HierarchyUnit current, StringJoiner relativePath) {
+		if (current.getParent() == null) // directory
+			return;
+		buildHierarchyUnitPath(current.getParent(), relativePath);
+		relativePath.add(current.getHierarchyUnitName());
 	}
 
 	/*
