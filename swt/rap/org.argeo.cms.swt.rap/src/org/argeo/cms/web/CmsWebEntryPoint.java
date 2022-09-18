@@ -167,9 +167,9 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 				return;
 		}
 		display.syncExec(() -> {
-//			CmsFeedback.show("Unexpected exception in CMS", e);
+			CmsFeedback.show("Unexpected exception in CMS", e);
 			exception = e;
-			log.error("Unexpected exception in CMS", e);
+//			log.error("Unexpected exception in CMS", e);
 			doRefresh();
 		});
 	}
