@@ -10,8 +10,8 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.widgets.SwtHierarchicalPart;
-import org.argeo.cms.swt.widgets.SwtTabularPart;
+import org.argeo.cms.swt.widgets.SwtTreeView;
+import org.argeo.cms.swt.widgets.SwtTableView;
 import org.argeo.cms.ux.acr.ContentHierarchicalPart;
 import org.argeo.cms.ux.widgets.Column;
 import org.argeo.cms.ux.widgets.DefaultTabularPart;
@@ -19,6 +19,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
 
+/** A simple ACR browser. */
 public class AcrContentTreeView extends Composite {
 	private static final long serialVersionUID = -3707881216246077323L;
 
@@ -38,7 +39,7 @@ public class AcrContentTreeView extends Composite {
 		ContentHierarchicalPart contentPart = new ContentHierarchicalPart();
 		contentPart.setInput(rootContent);
 
-		SwtHierarchicalPart<Content> hPart = new SwtHierarchicalPart<>(split, getStyle(), contentPart);
+		new SwtTreeView<>(split, getStyle(), contentPart);
 
 		Composite area = new Composite(split, SWT.BORDER);
 		area.setLayout(CmsSwtUtils.noSpaceGridLayout(2));
@@ -79,7 +80,7 @@ public class AcrContentTreeView extends Composite {
 		});
 		// attributesPart.setInput(selected);
 
-		SwtTabularPart<Content, QName> attributeTable = new SwtTabularPart<>(area, style, attributesPart);
+		SwtTableView<Content, QName> attributeTable = new SwtTableView<>(area, style, attributesPart);
 		attributeTable.setLayoutData(CmsSwtUtils.fillAll());
 
 		// types
@@ -101,7 +102,7 @@ public class AcrContentTreeView extends Composite {
 
 		// typesPart.setInput(selected);
 
-		SwtTabularPart<Content, QName> typesTable = new SwtTabularPart<>(area, style, typesPart);
+		SwtTableView<Content, QName> typesTable = new SwtTableView<>(area, style, typesPart);
 		typesTable.setLayoutData(CmsSwtUtils.fillAll());
 
 		// controller

@@ -13,15 +13,15 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-/** {@link TabularPart} implementation based on a {@link Table}. */
-public class SwtTabularPart<INPUT, T> extends AbstractSwtPart<INPUT, T> {
+/** View of a {@link TabularPart} based on a {@link Table}. */
+public class SwtTableView<INPUT, T> extends AbstractSwtView<INPUT, T> {
 	private static final long serialVersionUID = -1114155772446357750L;
 	private final Table table;
 	private TabularPart<INPUT, T> tabularPart;
 
 	private CmsSwtTheme theme;
 
-	public SwtTabularPart(Composite parent, int style, TabularPart<INPUT, T> tabularPart) {
+	public SwtTableView(Composite parent, int style, TabularPart<INPUT, T> tabularPart) {
 		super(parent, style, tabularPart);
 		theme = CmsSwtUtils.getCmsTheme(parent);
 

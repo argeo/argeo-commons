@@ -7,14 +7,16 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 
-public abstract class AbstractSwtPart<INPUT, TYPE> extends Composite implements DataView<INPUT, TYPE> {
+/** Base class for {@link DataView}s based on an SWT {@link Composite}. */
+public abstract class AbstractSwtView<INPUT, TYPE> extends Composite implements DataView<INPUT, TYPE> {
 	private static final long serialVersionUID = -1999179054267812170L;
 
 	protected DataPart<INPUT, TYPE> dataPart;
 
 	protected final SelectionListener selectionListener;
 
-	public AbstractSwtPart(Composite parent, int style, DataPart<INPUT, TYPE> dataPart) {
+	@SuppressWarnings("unchecked")
+	public AbstractSwtView(Composite parent, int style, DataPart<INPUT, TYPE> dataPart) {
 		super(parent, style);
 		setLayout(CmsSwtUtils.noSpaceGridLayout());
 
