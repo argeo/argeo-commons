@@ -289,6 +289,19 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 	countryOfCitizenship("1.3.6.1.5.5.7.9.4", "RFC 2985"),
 	/** */
 	countryOfResidence("1.3.6.1.5.5.7.9.5", "RFC 2985"),
+
+	// RFC 2307bis (partial)
+	/** */
+	uidNumber("1.3.6.1.1.1.1.0", "RFC 2307bis"),
+	/** */
+	gidNumber("1.3.6.1.1.1.1.1", "RFC 2307bis"),
+	/** */
+	homeDirectory("1.3.6.1.1.1.1.3", "RFC 2307bis"),
+	/** */
+	loginShell("1.3.6.1.1.1.1.4", "RFC 2307bis"),
+	/** */
+	memberUid("1.3.6.1.1.1.1.12", "RFC 2307bis"),
+
 	//
 	;
 

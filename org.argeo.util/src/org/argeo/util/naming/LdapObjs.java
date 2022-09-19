@@ -95,7 +95,16 @@ public enum LdapObjs implements SpecifiedName, Supplier<String> {
 	/** */
 	inetOrgPerson("2.16.840.1.113730.3.2.2", "RFC 2798"),
 	/** */
-	referral("2.16.840.1.113730.3.2.6", "RFC 3296");
+	referral("2.16.840.1.113730.3.2.6", "RFC 3296"),
+
+	// RFC 2307bis (partial)
+	/** */
+	posixAccount("1.3.6.1.1.1.2.0", "RFC 2307bis"),
+	/** */
+	posixGroup("1.3.6.1.1.1.2.2", "RFC 2307bis"),
+
+	//
+	;
 
 	/** MUST be equal to ContentRepository LDAP namespace. */
 	final static String LDAP_NAMESPACE_URI = "http://www.argeo.org/ns/ldap";
