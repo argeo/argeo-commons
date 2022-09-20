@@ -28,7 +28,7 @@ public abstract class AbstractSwtCmsView implements CmsView {
 
 	protected LoginContext loginContext;
 	protected String state;
-	protected Throwable exception;
+//	protected Throwable exception;
 	protected UxContext uxContext;
 	protected CmsImageManager imageManager;
 

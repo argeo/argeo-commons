@@ -23,19 +23,19 @@ public class CmsFeedback extends LightweightDialog {
 	private String message;
 	private Throwable exception;
 
-	public CmsFeedback(Shell parentShell, String message, Throwable e) {
+	private CmsFeedback(Shell parentShell, String message, Throwable e) {
 		super(parentShell);
 		this.message = message;
 		this.exception = e;
-		log.error(message, e);
 	}
 
-	public static CmsFeedback show(String message, Throwable e) {
+	public static CmsFeedback error(String message, Throwable e) {
 		// rethrow ThreaDeath in order to make sure that RAP will properly clean
 		// up the UI thread
 		if (e instanceof ThreadDeath)
 			throw (ThreadDeath) e;
 
+		log.error(message, e);
 		try {
 			CmsFeedback cmsFeedback = new CmsFeedback(null, message, e);
 			cmsFeedback.setBlockOnOpen(false);

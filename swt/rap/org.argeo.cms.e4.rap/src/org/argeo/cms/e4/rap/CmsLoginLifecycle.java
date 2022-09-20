@@ -146,7 +146,7 @@ public class CmsLoginLifecycle implements CmsView {
 	public void exception(Throwable e) {
 		String msg = "Unexpected exception in Eclipse 4 RAP";
 		log.error(msg, e);
-		CmsFeedback.show(msg, e);
+		CmsFeedback.error(msg, e);
 	}
 
 	@Override

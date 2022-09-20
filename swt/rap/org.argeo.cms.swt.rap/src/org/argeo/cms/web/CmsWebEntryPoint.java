@@ -167,10 +167,10 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 				return;
 		}
 		display.syncExec(() -> {
-			CmsFeedback.show("Unexpected exception in CMS", e);
-			exception = e;
-//			log.error("Unexpected exception in CMS", e);
-			doRefresh();
+			// TODO internationalise
+			CmsFeedback.error("Unexpected exception", e);
+			// TODO report
+//			doRefresh();
 		});
 	}
 
@@ -179,12 +179,12 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 			Subject.doAs(getSubject(), new PrivilegedAction<Void>() {
 				@Override
 				public Void run() {
-					if (exception != null) {
-						// TODO internationalise
-						CmsFeedback.show("Unexpected exception", exception);
-						exception = null;
-						// TODO report
-					}
+//					if (exception != null) {
+//						// TODO internationalise
+//						CmsFeedback.error("Unexpected exception", exception);
+//						exception = null;
+//						// TODO report
+//					}
 					cmsWebApp.getCmsApp().refreshUi(ui, state);
 					return null;
 				}
@@ -200,7 +200,7 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 
 	@Override
 	public void navigateTo(String state) {
-		exception = null;
+//		exception = null;
 		String title = setState(state);
 		if (title != null)
 			doRefresh();

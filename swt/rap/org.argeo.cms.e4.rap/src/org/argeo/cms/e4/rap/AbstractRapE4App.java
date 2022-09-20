@@ -36,7 +36,7 @@ public abstract class AbstractRapE4App implements ApplicationConfiguration {
 
 			@Override
 			public void handleException(Throwable throwable) {
-				CmsFeedback.show("Unexpected RWT exception", throwable);
+				CmsFeedback.error("Unexpected RWT exception", throwable);
 			}
 		});
 
