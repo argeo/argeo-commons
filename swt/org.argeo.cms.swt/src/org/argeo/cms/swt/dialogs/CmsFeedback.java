@@ -1,5 +1,6 @@
 package org.argeo.cms.swt.dialogs;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -12,6 +13,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -22,6 +24,8 @@ public class CmsFeedback extends LightweightDialog {
 
 	private String message;
 	private Throwable exception;
+
+	private Text stack;
 
 	private CmsFeedback(Shell parentShell, String message, Throwable e) {
 		super(parentShell);
@@ -37,9 +41,23 @@ public class CmsFeedback extends LightweightDialog {
 
 		log.error(message, e);
 		try {
+			Display display = LightweightDialog.findDisplay();
+
+			CmsFeedback current = (CmsFeedback) display.getData(CmsFeedback.class.getName());
+			if (current != null) {// already one open
+				current.append("");
+				if (message != null)
+					current.append(message);
+				if (e != null)
+					current.append(e);
+				// FIXME set a limit to the size of the text
+				return current;
+			}
+
 			CmsFeedback cmsFeedback = new CmsFeedback(null, message, e);
 			cmsFeedback.setBlockOnOpen(false);
 			cmsFeedback.open();
+			cmsFeedback.getDisplay().setData(CmsFeedback.class.getName(), cmsFeedback);
 			return cmsFeedback;
 		} catch (Throwable e1) {
 			log.error("Cannot open error feedback (" + e.getMessage() + "), original error below", e);
@@ -53,23 +71,11 @@ public class CmsFeedback extends LightweightDialog {
 		return cmsFeedback;
 	}
 
-	/** Tries to find a display */
-	// private static Display getDisplay() {
-	// try {
-	// Display display = Display.getCurrent();
-	// if (display != null)
-	// return display;
-	// else
-	// return Display.getDefault();
-	// } catch (Exception e) {
-	// return Display.getCurrent();
-	// }
-	// }
-
 	protected Control createDialogArea(Composite parent) {
 		parent.setLayout(new GridLayout(2, false));
 
 		Label messageLbl = new Label(parent, SWT.WRAP);
+		messageLbl.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		if (message != null)
 			messageLbl.setText(message);
 		else if (exception != null)
@@ -80,21 +86,33 @@ public class CmsFeedback extends LightweightDialog {
 		close.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
 		close.addSelectionListener((Selected) (e) -> closeShell(OK));
 
-		// Composite composite = new Composite(dialogarea, SWT.NONE);
-		// composite.setLayout(new GridLayout(2, false));
-		// composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
 		if (exception != null) {
-			Text stack = new Text(parent, SWT.MULTI | SWT.LEAD | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+			stack = new Text(parent, SWT.MULTI | SWT.LEAD | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 			stack.setEditable(false);
 			stack.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-			StringWriter sw = new StringWriter();
+			append(exception);
+		}
+		return messageLbl;
+	}
+
+	protected void append(String message) {
+		stack.append(message);
+		stack.append("\n");
+	}
+
+	protected void append(Throwable exception) {
+		try (StringWriter sw = new StringWriter()) {
 			exception.printStackTrace(new PrintWriter(sw));
-			stack.setText(sw.toString());
+			stack.append(sw.toString());
+		} catch (IOException e) {
+			// ignore
 		}
 
-		// parent.pack();
-		return messageLbl;
+	}
+
+	@Override
+	protected void onClose() {
+		getDisplay().setData(CmsFeedback.class.getName(), null);
 	}
 
 }

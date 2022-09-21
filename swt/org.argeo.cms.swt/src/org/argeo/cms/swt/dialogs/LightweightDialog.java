@@ -29,13 +29,15 @@ public class LightweightDialog {
 	private Shell backgroundShell;
 	private Shell foregoundShell;
 
+	private Display display;
+
 	private Integer returnCode = null;
 	private boolean block = true;
 
 	private String title;
 
 	/** Tries to find a display */
-	private static Display getDisplay() {
+	static Display findDisplay() {
 		try {
 			Display display = Display.getCurrent();
 			if (display != null)
@@ -52,6 +54,7 @@ public class LightweightDialog {
 	}
 
 	public int open() {
+		display = findDisplay();
 		if (foregoundShell != null)
 			throw new EclipseUiException("There is already a shell");
 		backgroundShell = new Shell(parentShell, SWT.ON_TOP);
@@ -61,7 +64,7 @@ public class LightweightDialog {
 		// } else
 		// backgroundShell.setMaximized(true);
 		backgroundShell.setAlpha(128);
-		backgroundShell.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		backgroundShell.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
 		foregoundShell = new Shell(backgroundShell, SWT.NO_TRIM | SWT.ON_TOP);
 		if (title != null)
 			setTitle(title);
@@ -71,7 +74,7 @@ public class LightweightDialog {
 		// shell.pack();
 		// shell.layout();
 
-		Rectangle shellBounds = parentShell != null ? parentShell.getBounds() : Display.getCurrent().getBounds();// RAP
+		Rectangle shellBounds = parentShell != null ? parentShell.getBounds() : display.getBounds();// RAP
 		Point dialogSize = foregoundShell.getSize();
 		int x = shellBounds.x + (shellBounds.width - dialogSize.x) / 2;
 		int y = shellBounds.y + (shellBounds.height - dialogSize.y) / 2;
@@ -113,6 +116,7 @@ public class LightweightDialog {
 					closeShell(CANCEL);
 			}
 		});
+		backgroundShell.addDisposeListener((event) -> onClose());
 
 		if (block) {
 			block();
@@ -139,6 +143,10 @@ public class LightweightDialog {
 		if (foregoundShell == null)
 			return false;
 		return foregoundShell.getShells().length != 0;
+	}
+
+	protected void onClose() {
+
 	}
 
 	// public synchronized int openAndWait() {
@@ -250,6 +258,10 @@ public class LightweightDialog {
 
 	public Integer getReturnCode() {
 		return returnCode;
+	}
+
+	Display getDisplay() {
+		return display;
 	}
 
 }
