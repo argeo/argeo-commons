@@ -191,7 +191,7 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 			});
 	}
 
-	/** Sets the state of the entry point and retrieve the related JCR node. */
+	/** Sets the state of the entry point and retrieve the related content. */
 	protected String setState(String newState) {
 		cmsWebApp.getCmsApp().setState(ui, newState);
 		state = newState;
