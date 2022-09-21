@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.ContentName;
+import org.argeo.api.acr.CrAttributeType;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
@@ -34,12 +35,13 @@ abstract class AbstractDirectoryContent extends AbstractContent {
 	public <A> Optional<A> get(QName key, Class<A> clss) {
 		String attrName = key.getLocalPart();
 		Object value = doGetProperties().get(attrName);
-		if (Long.class.isAssignableFrom(clss))
-			return Optional.of((A) (Long) Long.parseLong(value.toString()));
 		if (value == null)
 			return Optional.empty();
-		// TODO deal with type and multiple
-		return Optional.of((A) value);
+		Optional<A> res = CrAttributeType.cast(clss, value);
+		if (res.isEmpty())
+			return Optional.of((A) value);
+		else
+			return res;
 	}
 
 	@Override

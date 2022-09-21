@@ -9,6 +9,8 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.xml.namespace.QName;
@@ -128,6 +130,41 @@ public enum CrAttributeType {
 
 		// default
 		return STRING.getFormatter().parse(str);
+	}
+
+	/**
+	 * Cast well know java types based on {@link Object#toString()} of the provided
+	 * object.
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> Optional<T> cast(Class<T> clss, Object value) {
+		// TODO Or should we?
+		Objects.requireNonNull(value, "Cannot cast a null value");
+		if (String.class.isAssignableFrom(clss)) {
+			return Optional.of((T) value.toString());
+		} 
+		// Numbers
+		else if (Long.class.isAssignableFrom(clss)) {
+			if (value instanceof Long)
+				return Optional.of((T) value);
+			return Optional.of((T) Long.valueOf(value.toString()));
+		} else if (Integer.class.isAssignableFrom(clss)) {
+			if (value instanceof Integer)
+				return Optional.of((T) value);
+			return Optional.of((T) Integer.valueOf(value.toString()));
+		} else if (Double.class.isAssignableFrom(clss)) {
+			if (value instanceof Double)
+				return Optional.of((T) value);
+			return Optional.of((T) Double.valueOf(value.toString()));
+		}
+		// Numbers
+//		else if (Number.class.isAssignableFrom(clss)) {
+//			if (value instanceof Number)
+//				return Optional.of((T) value);
+//			return Optional.of((T) Number.valueOf(value.toString()));
+//		}
+		return Optional.empty();
 	}
 
 	/** Utility to convert a data: URI to bytes. */
