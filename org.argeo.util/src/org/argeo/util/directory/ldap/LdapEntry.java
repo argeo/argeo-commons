@@ -1,6 +1,7 @@
 package org.argeo.util.directory.ldap;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,11 @@ public interface LdapEntry {
 	/*
 	 * UTILITIES
 	 */
-	public static void addObjectClasses(Dictionary<String, Object> properties, Set<String> objectClasses) {
+	/**
+	 * Convert a collection of object classes to the format expected by an LDAP
+	 * backend.
+	 */
+	public static void addObjectClasses(Dictionary<String, Object> properties, Collection<String> objectClasses) {
 		String value = properties.get(LdapAttrs.objectClasses.name()).toString();
 		Set<String> currentObjectClasses = new TreeSet<>(Arrays.asList(value.toString().split("\n")));
 		currentObjectClasses.addAll(objectClasses);

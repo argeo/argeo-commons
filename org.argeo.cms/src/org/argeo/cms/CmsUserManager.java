@@ -54,6 +54,13 @@ public interface CmsUserManager {
 	/** Search among groups including system roles and users if needed */
 	List<User> listGroups(String filter, boolean includeUsers, boolean includeSystemRoles);
 
+//	/**
+//	 * Lists functional accounts, that is users with regular access to the system
+//	 * under this functional hierarchy unit (which probably have technical direct
+//	 * sub hierarchy units), excluding groups which are not explicitly users.
+//	 */
+//	Set<User> listAccounts(HierarchyUnit hierarchyUnit, boolean deep);
+
 	/*
 	 * EDITION
 	 */

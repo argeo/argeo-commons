@@ -14,8 +14,7 @@ public final class RandomUuid extends TypedUuid {
 	}
 
 	/**
-	 * Always returns <code>true</code> since random UUIDs are by definition not
-	 * opaque.
+	 * Always returns <code>true</code> since random UUIDs are by definition opaque.
 	 */
 	@Override
 	public final boolean isOpaque() {

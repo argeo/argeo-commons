@@ -34,6 +34,8 @@ abstract class AbstractDirectoryContent extends AbstractContent {
 	public <A> Optional<A> get(QName key, Class<A> clss) {
 		String attrName = key.getLocalPart();
 		Object value = doGetProperties().get(attrName);
+		if (Long.class.isAssignableFrom(clss))
+			return Optional.of((A) (Long) Long.parseLong(value.toString()));
 		if (value == null)
 			return Optional.empty();
 		// TODO deal with type and multiple
@@ -91,6 +93,5 @@ abstract class AbstractDirectoryContent extends AbstractContent {
 	public ContentProvider getProvider() {
 		return provider;
 	}
-
 
 }

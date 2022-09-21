@@ -139,6 +139,24 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		addUsers(users, group, filter);
 		return users;
 	}
+	
+	
+
+//	@Override
+//	public Set<User> listAccounts(HierarchyUnit hierarchyUnit, boolean deep) {
+//		if(!hierarchyUnit.isFunctional())
+//			throw new IllegalArgumentException("Hierarchy unit "+hierarchyUnit.getBase()+" is not functional");
+//		UserDirectory directory = (UserDirectory)hierarchyUnit.getDirectory();
+//		Set<User> res = new HashSet<>();
+//		for(HierarchyUnit technicalHu:hierarchyUnit.getDirectHierarchyUnits(false)) {
+//			if(technicalHu.isFunctional())
+//				continue;
+//			for(Role role:directory.getHierarchyUnitRoles(technicalHu, null, false)) {
+//				if(role)
+//			}
+//		}
+//		return res;
+//	}
 
 	/** Recursively add users to list */
 	private void addUsers(Set<User> users, Group group, String filter) {
