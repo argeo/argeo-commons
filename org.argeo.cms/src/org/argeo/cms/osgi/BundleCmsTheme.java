@@ -31,10 +31,16 @@ import org.osgi.framework.BundleContext;
  * <code>/ ** /*.{png,gif,jpeg,...}</code>.<br>
  */
 public class BundleCmsTheme implements CmsTheme {
-	public final static String DEFAULT_CMS_THEME_BUNDLE = "org.argeo.theme.argeo2";
+//	public final static String DEFAULT_CMS_THEME_BUNDLE = "org.argeo.theme.argeo2";
 
-	public final static String CMS_THEME_PROPERTY = "argeo.cms.theme";
+//	public final static String CMS_THEME_PROPERTY = "argeo.cms.theme";
+	@Deprecated
 	public final static String CMS_THEME_BUNDLE_PROPERTY = "argeo.cms.theme.bundle";
+
+	/** Declared theme ID, to be used by OSGi services to reference it as parent. */
+	public final static String THEME_ID_PROPERTY = "themeId";
+	public final static String SMALL_ICON_SIZE_PROPERTY = "smallIconSize";
+	public final static String BIG_ICON_SIZE_PROPERTY = "bigIconSize";
 
 	private final static String HEADER_CSS = "header.css";
 	private final static String FONTS_TXT = "fonts.txt";
@@ -45,6 +51,8 @@ public class BundleCmsTheme implements CmsTheme {
 	private CmsTheme parentTheme;
 
 	private String themeId;
+	private String declaredThemeId;;
+
 	private Set<String> webCssPaths = new TreeSet<>();
 	private Set<String> rapCssPaths = new TreeSet<>();
 	private Set<String> swtCssPaths = new TreeSet<>();
@@ -71,6 +79,12 @@ public class BundleCmsTheme implements CmsTheme {
 	}
 
 	public void init(BundleContext bundleContext, Map<String, String> properties) {
+		declaredThemeId = properties.get(THEME_ID_PROPERTY);
+		if (properties.containsKey(SMALL_ICON_SIZE_PROPERTY))
+			smallIconSize = Integer.valueOf(properties.get(SMALL_ICON_SIZE_PROPERTY));
+		if (properties.containsKey(BIG_ICON_SIZE_PROPERTY))
+			smallIconSize = Integer.valueOf(properties.get(BIG_ICON_SIZE_PROPERTY));
+
 		initResources(bundleContext, null);
 	}
 
@@ -103,6 +117,10 @@ public class BundleCmsTheme implements CmsTheme {
 //		swtCssPath = "/swt/";
 //		this.themeId = RWT.DEFAULT_THEME_ID;
 		this.themeId = themeBundle.getSymbolicName();
+		if (declaredThemeId != null && !declaredThemeId.equals(themeId))
+			throw new IllegalArgumentException(
+					"Declared theme id " + declaredThemeId + " is different from " + themeId);
+
 		webCssPaths = addCss(themeBundle, "/css/");
 		rapCssPaths = addCss(themeBundle, "/rap/");
 		swtCssPaths = addCss(themeBundle, "/swt/");
@@ -371,6 +389,14 @@ public class BundleCmsTheme implements CmsTheme {
 
 	public void setParentTheme(CmsTheme parentTheme) {
 		this.parentTheme = parentTheme;
+	}
+
+	public void setSmallIconSize(Integer smallIconSize) {
+		this.smallIconSize = smallIconSize;
+	}
+
+	public void setBigIconSize(Integer bigIconSize) {
+		this.bigIconSize = bigIconSize;
 	}
 
 }
