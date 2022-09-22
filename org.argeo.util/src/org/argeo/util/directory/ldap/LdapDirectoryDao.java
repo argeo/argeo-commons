@@ -10,7 +10,9 @@ import org.argeo.util.directory.HierarchyUnit;
 import org.argeo.util.transaction.WorkingCopyProcessor;
 
 public interface LdapDirectoryDao extends WorkingCopyProcessor<LdapEntryWorkingCopy> {
-	Boolean entryExists(LdapName dn);
+	boolean checkConnection();
+
+	boolean entryExists(LdapName dn);
 
 	LdapEntry doGetEntry(LdapName name) throws NameNotFoundException;
 

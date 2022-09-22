@@ -255,10 +255,6 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 					} else {
 						// user doesn't have the right to retrieve role, but we know it exists
 						// otherwise memberOf would not work
-//						Attributes a = new BasicAttributes();
-//						a.put(LdapNameUtils.getLastRdn(groupDn).getType(),
-//								LdapNameUtils.getLastRdn(groupDn).getValue());
-//						a.put(LdapAttrs.objectClass.name(), LdapObjs.groupOfNames.name());
 						group = newGroup(groupDn);
 						allRoles.add(group);
 					}

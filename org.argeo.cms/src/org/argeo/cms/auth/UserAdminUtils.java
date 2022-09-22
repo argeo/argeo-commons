@@ -77,6 +77,8 @@ public class UserAdminUtils {
 		if (isEmpty(dName))
 			dName = getProperty(user, LdapAttrs.cn.name());
 		if (isEmpty(dName))
+			dName = getProperty(user, LdapAttrs.uid.name());
+		if (isEmpty(dName))
 			dName = getUserLocalId(user.getName());
 		return dName;
 	}

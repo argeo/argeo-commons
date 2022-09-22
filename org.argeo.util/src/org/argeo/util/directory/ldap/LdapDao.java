@@ -27,10 +27,6 @@ import org.argeo.util.naming.LdapObjs;
 public class LdapDao extends AbstractLdapDirectoryDao {
 	private LdapConnection ldapConnection;
 
-//	public LdapUserAdmin(Dictionary<String, ?> properties) {
-//		this(properties, false);
-//	}
-
 	public LdapDao(AbstractLdapDirectory directory) {
 		super(directory);
 	}
@@ -44,31 +40,17 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 		ldapConnection.destroy();
 	}
 
-//	@Override
-//	protected AbstractUserDirectory scope(User user) {
-//		Dictionary<String, Object> credentials = user.getCredentials();
-//		String username = (String) credentials.get(SHARED_STATE_USERNAME);
-//		if (username == null)
-//			username = user.getName();
-//		Dictionary<String, Object> properties = cloneProperties();
-//		properties.put(Context.SECURITY_PRINCIPAL, username.toString());
-//		Object pwdCred = credentials.get(SHARED_STATE_PASSWORD);
-//		byte[] pwd = (byte[]) pwdCred;
-//		if (pwd != null) {
-//			char[] password = DirectoryDigestUtils.bytesToChars(pwd);
-//			properties.put(Context.SECURITY_CREDENTIALS, new String(password));
-//		} else {
-//			properties.put(Context.SECURITY_AUTHENTICATION, "GSSAPI");
-//		}
-//		return new LdapUserAdmin(properties, true);
-//	}
-
-//	protected InitialLdapContext getLdapContext() {
-//		return initialLdapContext;
-//	}
+	@Override
+	public boolean checkConnection() {
+		try {
+			return ldapConnection.entryExists(getDirectory().getBaseDn());
+		} catch (NamingException e) {
+			return false;
+		}
+	}
 
 	@Override
-	public Boolean entryExists(LdapName dn) {
+	public boolean entryExists(LdapName dn) {
 		try {
 			return ldapConnection.entryExists(dn);
 		} catch (NameNotFoundException e) {
@@ -118,18 +100,6 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 			throw new IllegalStateException("Cannot retrieve entry " + name, e);
 		}
 	}
-
-//	protected boolean isGroup(LdapName dn) {
-//		Rdn technicalRdn = LdapNameUtils.getParentRdn(dn);
-//		if (getDirectory().getGroupBaseRdn().equals(technicalRdn)
-//				|| getDirectory().getSystemRoleBaseRdn().equals(technicalRdn))
-//			return true;
-//		else if (getDirectory().getUserBaseRdn().equals(technicalRdn))
-//			return false;
-//		else
-//			throw new IllegalArgumentException(
-//					"Cannot find role type, " + technicalRdn + " is not a technical RDN for " + dn);
-//	}
 
 	@Override
 	public Attributes doGetAttributes(LdapName name) {

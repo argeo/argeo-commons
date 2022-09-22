@@ -40,8 +40,13 @@ public class OsUserDirectory extends AbstractLdapDirectoryDao {
 	}
 
 	@Override
-	public Boolean entryExists(LdapName dn) {
+	public boolean entryExists(LdapName dn) {
 		return osUserDn.equals(dn);
+	}
+
+	@Override
+	public boolean checkConnection() {
+		return true;
 	}
 
 	@Override
@@ -85,13 +90,13 @@ public class OsUserDirectory extends AbstractLdapDirectoryDao {
 	@Override
 	public void init() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -102,5 +107,5 @@ public class OsUserDirectory extends AbstractLdapDirectoryDao {
 			throw new IllegalStateException(name + " doe not exist in " + getDirectory().getBaseDn(), e);
 		}
 	}
-	
+
 }

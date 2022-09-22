@@ -14,6 +14,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
@@ -47,12 +48,8 @@ import org.osgi.service.useradmin.UserAdmin;
 public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdmin, UserDirectory {
 
 	private UserAdmin externalRoles;
-	// private List<String> indexedUserProperties = Arrays
-	// .asList(new String[] { LdapAttrs.uid.name(), LdapAttrs.mail.name(),
-	// LdapAttrs.cn.name() });
 
 	// Transaction
-//	private TransactionManager transactionManager;
 	public DirectoryUserAdmin(URI uriArg, Dictionary<String, ?> props) {
 		this(uriArg, props, false);
 	}
@@ -69,7 +66,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	 * ABSTRACT METHODS
 	 */
 
-	protected AbstractLdapDirectory scope(User user) {
+	protected Optional<DirectoryUserAdmin> scope(User user) {
 		if (getDirectoryDao() instanceof LdapDao) {
 			return scopeLdap(user);
 		} else if (getDirectoryDao() instanceof LdifDao) {
@@ -79,7 +76,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		}
 	}
 
-	protected DirectoryUserAdmin scopeLdap(User user) {
+	protected Optional<DirectoryUserAdmin> scopeLdap(User user) {
 		Dictionary<String, Object> credentials = user.getCredentials();
 		String username = (String) credentials.get(SHARED_STATE_USERNAME);
 		if (username == null)
@@ -96,10 +93,13 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		}
 		DirectoryUserAdmin scopedDirectory = new DirectoryUserAdmin(null, properties, true);
 		scopedDirectory.init();
-		return scopedDirectory;
+		// check connection
+		if (!scopedDirectory.getDirectoryDao().checkConnection())
+			return Optional.empty();
+		return Optional.of(scopedDirectory);
 	}
 
-	protected DirectoryUserAdmin scopeLdif(User user) {
+	protected Optional<DirectoryUserAdmin> scopeLdif(User user) {
 		Dictionary<String, Object> credentials = user.getCredentials();
 		String username = (String) credentials.get(SHARED_STATE_USERNAME);
 		if (username == null)
@@ -117,12 +117,11 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		Dictionary<String, Object> properties = cloneConfigProperties();
 		properties.put(DirectoryConf.readOnly.name(), "true");
 		DirectoryUserAdmin scopedUserAdmin = new DirectoryUserAdmin(null, properties, true);
-//		scopedUserAdmin.groups = Collections.unmodifiableNavigableMap(groups);
-//		scopedUserAdmin.users = Collections.unmodifiableNavigableMap(users);
 		// FIXME do it better
 		((LdifDao) getDirectoryDao()).scope((LdifDao) scopedUserAdmin.getDirectoryDao());
+		// no need to check authentication
 		scopedUserAdmin.init();
-		return scopedUserAdmin;
+		return Optional.of(scopedUserAdmin);
 	}
 
 	@Override
@@ -166,33 +165,6 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 			if (e instanceof Role)
 				allRoles.add((Role) e);
 		}
-//		Attributes attrs = user.getAttributes();
-//		// TODO centralize attribute name
-//		Attribute memberOf = attrs.get(LdapAttrs.memberOf.name());
-//		// if user belongs to this directory, we only check memberOf
-//		if (memberOf != null && user.getDn().startsWith(getBaseDn())) {
-//			try {
-//				NamingEnumeration<?> values = memberOf.getAll();
-//				while (values.hasMore()) {
-//					Object value = values.next();
-//					LdapName groupDn = new LdapName(value.toString());
-//					DirectoryUser group = doGetRole(groupDn);
-//					if (group != null)
-//						allRoles.add(group);
-//				}
-//			} catch (NamingException e) {
-//				throw new IllegalStateException("Cannot get memberOf groups for " + user, e);
-//			}
-//		} else {
-//			for (LdapName groupDn : getDirectoryDao().getDirectGroups(user.getDn())) {
-//				// TODO check for loops
-//				DirectoryUser group = doGetRole(groupDn);
-//				if (group != null) {
-//					allRoles.add(group);
-//					collectRoles(group, allRoles);
-//				}
-//			}
-//		}
 	}
 
 	private void collectAnonymousRoles(List<Role> allRoles) {
@@ -234,21 +206,6 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 			// no need to check modified users,
 			// since doGetRoles was already based on the modified attributes
 		}
-
-		// if non deep we also search users and groups
-//		if (!deep) {
-//			try {
-//				if (!(searchBase.endsWith(new LdapName(getUserBase()))
-//						|| searchBase.endsWith(new LdapName(getGroupBase())))) {
-//					LdapName usersBase = (LdapName) ((LdapName) searchBase.clone()).add(getUserBase());
-//					res.addAll(getRoles(usersBase, filter, false));
-//					LdapName groupsBase = (LdapName) ((LdapName) searchBase.clone()).add(getGroupBase());
-//					res.addAll(getRoles(groupsBase, filter, false));
-//				}
-//			} catch (InvalidNameException e) {
-//				throw new IllegalStateException("Cannot search users and groups", e);
-//			}
-//		}
 		return res;
 	}
 
@@ -299,9 +256,9 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 				// TODO not only Kerberos but also bind scope with kept password ?
 				Authorization auth = currentSubject.getPrivateCredentials(Authorization.class).iterator().next();
 				// bind with authenticating user
-				DirectoryUserAdmin scopedUserAdmin = Subject.doAs(currentSubject,
-						(PrivilegedAction<DirectoryUserAdmin>) () -> (DirectoryUserAdmin) scope(
-								new AuthenticatingUser(auth.getName(), new Hashtable<>())));
+				DirectoryUserAdmin scopedUserAdmin = CurrentSubject.callAs(currentSubject, () -> {
+					return scope(new AuthenticatingUser(auth.getName(), new Hashtable<>())).orElseThrow();
+				});
 				return getAuthorizationFromScoped(scopedUserAdmin, user);
 			}
 
@@ -309,7 +266,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 				return new LdifAuthorization(user, getAllRoles((DirectoryUser) user));
 			} else {
 				// bind with authenticating user
-				DirectoryUserAdmin scopedUserAdmin = (DirectoryUserAdmin) scope(user);
+				DirectoryUserAdmin scopedUserAdmin = scope(user).orElseThrow();
 				return getAuthorizationFromScoped(scopedUserAdmin, user);
 			}
 		}
@@ -384,22 +341,6 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	@Override
 	public boolean removeRole(String name) {
 		return removeEntry(LdapNameUtils.toLdapName(name));
-//		checkEdit();
-//		LdapEntryWorkingCopy wc = getWorkingCopy();
-//		LdapName dn = toLdapName(name);
-//		boolean actuallyDeleted;
-//		if (getDirectoryDao().daoHasEntry(dn) || wc.getNewData().containsKey(dn)) {
-//			DirectoryUser user = (DirectoryUser) getRole(name);
-//			wc.getDeletedData().put(dn, user);
-//			actuallyDeleted = true;
-//		} else {// just removing from groups (e.g. system roles)
-//			actuallyDeleted = false;
-//		}
-//		for (LdapName groupDn : getDirectoryDao().getDirectGroups(dn)) {
-//			LdapEntry group = doGetRole(groupDn);
-//			group.getAttributes().get(getMemberAttributeId()).remove(dn.toString());
-//		}
-//		return actuallyDeleted;
 	}
 
 	/*
@@ -446,10 +387,6 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	public void setExternalRoles(UserAdmin externalRoles) {
 		this.externalRoles = externalRoles;
 	}
-
-//	public void setTransactionManager(TransactionManager transactionManager) {
-//		this.transactionManager = transactionManager;
-//	}
 
 	/*
 	 * STATIC UTILITIES

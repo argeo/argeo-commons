@@ -31,8 +31,6 @@ import org.argeo.osgi.useradmin.AuthenticatingUser;
 import org.argeo.osgi.useradmin.TokenUtils;
 import org.argeo.util.directory.ldap.IpaUtils;
 import org.argeo.util.naming.LdapAttrs;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
@@ -53,7 +51,7 @@ public class UserAdminLoginModule implements LoginModule {
 			LdapAttrs.uid.name(), LdapAttrs.employeeNumber.name(), LdapAttrs.authPassword.name() });
 
 	// private state
-	private BundleContext bc;
+//	private BundleContext bc;
 	private User authenticatedUser = null;
 	private Locale locale;
 
@@ -67,7 +65,7 @@ public class UserAdminLoginModule implements LoginModule {
 			Map<String, ?> options) {
 		this.subject = subject;
 		try {
-			bc = FrameworkUtil.getBundle(UserAdminLoginModule.class).getBundleContext();
+//			bc = FrameworkUtil.getBundle(UserAdminLoginModule.class).getBundleContext();
 			this.callbackHandler = callbackHandler;
 			this.sharedState = (Map<String, Object>) sharedState;
 		} catch (Exception e) {

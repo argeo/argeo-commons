@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -88,6 +89,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 		return res.size() == 1 ? res.get(0) : null;
 	}
 
+	/** Builds an authorisation by scanning all referentials. */
 	@Override
 	public Authorization getAuthorization(User user) {
 		if (user == null) {// anonymous
@@ -120,21 +122,17 @@ public class AggregatingUserAdmin implements UserAdmin {
 		for (LdapName otherBaseDn : businessRoles.keySet()) {
 			if (otherBaseDn.equals(userReferentialOfThisUser.getBaseDn()))
 				continue;
-			DirectoryUserAdmin otherUserAdmin = businessRoles.get(otherBaseDn);
+			DirectoryUserAdmin otherUserAdmin = userAdminToUse(user, businessRoles.get(otherBaseDn));
+			if (otherUserAdmin == null)
+				continue;
 			Authorization auth = otherUserAdmin.getAuthorization(retrievedUser);
 			allRoles.addAll(Arrays.asList(auth.getRoles()));
 
 		}
 
 		// integrate system roles
-		final DirectoryUserAdmin userAdminToUse;// possibly scoped when authenticating
-		if (user instanceof DirectoryUser) {
-			userAdminToUse = userReferentialOfThisUser;
-		} else if (user instanceof AuthenticatingUser) {
-			userAdminToUse = (DirectoryUserAdmin) userReferentialOfThisUser.scope(user);
-		} else {
-			throw new IllegalArgumentException("Unsupported user type " + user.getClass());
-		}
+		final DirectoryUserAdmin userAdminToUse = userAdminToUse(retrievedUser, userReferentialOfThisUser);
+		Objects.requireNonNull(userAdminToUse);
 
 		try {
 			Set<String> sysRoles = new HashSet<String>();
@@ -157,6 +155,18 @@ public class AggregatingUserAdmin implements UserAdmin {
 				userAdminToUse.destroy();
 			}
 		}
+	}
+
+	/** Decide whether to scope or not */
+	private DirectoryUserAdmin userAdminToUse(User user, DirectoryUserAdmin userAdmin) {
+		if (user instanceof DirectoryUser) {
+			return userAdmin;
+		} else if (user instanceof AuthenticatingUser) {
+			return userAdmin.scope(user).orElse(null);
+		} else {
+			throw new IllegalArgumentException("Unsupported user type " + user.getClass());
+		}
+
 	}
 
 	/**

@@ -160,7 +160,12 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 	}
 
 	@Override
-	public Boolean entryExists(LdapName dn) {
+	public boolean checkConnection() {
+		return true;
+	}
+
+	@Override
+	public boolean entryExists(LdapName dn) {
 		return entries.containsKey(dn);// || groups.containsKey(dn);
 	}
 
