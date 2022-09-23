@@ -1,6 +1,5 @@
 package org.argeo.cms.jcr;
 
-import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,13 +13,13 @@ import javax.jcr.Session;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.AuthPermission;
-import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.jcr.JcrUtils;
+import org.argeo.util.CurrentSubject;
 
 /** Utilities related to Argeo model in JCR */
 public class CmsJcrUtils {
@@ -256,20 +255,17 @@ public class CmsJcrUtils {
 		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(CmsJcrUtils.class.getClassLoader());
-			return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
-
-				@Override
-				public Session run() {
-					try {
-						return JcrUtils.loginOrCreateWorkspace(repository, workspaceName);
-					} catch (NoSuchWorkspaceException e) {// should not happen
-						throw new IllegalArgumentException("No workspace " + workspaceName + " available", e);
-					} catch (RepositoryException e) {
-						throw new RuntimeException("Cannot open data admin session", e);
-					}
+			return CurrentSubject.callAs(loginContext.getSubject(), () -> {
+				try {
+					return JcrUtils.loginOrCreateWorkspace(repository, workspaceName);
+				} catch (NoSuchWorkspaceException e) {// should not happen
+					throw new IllegalArgumentException("No workspace " + workspaceName + " available", e);
+				} catch (RepositoryException e) {
+					throw new RuntimeException("Cannot open data admin session", e);
 				}
+			}
 
-			});
+			);
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentCl);
 		}
