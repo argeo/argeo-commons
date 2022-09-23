@@ -183,9 +183,6 @@ public class LightweightDialog {
 	}
 
 	protected Point getInitialSize() {
-		// if (exception != null)
-		// return new Point(800, 600);
-		// else
 		return new Point(600, 400);
 	}
 

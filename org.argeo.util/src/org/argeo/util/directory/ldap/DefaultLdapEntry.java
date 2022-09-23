@@ -35,8 +35,8 @@ public class DefaultLdapEntry implements LdapEntry {
 //	private Attributes publishedAttributes;
 
 	// Temporarily expose the fields
-	protected AttributeDictionary properties;
-	protected AttributeDictionary credentials;
+	private AttributeDictionary properties;
+	private AttributeDictionary credentials;
 
 	protected DefaultLdapEntry(AbstractLdapDirectory directory, LdapName dn) {
 		Objects.requireNonNull(directory);

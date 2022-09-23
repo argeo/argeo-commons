@@ -1,5 +1,7 @@
 package org.argeo.util.directory.ldap;
 
+import java.util.Locale;
+
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
@@ -37,6 +39,16 @@ public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit
 		String name = LdapNameUtils.getLastRdnValue(getDn());
 		// TODO check ou, o, etc.
 		return name;
+	}
+
+	@Override
+	public String getHierarchyUnitLabel(Locale locale) {
+		String key = LdapNameUtils.getLastRdn(getDn()).getType();
+		Object value = LdapEntry.getLocalized(getProperties(), key, locale);
+		if (value == null)
+			value = getHierarchyUnitName();
+		assert value != null;
+		return value.toString();
 	}
 
 	@Override

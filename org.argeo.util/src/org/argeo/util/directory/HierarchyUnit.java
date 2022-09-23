@@ -1,11 +1,15 @@
 package org.argeo.util.directory;
 
 import java.util.Dictionary;
+import java.util.Locale;
 
 /** A unit within the high-level organisational structure of a directory. */
 public interface HierarchyUnit {
 	/** Name to use in paths. */
 	String getHierarchyUnitName();
+
+	/** Name to use in UI. */
+	String getHierarchyUnitLabel(Locale locale);
 
 	/**
 	 * The parent {@link HierarchyUnit}, or <code>null</code> if a

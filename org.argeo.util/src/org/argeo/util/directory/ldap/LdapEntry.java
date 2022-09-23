@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeSet;
@@ -41,5 +42,15 @@ public interface LdapEntry {
 		StringJoiner values = new StringJoiner("\n");
 		currentObjectClasses.forEach((s) -> values.add(s));
 		properties.put(LdapAttrs.objectClasses.name(), values.toString());
+	}
+
+	public static Object getLocalized(Dictionary<String, Object> properties, String key, Locale locale) {
+		if (locale == null)
+			return null;
+		Object value = null;
+		value = properties.get(key + ";lang-" + locale.getLanguage() + "-" + locale.getCountry());
+		if (value == null)
+			value = properties.get(key + ";lang-" + locale.getLanguage());
+		return value;
 	}
 }

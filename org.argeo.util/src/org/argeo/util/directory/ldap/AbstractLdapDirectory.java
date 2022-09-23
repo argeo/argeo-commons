@@ -10,6 +10,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -294,6 +295,16 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	@Override
 	public String getHierarchyUnitName() {
 		return getName();
+	}
+
+	@Override
+	public String getHierarchyUnitLabel(Locale locale) {
+		String key = LdapNameUtils.getLastRdn(getBaseDn()).getType();
+		Object value = LdapEntry.getLocalized(asLdapEntry().getProperties(), key, locale);
+		if (value == null)
+			value = getHierarchyUnitName();
+		assert value != null;
+		return value.toString();
 	}
 
 	@Override

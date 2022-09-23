@@ -8,6 +8,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.swt.Selected;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -93,6 +94,13 @@ public class CmsFeedback extends LightweightDialog {
 			append(exception);
 		}
 		return messageLbl;
+	}
+
+	protected Point getInitialSize() {
+		if (exception != null)
+			return new Point(800, 600);
+		else
+			return new Point(600, 400);
 	}
 
 	protected void append(String message) {
