@@ -94,7 +94,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	// ALL USER: WARNING access to this will be later reduced
 
-	/** Retrieve a user given his dn */
+	/** Retrieve a user given his dn, or <code>null</code> if it doesn't exist. */
 	public User getUser(String dn) {
 		return (User) getUserAdmin().getRole(dn);
 	}
@@ -139,8 +139,6 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		addUsers(users, group, filter);
 		return users;
 	}
-	
-	
 
 //	@Override
 //	public Set<User> listAccounts(HierarchyUnit hierarchyUnit, boolean deep) {
@@ -184,7 +182,8 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		List<User> users = new ArrayList<User>();
 		for (Role role : roles) {
 			if ((includeUsers && role.getType() == Role.USER || role.getType() == Role.GROUP) && !users.contains(role)
-					&& (includeSystemRoles || !role.getName().toLowerCase().endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))) {
+					&& (includeSystemRoles
+							|| !role.getName().toLowerCase().endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))) {
 				if (match(role, filter))
 					users.add((User) role);
 			}

@@ -1144,6 +1144,14 @@ public class JcrUtils {
 				// try to create workspace
 				defaultSession = repository.login(credentials);
 				defaultSession.getWorkspace().createWorkspace(workspaceName);
+
+				// work around non-atomicity of workspace creation in Jackrabbit
+//				try {
+//					Thread.sleep(5000);
+//				} catch (InterruptedException e1) {
+//					// ignore
+//				}
+				
 				workspaceSession = repository.login(credentials, workspaceName);
 			}
 			return workspaceSession;
