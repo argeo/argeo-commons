@@ -53,4 +53,13 @@ public interface LdapEntry {
 			value = properties.get(key + ";lang-" + locale.getLanguage());
 		return value;
 	}
+
+	public static String toLocalizedKey(String key, Locale locale) {
+		String country = locale.getCountry();
+		if ("".equals(country)) {
+			return key + ";lang-" + locale.getLanguage();
+		} else {
+			return key + ";lang-" + locale.getLanguage() + "-" + locale.getCountry();
+		}
+	}
 }

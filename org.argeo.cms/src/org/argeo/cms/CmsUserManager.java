@@ -76,8 +76,14 @@ public interface CmsUserManager {
 	/** Add additional object classes to this role. */
 	void addObjectClasses(Role role, Set<String> objectClasses, Map<String, Object> additionalProperties);
 
+	/** Add additional object classes to this hierarchy unit. */
+	void addObjectClasses(HierarchyUnit hierarchyUnit, Set<String> objectClasses,
+			Map<String, Object> additionalProperties);
+
 	/** Add a member to this group. */
 	void addMember(Group group, Role role);
+	
+	void edit(Runnable action);
 
 	/* MISCELLANEOUS */
 	/** Returns the dn of a role given its local ID */

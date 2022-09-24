@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -346,6 +347,47 @@ public class CmsUserManagerImpl implements CmsUserManager {
 					log.trace("Cannot rollback transaction", e2);
 			}
 			throw new RuntimeException("Cannot add object classes " + objectClasses + " to " + role, e1);
+		}
+	}
+
+	@Override
+	public void addObjectClasses(HierarchyUnit hierarchyUnit, Set<String> objectClasses,
+			Map<String, Object> additionalProperties) {
+		try {
+			userTransaction.begin();
+			LdapEntry.addObjectClasses(hierarchyUnit.getProperties(), objectClasses);
+			for (String key : additionalProperties.keySet()) {
+				hierarchyUnit.getProperties().put(key, additionalProperties.get(key));
+			}
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot add object classes " + objectClasses + " to " + hierarchyUnit, e1);
+		}
+	}
+
+	@Override
+	public void edit(Runnable action) {
+		Objects.requireNonNull(action);
+		try {
+			userTransaction.begin();
+			action.run();
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot edit", e1);
 		}
 	}
 

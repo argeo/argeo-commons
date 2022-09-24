@@ -374,6 +374,7 @@ public class DefaultLdapEntry implements LdapEntry {
 
 		@Override
 		public Object put(String key, Object value) {
+			Objects.requireNonNull(value, "Value for key " + key + " is null");
 			try {
 				if (key == null) {
 					// FIXME remove this "feature", a key should be specified
