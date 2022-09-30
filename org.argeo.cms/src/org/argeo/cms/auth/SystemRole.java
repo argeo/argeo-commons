@@ -16,6 +16,9 @@ public interface SystemRole {
 		for (ImpliedByPrincipal role : roles) {
 			if (role.isSystemRole()) {
 				if (role.getRoleName().equals(getName())) {
+					// !! if context is not specified, it is considered irrelevant
+					if (context == null)
+						return true;
 					if (role.getContext().equalsIgnoreCase(context)
 							|| role.getContext().equals(CmsConstants.NODE_BASEDN))
 						return true;
