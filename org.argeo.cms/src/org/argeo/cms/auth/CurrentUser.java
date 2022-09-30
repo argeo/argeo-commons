@@ -13,6 +13,7 @@ import java.util.UUID;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsSessionId;
@@ -72,6 +73,11 @@ public final class CurrentUser {
 	/** Implies this {@link SystemRole} in this context. */
 	public final static boolean implies(SystemRole role, String context) {
 		return role.implied(currentSubject(), context);
+	}
+
+	/** Implies this {@link SystemRole} in this context. */
+	public final static boolean implies(String role, String context) {
+		return SystemRole.implied(NamespaceUtils.parsePrefixedName(role), currentSubject(), context);
 	}
 
 	/** Executes as the current user */

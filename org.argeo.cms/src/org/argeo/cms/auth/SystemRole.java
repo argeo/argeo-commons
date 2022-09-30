@@ -12,10 +12,14 @@ public interface SystemRole {
 	QName getName();
 
 	default boolean implied(Subject subject, String context) {
+		return implied(getName(), subject, context);
+	}
+
+	static boolean implied(QName name, Subject subject, String context) {
 		Set<ImpliedByPrincipal> roles = subject.getPrincipals(ImpliedByPrincipal.class);
 		for (ImpliedByPrincipal role : roles) {
 			if (role.isSystemRole()) {
-				if (role.getRoleName().equals(getName())) {
+				if (role.getRoleName().equals(name)) {
 					// !! if context is not specified, it is considered irrelevant
 					if (context == null)
 						return true;
@@ -26,6 +30,6 @@ public interface SystemRole {
 			}
 		}
 		return false;
-	}
 
+	}
 }
