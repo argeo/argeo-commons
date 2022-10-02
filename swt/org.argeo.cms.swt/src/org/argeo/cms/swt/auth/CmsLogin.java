@@ -161,7 +161,7 @@ public class CmsLogin implements CmsStyles, CallbackHandler {
 		// credentialsBlock.setLayoutData(CmsUiUtils.fillAll());
 		CmsSwtUtils.style(credentialsBlock, CMS_LOGIN_DIALOG);
 
-		Integer textWidth = 120;
+		Integer textWidth = 200;
 		if (parent instanceof Shell)
 			CmsSwtUtils.style(parent, CMS_USER_MENU);
 		// new Label(this, SWT.NONE).setText(CmsMsg.username.lead());
