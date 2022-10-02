@@ -1,5 +1,6 @@
 package org.argeo.cms.swt.osgi;
 
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class BundleSvgTheme extends BundleCmsSwtTheme {
 				transcoder = new PNGTranscoder();
 				transcoder.addTranscodingHint(PNGTranscoder.KEY_WIDTH, (float) size);
 				transcoder.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, (float) size);
+				transcoder.addTranscodingHint(PNGTranscoder.KEY_BACKGROUND_COLOR, new Color(255, 255, 255, 0));
 				transcoders.put(size, transcoder);
 			}
 		}
