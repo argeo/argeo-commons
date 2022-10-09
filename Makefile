@@ -1,20 +1,20 @@
 include sdk.mk
 .PHONY: clean all osgi jni move-swt move-rap
 
-all: osgi jni move-rap
-	$(MAKE) -f Makefile-rcp.mk
+all: osgi jni
+	$(MAKE) -f Makefile-rcp.mk all
 
 move-rap: move-swt
-	mkdir -p $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.cli.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
-	touch $(BUILD_BASE)/*.rap/bnd.bnd
+	#mkdir -p $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
+	#mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
+	#mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/*.rap.cli.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/rap/$(A2_CATEGORY)
+	#touch $(BUILD_BASE)/*.rap/bnd.bnd
 
 move-swt: osgi
-	mkdir -p $(A2_OUTPUT)/swt/$(A2_CATEGORY)
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.swt.minidesktop.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.swt.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
-	mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.e4.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	#mkdir -p $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	#mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.swt.minidesktop.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	#mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.swt.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
+	#mv -v $(A2_OUTPUT)/$(A2_CATEGORY)/org.argeo.cms.e4.$(MAJOR).$(MINOR).jar $(A2_OUTPUT)/swt/$(A2_CATEGORY)
 
 A2_CATEGORY = org.argeo.cms
 
@@ -57,6 +57,7 @@ A2_OUTPUT = $(SDK_BUILD_BASE)/a2
 A2_BASE = $(A2_OUTPUT)
 
 VPATH = .:jcr:swt:swt/rap
+#vpath %.$(MAJOR).$(MINOR).jar .:jcr/$(A2_CATEGORY):swt/$(A2_CATEGORY):swt/rap/$(A2_CATEGORY)
 
 DEP_CATEGORIES = \
 org.argeo.tp \
@@ -66,7 +67,10 @@ osgi/api/org.argeo.tp.osgi \
 osgi/equinox/org.argeo.tp.eclipse \
 swt/rap/org.argeo.tp.swt \
 swt/rap/org.argeo.tp.swt.workbench \
-org.argeo.tp.jcr
+org.argeo.tp.jcr \
+$(A2_CATEGORY) \
+swt/$(A2_CATEGORY) \
+swt/rap/$(A2_CATEGORY) \
 
 jni:
 	$(MAKE) -C jni
