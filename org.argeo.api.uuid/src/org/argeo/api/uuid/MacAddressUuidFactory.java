@@ -11,7 +11,7 @@ import java.util.UUID;
  * An {@link UUID} factory whose node id (for time based UUIDs) is the hardware
  * MAC address as specified in RFC4122.
  * 
- * @see https://datatracker.ietf.org/doc/html/rfc4122.html#section-4.1.6
+ * @see "https://datatracker.ietf.org/doc/html/rfc4122.html#section-4.1.6"
  */
 public class MacAddressUuidFactory extends ConcurrentUuidFactory {
 	public MacAddressUuidFactory() {

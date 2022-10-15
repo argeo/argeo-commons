@@ -18,7 +18,7 @@ import javax.xml.namespace.QName;
 /**
  * Minimal standard attribute types that MUST be supported. All related classes
  * belong to java.base and can be implicitly derived form a given
- * <code>String<code>.
+ * <code>String</code>.
  */
 public enum CrAttributeType {
 	BOOLEAN(Boolean.class, W3C_XML_SCHEMA_NS_URI, "boolean", new BooleanFormatter()), //
@@ -143,7 +143,7 @@ public enum CrAttributeType {
 		Objects.requireNonNull(value, "Cannot cast a null value");
 		if (String.class.isAssignableFrom(clss)) {
 			return Optional.of((T) value.toString());
-		} 
+		}
 		// Numbers
 		else if (Long.class.isAssignableFrom(clss)) {
 			if (value instanceof Long)

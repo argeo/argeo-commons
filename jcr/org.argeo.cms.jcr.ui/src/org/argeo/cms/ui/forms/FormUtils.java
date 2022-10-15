@@ -121,7 +121,7 @@ public class FormUtils {
 	 * @param value
 	 * @param label
 	 *            a potentially distinct label
-	 * @return
+	 * @return the link
 	 */
 	public static String getPhoneLink(String value, String label) {
 		StringBuilder builder = new StringBuilder();
@@ -146,7 +146,7 @@ public class FormUtils {
 	 * @param value
 	 * @param label
 	 *            a potentially distinct label
-	 * @return
+	 * @return the link
 	 */
 	public static String getMailLink(String value, String label) {
 		StringBuilder builder = new StringBuilder();

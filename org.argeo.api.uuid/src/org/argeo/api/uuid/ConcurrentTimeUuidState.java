@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.argeo.api.uuid.UuidFactory.TimeUuidState;
@@ -21,7 +22,7 @@ import org.argeo.api.uuid.UuidFactory.TimeUuidState;
  * sequences. If that limit is reached, the clock sequence which has not be used
  * for the most time is reallocated to the new thread. It is assumed that the
  * context where time uUIDs will be generated will often be using thread pools
- * (e.g. {@link ForkJoinPool#commonPool(), http server, database access, etc.)
+ * (e.g. {@link ForkJoinPool#commonPool()}, http server, database access, etc.)
  * and that such reallocation won't have to happen too often.
  */
 public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {

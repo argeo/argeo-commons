@@ -6,7 +6,7 @@ import org.eclipse.swt.events.MouseListener;
 /**
  * {@link MouseListener#mouseDoubleClick(MouseEvent)} as a functional interface
  * in order to use as a short lambda expression in UI code.
- * {@link MouseListener#mouseDownouseEvent)} and
+ * {@link MouseListener#mouseDown(MouseEvent)} and
  * {@link MouseListener#mouseUp(MouseEvent)} do nothing by default.
  */
 @FunctionalInterface

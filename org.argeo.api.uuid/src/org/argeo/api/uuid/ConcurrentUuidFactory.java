@@ -10,7 +10,7 @@ import java.util.UUID;
  * A configurable implementation of an {@link AsyncUuidFactory}, which can be
  * used as a base class for more optimised implementations.
  * 
- * @see https://datatracker.ietf.org/doc/html/rfc4122
+ * @see "https://datatracker.ietf.org/doc/html/rfc4122"
  */
 public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory implements TypedUuidFactory {
 //	private final static Logger logger = System.getLogger(ConcurrentUuidFactory.class.getName());

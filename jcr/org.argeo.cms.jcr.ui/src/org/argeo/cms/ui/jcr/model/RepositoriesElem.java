@@ -21,7 +21,7 @@ import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
  * UI Tree component that implements the Argeo abstraction of a
  * {@link RepositoryFactory} that enable a user to "mount" various repositories
  * in a single Tree like View. It is usually meant to be at the root of the UI
- * Tree and thus {@link getParent()} method will return null.
+ * Tree and thus {@link #getParent()} method will return null.
  * 
  * The {@link RepositoryFactory} is injected at instantiation time and must be
  * use get or register new {@link Repository} objects upon which a reference is

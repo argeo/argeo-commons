@@ -3,7 +3,7 @@ package org.argeo.util.http;
 /**
  * Standard HTTP response status codes (including WebDav ones).
  * 
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+ * @see "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status"
  */
 public enum HttpStatus {
 	// Successful responses (200–299)
@@ -38,7 +38,7 @@ public enum HttpStatus {
 	/**
 	 * The status line, as defined by RFC2616.
 	 * 
-	 * @see https://www.rfc-editor.org/rfc/rfc2616#section-6.1
+	 * @see "https://www.rfc-editor.org/rfc/rfc2616#section-6.1"
 	 */
 	public String getStatusLine(String httpVersion) {
 		return httpVersion + " " + code + " " + reasonPhrase;

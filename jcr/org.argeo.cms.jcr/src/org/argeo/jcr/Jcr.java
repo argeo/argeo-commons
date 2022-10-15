@@ -387,7 +387,6 @@ public class Jcr {
 	 * 
 	 * @param node   the node
 	 * @param mixins the mixins
-	 * @return the created node
 	 * @see Node#addMixin(String)
 	 */
 	public static void addMixin(Node node, String... mixins) {

@@ -4,8 +4,8 @@ package org.argeo.api.acr;
  * Name for core concepts with the same semantics as defined in the WebDav
  * standard and extensions.
  * 
- * @see http://www.webdav.org/specs/rfc4918.html
- * @see http://www.webdav.org/specs/rfc3744.html
+ * @see "http://www.webdav.org/specs/rfc4918.html"
+ * @see "http://www.webdav.org/specs/rfc3744.html"
  */
 public enum DName implements QNamed
 

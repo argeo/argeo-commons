@@ -24,7 +24,7 @@ public class ContentName extends QName {
 	 * The UUID v3 of http://www.w3.org/2000/xmlns/ within the standard DNS
 	 * namespace, to be used as a base for the namespaces.
 	 * 
-	 * @see https://www.w3.org/TR/xml-names/#ns-decl
+	 * @see "https://www.w3.org/TR/xml-names/#ns-decl"
 	 */
 	// uuidgen --md5 --namespace @dns --name http://www.w3.org/2000/xmlns/
 	// NOTE : must be declared before default namespaces

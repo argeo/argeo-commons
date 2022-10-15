@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * Implementation of the basic RFC4122 algorithms.
  * 
- * @see https://datatracker.ietf.org/doc/html/rfc4122
+ * @see "https://datatracker.ietf.org/doc/html/rfc4122"
  */
 public abstract class AbstractUuidFactory implements UuidFactory {
 
@@ -127,7 +127,7 @@ public abstract class AbstractUuidFactory implements UuidFactory {
 	/**
 	 * Force this node id to be identified as no MAC address.
 	 * 
-	 * @see https://datatracker.ietf.org/doc/html/rfc4122#section-4.5
+	 * @see "https://datatracker.ietf.org/doc/html/rfc4122#section-4.5"
 	 */
 	protected static void forceToNoMacAddress(byte[] nodeId, int offset) {
 		assert nodeId != null && offset < nodeId.length;

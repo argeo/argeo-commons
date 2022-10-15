@@ -24,7 +24,7 @@ public class RowViewerComparator extends NodeViewerComparator {
 	 * @param viewer
 	 * @param e1
 	 * @param e2
-	 * @return
+	 * @return the comparison
 	 */
 	@Override
 	public int compare(Viewer viewer, Object e1, Object e2) {
