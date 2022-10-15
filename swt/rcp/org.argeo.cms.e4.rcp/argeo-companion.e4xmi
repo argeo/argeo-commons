@@ -6,7 +6,7 @@
         <children xsi:type="basic:PartSashContainer" xmi:id="_qc16ECnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.partsashcontainer.0" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_RE87kDsXEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.rcp.partstack.1">
             <children xsi:type="basic:Part" xmi:id="_V1WvgDsXEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.rcp.part.files" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.files.NodeFsBrowserView" label="Files"/>
-            <children xsi:type="basic:Part" xmi:id="_vOqDQCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.part.jcr" containerData="4000" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR"/>
+            <children xsi:type="basic:Part" xmi:id="_vOqDQCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.part.jcr" containerData="4000" contributionURI="bundleclass://org.argeo.cms.jcr.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR"/>
           </children>
           <children xsi:type="basic:PartStack" xmi:id="_0eRiwCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.partstack.0" containerData="6000">
             <tags>editorArea</tags>
@@ -15,7 +15,7 @@
       </children>
     </children>
   </children>
-  <descriptors xmi:id="__9SDsC8JEeq0koquN4xGyg" elementId="org.argeo.cms.e4.partdescriptor.nodeEditor" allowMultiple="true" category="editorArea" closeable="true" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.jcr.JcrNodeEditor"/>
+  <descriptors xmi:id="__9SDsC8JEeq0koquN4xGyg" elementId="org.argeo.cms.e4.partdescriptor.nodeEditor" allowMultiple="true" category="editorArea" closeable="true" contributionURI="bundleclass://org.argeo.cms.jcr.e4/org.argeo.cms.e4.jcr.JcrNodeEditor"/>
   <addons xmi:id="_c4iAgSnCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
   <addons xmi:id="_c4iAginCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
   <addons xmi:id="_c4iAgynCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>

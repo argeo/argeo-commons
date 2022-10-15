@@ -9,9 +9,6 @@ import java.nio.file.spi.FileSystemProvider;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.argeo.cms.jcr.CmsJcrUtils;
-import org.argeo.cms.swt.CmsException;
-import org.argeo.eclipse.ui.fs.AdvancedFsBrowser;
 import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -27,7 +24,7 @@ public class NodeFsBrowserView {
 	@PostConstruct
 	public void createPartControl(Composite parent) {
 		try {
-			//URI uri = new URI("node://root:demo@localhost:7070/");
+			// URI uri = new URI("node://root:demo@localhost:7070/");
 			URI uri = new URI("node:///");
 			FileSystem fileSystem = nodeFileSystemProvider.getFileSystem(uri);
 			if (fileSystem == null)
@@ -41,7 +38,7 @@ public class NodeFsBrowserView {
 //			AdvancedFsBrowser browser = new AdvancedFsBrowser();
 //			browser.createUi(parent, localPath);
 		} catch (Exception e) {
-			throw new CmsException("Cannot open file system browser", e);
+			throw new RuntimeException("Cannot open file system browser", e);
 		}
 	}
 

@@ -28,8 +28,6 @@ swt/rap/org.argeo.swt.specific.rap \
 swt/rap/org.argeo.cms.swt.rap \
 swt/rap/org.argeo.cms.swt.rap.cli \
 swt/rap/org.argeo.cms.e4.rap \
-jcr/org.argeo.cms.jcr \
-jcr/org.argeo.cms.jcr.ui \
 
 DEP_CATEGORIES = \
 org.argeo.tp \
@@ -39,7 +37,6 @@ osgi/api/org.argeo.tp.osgi \
 osgi/equinox/org.argeo.tp.eclipse \
 swt/rap/org.argeo.tp.swt \
 swt/rap/org.argeo.tp.swt.workbench \
-org.argeo.tp.jcr \
 $(A2_CATEGORY) \
 swt/$(A2_CATEGORY) \
 swt/rap/$(A2_CATEGORY) \

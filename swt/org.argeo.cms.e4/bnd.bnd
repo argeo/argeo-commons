@@ -9,12 +9,11 @@ org.eclipse.swt,\
 org.eclipse.swt.widgets;version="0.0.0",\
 org.eclipse.e4.ui.model.application.ui,\
 org.eclipse.e4.ui.model.application,\
-javax.jcr.nodetype,\
 org.argeo.cms,\
 org.eclipse.core.commands.common,\
 org.eclipse.jface.window,\
+org.eclipse.jface.dialogs,\
 org.argeo.cms.swt.auth,\
-org.apache.jackrabbit.*;version="[2,3)",\
 javax.servlet.*;version="[3,5)",\
 *
 
