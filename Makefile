@@ -1,7 +1,7 @@
 include sdk.mk
 .PHONY: clean all osgi jni
 
-all: osgi jni
+all: osgi
 	$(MAKE) -f Makefile-rcp.mk all
 
 A2_CATEGORY = org.argeo.cms
