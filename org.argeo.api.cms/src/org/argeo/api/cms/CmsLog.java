@@ -1,16 +1,45 @@
 package org.argeo.api.cms;
 
 import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
+import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * A Commons Logging / SLF4J style logging utilities wrapping a standard Java
- * platform {@link Logger}.
+ * A Commons Logging / SLF4J style logging utilities usually wrapping a standard
+ * Java platform {@link Logger}, but which can fallback to other mechanism, if a
+ * system logger is not available.
  */
 public interface CmsLog {
-	Logger getLogger();
+	/*
+	 * SYSTEM LOGGER STYLE METHODS
+	 */
+	boolean isLoggable(Level level);
+
+	void log(Level level, Supplier<String> msgSupplier, Throwable thrown);
+
+	void log(Level level, String msg, Throwable thrown);
+
+	void log(Level level, String format, Object... params);
+
+	default void log(Level level, String msg) {
+		log(level, msg, (Throwable) null);
+	}
+
+	default void log(Level level, Supplier<String> msgSupplier) {
+		log(level, msgSupplier, (Throwable) null);
+	}
+
+	default void log(Level level, Object obj) {
+		Objects.requireNonNull(obj);
+		log(level, obj.toString());
+	}
+
+	/*
+	 * SLF4j / COMMONS LOGGING STYLE METHODS
+	 */
+	@Deprecated
+	CmsLog getLogger();
 
 	default boolean isDebugEnabled() {
 		return getLogger().isLoggable(Level.DEBUG);
@@ -172,6 +201,30 @@ public interface CmsLog {
 		getLogger().log(Level.ERROR, format, arguments);
 	}
 
+	/**
+	 * Exact mapping of ${java.lang.System.Logger.Level}, in case it is not
+	 * available.
+	 */
+	public static enum Level {
+		ALL(Integer.MIN_VALUE), //
+		TRACE(400), //
+		DEBUG(500), //
+		INFO(800), //
+		WARNING(900), //
+		ERROR(1000), //
+		OFF(Integer.MAX_VALUE); //
+
+		final int severity;
+
+		private Level(int severity) {
+			this.severity = severity;
+		}
+
+		public final int getSeverity() {
+			return severity;
+		}
+	}
+
 	/*
 	 * STATIC UTILITIES
 	 */
@@ -181,23 +234,123 @@ public interface CmsLog {
 	}
 
 	static CmsLog getLog(String name) {
-		Logger logger = System.getLogger(Objects.requireNonNull(name));
-		return new LoggerWrapper(logger);
+		if (isSystemLoggerAvailable) {
+			return new SystemCmsLog(name);
+		} else { // typically Android
+			return new FallBackCmsLog();
+		}
 	}
 
-	/** A trivial implementation wrapping a platform logger. */
-	static class LoggerWrapper implements CmsLog {
-		private final Logger logger;
+	static final boolean isSystemLoggerAvailable = isSystemLoggerAvailable();
 
-		LoggerWrapper(Logger logger) {
-			this.logger = logger;
+	static boolean isSystemLoggerAvailable() {
+		try {
+			Logger logger = System.getLogger(CmsLog.class.getName());
+			logger.log(java.lang.System.Logger.Level.TRACE, () -> "System logger is available.");
+			return true;
+		} catch (NoSuchMethodError | NoClassDefFoundError e) {// Android
+			return false;
 		}
+	}
+}
 
-		@Override
-		public Logger getLogger() {
-			return logger;
-		}
+/**
+ * Uses {@link System.Logger}, should be used on proper implementations of the
+ * Java platform.
+ */
+class SystemCmsLog implements CmsLog {
+	private final Logger logger;
 
+	SystemCmsLog(String name) {
+		logger = System.getLogger(name);
 	}
 
+	@Override
+	public boolean isLoggable(Level level) {
+		return logger.isLoggable(convertSystemLevel(level));
+	}
+
+	@Override
+	public void log(Level level, Supplier<String> msgSupplier, Throwable thrown) {
+		logger.log(convertSystemLevel(level), msgSupplier, thrown);
+	}
+
+	@Override
+	public void log(Level level, String msg, Throwable thrown) {
+		logger.log(convertSystemLevel(level), msg, thrown);
+	}
+
+	java.lang.System.Logger.Level convertSystemLevel(Level level) {
+		switch (level.severity) {
+		case Integer.MIN_VALUE:
+			return java.lang.System.Logger.Level.ALL;
+		case 400:
+			return java.lang.System.Logger.Level.TRACE;
+		case 500:
+			return java.lang.System.Logger.Level.DEBUG;
+		case 800:
+			return java.lang.System.Logger.Level.INFO;
+		case 900:
+			return java.lang.System.Logger.Level.WARNING;
+		case 1000:
+			return java.lang.System.Logger.Level.ERROR;
+		case Integer.MAX_VALUE:
+			return java.lang.System.Logger.Level.OFF;
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + level.severity);
+		}
+	}
+
+	@Override
+	public void log(Level level, String format, Object... params) {
+		logger.log(convertSystemLevel(level), format, params);
+	}
+
+	@Override
+	public CmsLog getLogger() {
+		return this;
+	}
+};
+
+/** Dummy fallback for non-standard platforms such as Android. */
+class FallBackCmsLog implements CmsLog {
+	@Override
+	public boolean isLoggable(Level level) {
+		return level.getSeverity() >= 800;// INFO and higher
+	}
+
+	@Override
+	public void log(Level level, Supplier<String> msgSupplier, Throwable thrown) {
+		if (isLoggable(level))
+			if (thrown != null || level.getSeverity() >= 900) {
+				System.err.println(msgSupplier.get());
+				thrown.printStackTrace();
+			} else {
+				System.out.println(msgSupplier.get());
+			}
+	}
+
+	@Override
+	public void log(Level level, String msg, Throwable thrown) {
+		if (isLoggable(level))
+			if (thrown != null || level.getSeverity() >= 900) {
+				System.err.println(msg);
+				thrown.printStackTrace();
+			} else {
+				System.out.println(msg);
+			}
+	}
+
+	@Override
+	public void log(Level level, String format, Object... params) {
+		if (format == null)
+			return;
+		String msg = MessageFormat.format(format, params);
+		log(level, msg);
+	}
+
+	@Override
+	public CmsLog getLogger() {
+		return this;
+	}
 }

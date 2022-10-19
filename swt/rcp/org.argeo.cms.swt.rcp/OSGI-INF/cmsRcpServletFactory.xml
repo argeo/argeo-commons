@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" name="CMS RCP Servlet Factory">
+   <implementation class="org.argeo.cms.ui.rcp.servlet.CmsRcpServletFactory"/>
+   <reference bind="addCmsApp" cardinality="0..n" interface="org.argeo.api.cms.CmsApp" name="CmsApp" policy="dynamic" unbind="removeCmsApp"/>
+   <reference bind="setHttpServer" cardinality="1..1" interface="com.sun.net.httpserver.HttpServer" name="HttpServer" policy="static"/>
+</scr:component>

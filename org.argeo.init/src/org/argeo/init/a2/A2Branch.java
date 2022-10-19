@@ -24,6 +24,10 @@ public class A2Branch implements Comparable<A2Branch> {
 		component.branches.put(id, this);
 	}
 
+	public Iterable<A2Module> listModules(Object filter) {
+		return modules.values();
+	}
+
 	A2Module getOrAddModule(Version version, Object locator) {
 		if (modules.containsKey(version)) {
 			A2Module res = modules.get(version);
@@ -35,19 +39,19 @@ public class A2Branch implements Comparable<A2Branch> {
 			return new A2Module(this, version, locator);
 	}
 
-	A2Module last() {
+	public A2Module last() {
 		return modules.get(modules.lastKey());
 	}
 
-	A2Module first() {
+	public A2Module first() {
 		return modules.get(modules.firstKey());
 	}
 
-	A2Component getComponent() {
+	public A2Component getComponent() {
 		return component;
 	}
 
-	String getId() {
+	public String getId() {
 		return id;
 	}
 

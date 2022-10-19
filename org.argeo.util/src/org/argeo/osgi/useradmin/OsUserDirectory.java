@@ -1,49 +1,56 @@
 package org.argeo.osgi.useradmin;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.util.directory.ldap.AbstractLdapDirectory;
+import org.argeo.util.directory.ldap.AbstractLdapDirectoryDao;
+import org.argeo.util.directory.ldap.LdapEntry;
+import org.argeo.util.directory.ldap.LdapEntryWorkingCopy;
 import org.argeo.util.naming.LdapAttrs;
-import org.osgi.framework.Filter;
-import org.osgi.service.useradmin.User;
 
-public class OsUserDirectory extends AbstractUserDirectory {
+/** Pseudo user directory to be used when logging in as OS user. */
+public class OsUserDirectory extends AbstractLdapDirectoryDao {
 	private final String osUsername = System.getProperty("user.name");
 	private final LdapName osUserDn;
-	private final LdifUser osUser;
+	private final LdapEntry osUser;
 
-	public OsUserDirectory(URI uriArg, Dictionary<String, ?> props) {
-		super(uriArg, props, false);
+	public OsUserDirectory(AbstractLdapDirectory directory) {
+		super(directory);
 		try {
-			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + getUserBase() + "," + getBaseDn());
-			Attributes attributes = new BasicAttributes();
-			attributes.put(LdapAttrs.uid.name(), osUsername);
-			osUser = new LdifUser(this, osUserDn, attributes);
+			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + directory.getUserBaseRdn() + ","
+					+ directory.getBaseDn());
+//			Attributes attributes = new BasicAttributes();
+//			attributes.put(LdapAttrs.uid.name(), osUsername);
+			osUser = newUser(osUserDn);
 		} catch (NamingException e) {
-			throw new UserDirectoryException("Cannot create system user", e);
+			throw new IllegalStateException("Cannot create system user", e);
 		}
 	}
 
 	@Override
-	protected List<LdapName> getDirectGroups(LdapName dn) {
+	public List<LdapName> getDirectGroups(LdapName dn) {
 		return new ArrayList<>();
 	}
 
 	@Override
-	protected Boolean daoHasRole(LdapName dn) {
+	public boolean entryExists(LdapName dn) {
 		return osUserDn.equals(dn);
 	}
 
 	@Override
-	protected DirectoryUser daoGetRole(LdapName key) throws NameNotFoundException {
+	public boolean checkConnection() {
+		return true;
+	}
+
+	@Override
+	public LdapEntry doGetEntry(LdapName key) throws NameNotFoundException {
 		if (osUserDn.equals(key))
 			return osUser;
 		else
@@ -51,16 +58,54 @@ public class OsUserDirectory extends AbstractUserDirectory {
 	}
 
 	@Override
-	protected List<DirectoryUser> doGetRoles(Filter f) {
-		List<DirectoryUser> res = new ArrayList<>();
-		if (f == null || f.match(osUser.getProperties()))
-			res.add(osUser);
+	public List<LdapEntry> doGetEntries(LdapName searchBase, String f, boolean deep) {
+		List<LdapEntry> res = new ArrayList<>();
+//		if (f == null || f.match(osUser.getProperties()))
+		res.add(osUser);
 		return res;
 	}
 
 	@Override
-	protected AbstractUserDirectory scope(User user) {
-		throw new UnsupportedOperationException();
+	public HierarchyUnit doGetHierarchyUnit(LdapName dn) {
+		return null;
+	}
+
+	@Override
+	public Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
+		return new ArrayList<>();
+	}
+
+	public void prepare(LdapEntryWorkingCopy wc) {
+
+	}
+
+	public void commit(LdapEntryWorkingCopy wc) {
+
+	}
+
+	public void rollback(LdapEntryWorkingCopy wc) {
+
+	}
+
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Attributes doGetAttributes(LdapName name) {
+		try {
+			return doGetEntry(name).getAttributes();
+		} catch (NameNotFoundException e) {
+			throw new IllegalStateException(name + " doe not exist in " + getDirectory().getBaseDn(), e);
+		}
 	}
 
 }

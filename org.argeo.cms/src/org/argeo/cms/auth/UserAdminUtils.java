@@ -67,16 +67,19 @@ public class UserAdminUtils {
 	 */
 	public static String getUserDisplayName(UserAdmin userAdmin, String dn) {
 		Role user = userAdmin.getRole(dn);
-		String dName;
 		if (user == null)
-			dName = getUserLocalId(dn);
-		else {
-			dName = getProperty(user, LdapAttrs.displayName.name());
-			if (isEmpty(dName))
-				dName = getProperty(user, LdapAttrs.cn.name());
-			if (isEmpty(dName))
-				dName = getUserLocalId(dn);
-		}
+			return getUserLocalId(dn);
+		return getUserDisplayName(user);
+	}
+
+	public static String getUserDisplayName(Role user) {
+		String dName = getProperty(user, LdapAttrs.displayName.name());
+		if (isEmpty(dName))
+			dName = getProperty(user, LdapAttrs.cn.name());
+		if (isEmpty(dName))
+			dName = getProperty(user, LdapAttrs.uid.name());
+		if (isEmpty(dName))
+			dName = getUserLocalId(user.getName());
 		return dName;
 	}
 
@@ -135,7 +138,7 @@ public class UserAdminUtils {
 	/** Simply retrieves a display name of the relevant domain */
 	public final static String getDomainName(User user) {
 		String dn = user.getName();
-		if (dn.endsWith(CmsConstants.ROLES_BASEDN))
+		if (dn.endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))
 			return "System roles";
 		if (dn.endsWith(CmsConstants.TOKENS_BASEDN))
 			return "Tokens";

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CMS User App">
+   <implementation class="org.argeo.cms.swt.app.CmsUserApp"/>
+   <property name="argeo.cms.app.contextName" type="String" value="cms/user"/>
+   <service>
+      <provide interface="org.argeo.api.cms.CmsApp"/>
+   </service>
+   <reference bind="setCmsContext" cardinality="1..1" interface="org.argeo.api.cms.CmsContext" name="CmsContext" policy="static"/>
+   <reference bind="setContentRepository" cardinality="1..1" interface="org.argeo.api.acr.ContentRepository" name="ContentRepository" policy="static"/>
+</scr:component>

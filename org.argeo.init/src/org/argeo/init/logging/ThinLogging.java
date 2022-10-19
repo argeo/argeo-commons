@@ -16,11 +16,9 @@ import java.util.ResourceBundle;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
 import java.util.concurrent.Flow.Subscription;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -39,8 +37,24 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	final static String DEFAULT_LEVEL_PROPERTY = "log";
 	final static String LEVEL_PROPERTY_PREFIX = DEFAULT_LEVEL_PROPERTY + ".";
 
-	final static String JOURNALD_PROPERTY = "argeo.logging.journald";
-	final static String CALL_LOCATION_PROPERTY = "argeo.logging.callLocation";
+	/**
+	 * Whether logged event are only immediately printed to the standard output.
+	 * Required for native images.
+	 */
+	final static String PROP_ARGEO_LOGGING_SYNCHRONOUS = "argeo.logging.synchronous";
+	/**
+	 * Whether to enable jounrald compatible output, either: auto (default), true,
+	 * or false.
+	 */
+	final static String PROP_ARGEO_LOGGING_JOURNALD = "argeo.logging.journald";
+	/**
+	 * The level from which call location (that is, line number in Java code) will
+	 * be searched (default is WARNING)
+	 */
+	final static String PROP_ARGEO_LOGGING_CALL_LOCATION_LEVEL = "argeo.logging.callLocationLevel";
+
+	final static String ENV_INVOCATION_ID = "INVOCATION_ID";
+	final static String ENV_GIO_LAUNCHED_DESKTOP_FILE_PID = "GIO_LAUNCHED_DESKTOP_FILE_PID";
 
 	private final static AtomicLong nextEntry = new AtomicLong(0l);
 
@@ -51,43 +65,37 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	private NavigableMap<String, Level> levels = new TreeMap<>();
 	private volatile boolean updatingConfiguration = false;
 
-	private final ExecutorService executor;
 	private final LogEntryPublisher publisher;
+	private PrintStreamSubscriber synchronousSubscriber;
 
 	private final boolean journald;
 	private final Level callLocationLevel;
 
+	private final boolean synchronous;
+
 	ThinLogging() {
-		executor = Executors.newCachedThreadPool((r) -> {
-			Thread t = new Thread(r);
-			t.setDaemon(true);
-			return t;
-		});
-		publisher = new LogEntryPublisher(executor, Flow.defaultBufferSize());
-
-		PrintStreamSubscriber subscriber = new PrintStreamSubscriber();
-		publisher.subscribe(subscriber);
-
+		publisher = new LogEntryPublisher();
+		synchronous = Boolean.parseBoolean(System.getProperty(PROP_ARGEO_LOGGING_SYNCHRONOUS, "false"));
+		if (synchronous) {
+			synchronousSubscriber = new PrintStreamSubscriber();
+		} else {
+			PrintStreamSubscriber subscriber = new PrintStreamSubscriber();
+			publisher.subscribe(subscriber);
+		}
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> close(), "Log shutdown"));
 
 		// initial default level
-		levels.put("", Level.WARNING);
+		levels.put(DEFAULT_LEVEL_NAME, Level.WARNING);
 
 		// Logging system config
 		// journald
-
-//		Map<String, String> env = new TreeMap<>(System.getenv());
-//		for (String key : env.keySet()) {
-//			System.out.println(key + "=" + env.get(key));
-//		}
-
-		String journaldStr = System.getProperty(JOURNALD_PROPERTY, "auto");
+		String journaldStr = System.getProperty(PROP_ARGEO_LOGGING_JOURNALD, "auto");
 		switch (journaldStr) {
 		case "auto":
-			String systemdInvocationId = System.getenv("INVOCATION_ID");
+			String systemdInvocationId = System.getenv(ENV_INVOCATION_ID);
 			if (systemdInvocationId != null) {// in systemd
-				// check whether we are indirectly in a desktop app (e.g. eclipse)
-				String desktopFilePid = System.getenv("GIO_LAUNCHED_DESKTOP_FILE_PID");
+				// check whether we are indirectly in a desktop app (typically an IDE)
+				String desktopFilePid = System.getenv(ENV_GIO_LAUNCHED_DESKTOP_FILE_PID);
 				if (desktopFilePid != null) {
 					Long javaPid = ProcessHandle.current().pid();
 					if (!javaPid.toString().equals(desktopFilePid)) {
@@ -110,10 +118,10 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			break;
 		default:
 			throw new IllegalArgumentException(
-					"Unsupported value '" + journaldStr + "' for property " + JOURNALD_PROPERTY);
+					"Unsupported value '" + journaldStr + "' for property " + PROP_ARGEO_LOGGING_JOURNALD);
 		}
 
-		String callLocationStr = System.getProperty(CALL_LOCATION_PROPERTY, Level.WARNING.getName());
+		String callLocationStr = System.getProperty(PROP_ARGEO_LOGGING_CALL_LOCATION_LEVEL, Level.WARNING.getName());
 		callLocationLevel = Level.valueOf(callLocationStr);
 	}
 
@@ -127,40 +135,28 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			}
 		}
 
-		publisher.close();
-		try {
-			// we ait a bit in order to make sure all messages are flushed
-			// TODO synchronize more efficiently
-			executor.awaitTermination(300, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			// silent
+		if (!synchronous) {
+			publisher.close();
+			try {
+				// we wait a bit in order to make sure all messages are flushed
+				// TODO synchronize more efficiently
+				// executor.awaitTermination(300, TimeUnit.MILLISECONDS);
+				ForkJoinPool.commonPool().awaitTermination(300, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException e) {
+				// silent
+			}
 		}
 	}
 
 	private Level computeApplicableLevel(String name) {
 		Map.Entry<String, Level> entry = levels.floorEntry(name);
 		assert entry != null;
-		return entry.getValue();
+		if (name.startsWith(entry.getKey()))
+			return entry.getValue();
+		else
+			return levels.get(DEFAULT_LEVEL_NAME);// default
 
 	}
-
-//	private boolean isLoggable(String name, Level level) {
-//		Objects.requireNonNull(name);
-//		Objects.requireNonNull(level);
-//
-//		if (updatingConfiguration) {
-//			synchronized (levels) {
-//				try {
-//					levels.wait();
-//					// TODO make exit more robust
-//				} catch (InterruptedException e) {
-//					throw new IllegalStateException(e);
-//				}
-//			}
-//		}
-//
-//		return level.getSeverity() >= computeApplicableLevel(name).getSeverity();
-//	}
 
 	public Logger getLogger(String name, Module module) {
 		if (!loggers.containsKey(name)) {
@@ -214,7 +210,6 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			updatingConfiguration = false;
 			levels.notifyAll();
 		}
-
 	}
 
 	Flow.Publisher<Map<String, Serializable>> getLogEntryPublisher() {
@@ -286,8 +281,19 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 			// NOTE: this is the method called when logging a plain message without
 			// exception, so it should be considered as a format only when args are not null
-			if (format.contains("{}"))// workaround for weird Jetty formatting
-				params = null;
+//			if (format.contains("{}"))// workaround for weird Jetty formatting
+//				params = null;
+			// TODO move this to slf4j wrapper?
+			if (format.contains("{}")) {
+				StringBuilder sb = new StringBuilder();
+				String[] segments = format.split("\\{\\}");
+				for (int i = 0; i < segments.length; i++) {
+					sb.append(segments[i]);
+					if (i != (segments.length - 1))
+						sb.append("{" + i + "}");
+				}
+				format = sb.toString();
+			}
 			String msg = params == null ? format : MessageFormat.format(format, params);
 			publisher.log(this, level, bundle, msg, now, thread, (Throwable) null, findCallLocation(level, thread));
 		}
@@ -315,6 +321,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 					case "org.osgi.service.log.Logger":
 					case "org.eclipse.osgi.internal.log.LoggerImpl":
 					case "org.argeo.api.cms.CmsLog":
+					case "org.argeo.init.osgi.OsgiBootUtils":
 					case "org.slf4j.impl.ArgeoLogger":
 					case "org.argeo.cms.internal.osgi.CmsOsgiLogger":
 					case "org.eclipse.jetty.util.log.Slf4jLog":
@@ -342,8 +349,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 	private class LogEntryPublisher extends SubmissionPublisher<Map<String, Serializable>> {
 
-		private LogEntryPublisher(Executor executor, int maxBufferCapacity) {
-			super(executor, maxBufferCapacity);
+		private LogEntryPublisher() {
+			super();
 		}
 
 		private void log(ThinLogger logger, Level level, ResourceBundle bundle, String msg, Instant instant,
@@ -372,8 +379,13 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			logEntry.put(KEY_THREAD, thread.getName());
 
 			// should be unmodifiable for security reasons
-			if (!isClosed())
-				submit(Collections.unmodifiableMap(logEntry));
+			if (synchronous) {
+				assert synchronousSubscriber != null;
+				synchronousSubscriber.onNext(logEntry);
+			} else {
+				if (!isClosed())
+					submit(Collections.unmodifiableMap(logEntry));
+			}
 		}
 
 	}
@@ -420,6 +432,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		private PrintStream err;
 		private int writeToErrLevel = Level.WARNING.getSeverity();
 
+		private Subscription subscription;
+
 		protected PrintStreamSubscriber() {
 			this(System.out, System.err);
 		}
@@ -435,7 +449,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 		@Override
 		public void onSubscribe(Subscription subscription) {
-			subscription.request(Long.MAX_VALUE);
+			this.subscription = subscription;
+			this.subscription.request(1);
 		}
 
 		@Override
@@ -446,6 +461,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 				out.print(toPrint(item));
 			}
 			// TODO flush for journald?
+			if (this.subscription != null)
+				this.subscription.request(1);
 		}
 
 		@Override
@@ -507,10 +524,9 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		protected String toPrint(Map<String, Serializable> logEntry) {
 			StringBuilder sb = new StringBuilder();
 			StringTokenizer st = new StringTokenizer((String) logEntry.get(KEY_MSG), "\r\n");
-			assert st.hasMoreTokens();
 
 			// first line
-			String firstLine = st.nextToken();
+			String firstLine = st.hasMoreTokens() ? st.nextToken() : "";
 			sb.append(firstLinePrefix(logEntry));
 			sb.append(firstLine);
 			sb.append(firstLineSuffix(logEntry));
@@ -559,6 +575,16 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		logger.log(Logger.Level.INFO, "Log info");
 		logger.log(Logger.Level.WARNING, "Log warning");
 		logger.log(Logger.Level.ERROR, "Log exception", new Throwable());
+
+		try {
+			// we ait a bit in order to make sure all messages are flushed
+			// TODO synchronize more efficiently
+			// executor.awaitTermination(300, TimeUnit.MILLISECONDS);
+			ForkJoinPool.commonPool().awaitTermination(300, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			// silent
+		}
+
 	}
 
 }

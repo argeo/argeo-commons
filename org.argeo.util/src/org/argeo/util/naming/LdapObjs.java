@@ -1,11 +1,17 @@
 package org.argeo.util.naming;
 
+import java.util.function.Supplier;
+
+import javax.xml.namespace.QName;
+
+import org.argeo.util.internal.DisplayQName;
+
 /**
  * Standard LDAP object classes as per
  * <a href="https://www.ldap.com/ldap-oid-reference">https://www.ldap.com/ldap-
  * oid-reference</a>
  */
-public enum LdapObjs implements SpecifiedName {
+public enum LdapObjs implements SpecifiedName, Supplier<String> {
 	account("0.9.2342.19200300.100.4.5", "RFC 4524"),
 	/** */
 	document("0.9.2342.19200300.100.4.6", "RFC 4524"),
@@ -89,14 +95,33 @@ public enum LdapObjs implements SpecifiedName {
 	/** */
 	inetOrgPerson("2.16.840.1.113730.3.2.2", "RFC 2798"),
 	/** */
-	referral("2.16.840.1.113730.3.2.6", "RFC 3296");
+	referral("2.16.840.1.113730.3.2.6", "RFC 3296"),
 
-	private final static String LDAP_ = "ldap:";
+	// RFC 2307bis (partial)
+	/** */
+	posixAccount("1.3.6.1.1.1.2.0", "RFC 2307bis"),
+	/** */
+	posixGroup("1.3.6.1.1.1.2.2", "RFC 2307bis"),
+
+	//
+	;
+
+	/** MUST be equal to ContentRepository LDAP namespace. */
+	final static String LDAP_NAMESPACE_URI = "http://www.argeo.org/ns/ldap";
+	/** MUST be equal to ContentRepository LDAP prefix. */
+	final static String LDAP_DEFAULT_PREFIX = "ldap";
+
 	private final String oid, spec;
+	private final QName value;
 
 	private LdapObjs(String oid, String spec) {
 		this.oid = oid;
 		this.spec = spec;
+		this.value = new DisplayQName(LDAP_NAMESPACE_URI, name(), LDAP_DEFAULT_PREFIX);
+	}
+
+	public QName qName() {
+		return value;
 	}
 
 	public String getOid() {
@@ -107,8 +132,14 @@ public enum LdapObjs implements SpecifiedName {
 		return spec;
 	}
 
+	@Deprecated
 	public String property() {
-		return new StringBuilder(LDAP_).append(name()).toString();
+		return get();
+	}
+
+	@Override
+	public String get() {
+		return LdapObjs.LDAP_DEFAULT_PREFIX + ":" + name();
 	}
 
 }

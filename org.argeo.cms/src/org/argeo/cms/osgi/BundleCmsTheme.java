@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -17,8 +16,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
-import org.argeo.api.cms.CmsTheme;
+import org.argeo.api.cms.ux.CmsTheme;
+import org.argeo.util.StreamUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -32,10 +31,16 @@ import org.osgi.framework.BundleContext;
  * <code>/ ** /*.{png,gif,jpeg,...}</code>.<br>
  */
 public class BundleCmsTheme implements CmsTheme {
-	public final static String DEFAULT_CMS_THEME_BUNDLE = "org.argeo.theme.argeo2";
+//	public final static String DEFAULT_CMS_THEME_BUNDLE = "org.argeo.theme.argeo2";
 
-	public final static String CMS_THEME_PROPERTY = "argeo.cms.theme";
+//	public final static String CMS_THEME_PROPERTY = "argeo.cms.theme";
+	@Deprecated
 	public final static String CMS_THEME_BUNDLE_PROPERTY = "argeo.cms.theme.bundle";
+
+	/** Declared theme ID, to be used by OSGi services to reference it as parent. */
+	public final static String THEME_ID_PROPERTY = "themeId";
+	public final static String SMALL_ICON_SIZE_PROPERTY = "smallIconSize";
+	public final static String BIG_ICON_SIZE_PROPERTY = "bigIconSize";
 
 	private final static String HEADER_CSS = "header.css";
 	private final static String FONTS_TXT = "fonts.txt";
@@ -46,6 +51,8 @@ public class BundleCmsTheme implements CmsTheme {
 	private CmsTheme parentTheme;
 
 	private String themeId;
+	private String declaredThemeId;;
+
 	private Set<String> webCssPaths = new TreeSet<>();
 	private Set<String> rapCssPaths = new TreeSet<>();
 	private Set<String> swtCssPaths = new TreeSet<>();
@@ -64,13 +71,20 @@ public class BundleCmsTheme implements CmsTheme {
 //	private String swtCssPath;
 	private Bundle themeBundle;
 
-	private Integer defaultIconSize = 16;
+	private Integer smallIconSize = 16;
+	private Integer bigIconSize = 32;
 
 	public BundleCmsTheme() {
 
 	}
 
 	public void init(BundleContext bundleContext, Map<String, String> properties) {
+		declaredThemeId = properties.get(THEME_ID_PROPERTY);
+		if (properties.containsKey(SMALL_ICON_SIZE_PROPERTY))
+			smallIconSize = Integer.valueOf(properties.get(SMALL_ICON_SIZE_PROPERTY));
+		if (properties.containsKey(BIG_ICON_SIZE_PROPERTY))
+			smallIconSize = Integer.valueOf(properties.get(BIG_ICON_SIZE_PROPERTY));
+
 		initResources(bundleContext, null);
 	}
 
@@ -103,6 +117,10 @@ public class BundleCmsTheme implements CmsTheme {
 //		swtCssPath = "/swt/";
 //		this.themeId = RWT.DEFAULT_THEME_ID;
 		this.themeId = themeBundle.getSymbolicName();
+		if (declaredThemeId != null && !declaredThemeId.equals(themeId))
+			throw new IllegalArgumentException(
+					"Declared theme id " + declaredThemeId + " is different from " + themeId);
+
 		webCssPaths = addCss(themeBundle, "/css/");
 		rapCssPaths = addCss(themeBundle, "/rap/");
 		swtCssPaths = addCss(themeBundle, "/swt/");
@@ -212,7 +230,7 @@ public class BundleCmsTheme implements CmsTheme {
 
 	void loadBodyHtml(URL url) {
 		try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream(), UTF_8))) {
-			bodyHtml = IOUtils.toString(url, StandardCharsets.UTF_8);
+			bodyHtml = StreamUtils.toString(in);
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot load URL " + url, e);
 		}
@@ -320,17 +338,27 @@ public class BundleCmsTheme implements CmsTheme {
 	}
 
 	@Override
-	public Integer getDefaultIconSize() {
-		return defaultIconSize;
+	public int getSmallIconSize() {
+		return smallIconSize;
+	}
+
+	@Override
+	public int getBigIconSize() {
+		return bigIconSize;
 	}
 
 	@Override
 	public InputStream loadPath(String path) throws IOException {
 		URL url = themeBundle.getResource(path);
-		if (url == null)
-			throw new IllegalArgumentException(
-					"Path " + path + " not found in bundle " + themeBundle.getSymbolicName());
-		return url.openStream();
+		if (url == null) {
+			if (parentTheme != null)
+				return parentTheme.loadPath(path);
+			else
+				throw new IllegalArgumentException(
+						"Path " + path + " not found in bundle " + themeBundle.getSymbolicName());
+		} else {
+			return url.openStream();
+		}
 	}
 
 	private static Bundle findThemeBundle(BundleContext bundleContext, String themeId) {
@@ -361,6 +389,14 @@ public class BundleCmsTheme implements CmsTheme {
 
 	public void setParentTheme(CmsTheme parentTheme) {
 		this.parentTheme = parentTheme;
+	}
+
+	public void setSmallIconSize(Integer smallIconSize) {
+		this.smallIconSize = smallIconSize;
+	}
+
+	public void setBigIconSize(Integer bigIconSize) {
+		this.bigIconSize = bigIconSize;
 	}
 
 }

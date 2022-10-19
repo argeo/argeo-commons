@@ -122,6 +122,25 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 
 	}
 
+	protected String[] readNameVersionFromModule(Path modulePath) {
+		Manifest manifest;
+		if (Files.isDirectory(modulePath)) {
+			manifest = findManifest(modulePath);
+		} else {
+			try (JarInputStream in = new JarInputStream(newInputStream(modulePath))) {
+				manifest = in.getManifest();
+			} catch (IOException e) {
+				throw new A2Exception("Cannot read manifest from " + modulePath, e);
+			}
+		}
+		String versionStr = manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+		String symbolicName = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+		int semiColIndex = symbolicName.indexOf(';');
+		if (semiColIndex >= 0)
+			symbolicName = symbolicName.substring(0, semiColIndex);
+		return new String[] { symbolicName, versionStr };
+	}
+
 	protected String readVersionFromModule(Path modulePath) {
 		Manifest manifest;
 		if (Files.isDirectory(modulePath)) {

@@ -3,7 +3,7 @@ package org.argeo.cms.internal.osgi;
 /**
  * Workaround for killing Gogo shell by system shutdown.
  * 
- * @see https://issues.apache.org/jira/browse/FELIX-4208
+ * @see "https://issues.apache.org/jira/browse/FELIX-4208"
  */
 class GogoShellKiller extends Thread {
 

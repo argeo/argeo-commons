@@ -29,7 +29,7 @@ public class TokenUtils {
 					String token = ldapName.getRdn(ldapName.size()).getValue().toString();
 					res.add(token);
 				} catch (InvalidNameException e) {
-					throw new UserDirectoryException("Invalid principal " + principal, e);
+					throw new IllegalArgumentException("Invalid principal " + principal, e);
 				}
 			}
 		}

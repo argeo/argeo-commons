@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.security.AccessController;
 import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
@@ -25,9 +24,9 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.io.IOUtils;
 import org.argeo.api.cms.CmsAuth;
-import org.argeo.cms.CmsException;
+import org.argeo.util.CurrentSubject;
+import org.argeo.util.StreamUtils;
 
 /** username / password based keyring. TODO internationalize */
 public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
@@ -65,23 +64,24 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 
 	/** Triggers lazy initialization */
 	protected SecretKey getSecretKey(char[] password) {
-		Subject subject = Subject.getSubject(AccessController.getContext());
+		Subject subject = CurrentSubject.current();
+		if (subject == null)
+			throw new IllegalStateException("Current subject cannot be null");
 		// we assume only one secrete key is available
 		Iterator<SecretKey> iterator = subject.getPrivateCredentials(SecretKey.class).iterator();
-		if (!iterator.hasNext() || password!=null) {// not initialized
+		if (!iterator.hasNext() || password != null) {// not initialized
 			CallbackHandler callbackHandler = password == null ? new KeyringCallbackHandler()
 					: new PasswordProvidedCallBackHandler(password);
 			ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
 			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 			try {
-				LoginContext loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_KEYRING, subject,
-						callbackHandler);
+				LoginContext loginContext = new LoginContext(CmsAuth.LOGIN_CONTEXT_KEYRING, subject, callbackHandler);
 				loginContext.login();
 				// FIXME will login even if password is wrong
 				iterator = subject.getPrivateCredentials(SecretKey.class).iterator();
 				return iterator.next();
 			} catch (LoginException e) {
-				throw new CmsException("Keyring login failed", e);
+				throw new IllegalStateException("Keyring login failed", e);
 			} finally {
 				Thread.currentThread().setContextClassLoader(currentContextClassLoader);
 			}
@@ -89,7 +89,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 		} else {
 			SecretKey secretKey = iterator.next();
 			if (iterator.hasNext())
-				throw new CmsException("More than one secret key in private credentials");
+				throw new IllegalStateException("More than one secret key in private credentials");
 			return secretKey;
 		}
 	}
@@ -109,10 +109,10 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 		try (InputStream in = getAsStream(path);
 				CharArrayWriter writer = new CharArrayWriter();
 				Reader reader = new InputStreamReader(in, charset);) {
-			IOUtils.copy(reader, writer);
+			StreamUtils.copy(reader, writer);
 			return writer.toCharArray();
 		} catch (IOException e) {
-			throw new CmsException("Cannot decrypt to char array", e);
+			throw new IllegalStateException("Cannot decrypt to char array", e);
 		} finally {
 			// IOUtils.closeQuietly(reader);
 			// IOUtils.closeQuietly(in);
@@ -134,7 +134,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 				set(path, in);
 			}
 		} catch (IOException e) {
-			throw new CmsException("Cannot encrypt to char array", e);
+			throw new IllegalStateException("Cannot encrypt to char array", e);
 		} finally {
 			// IOUtils.closeQuietly(writer);
 			// IOUtils.closeQuietly(out);
@@ -147,7 +147,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 			setup(password);
 		SecretKey secretKey = getSecretKey(password);
 		if (secretKey == null)
-			throw new CmsException("Could not unlock keyring");
+			throw new IllegalStateException("Could not unlock keyring");
 	}
 
 	protected Provider getSecurityProvider() {
@@ -205,7 +205,7 @@ public abstract class AbstractKeyring implements Keyring, CryptoKeyring {
 			char[] password = passwordCb.getPassword();
 			return password;
 		} catch (Exception e) {
-			throw new CmsException("Cannot ask for a password", e);
+			throw new IllegalStateException("Cannot ask for a password", e);
 		}
 
 	}

@@ -1,0 +1,393 @@
+[
+{
+  "name":"[B"
+},
+{
+  "name":"[Ljava.lang.String;"
+},
+{
+  "name":"[Lorg.eclipse.swt.widgets.TableColumn;"
+},
+{
+  "name":"[Lorg.eclipse.swt.widgets.TreeColumn;"
+},
+{
+  "name":"[Lsun.security.pkcs.SignerInfo;"
+},
+{
+  "name":"com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.Boolean",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Byte",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Class"
+},
+{
+  "name":"java.lang.Double",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Float",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Integer",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Long",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Object",
+  "queriedMethods":[
+    {"name":"equals","parameterTypes":["java.lang.Object"] }, 
+    {"name":"hashCode","parameterTypes":[] }, 
+    {"name":"toString","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.lang.Short",
+  "queriedMethods":[{"name":"valueOf","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.String"
+},
+{
+  "name":"java.lang.management.ManagementFactory",
+  "methods":[{"name":"getRuntimeMXBean","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.management.RuntimeMXBean",
+  "methods":[{"name":"getUptime","parameterTypes":[] }]
+},
+{
+  "name":"java.security.AlgorithmParametersSpi"
+},
+{
+  "name":"java.security.SecureRandomParameters"
+},
+{
+  "name":"java.util.Date"
+},
+{
+  "name":"javax.security.auth.login.Configuration$Parameters"
+},
+{
+  "name":"javax.security.auth.x500.X500Principal",
+  "fields":[{"name":"thisX500Name"}],
+  "queriedMethods":[{"name":"<init>","parameterTypes":["sun.security.x509.X500Name"] }]
+},
+{
+  "name":"javax.servlet.ServletRequest",
+  "queriedMethods":[
+    {"name":"getAsyncContext","parameterTypes":[] }, 
+    {"name":"getAttribute","parameterTypes":["java.lang.String"] }, 
+    {"name":"getAttributeNames","parameterTypes":[] }, 
+    {"name":"getCharacterEncoding","parameterTypes":[] }, 
+    {"name":"getContentLength","parameterTypes":[] }, 
+    {"name":"getContentLengthLong","parameterTypes":[] }, 
+    {"name":"getContentType","parameterTypes":[] }, 
+    {"name":"getDispatcherType","parameterTypes":[] }, 
+    {"name":"getInputStream","parameterTypes":[] }, 
+    {"name":"getLocalAddr","parameterTypes":[] }, 
+    {"name":"getLocalName","parameterTypes":[] }, 
+    {"name":"getLocalPort","parameterTypes":[] }, 
+    {"name":"getLocale","parameterTypes":[] }, 
+    {"name":"getLocales","parameterTypes":[] }, 
+    {"name":"getParameter","parameterTypes":["java.lang.String"] }, 
+    {"name":"getParameterMap","parameterTypes":[] }, 
+    {"name":"getParameterNames","parameterTypes":[] }, 
+    {"name":"getParameterValues","parameterTypes":["java.lang.String"] }, 
+    {"name":"getProtocol","parameterTypes":[] }, 
+    {"name":"getReader","parameterTypes":[] }, 
+    {"name":"getRealPath","parameterTypes":["java.lang.String"] }, 
+    {"name":"getRemoteAddr","parameterTypes":[] }, 
+    {"name":"getRemoteHost","parameterTypes":[] }, 
+    {"name":"getRemotePort","parameterTypes":[] }, 
+    {"name":"getRequestDispatcher","parameterTypes":["java.lang.String"] }, 
+    {"name":"getScheme","parameterTypes":[] }, 
+    {"name":"getServerName","parameterTypes":[] }, 
+    {"name":"getServerPort","parameterTypes":[] }, 
+    {"name":"getServletContext","parameterTypes":[] }, 
+    {"name":"isAsyncStarted","parameterTypes":[] }, 
+    {"name":"isAsyncSupported","parameterTypes":[] }, 
+    {"name":"isSecure","parameterTypes":[] }, 
+    {"name":"removeAttribute","parameterTypes":["java.lang.String"] }, 
+    {"name":"setAttribute","parameterTypes":["java.lang.String","java.lang.Object"] }, 
+    {"name":"setCharacterEncoding","parameterTypes":["java.lang.String"] }, 
+    {"name":"startAsync","parameterTypes":[] }, 
+    {"name":"startAsync","parameterTypes":["javax.servlet.ServletRequest","javax.servlet.ServletResponse"] }
+  ]
+},
+{
+  "name":"javax.servlet.ServletResponse"
+},
+{
+  "name":"javax.servlet.http.HttpServletRequest",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.reflect.InvocationHandler"] }],
+  "queriedMethods":[
+    {"name":"authenticate","parameterTypes":["javax.servlet.http.HttpServletResponse"] }, 
+    {"name":"changeSessionId","parameterTypes":[] }, 
+    {"name":"getAuthType","parameterTypes":[] }, 
+    {"name":"getContextPath","parameterTypes":[] }, 
+    {"name":"getCookies","parameterTypes":[] }, 
+    {"name":"getDateHeader","parameterTypes":["java.lang.String"] }, 
+    {"name":"getHeader","parameterTypes":["java.lang.String"] }, 
+    {"name":"getHeaderNames","parameterTypes":[] }, 
+    {"name":"getHeaders","parameterTypes":["java.lang.String"] }, 
+    {"name":"getHttpServletMapping","parameterTypes":[] }, 
+    {"name":"getIntHeader","parameterTypes":["java.lang.String"] }, 
+    {"name":"getMethod","parameterTypes":[] }, 
+    {"name":"getPart","parameterTypes":["java.lang.String"] }, 
+    {"name":"getParts","parameterTypes":[] }, 
+    {"name":"getPathInfo","parameterTypes":[] }, 
+    {"name":"getPathTranslated","parameterTypes":[] }, 
+    {"name":"getQueryString","parameterTypes":[] }, 
+    {"name":"getRemoteUser","parameterTypes":[] }, 
+    {"name":"getRequestURI","parameterTypes":[] }, 
+    {"name":"getRequestURL","parameterTypes":[] }, 
+    {"name":"getRequestedSessionId","parameterTypes":[] }, 
+    {"name":"getServletPath","parameterTypes":[] }, 
+    {"name":"getSession","parameterTypes":[] }, 
+    {"name":"getSession","parameterTypes":["boolean"] }, 
+    {"name":"getTrailerFields","parameterTypes":[] }, 
+    {"name":"getUserPrincipal","parameterTypes":[] }, 
+    {"name":"isRequestedSessionIdFromCookie","parameterTypes":[] }, 
+    {"name":"isRequestedSessionIdFromURL","parameterTypes":[] }, 
+    {"name":"isRequestedSessionIdFromUrl","parameterTypes":[] }, 
+    {"name":"isRequestedSessionIdValid","parameterTypes":[] }, 
+    {"name":"isTrailerFieldsReady","parameterTypes":[] }, 
+    {"name":"isUserInRole","parameterTypes":["java.lang.String"] }, 
+    {"name":"login","parameterTypes":["java.lang.String","java.lang.String"] }, 
+    {"name":"logout","parameterTypes":[] }, 
+    {"name":"newPushBuilder","parameterTypes":[] }, 
+    {"name":"upgrade","parameterTypes":["java.lang.Class"] }
+  ]
+},
+{
+  "name":"javax.servlet.http.HttpServletResponse"
+},
+{
+  "name":"org.apache.xerces.impl.dv.dtd.DTDDVFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.xerces.impl.dv.dtd.XML11DTDDVFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.xerces.impl.dv.xs.ExtendedSchemaDVFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.xerces.impl.dv.xs.SchemaDVFactoryImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.xerces.impl.xs.XSMessageFormatter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.apache.xerces.parsers.XIncludeAwareParserConfiguration",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.argeo.cms.auth.AnonymousLoginModule",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.argeo.cms.auth.DataAdminLoginModule",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.argeo.cms.auth.IdentLoginModule",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.argeo.cms.auth.RemoteSessionLoginModule",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.argeo.cms.auth.UserAdminLoginModule",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.jetty.servlet.DefaultServlet",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.jetty.util.TypeUtil",
+  "methods":[
+    {"name":"getClassLoaderLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getCodeSourceLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getModuleLocation","parameterTypes":["java.lang.Class"] }, 
+    {"name":"getSystemClassLoaderLocation","parameterTypes":["java.lang.Class"] }
+  ]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.client.BrowserNavigationImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.client.ClientInfoImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.client.ExitConfirmationImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.client.StartupParametersImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.client.WebClientMessages",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.lifecycle.RWTLifeCycle",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.rap.rwt.internal.application.ApplicationContextImpl"] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.lifecycle.RequestCounter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.serverpush.ServerPushManager",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.rap.rwt.internal.textsize.ProbeResultStore",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.SWT",
+  "allDeclaredFields":true
+},
+{
+  "name":"org.eclipse.swt.graphics.Color",
+  "methods":[{"name":"<init>","parameterTypes":["int"] }]
+},
+{
+  "name":"org.eclipse.swt.graphics.Font",
+  "methods":[{"name":"<init>","parameterTypes":["org.eclipse.swt.graphics.FontData"] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.GIFFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.JPEGFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.PNGFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.WinBMPFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.image.WinICOFileFormat",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.widgets.IdGenerator",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.widgets.displaykit.DisplayLCA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.widgets.scrollbarkit.ScrollBarThemeAdapter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.widgets.shellkit.ShellThemeAdapter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.widgets.tablekit.TableThemeAdapter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"org.eclipse.swt.internal.widgets.treekit.TreeThemeAdapter",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.ConfigFile$Spi",
+  "methods":[{"name":"<init>","parameterTypes":["javax.security.auth.login.Configuration$Parameters"] }]
+},
+{
+  "name":"sun.security.provider.DRBG",
+  "methods":[{"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
+},
+{
+  "name":"sun.security.provider.DSAKeyFactory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.DSAParameters",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA2$SHA256",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.X509Factory",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.rsa.RSAKeyFactory$Legacy",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.util.ObjectIdentifier"
+},
+{
+  "name":"sun.security.x509.AuthorityKeyIdentifierExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.BasicConstraintsExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.CertificateExtensions"
+},
+{
+  "name":"sun.security.x509.ExtendedKeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.KeyUsageExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+},
+{
+  "name":"sun.security.x509.SubjectKeyIdentifierExtension",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Boolean","java.lang.Object"] }]
+}
+]

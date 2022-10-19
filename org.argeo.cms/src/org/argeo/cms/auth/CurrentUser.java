@@ -1,11 +1,11 @@
 package org.argeo.cms.auth;
 
-import java.security.AccessController;
 import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -13,12 +13,14 @@ import java.util.UUID;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsSessionId;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.util.CurrentSubject;
 import org.osgi.service.useradmin.Authorization;
 
 /**
@@ -66,6 +68,16 @@ public final class CurrentUser {
 	public static boolean isInRole(String role) {
 		Set<String> roles = roles();
 		return roles.contains(role);
+	}
+
+	/** Implies this {@link SystemRole} in this context. */
+	public final static boolean implies(SystemRole role, String context) {
+		return role.implied(currentSubject(), context);
+	}
+
+	/** Implies this {@link SystemRole} in this context. */
+	public final static boolean implies(String role, String context) {
+		return SystemRole.implied(NamespaceUtils.parsePrefixedName(role), currentSubject(), context);
 	}
 
 	/** Executes as the current user */
@@ -121,24 +133,29 @@ public final class CurrentUser {
 		return username == null || username.equalsIgnoreCase(CmsConstants.ROLE_ANONYMOUS);
 	}
 
-	public CmsSession getCmsSession() {
+	public static CmsSession getCmsSession() {
 		Subject subject = currentSubject();
-		CmsSessionId cmsSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next();
-		return CmsSessionImpl.getByUuid(cmsSessionId.getUuid());
+		Iterator<CmsSessionId> it = subject.getPrivateCredentials(CmsSessionId.class).iterator();
+		if (!it.hasNext())
+			throw new IllegalStateException("No CMS session id available for " + subject);
+		CmsSessionId cmsSessionId = it.next();
+		if (it.hasNext())
+			throw new IllegalStateException("More than one CMS session id available for " + subject);
+		return CmsContextImpl.getCmsContext().getCmsSessionByUuid(cmsSessionId.getUuid());
+	}
+
+	public static boolean isAvailable() {
+		return CurrentSubject.current() != null;
 	}
 
 	/*
 	 * HELPERS
 	 */
 	private static Subject currentSubject() {
-		Subject subject = getAccessControllerSubject();
-		if (subject != null)
-			return subject;
-		throw new IllegalStateException("Cannot find related subject");
-	}
-
-	private static Subject getAccessControllerSubject() {
-		return Subject.getSubject(AccessController.getContext());
+		Subject subject = CurrentSubject.current();
+		if (subject == null)
+			throw new IllegalStateException("Cannot find related subject");
+		return subject;
 	}
 
 	private static Authorization getAuthorization(Subject subject) {
@@ -151,7 +168,7 @@ public final class CurrentUser {
 			nodeSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
 		else
 			return false;
-		CmsSessionImpl cmsSession = CmsSessionImpl.getByUuid(nodeSessionId.toString());
+		CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByUuid(nodeSessionId);
 
 		// FIXME logout all views
 		// TODO check why it is sometimes null
@@ -162,6 +179,7 @@ public final class CurrentUser {
 		return true;
 	}
 
+	/** singleton */
 	private CurrentUser() {
 	}
 }

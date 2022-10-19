@@ -7,7 +7,7 @@ import org.osgi.framework.Version;
  * <code>Bundle-SymbolicName</code> and <code>Bundle-version</code>. This is the
  * equivalent of the full coordinates of a Maven artifact version.
  */
-class A2Module implements Comparable<A2Module> {
+public class A2Module implements Comparable<A2Module> {
 	private final A2Branch branch;
 	private final Version version;
 	private final Object locator;
@@ -19,11 +19,11 @@ class A2Module implements Comparable<A2Module> {
 		branch.modules.put(version, this);
 	}
 
-	A2Branch getBranch() {
+	public A2Branch getBranch() {
 		return branch;
 	}
 
-	Version getVersion() {
+	public Version getVersion() {
 		return version;
 	}
 

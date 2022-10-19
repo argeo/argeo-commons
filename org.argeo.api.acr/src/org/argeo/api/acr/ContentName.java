@@ -24,7 +24,7 @@ public class ContentName extends QName {
 	 * The UUID v3 of http://www.w3.org/2000/xmlns/ within the standard DNS
 	 * namespace, to be used as a base for the namespaces.
 	 * 
-	 * @see https://www.w3.org/TR/xml-names/#ns-decl
+	 * @see "https://www.w3.org/TR/xml-names/#ns-decl"
 	 */
 	// uuidgen --md5 --namespace @dns --name http://www.w3.org/2000/xmlns/
 	// NOTE : must be declared before default namespaces
@@ -41,6 +41,10 @@ public class ContentName extends QName {
 
 //	private final UUID uuid;
 
+	public ContentName(String namespaceURI, String localPart) {
+		super(namespaceURI, localPart, checkPrefix(RuntimeNamespaceContext.getNamespaceContext(), namespaceURI));
+	}
+
 	public ContentName(String namespaceURI, String localPart, NamespaceContext nsContext) {
 		super(namespaceURI, localPart, checkPrefix(nsContext, namespaceURI));
 	}
@@ -48,7 +52,7 @@ public class ContentName extends QName {
 	private static String checkPrefix(NamespaceContext nsContext, String namespaceURI) {
 		Objects.requireNonNull(nsContext, "Namespace context cannot be null");
 		Objects.requireNonNull(namespaceURI, "Namespace URI cannot be null");
-		String prefix = nsContext.getNamespaceURI(namespaceURI);
+		String prefix = nsContext.getPrefix(namespaceURI);
 		if (prefix == null)
 			throw new IllegalStateException("No prefix found for " + namespaceURI + " from context " + nsContext);
 		return prefix;
@@ -80,7 +84,7 @@ public class ContentName extends QName {
 
 	@Override
 	public String toString() {
-		return toPrefixedString();
+		return toQNameString();
 	}
 
 	@Override

@@ -11,10 +11,9 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.zip.Checksum;
-
-import org.argeo.cms.CmsException;
 
 /** Allows to fine tune how files are read. */
 public class ChecksumFactory {
@@ -81,8 +80,8 @@ public class ChecksumFactory {
 					return digest;
 				}
 			}
-		} catch (Exception e) {
-			throw new CmsException("Cannot digest " + path, e);
+		} catch (NoSuchAlgorithmException | IOException e) {
+			throw new IllegalStateException("Cannot digest " + path, e);
 		}
 	}
 
@@ -113,8 +112,8 @@ public class ChecksumFactory {
 				cursor = cursor + regionSize;
 			}
 			return crc.getValue();
-		} catch (Exception e) {
-			throw new CmsException("Cannot checksum " + path, e);
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot checksum " + path, e);
 		} finally {
 			long duration = System.currentTimeMillis() - begin;
 			System.out.println(duration / 1000 + "s");

@@ -10,9 +10,10 @@ import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+/** Log in based on JDK-provided OS integration. */
 public class OsUserUtils {
-	private static String LOGIN_CONTEXT_USER_NIX = "USER_NIX";
-	private static String LOGIN_CONTEXT_USER_NT = "USER_NT";
+	private final static String LOGIN_CONTEXT_USER_NIX = "USER_NIX";
+	private final static String LOGIN_CONTEXT_USER_NT = "USER_NT";
 
 	public static String getOsUsername() {
 		return System.getProperty("user.name");

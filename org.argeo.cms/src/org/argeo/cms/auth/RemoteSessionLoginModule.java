@@ -14,13 +14,12 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
-import org.argeo.cms.internal.runtime.KernelUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.service.http.HttpContext;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.cms.internal.runtime.CmsStateImpl;
+import org.argeo.util.http.HttpHeader;
 import org.osgi.service.useradmin.Authorization;
 
 /** Use the HTTP session as the basis for authentication. */
@@ -34,8 +33,6 @@ public class RemoteSessionLoginModule implements LoginModule {
 	private RemoteAuthRequest request = null;
 	private RemoteAuthResponse response = null;
 
-	private BundleContext bc;
-
 	private Authorization authorization;
 	private Locale locale;
 
@@ -43,8 +40,6 @@ public class RemoteSessionLoginModule implements LoginModule {
 	@Override
 	public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
 			Map<String, ?> options) {
-		bc = FrameworkUtil.getBundle(RemoteSessionLoginModule.class).getBundleContext();
-		assert bc != null;
 		this.subject = subject;
 		this.callbackHandler = callbackHandler;
 		this.sharedState = (Map<String, Object>) sharedState;
@@ -54,49 +49,53 @@ public class RemoteSessionLoginModule implements LoginModule {
 	public boolean login() throws LoginException {
 		if (callbackHandler == null)
 			return false;
-		RemoteAuthCallback httpCallback = new RemoteAuthCallback();
+		RemoteAuthCallback remoteAuthCallback = new RemoteAuthCallback();
 		try {
-			callbackHandler.handle(new Callback[] { httpCallback });
+			callbackHandler.handle(new Callback[] { remoteAuthCallback });
 		} catch (IOException e) {
 			throw new LoginException("Cannot handle http callback: " + e.getMessage());
 		} catch (UnsupportedCallbackException e) {
 			return false;
 		}
-		request = httpCallback.getRequest();
+		request = remoteAuthCallback.getRequest();
 		if (request == null) {
-			RemoteAuthSession httpSession = httpCallback.getHttpSession();
+			RemoteAuthSession httpSession = remoteAuthCallback.getHttpSession();
 			if (httpSession == null)
 				return false;
 			// TODO factorize with below
 			String httpSessionId = httpSession.getId();
 //			if (log.isTraceEnabled())
 //				log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
-			CmsSessionImpl cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
-			if (cmsSession != null) {
+			CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessionId);
+			if (cmsSession != null && !cmsSession.isAnonymous()) {
 				authorization = cmsSession.getAuthorization();
 				locale = cmsSession.getLocale();
 				if (log.isTraceEnabled())
 					log.trace("Retrieved authorization from " + cmsSession);
 			}
 		} else {
-			authorization = (Authorization) request.getAttribute(HttpContext.AUTHORIZATION);
+			authorization = (Authorization) request.getAttribute(RemoteAuthRequest.AUTHORIZATION);
 			if (authorization == null) {// search by session ID
 				RemoteAuthSession httpSession = request.getSession();
-				if (httpSession == null) {
-					// TODO make sure this is always safe
-					if (log.isTraceEnabled())
-						log.trace("Create http session");
-					httpSession = request.createSession();
-				}
-				String httpSessionId = httpSession.getId();
+//				if (httpSession == null) {
+//					// TODO make sure this is always safe
+//					if (log.isTraceEnabled())
+//						log.trace("Create http session");
+//					httpSession = request.createSession();
+//				}
+				if (httpSession != null) {
+					String httpSessionId = httpSession.getId();
 //				if (log.isTraceEnabled())
 //					log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
-				CmsSessionImpl cmsSession = CmsAuthUtils.cmsSessionFromHttpSession(bc, httpSessionId);
-				if (cmsSession != null) {
-					authorization = cmsSession.getAuthorization();
-					locale = cmsSession.getLocale();
-					if (log.isTraceEnabled())
-						log.trace("Retrieved authorization from " + cmsSession);
+					CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessionId);
+					if (cmsSession != null && !cmsSession.isAnonymous()) {
+						authorization = cmsSession.getAuthorization();
+						locale = cmsSession.getLocale();
+						if (log.isTraceEnabled())
+							log.trace("Retrieved authorization from " + cmsSession);
+					}
+				}else {
+					request.createSession();
 				}
 			}
 			sharedState.put(CmsAuthUtils.SHARED_STATE_HTTP_REQUEST, request);
@@ -110,7 +109,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 		} else {
 			if (log.isTraceEnabled())
 				log.trace("HTTP login: " + true);
-			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
+			request.setAttribute(RemoteAuthRequest.AUTHORIZATION, authorization);
 			return true;
 		}
 	}
@@ -119,7 +118,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 	public boolean commit() throws LoginException {
 		byte[] outToken = (byte[]) sharedState.get(CmsAuthUtils.SHARED_STATE_SPNEGO_OUT_TOKEN);
 		if (outToken != null) {
-			response.setHeader(CmsAuthUtils.HEADER_WWW_AUTHENTICATE,
+			response.setHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(),
 					"Negotiate " + java.util.Base64.getEncoder().encodeToString(outToken));
 		}
 
@@ -157,7 +156,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 	}
 
 	private void extractHttpAuth(final RemoteAuthRequest httpRequest) {
-		String authHeader = httpRequest.getHeader(CmsAuthUtils.HEADER_AUTHORIZATION);
+		String authHeader = httpRequest.getHeader(HttpHeader.AUTHORIZATION.getHeaderName());
 		extractHttpAuth(authHeader);
 	}
 
@@ -166,7 +165,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 			StringTokenizer st = new StringTokenizer(authHeader);
 			if (st.hasMoreTokens()) {
 				String basic = st.nextToken();
-				if (basic.equalsIgnoreCase("Basic")) {
+				if (basic.equalsIgnoreCase(HttpHeader.BASIC)) {
 					try {
 						// TODO manipulate char[]
 						Base64.Decoder decoder = Base64.getDecoder();
@@ -184,7 +183,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 					} catch (Exception e) {
 						throw new IllegalStateException("Couldn't retrieve authentication", e);
 					}
-				} else if (basic.equalsIgnoreCase("Negotiate")) {
+				} else if (basic.equalsIgnoreCase(HttpHeader.NEGOTIATE)) {
 					String spnegoToken = st.nextToken();
 					Base64.Decoder decoder = Base64.getDecoder();
 					byte[] authToken = decoder.decode(spnegoToken);
@@ -212,7 +211,8 @@ public class RemoteSessionLoginModule implements LoginModule {
 			if (log.isDebugEnabled())
 				log.debug("Client certificate " + certDn + " verified by servlet container");
 		} // Reverse proxy verified the client certificate
-		String clientDnHttpHeader = KernelUtils.getFrameworkProp(CmsConstants.HTTP_PROXY_SSL_DN);
+		String clientDnHttpHeader = CmsStateImpl.getDeployProperty(CmsContextImpl.getCmsContext().getCmsState(),
+				CmsDeployProperty.HTTP_PROXY_SSL_HEADER_DN);
 		if (clientDnHttpHeader != null) {
 			String certDn = req.getHeader(clientDnHttpHeader);
 			// TODO retrieve more cf. https://httpd.apache.org/docs/current/mod/mod_ssl.html

@@ -1,17 +1,21 @@
 package org.argeo.util.register;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A wrapper for an object, whose dependencies and life cycle can be managed.
  */
-public class Component<I> {
+public class Component<I> implements Supplier<I>, Comparable<Component<?>> {
 
 	private final I instance;
 
@@ -20,6 +24,7 @@ public class Component<I> {
 
 	private final Map<Class<? super I>, PublishedType<? super I>> types;
 	private final Set<Dependency<?>> dependencies;
+	private final Map<String, Object> properties;
 
 	private CompletableFuture<Void> activationStarted = null;
 	private CompletableFuture<Void> activated = null;
@@ -27,10 +32,13 @@ public class Component<I> {
 	private CompletableFuture<Void> deactivationStarted = null;
 	private CompletableFuture<Void> deactivated = null;
 
+	// internal
 	private Set<Dependency<?>> dependants = new HashSet<>();
 
-	Component(Consumer<Component<?>> register, I instance, Runnable init, Runnable close,
-			Set<Dependency<?>> dependencies, Set<Class<? super I>> classes) {
+	private RankingKey rankingKey;
+
+	Component(ComponentRegister register, I instance, Runnable init, Runnable close, Set<Dependency<?>> dependencies,
+			Set<Class<? super I>> classes, Map<String, Object> properties) {
 		assert instance != null;
 		assert init != null;
 		assert close != null;
@@ -64,7 +72,11 @@ public class Component<I> {
 		// TODO check whether context is active, so that we start right away
 		prepareNextActivation();
 
-		register.accept(this);
+		long serviceId = register.register(this);
+		Map<String, Object> props = new HashMap<>(properties);
+		props.put(RankingKey.SERVICE_ID, serviceId);
+		this.properties = Collections.unmodifiableMap(props);
+		rankingKey = new RankingKey(properties);
 	}
 
 	private void prepareNextActivation() {
@@ -83,11 +95,11 @@ public class Component<I> {
 				.thenRun(() -> prepareNextActivation());
 	}
 
-	public CompletableFuture<Void> getActivated() {
+	CompletableFuture<Void> getActivated() {
 		return activated;
 	}
 
-	public CompletableFuture<Void> getDeactivated() {
+	CompletableFuture<Void> getDeactivated() {
 		return deactivated;
 	}
 
@@ -130,49 +142,77 @@ public class Component<I> {
 		dependants.add(dependant);
 	}
 
-	I getInstance() {
+	@Override
+	public I get() {
 		return instance;
 	}
 
 	@SuppressWarnings("unchecked")
-	<T> PublishedType<T> getType(Class<T> clss) {
+	public <T> PublishedType<T> getType(Class<T> clss) {
 		if (!types.containsKey(clss))
 			throw new IllegalArgumentException(clss.getName() + " is not a type published by this component");
 		return (PublishedType<T>) types.get(clss);
 	}
 
-	<T> boolean isPublishedType(Class<T> clss) {
+	public <T> boolean isPublishedType(Class<T> clss) {
 		return types.containsKey(clss);
 	}
 
+	public Map<String, Object> getProperties() {
+		return properties;
+	}
+
+	@Override
+	public int compareTo(Component<?> o) {
+		return rankingKey.compareTo(rankingKey);
+	}
+
+	@Override
+	public int hashCode() {
+		Long serviceId = (Long) properties.get(RankingKey.SERVICE_ID);
+		if (serviceId != null)
+			return serviceId.intValue();
+		else
+			return super.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		List<String> classes = new ArrayList<>();
+		for (Class<?> clss : types.keySet()) {
+			classes.add(clss.getName());
+		}
+		return "Component " + classes + " " + properties + "";
+	}
+
+	/** A type which has been explicitly exposed by a component. */
 	public static class PublishedType<T> {
 		private Component<? extends T> component;
 		private Class<T> clss;
 
-//		private CompletableFuture<Component<? extends T>> publisherAvailable;
 		private CompletableFuture<T> value;
 
 		public PublishedType(Component<? extends T> component, Class<T> clss) {
 			this.clss = clss;
 			this.component = component;
 			value = CompletableFuture.completedFuture((T) component.instance);
-//			value = publisherAvailable.thenApply((c) -> c.getInstance());
 		}
 
-		Component<?> getPublisher() {
+		public Component<?> getPublisher() {
 			return component;
 		}
 
-//		CompletableFuture<Component<? extends T>> publisherAvailable() {
-//			return publisherAvailable;
-//		}
-
-		Class<T> getType() {
+		public Class<T> getType() {
 			return clss;
+		}
+
+		public CompletionStage<T> getValue() {
+			return value.minimalCompletionStage();
 		}
 	}
 
-	public static class Builder<I> {
+	/** Builds a {@link Component}. */
+	public static class Builder<I> implements Supplier<I> {
 		private final I instance;
 
 		private Runnable init;
@@ -180,12 +220,13 @@ public class Component<I> {
 
 		private Set<Dependency<?>> dependencies = new HashSet<>();
 		private Set<Class<? super I>> types = new HashSet<>();
+		private final Map<String, Object> properties = new HashMap<>();
 
 		public Builder(I instance) {
 			this.instance = instance;
 		}
 
-		public Component<I> build(Consumer<Component<?>> register) {
+		public Component<I> build(ComponentRegister register) {
 			// default values
 			if (types.isEmpty()) {
 				types.add(getInstanceClass());
@@ -199,7 +240,7 @@ public class Component<I> {
 				};
 
 			// instantiation
-			Component<I> component = new Component<I>(register, instance, init, close, dependencies, types);
+			Component<I> component = new Component<I>(register, instance, init, close, dependencies, types, properties);
 			for (Dependency<?> dependency : dependencies) {
 				dependency.type.getPublisher().addDependant(dependency);
 			}
@@ -211,14 +252,14 @@ public class Component<I> {
 			return this;
 		}
 
-		public Builder<I> addInit(Runnable init) {
+		public Builder<I> addActivation(Runnable init) {
 			if (this.init != null)
 				throw new IllegalArgumentException("init method is already set");
 			this.init = init;
 			return this;
 		}
 
-		public Builder<I> addClose(Runnable close) {
+		public Builder<I> addDeactivation(Runnable close) {
 			if (this.close != null)
 				throw new IllegalArgumentException("close method is already set");
 			this.close = close;
@@ -230,6 +271,13 @@ public class Component<I> {
 			return this;
 		}
 
+		public void addProperty(String key, Object value) {
+			if (properties.containsKey(key))
+				throw new IllegalStateException("Key " + key + " is already set.");
+			properties.put(key, value);
+		}
+
+		@Override
 		public I get() {
 			return instance;
 		}
@@ -254,8 +302,10 @@ public class Component<I> {
 		public Dependency(PublishedType<D> types, Consumer<D> set, Consumer<D> unset) {
 			super();
 			this.type = types;
-			this.set = set;
-			this.unset = unset != null ? unset : (v) -> set.accept(null);
+			this.set = set != null ? set : t -> {
+			};
+			this.unset = unset != null ? unset : t -> {
+			};
 		}
 
 		// live

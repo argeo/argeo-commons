@@ -1,18 +1,19 @@
 Bundle-Activator: org.argeo.cms.internal.osgi.CmsActivator
 
 Import-Package: \
-org.argeo.osgi.transaction, \
-org.apache.commons.httpclient.cookie;resolution:=optional,\
-!com.sun.security.jgss,\
 org.osgi.*;version=0.0.0,\
 *
 
 Service-Component:\
+OSGI-INF/cmsOsgiLogger.xml,\
+OSGI-INF/uuidFactory.xml,\
+OSGI-INF/cmsEventBus.xml,\
 OSGI-INF/cmsState.xml,\
-OSGI-INF/simpleTransactionManager.xml,\
-OSGI-INF/nodeUserAdmin.xml,\
+OSGI-INF/transactionManager.xml,\
+OSGI-INF/cmsUserAdmin.xml,\
 OSGI-INF/cmsUserManager.xml,\
-OSGI-INF/deployConfig.xml,\
+OSGI-INF/cmsContentRepository.xml,\
+OSGI-INF/cmsAcrHttpHandler.xml,\
 OSGI-INF/cmsDeployment.xml,\
 OSGI-INF/cmsContext.xml,\
 

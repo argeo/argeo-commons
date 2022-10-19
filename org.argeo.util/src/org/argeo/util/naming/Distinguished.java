@@ -10,7 +10,7 @@ import javax.naming.ldap.LdapName;
 /**
  * An object that can be identified with an X.500 distinguished name.
  * 
- * @see https://tools.ietf.org/html/rfc1779
+ * @see "https://tools.ietf.org/html/rfc1779"
  */
 public interface Distinguished {
 	/** The related distinguished name. */

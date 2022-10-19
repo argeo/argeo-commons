@@ -1,33 +1,43 @@
 package org.argeo.cms.internal.runtime;
 
-import static java.util.Locale.ENGLISH;
-
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import org.argeo.api.cms.CmsConstants;
+import javax.security.auth.Subject;
+
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
+import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsSessionId;
 import org.argeo.api.cms.CmsState;
-import org.argeo.cms.LocaleUtils;
-import org.argeo.cms.internal.osgi.NodeUserAdmin;
+import org.argeo.api.uuid.UuidFactory;
+import org.argeo.cms.CmsDeployProperty;
+import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.ietf.jgss.GSSCredential;
 import org.osgi.service.useradmin.UserAdmin;
 
 public class CmsContextImpl implements CmsContext {
-	private final CmsLog log = CmsLog.getLog(getClass());
-//	private final BundleContext bc = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-//	private EgoRepository egoRepository;
+	private final CmsLog log = CmsLog.getLog(getClass());
+
 	private static CompletableFuture<CmsContextImpl> instance = new CompletableFuture<CmsContextImpl>();
+//	private static CmsContextImpl instance = null;
 
 	private CmsState cmsState;
 	private CmsDeployment cmsDeployment;
 	private UserAdmin userAdmin;
+	private UuidFactory uuidFactory;
+	private CmsEventBus cmsEventBus;
+//	private ProvidedRepository contentRepository;
 
 	// i18n
 	private Locale defaultLocale;
@@ -35,37 +45,27 @@ public class CmsContextImpl implements CmsContext {
 
 	private Long availableSince;
 
-//	public CmsContextImpl() {
-//		initTrackers();
-//	}
+	// CMS sessions
+	private Map<UUID, CmsSessionImpl> cmsSessionsByUuid = new HashMap<>();
+	private Map<String, CmsSessionImpl> cmsSessionsByLocalId = new HashMap<>();
 
 	public void start() {
-		Object defaultLocaleValue = KernelUtils.getFrameworkProp(CmsConstants.I18N_DEFAULT_LOCALE);
-		defaultLocale = defaultLocaleValue != null ? new Locale(defaultLocaleValue.toString())
-				: new Locale(ENGLISH.getLanguage());
-		locales = LocaleUtils.asLocaleList(KernelUtils.getFrameworkProp(CmsConstants.I18N_LOCALES));
-		// node repository
-//		new ServiceTracker<Repository, Repository>(bc, Repository.class, null) {
-//			@Override
-//			public Repository addingService(ServiceReference<Repository> reference) {
-//				Object cn = reference.getProperty(NodeConstants.CN);
-//				if (cn != null && cn.equals(NodeConstants.EGO_REPOSITORY)) {
-////					egoRepository = (EgoRepository) bc.getService(reference);
-//					if (log.isTraceEnabled())
-//						log.trace("Home repository is available");
-//				}
-//				return super.addingService(reference);
-//			}
-//
-//			@Override
-//			public void removedService(ServiceReference<Repository> reference, Repository service) {
-//				super.removedService(reference, service);
-////				egoRepository = null;
-//			}
-//
-//		}.open();
+		List<String> codes = CmsStateImpl.getDeployProperties(cmsState, CmsDeployProperty.LOCALE);
+		locales = getLocaleList(codes);
+		if (locales.size() == 0)
+			throw new IllegalStateException("At least one locale must be set");
+		defaultLocale = locales.get(0);
 
-		checkReadiness();
+		new Thread(() -> {
+			while (!checkReadiness()) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+				}
+			}
+		}, "Check readiness").start();
+
+		// checkReadiness();
 
 		setInstance(this);
 	}
@@ -78,10 +78,13 @@ public class CmsContextImpl implements CmsContext {
 	 * Checks whether the deployment is available according to expectations, and
 	 * mark it as available.
 	 */
-	private void checkReadiness() {
+	private boolean checkReadiness() {
 		if (isAvailable())
-			return;
-		if (cmsDeployment != null && userAdmin != null) {
+			return true;
+		if (cmsDeployment == null)
+			return false;
+
+		if (((CmsDeploymentImpl) cmsDeployment).allExpectedServicesAvailable() && userAdmin != null) {
 			String data = KernelUtils.getFrameworkProp(KernelUtils.OSGI_INSTANCE_AREA);
 			String state = KernelUtils.getFrameworkProp(KernelUtils.OSGI_CONFIGURATION_AREA);
 			availableSince = System.currentTimeMillis();
@@ -98,8 +101,11 @@ public class CmsContextImpl implements CmsContext {
 			if (log.isTraceEnabled())
 				log.trace("Kernel initialization took " + initDuration + "ms");
 			tributeToFreeSoftware(initDuration);
+
+			return true;
 		} else {
-			throw new IllegalStateException("Deployment is not available");
+			return false;
+			// throw new IllegalStateException("Deployment is not available");
 		}
 	}
 
@@ -129,6 +135,29 @@ public class CmsContextImpl implements CmsContext {
 		throw new UnsupportedOperationException();
 	}
 
+	/** Returns null if argument is null. */
+	private static List<Locale> getLocaleList(List<String> codes) {
+		if (codes == null)
+			return null;
+		ArrayList<Locale> availableLocales = new ArrayList<Locale>();
+		for (String code : codes) {
+			if (code == null)
+				continue;
+			// variant not supported
+			int indexUnd = code.indexOf("_");
+			Locale locale;
+			if (indexUnd > 0) {
+				String language = code.substring(0, indexUnd);
+				String country = code.substring(indexUnd + 1);
+				locale = new Locale(language, country);
+			} else {
+				locale = new Locale(code);
+			}
+			availableLocales.add(locale);
+		}
+		return availableLocales;
+	}
+
 	public void setCmsDeployment(CmsDeployment cmsDeployment) {
 		this.cmsDeployment = cmsDeployment;
 	}
@@ -141,9 +170,30 @@ public class CmsContextImpl implements CmsContext {
 		this.userAdmin = userAdmin;
 	}
 
+	public UuidFactory getUuidFactory() {
+		return uuidFactory;
+	}
+
+	public void setUuidFactory(UuidFactory uuidFactory) {
+		this.uuidFactory = uuidFactory;
+	}
+
+//	public ProvidedRepository getContentRepository() {
+//		return contentRepository;
+//	}
+//
+//	public void setContentRepository(ProvidedRepository contentRepository) {
+//		this.contentRepository = contentRepository;
+//	}
+
 	@Override
 	public Locale getDefaultLocale() {
 		return defaultLocale;
+	}
+
+	@Override
+	public UUID timeUUID() {
+		return uuidFactory.timeUUID();
 	}
 
 	@Override
@@ -152,50 +202,126 @@ public class CmsContextImpl implements CmsContext {
 	}
 
 	@Override
-	public synchronized Long getAvailableSince() {
+	public Long getAvailableSince() {
 		return availableSince;
 	}
 
-	public synchronized boolean isAvailable() {
+	public boolean isAvailable() {
 		return availableSince != null;
+	}
+
+	public CmsState getCmsState() {
+		return cmsState;
+	}
+
+	@Override
+	public CmsEventBus getCmsEventBus() {
+		return cmsEventBus;
+	}
+
+	public void setCmsEventBus(CmsEventBus cmsEventBus) {
+		this.cmsEventBus = cmsEventBus;
 	}
 
 	/*
 	 * STATIC
 	 */
 
-	public synchronized static CmsContext getCmsContext() {
+	public static CmsContextImpl getCmsContext() {
 		return getInstance();
 	}
 
-	/** Required by USER login module. */
-	public synchronized static UserAdmin getUserAdmin() {
-		return getInstance().userAdmin;
-	}
-
 	/** Required by SPNEGO login module. */
-	@Deprecated
-	public synchronized static GSSCredential getAcceptorCredentials() {
-		// FIXME find a cleaner way
-		return ((NodeUserAdmin) getInstance().userAdmin).getAcceptorCredentials();
+	public GSSCredential getAcceptorCredentials() {
+		// TODO find a cleaner way
+		return ((CmsUserAdmin) userAdmin).getAcceptorCredentials();
 	}
 
-	private synchronized static void setInstance(CmsContextImpl cmsContextImpl) {
+	private static void setInstance(CmsContextImpl cmsContextImpl) {
+//		if (cmsContextImpl != null) {
+//			if (instance != null)
+//				throw new IllegalStateException("CMS Context is already set");
+//			instance = cmsContextImpl;
+//		} else {
+//			instance = null;
+//		}
+//		CmsContextImpl.class.notifyAll();
+
 		if (cmsContextImpl != null) {
 			if (instance.isDone())
 				throw new IllegalStateException("CMS Context is already set");
 			instance.complete(cmsContextImpl);
 		} else {
+			if (!instance.isDone())
+				instance.cancel(true);
 			instance = new CompletableFuture<CmsContextImpl>();
 		}
 	}
 
-	private synchronized static CmsContextImpl getInstance() {
+	private static CmsContextImpl getInstance() {
+//		while (instance == null) {
+//			try {
+//				CmsContextImpl.class.wait();
+//			} catch (InterruptedException e) {
+//				throw new IllegalStateException("Cannot wait for CMS context instance", e);
+//			}
+//		}
+//		return instance;
+
 		try {
 			return instance.get();
 		} catch (InterruptedException | ExecutionException e) {
 			throw new IllegalStateException("Cannot retrieve CMS Context", e);
 		}
+	}
+
+	public UserAdmin getUserAdmin() {
+		return userAdmin;
+	}
+
+	/*
+	 * CMS Sessions
+	 */
+
+	@Override
+	public CmsSession getCmsSession(Subject subject) {
+		if (subject.getPrivateCredentials(CmsSessionId.class).isEmpty())
+			return null;
+		CmsSessionId cmsSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next();
+		return getCmsSessionByUuid(cmsSessionId.getUuid());
+	}
+
+	public void registerCmsSession(CmsSessionImpl cmsSession) {
+		if (cmsSessionsByUuid.containsKey(cmsSession.getUuid())
+				|| cmsSessionsByLocalId.containsKey(cmsSession.getLocalId()))
+			throw new IllegalStateException("CMS session " + cmsSession + " is already registered.");
+		cmsSessionsByUuid.put(cmsSession.getUuid(), cmsSession);
+		cmsSessionsByLocalId.put(cmsSession.getLocalId(), cmsSession);
+	}
+
+	public void unregisterCmsSession(CmsSessionImpl cmsSession) {
+		if (!cmsSessionsByUuid.containsKey(cmsSession.getUuid())
+				|| !cmsSessionsByLocalId.containsKey(cmsSession.getLocalId()))
+			throw new IllegalStateException("CMS session " + cmsSession + " is not registered.");
+		CmsSession removed = cmsSessionsByUuid.remove(cmsSession.getUuid());
+		assert removed == cmsSession;
+		cmsSessionsByLocalId.remove(cmsSession.getLocalId());
+	}
+
+	/**
+	 * The {@link CmsSession} related to this UUID, or <code>null</null> if not
+	 * registered.
+	 */
+	public CmsSessionImpl getCmsSessionByUuid(UUID uuid) {
+		return cmsSessionsByUuid.get(uuid);
+	}
+
+	/**
+	 * The {@link CmsSession} related to this local id, or <code>null</null> if not
+	 * registered.
+	 */
+	public CmsSessionImpl getCmsSessionByLocalId(String localId) {
+		return cmsSessionsByLocalId.get(localId);
 	}
 
 }

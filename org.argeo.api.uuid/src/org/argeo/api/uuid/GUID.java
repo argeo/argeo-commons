@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * A variant 6 {@link UUID}.
  * 
- * @see https://datatracker.ietf.org/doc/html/rfc4122#section-4.1.1
+ * @see "https://datatracker.ietf.org/doc/html/rfc4122#section-4.1.1"
  */
 public class GUID extends TypedUuid {
 	private static final long serialVersionUID = APM.SERIAL;
@@ -26,7 +26,7 @@ public class GUID extends TypedUuid {
 	 * <li>P: (1db31359-bdd8-5a0f-b672-30c247d582c5)</li>
 	 * </ul>
 	 * 
-	 * @see https://docs.microsoft.com/en-us/dotnet/api/system.guid.tostring
+	 * @see "https://docs.microsoft.com/en-us/dotnet/api/system.guid.tostring"
 	 */
 	public static String toString(UUID uuid, char format, boolean upperCase) {
 		String str;

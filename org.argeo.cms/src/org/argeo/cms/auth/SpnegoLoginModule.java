@@ -1,6 +1,5 @@
 package org.argeo.cms.auth;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import javax.security.auth.Subject;
@@ -11,10 +10,11 @@ import javax.security.auth.spi.LoginModule;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.ietf.jgss.GSSContext;
-import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
+
+import com.sun.security.jgss.GSSUtil;
 
 /** SPNEGO login */
 public class SpnegoLoginModule implements LoginModule {
@@ -41,20 +41,21 @@ public class SpnegoLoginModule implements LoginModule {
 		gssContext = checkToken(spnegoToken);
 		if (gssContext == null)
 			return false;
-		else
+		else {
+			if (!sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)) {
+				try {
+					if (gssContext.getCredDelegState()) {
+						// commit will succeeed only if we have credential delegation
+						GSSName name = gssContext.getSrcName();
+						String username = name.toString();
+						sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, username);
+					}
+				} catch (GSSException e) {
+					throw new IllegalStateException("Cannot retrieve SPNEGO name", e);
+				}
+			}
 			return true;
-		// try {
-		// String clientName = gssContext.getSrcName().toString();
-		// String role = clientName.substring(clientName.indexOf('@') + 1);
-		//
-		// log.debug("SpnegoUserRealm: established a security context");
-		// log.debug("Client Principal is: " + gssContext.getSrcName());
-		// log.debug("Server Principal is: " + gssContext.getTargName());
-		// log.debug("Client Default Role: " + role);
-		// } catch (GSSException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+		}
 	}
 
 	@Override
@@ -63,14 +64,12 @@ public class SpnegoLoginModule implements LoginModule {
 			return false;
 
 		try {
-			Class<?> gssUtilsClass = Class.forName("com.sun.security.jgss.GSSUtil");
-			Method createSubjectMethod = gssUtilsClass.getMethod("createSubject", GSSName.class, GSSCredential.class);
 			Subject gssSubject;
 			if (gssContext.getCredDelegState())
-				gssSubject = (Subject) createSubjectMethod.invoke(null, gssContext.getSrcName(),
-						gssContext.getDelegCred());
+				gssSubject = (Subject) GSSUtil.createSubject(gssContext.getSrcName(), gssContext.getDelegCred());
 			else
-				gssSubject = (Subject) createSubjectMethod.invoke(null, gssContext.getSrcName(), null);
+				gssSubject = (Subject) GSSUtil.createSubject(gssContext.getSrcName(), null);
+			// without credential delegation we won't have access to the Kerberos key
 			subject.getPrincipals().addAll(gssSubject.getPrincipals());
 			subject.getPrivateCredentials().addAll(gssSubject.getPrivateCredentials());
 			return true;
@@ -111,8 +110,7 @@ public class SpnegoLoginModule implements LoginModule {
 	private GSSContext checkToken(byte[] authToken) {
 		GSSManager manager = GSSManager.getInstance();
 		try {
-			GSSContext gContext = manager.createContext(CmsContextImpl.getAcceptorCredentials());
-
+			GSSContext gContext = manager.createContext(CmsContextImpl.getCmsContext().getAcceptorCredentials());
 			if (gContext == null) {
 				log.debug("SpnegoUserRealm: failed to establish GSSContext");
 			} else {
@@ -132,8 +130,4 @@ public class SpnegoLoginModule implements LoginModule {
 
 	}
 
-	@Deprecated
-	public static boolean hasAcceptorCredentials() {
-		return CmsContextImpl.getAcceptorCredentials() != null;
-	}
 }

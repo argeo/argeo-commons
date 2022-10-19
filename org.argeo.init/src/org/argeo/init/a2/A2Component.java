@@ -23,6 +23,10 @@ public class A2Component implements Comparable<A2Component> {
 		contribution.components.put(id, this);
 	}
 
+	public Iterable<A2Branch> listBranches(Object filter) {
+		return branches.values();
+	}
+
 	A2Branch getOrAddBranch(String branchId) {
 		if (branches.containsKey(branchId))
 			return branches.get(branchId);
@@ -36,15 +40,15 @@ public class A2Component implements Comparable<A2Component> {
 		return module;
 	}
 
-	A2Branch last() {
+	public A2Branch last() {
 		return branches.get(branches.lastKey());
 	}
 
-	A2Contribution getContribution() {
+	public A2Contribution getContribution() {
 		return contribution;
 	}
 
-	String getId() {
+	public String getId() {
 		return id;
 	}
 

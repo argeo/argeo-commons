@@ -38,8 +38,8 @@ public class OsgiBuilder {
 
 	public OsgiBuilder() {
 		// configuration.put("osgi.clean", "true");
-		configuration.put(OsgiBoot.CONFIGURATION_AREA_PROP, System.getProperty(OsgiBoot.CONFIGURATION_AREA_PROP));
-		configuration.put(OsgiBoot.INSTANCE_AREA_PROP, System.getProperty(OsgiBoot.INSTANCE_AREA_PROP));
+		configuration.put(OsgiBoot.PROP_OSGI_CONFIGURATION_AREA, System.getProperty(OsgiBoot.PROP_OSGI_CONFIGURATION_AREA));
+		configuration.put(OsgiBoot.PROP_OSGI_INSTANCE_AREA, System.getProperty(OsgiBoot.PROP_OSGI_INSTANCE_AREA));
 		configuration.put(PROP_OSGI_CLEAN, System.getProperty(PROP_OSGI_CLEAN));
 	}
 
@@ -48,7 +48,7 @@ public class OsgiBuilder {
 		framework = OsgiBootUtils.launch(configuration);
 
 		BundleContext bc = framework.getBundleContext();
-		String osgiData = bc.getProperty(OsgiBoot.INSTANCE_AREA_PROP);
+		String osgiData = bc.getProperty(OsgiBoot.PROP_OSGI_INSTANCE_AREA);
 		// String osgiConf = bc.getProperty(OsgiBoot.CONFIGURATION_AREA_PROP);
 		String osgiConf = framework.getDataFile("").getAbsolutePath();
 		if (OsgiBootUtils.isDebug())

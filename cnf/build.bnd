@@ -1,3 +1,0 @@
--include: \
-${workspace}/cnf/testing.bnd, \
-${workspace}/sdk/argeo-build/argeo.bnd, \

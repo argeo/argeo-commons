@@ -1,5 +1,6 @@
 package org.argeo.api.cms;
 
+import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
@@ -19,6 +20,18 @@ public enum CmsAuth {
 
 	public LoginContext newLoginContext(CallbackHandler callbackHandler) throws LoginException {
 		return new LoginContext(getLoginContextName(), callbackHandler);
+	}
+
+	public LoginContext newLoginContext(Subject subject, CallbackHandler callbackHandler) throws LoginException {
+		return new LoginContext(getLoginContextName(), subject, callbackHandler);
+	}
+
+	public LoginContext newLoginContext(Subject subject) throws LoginException {
+		return new LoginContext(getLoginContextName(), subject);
+	}
+
+	public LoginContext newLoginContext() throws LoginException {
+		return new LoginContext(getLoginContextName());
 	}
 
 	/*

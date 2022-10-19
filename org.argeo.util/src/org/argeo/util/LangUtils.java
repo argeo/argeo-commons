@@ -11,10 +11,12 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -38,20 +40,23 @@ public class LangUtils {
 		return res;
 	}
 
-	/*
-	 * MAP
-	 */
-	/**
-	 * Creates a new {@link Dictionary} with one key-value pair. Key should not be
-	 * null, but if the value is null, it returns an empty {@link Dictionary}.
-	 */
-	public static Map<String, Object> map(String key, Object value) {
-		assert key != null;
-		HashMap<String, Object> props = new HashMap<>();
-		if (value != null)
-			props.put(key, value);
-		return props;
-	}
+//	/*
+//	 * MAP
+//	 */
+//	/**
+//	 * Creates a new {@link Map} with one key-value pair. Key should not be null,
+//	 * but if the value is null, it returns an empty {@link Map}.
+//	 * 
+//	 * @deprecated Use {@link Collections#singletonMap(Object, Object)} instead.
+//	 */
+//	@Deprecated
+//	public static Map<String, Object> map(String key, Object value) {
+//		assert key != null;
+//		HashMap<String, Object> props = new HashMap<>();
+//		if (value != null)
+//			props.put(key, value);
+//		return props;
+//	}
 
 	/*
 	 * DICTIONARY
@@ -85,6 +90,20 @@ public class LangUtils {
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement();
 			res.put(key, properties.get(key).toString());
+		}
+		return res;
+	}
+
+	/** Converts a {@link Dictionary} to a {@link Map}. */
+	public static Map<String, Object> dictToMap(Dictionary<String, ?> properties) {
+		if (properties == null) {
+			return null;
+		}
+		Map<String, Object> res = new HashMap<>(properties.size());
+		Enumeration<String> keys = properties.keys();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement();
+			res.put(key, properties.get(key));
 		}
 		return res;
 	}
@@ -230,6 +249,34 @@ public class LangUtils {
 			values.add(str.trim());
 		}
 		return values;
+	}
+
+	/** Size of an {@link Iterable}, optimised if it is a {@link Collection}. */
+	public static int size(Iterable<?> iterable) {
+		if (iterable instanceof Collection)
+			return ((Collection<?>) iterable).size();
+
+		int size = 0;
+		for (Iterator<?> it = iterable.iterator(); it.hasNext(); size++)
+			it.next();
+		return size;
+	}
+
+	public static <T> T getAt(Iterable<T> iterable, int index) {
+		if (iterable instanceof List) {
+			List<T> lst = ((List<T>) iterable);
+			if (index >= lst.size())
+				throw new IllegalArgumentException("Index " + index + " is not available (size is " + lst.size() + ")");
+			return lst.get(index);
+		}
+		int i = 0;
+		for (Iterator<T> it = iterable.iterator(); it.hasNext(); i++) {
+			if (i == index)
+				return it.next();
+			else
+				it.next();
+		}
+		throw new IllegalArgumentException("Index " + index + " is not available (size is " + i + ")");
 	}
 
 	/*

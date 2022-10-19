@@ -2,6 +2,10 @@ package org.argeo.util.naming;
 
 import java.util.function.Supplier;
 
+import javax.xml.namespace.QName;
+
+import org.argeo.util.internal.DisplayQName;
+
 /**
  * Standard LDAP attributes as per:<br>
  * - <a href= "https://www.ldap.com/ldap-oid-reference">Standard LDAP</a><br>
@@ -285,6 +289,19 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 	countryOfCitizenship("1.3.6.1.5.5.7.9.4", "RFC 2985"),
 	/** */
 	countryOfResidence("1.3.6.1.5.5.7.9.5", "RFC 2985"),
+
+	// RFC 2307bis (partial)
+	/** */
+	uidNumber("1.3.6.1.1.1.1.0", "RFC 2307bis"),
+	/** */
+	gidNumber("1.3.6.1.1.1.1.1", "RFC 2307bis"),
+	/** */
+	homeDirectory("1.3.6.1.1.1.1.3", "RFC 2307bis"),
+	/** */
+	loginShell("1.3.6.1.1.1.1.4", "RFC 2307bis"),
+	/** */
+	memberUid("1.3.6.1.1.1.1.12", "RFC 2307bis"),
+
 	//
 	;
 
@@ -293,10 +310,16 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 //	private final static String LDAP_ = "ldap:";
 
 	private final String oid, spec;
+	private final QName value;
 
 	LdapAttrs(String oid, String spec) {
 		this.oid = oid;
 		this.spec = spec;
+		this.value = new DisplayQName(LdapObjs.LDAP_NAMESPACE_URI, name(), LdapObjs.LDAP_DEFAULT_PREFIX);
+	}
+
+	public QName qName() {
+		return value;
 	}
 
 	@Override
@@ -309,14 +332,6 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 		return spec;
 	}
 
-	public String getPrefix() {
-		return prefix();
-	}
-
-	public static String prefix() {
-		return "ldap";
-	}
-
 	@Deprecated
 	public String property() {
 		return get();
@@ -327,17 +342,9 @@ public enum LdapAttrs implements SpecifiedName, Supplier<String> {
 		return get();
 	}
 
+	@Override
 	public String get() {
-		String prefix = getPrefix();
-		return prefix != null ? prefix + ":" + name() : name();
-	}
-
-	public String getNamespace() {
-		return namespace();
-	}
-
-	public static String namespace() {
-		return "http://www.argeo.org/ns/ldap";
+		return LdapObjs.LDAP_DEFAULT_PREFIX + ":" + name();
 	}
 
 	@Override

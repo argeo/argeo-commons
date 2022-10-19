@@ -5,16 +5,13 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 
-import org.argeo.util.register.Register;
-import org.argeo.util.register.Singleton;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-public class OsgiRegister implements Register {
+public class OsgiRegister {
 	private final BundleContext bundleContext;
 	private Executor executor;
 
@@ -26,8 +23,7 @@ public class OsgiRegister implements Register {
 		this.executor = ForkJoinPool.commonPool();
 	}
 
-	@Override
-	public <T> Singleton<T> set(T obj, Class<T> clss, Map<String, Object> attributes, Class<?>... classes) {
+	public <T> void set(T obj, Class<T> clss, Map<String, Object> attributes, Class<?>... classes) {
 		CompletableFuture<ServiceRegistration<?>> srf = new CompletableFuture<ServiceRegistration<?>>();
 		CompletableFuture<T> postRegistration = CompletableFuture.supplyAsync(() -> {
 			List<String> lst = new ArrayList<>();
@@ -40,18 +36,18 @@ public class OsgiRegister implements Register {
 			srf.complete(sr);
 			return obj;
 		}, executor);
-		Singleton<T> singleton = new Singleton<T>(clss, postRegistration);
+//		Singleton<T> singleton = new Singleton<T>(clss, postRegistration);
 
-		shutdownStarting. //
-				thenCompose(singleton::prepareUnregistration). //
-				thenRunAsync(() -> {
-					try {
-						srf.get().unregister();
-					} catch (InterruptedException | ExecutionException e) {
-						e.printStackTrace();
-					}
-				}, executor);
-		return singleton;
+//		shutdownStarting. //
+//				thenCompose(singleton::prepareUnregistration). //
+//				thenRunAsync(() -> {
+//					try {
+//						srf.get().unregister();
+//					} catch (InterruptedException | ExecutionException e) {
+//						e.printStackTrace();
+//					}
+//				}, executor);
+//		return singleton;
 	}
 
 	public void shutdown() {

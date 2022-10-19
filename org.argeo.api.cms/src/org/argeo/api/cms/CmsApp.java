@@ -1,9 +1,13 @@
 package org.argeo.api.cms;
 
+import java.util.Map;
 import java.util.Set;
 
+import org.argeo.api.cms.ux.CmsTheme;
+import org.argeo.api.cms.ux.CmsUi;
+
 /** An extensible user interface base on the CMS backend. */
-public interface CmsApp {
+public interface CmsApp extends CmsEventSubscriber {
 	/**
 	 * If {@link CmsUi#setData(String, Object)} is set with this property, it
 	 * indicates a different UI (typically with another theming. The {@link CmsApp}
@@ -12,6 +16,8 @@ public interface CmsApp {
 	 * returned by {@link CmsApp#getUiNames()}.
 	 */
 	final static String UI_NAME_PROPERTY = CmsApp.class.getName() + ".ui.name";
+
+	final static String CONTEXT_NAME_PROPERTY = "argeo.cms.app.contextName";
 
 	Set<String> getUiNames();
 
@@ -28,4 +34,12 @@ public interface CmsApp {
 	void addCmsAppListener(CmsAppListener listener);
 
 	void removeCmsAppListener(CmsAppListener listener);
+
+	CmsContext getCmsContext();
+
+	@Override
+	default void onEvent(String topic, Map<String, Object> properties) {
+	}
+	
+	
 }

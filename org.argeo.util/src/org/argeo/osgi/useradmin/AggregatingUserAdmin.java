@@ -1,16 +1,22 @@
 package org.argeo.osgi.useradmin;
 
+import static org.argeo.osgi.useradmin.DirectoryUserAdmin.toLdapName;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.DirectoryConf;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -27,9 +33,9 @@ public class AggregatingUserAdmin implements UserAdmin {
 	private final LdapName tokensBaseDn;
 
 	// DAOs
-	private AbstractUserDirectory systemRoles = null;
-	private AbstractUserDirectory tokens = null;
-	private Map<LdapName, AbstractUserDirectory> businessRoles = new HashMap<LdapName, AbstractUserDirectory>();
+	private DirectoryUserAdmin systemRoles = null;
+	private DirectoryUserAdmin tokens = null;
+	private Map<LdapName, DirectoryUserAdmin> businessRoles = new HashMap<LdapName, DirectoryUserAdmin>();
 
 	// TODO rather use an empty constructor and an init method
 	public AggregatingUserAdmin(String systemRolesBaseDn, String tokensBaseDn) {
@@ -40,7 +46,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 			else
 				this.tokensBaseDn = null;
 		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Cannot initialize " + AggregatingUserAdmin.class, e);
+			throw new IllegalStateException("Cannot initialize " + AggregatingUserAdmin.class, e);
 		}
 	}
 
@@ -75,21 +81,23 @@ public class AggregatingUserAdmin implements UserAdmin {
 	public User getUser(String key, String value) {
 		List<User> res = new ArrayList<User>();
 		for (UserAdmin userAdmin : businessRoles.values()) {
-				User u = userAdmin.getUser(key, value);
-				if (u != null)
-					res.add(u);
+			User u = userAdmin.getUser(key, value);
+			if (u != null)
+				res.add(u);
 		}
 		// Note: node roles cannot contain users, so it is not searched
 		return res.size() == 1 ? res.get(0) : null;
 	}
 
+	/** Builds an authorisation by scanning all referentials. */
 	@Override
 	public Authorization getAuthorization(User user) {
 		if (user == null) {// anonymous
 			return systemRoles.getAuthorization(null);
 		}
-		AbstractUserDirectory userReferentialOfThisUser = findUserAdmin(user.getName());
+		DirectoryUserAdmin userReferentialOfThisUser = findUserAdmin(user.getName());
 		Authorization rawAuthorization = userReferentialOfThisUser.getAuthorization(user);
+		User retrievedUser = (User) userReferentialOfThisUser.getRole(user.getName());
 		String usernameToUse;
 		String displayNameToUse;
 		if (user instanceof Group) {
@@ -110,14 +118,21 @@ public class AggregatingUserAdmin implements UserAdmin {
 		}
 
 		// gather roles from other referentials
-		final AbstractUserDirectory userAdminToUse;// possibly scoped when authenticating
-		if (user instanceof DirectoryUser) {
-			userAdminToUse = userReferentialOfThisUser;
-		} else if (user instanceof AuthenticatingUser) {
-			userAdminToUse = userReferentialOfThisUser.scope(user);
-		} else {
-			throw new IllegalArgumentException("Unsupported user type " + user.getClass());
+		List<String> allRoles = new ArrayList<>(Arrays.asList(rawAuthorization.getRoles()));
+		for (LdapName otherBaseDn : businessRoles.keySet()) {
+			if (otherBaseDn.equals(userReferentialOfThisUser.getBaseDn()))
+				continue;
+			DirectoryUserAdmin otherUserAdmin = userAdminToUse(user, businessRoles.get(otherBaseDn));
+			if (otherUserAdmin == null)
+				continue;
+			Authorization auth = otherUserAdmin.getAuthorization(retrievedUser);
+			allRoles.addAll(Arrays.asList(auth.getRoles()));
+
 		}
+
+		// integrate system roles
+		final DirectoryUserAdmin userAdminToUse = userAdminToUse(retrievedUser, userReferentialOfThisUser);
+		Objects.requireNonNull(userAdminToUse);
 
 		try {
 			Set<String> sysRoles = new HashSet<String>();
@@ -133,13 +148,25 @@ public class AggregatingUserAdmin implements UserAdmin {
 			}
 			addAbstractSystemRoles(rawAuthorization, sysRoles);
 			Authorization authorization = new AggregatingAuthorization(usernameToUse, displayNameToUse, sysRoles,
-					rawAuthorization.getRoles());
+					allRoles.toArray(new String[allRoles.size()]));
 			return authorization;
 		} finally {
 			if (userAdminToUse != null && userAdminToUse.isScoped()) {
 				userAdminToUse.destroy();
 			}
 		}
+	}
+
+	/** Decide whether to scope or not */
+	private DirectoryUserAdmin userAdminToUse(User user, DirectoryUserAdmin userAdmin) {
+		if (user instanceof DirectoryUser) {
+			return userAdmin;
+		} else if (user instanceof AuthenticatingUser) {
+			return userAdmin.scope(user).orElse(null);
+		} else {
+			throw new IllegalArgumentException("Unsupported user type " + user.getClass());
+		}
+
 	}
 
 	/**
@@ -153,17 +180,21 @@ public class AggregatingUserAdmin implements UserAdmin {
 	//
 	// USER ADMIN AGGREGATOR
 	//
-	protected void addUserDirectory(AbstractUserDirectory userDirectory) {
-		LdapName baseDn = userDirectory.getBaseDn();
-		if (isSystemRolesBaseDn(baseDn)) {
+	protected void addUserDirectory(UserDirectory ud) {
+		if (!(ud instanceof DirectoryUserAdmin))
+			throw new IllegalArgumentException("Only " + DirectoryUserAdmin.class.getName() + " is supported");
+		DirectoryUserAdmin userDirectory = (DirectoryUserAdmin) ud;
+		String basePath = userDirectory.getBase();
+		if (isSystemRolesBaseDn(basePath)) {
 			this.systemRoles = userDirectory;
 			systemRoles.setExternalRoles(this);
-		} else if (isTokensBaseDn(baseDn)) {
+		} else if (isTokensBaseDn(basePath)) {
 			this.tokens = userDirectory;
 			tokens.setExternalRoles(this);
 		} else {
+			LdapName baseDn = toLdapName(basePath);
 			if (businessRoles.containsKey(baseDn))
-				throw new UserDirectoryException("There is already a user admin for " + baseDn);
+				throw new IllegalStateException("There is already a user admin for " + baseDn);
 			businessRoles.put(baseDn, userDirectory);
 		}
 		userDirectory.init();
@@ -171,36 +202,25 @@ public class AggregatingUserAdmin implements UserAdmin {
 	}
 
 	/** Called after a new user directory has been added */
-	protected void postAdd(AbstractUserDirectory userDirectory) {
+	protected void postAdd(UserDirectory userDirectory) {
 	}
 
-//	private UserAdmin findUserAdmin(User user) {
-//		if (user == null)
-//			throw new IllegalArgumentException("User should not be null");
-//		AbstractUserDirectory userAdmin = findUserAdmin(user.getName());
-//		if (user instanceof DirectoryUser) {
-//			return userAdmin;
-//		} else {
-//			return userAdmin.scope(user);
-//		}
-//	}
-
-	private AbstractUserDirectory findUserAdmin(String name) {
+	private DirectoryUserAdmin findUserAdmin(String name) {
 		try {
 			return findUserAdmin(new LdapName(name));
 		} catch (InvalidNameException e) {
-			throw new UserDirectoryException("Badly formatted name " + name, e);
+			throw new IllegalArgumentException("Badly formatted name " + name, e);
 		}
 	}
 
-	private AbstractUserDirectory findUserAdmin(LdapName name) {
+	private DirectoryUserAdmin findUserAdmin(LdapName name) {
 		if (name.startsWith(systemRolesBaseDn))
 			return systemRoles;
 		if (tokensBaseDn != null && name.startsWith(tokensBaseDn))
 			return tokens;
-		List<AbstractUserDirectory> res = new ArrayList<>(1);
+		List<DirectoryUserAdmin> res = new ArrayList<>(1);
 		userDirectories: for (LdapName baseDn : businessRoles.keySet()) {
-			AbstractUserDirectory userDirectory = businessRoles.get(baseDn);
+			DirectoryUserAdmin userDirectory = businessRoles.get(baseDn);
 			if (name.startsWith(baseDn)) {
 				if (userDirectory.isDisabled())
 					continue userDirectories;
@@ -217,18 +237,18 @@ public class AggregatingUserAdmin implements UserAdmin {
 			}
 		}
 		if (res.size() == 0)
-			throw new UserDirectoryException("Cannot find user admin for " + name);
+			throw new IllegalStateException("Cannot find user admin for " + name);
 		if (res.size() > 1)
-			throw new UserDirectoryException("Multiple user admin found for " + name);
+			throw new IllegalStateException("Multiple user admin found for " + name);
 		return res.get(0);
 	}
 
-	protected boolean isSystemRolesBaseDn(LdapName baseDn) {
-		return baseDn.equals(systemRolesBaseDn);
+	protected boolean isSystemRolesBaseDn(String basePath) {
+		return toLdapName(basePath).equals(systemRolesBaseDn);
 	}
 
-	protected boolean isTokensBaseDn(LdapName baseDn) {
-		return tokensBaseDn != null && baseDn.equals(tokensBaseDn);
+	protected boolean isTokensBaseDn(String basePath) {
+		return tokensBaseDn != null && toLdapName(basePath).equals(tokensBaseDn);
 	}
 
 //	protected Dictionary<String, Object> currentState() {
@@ -242,9 +262,18 @@ public class AggregatingUserAdmin implements UserAdmin {
 //		return res;
 //	}
 
-	public void destroy() {
+	public void start() {
+		if (systemRoles == null) {
+			// TODO do we really need separate system roles?
+			Hashtable<String, Object> properties = new Hashtable<>();
+			properties.put(DirectoryConf.baseDn.name(), "ou=roles,ou=system");
+			systemRoles = new DirectoryUserAdmin(properties);
+		}
+	}
+
+	public void stop() {
 		for (LdapName name : businessRoles.keySet()) {
-			AbstractUserDirectory userDirectory = businessRoles.get(name);
+			DirectoryUserAdmin userDirectory = businessRoles.get(name);
 			destroy(userDirectory);
 		}
 		businessRoles.clear();
@@ -253,17 +282,26 @@ public class AggregatingUserAdmin implements UserAdmin {
 		systemRoles = null;
 	}
 
-	private void destroy(AbstractUserDirectory userDirectory) {
+	private void destroy(DirectoryUserAdmin userDirectory) {
 		preDestroy(userDirectory);
 		userDirectory.destroy();
 	}
 
-	protected void removeUserDirectory(LdapName baseDn) {
-		if (isSystemRolesBaseDn(baseDn))
-			throw new UserDirectoryException("System roles cannot be removed ");
+//	protected void removeUserDirectory(UserDirectory userDirectory) {
+//		LdapName baseDn = toLdapName(userDirectory.getContext());
+//		businessRoles.remove(baseDn);
+//		if (userDirectory instanceof DirectoryUserAdmin)
+//			destroy((DirectoryUserAdmin) userDirectory);
+//	}
+
+	@Deprecated
+	protected void removeUserDirectory(String basePath) {
+		if (isSystemRolesBaseDn(basePath))
+			throw new IllegalArgumentException("System roles cannot be removed ");
+		LdapName baseDn = toLdapName(basePath);
 		if (!businessRoles.containsKey(baseDn))
-			throw new UserDirectoryException("No user directory registered for " + baseDn);
-		AbstractUserDirectory userDirectory = businessRoles.remove(baseDn);
+			throw new IllegalStateException("No user directory registered for " + baseDn);
+		DirectoryUserAdmin userDirectory = businessRoles.remove(baseDn);
 		destroy(userDirectory);
 	}
 
@@ -271,7 +309,14 @@ public class AggregatingUserAdmin implements UserAdmin {
 	 * Called before each user directory is destroyed, so that additional actions
 	 * can be performed.
 	 */
-	protected void preDestroy(AbstractUserDirectory userDirectory) {
+	protected void preDestroy(UserDirectory userDirectory) {
+	}
+
+	public Set<UserDirectory> getUserDirectories() {
+		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getBase().compareTo(o2.getBase()));
+		res.addAll(businessRoles.values());
+		res.add(systemRoles);
+		return res;
 	}
 
 }

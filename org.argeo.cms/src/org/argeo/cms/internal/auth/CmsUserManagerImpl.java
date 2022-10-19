@@ -8,33 +8,39 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 
+import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.auth.SystemRole;
 import org.argeo.cms.auth.UserAdminUtils;
-import org.argeo.osgi.transaction.WorkTransaction;
+import org.argeo.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.osgi.useradmin.TokenUtils;
-import org.argeo.osgi.useradmin.UserAdminConf;
 import org.argeo.osgi.useradmin.UserDirectory;
+import org.argeo.util.directory.DirectoryConf;
+import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.util.directory.ldap.LdapEntry;
+import org.argeo.util.directory.ldap.SharedSecret;
 import org.argeo.util.naming.LdapAttrs;
 import org.argeo.util.naming.NamingUtils;
-import org.argeo.util.naming.SharedSecret;
+import org.argeo.util.transaction.WorkTransaction;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
@@ -61,8 +67,21 @@ public class CmsUserManagerImpl implements CmsUserManager {
 //	private Map<String, String> serviceProperties;
 	private WorkTransaction userTransaction;
 
-	private Map<UserDirectory, Hashtable<String, Object>> userDirectories = Collections
-			.synchronizedMap(new LinkedHashMap<>());
+	private final String[] knownProps = { LdapAttrs.cn.name(), LdapAttrs.sn.name(), LdapAttrs.givenName.name(),
+			LdapAttrs.uid.name() };
+
+//	private Map<UserDirectory, Hashtable<String, Object>> userDirectories = Collections
+//			.synchronizedMap(new LinkedHashMap<>());
+
+	private Set<UserDirectory> userDirectories = new HashSet<>();
+
+	public void start() {
+		log.debug(() -> "CMS user manager available");
+	}
+
+	public void stop() {
+
+	}
 
 	@Override
 	public String getMyMail() {
@@ -76,7 +95,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	// ALL USER: WARNING access to this will be later reduced
 
-	/** Retrieve a user given his dn */
+	/** Retrieve a user given his dn, or <code>null</code> if it doesn't exist. */
 	public User getUser(String dn) {
 		return (User) getUserAdmin().getRole(dn);
 	}
@@ -113,9 +132,6 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		return false;
 	}
 
-	private final String[] knownProps = { LdapAttrs.cn.name(), LdapAttrs.sn.name(), LdapAttrs.givenName.name(),
-			LdapAttrs.uid.name() };
-
 	public Set<User> listUsersInGroup(String groupDn, String filter) {
 		Group group = (Group) userAdmin.getRole(groupDn);
 		if (group == null)
@@ -124,6 +140,22 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		addUsers(users, group, filter);
 		return users;
 	}
+
+//	@Override
+//	public Set<User> listAccounts(HierarchyUnit hierarchyUnit, boolean deep) {
+//		if(!hierarchyUnit.isFunctional())
+//			throw new IllegalArgumentException("Hierarchy unit "+hierarchyUnit.getBase()+" is not functional");
+//		UserDirectory directory = (UserDirectory)hierarchyUnit.getDirectory();
+//		Set<User> res = new HashSet<>();
+//		for(HierarchyUnit technicalHu:hierarchyUnit.getDirectHierarchyUnits(false)) {
+//			if(technicalHu.isFunctional())
+//				continue;
+//			for(Role role:directory.getHierarchyUnitRoles(technicalHu, null, false)) {
+//				if(role)
+//			}
+//		}
+//		return res;
+//	}
 
 	/** Recursively add users to list */
 	private void addUsers(Set<User> users, Group group, String filter) {
@@ -151,7 +183,8 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		List<User> users = new ArrayList<User>();
 		for (Role role : roles) {
 			if ((includeUsers && role.getType() == Role.USER || role.getType() == Role.GROUP) && !users.contains(role)
-					&& (includeSystemRoles || !role.getName().toLowerCase().endsWith(CmsConstants.ROLES_BASEDN))) {
+					&& (includeSystemRoles
+							|| !role.getName().toLowerCase().endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))) {
 				if (match(role, filter))
 					users.add((User) role);
 			}
@@ -194,6 +227,188 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		return buildDistinguishedName(localId, getDefaultDomainName(), type);
 	}
 
+	/*
+	 * EDITION
+	 */
+	@Override
+	public User createUser(String username, Map<String, Object> properties, Map<String, Object> credentials) {
+		try {
+			userTransaction.begin();
+			User user = (User) userAdmin.createRole(username, Role.USER);
+			if (properties != null) {
+				for (String key : properties.keySet())
+					user.getProperties().put(key, properties.get(key));
+			}
+			if (credentials != null) {
+				for (String key : credentials.keySet())
+					user.getCredentials().put(key, credentials.get(key));
+			}
+			userTransaction.commit();
+			return user;
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				log.error("Could not roll back", e1);
+			}
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException("Cannot create user " + username, e);
+		}
+	}
+
+	@Override
+	public Group getOrCreateGroup(HierarchyUnit groups, String commonName) {
+		try {
+			String dn = LdapAttrs.cn.name() + "=" + commonName + "," + groups.getBase();
+			Group group = (Group) getUserAdmin().getRole(dn);
+			if (group != null)
+				return group;
+			userTransaction.begin();
+			group = (Group) userAdmin.createRole(dn, Role.GROUP);
+			userTransaction.commit();
+			return group;
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				log.error("Could not roll back", e1);
+			}
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException("Cannot create group " + commonName + " in " + groups, e);
+		}
+	}
+
+	@Override
+	public Group getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole) {
+		try {
+			String dn = LdapAttrs.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole.getName()) + ","
+					+ roles.getBase();
+			Group group = (Group) getUserAdmin().getRole(dn);
+			if (group != null)
+				return group;
+			userTransaction.begin();
+			group = (Group) userAdmin.createRole(dn, Role.GROUP);
+			userTransaction.commit();
+			return group;
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				log.error("Could not roll back", e1);
+			}
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException("Cannot create system role " + systemRole + " in " + roles, e);
+		}
+	}
+
+	@Override
+	public HierarchyUnit getOrCreateHierarchyUnit(UserDirectory directory, String path) {
+		HierarchyUnit hi = directory.getHierarchyUnit(path);
+		if (hi != null)
+			return hi;
+		try {
+			userTransaction.begin();
+			HierarchyUnit hierarchyUnit = directory.createHierarchyUnit(path);
+			userTransaction.commit();
+			return hierarchyUnit;
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot create hierarchy unit " + path + " in directory " + directory, e1);
+		}
+	}
+
+	@Override
+	public void addObjectClasses(Role role, Set<String> objectClasses, Map<String, Object> additionalProperties) {
+		try {
+			userTransaction.begin();
+			LdapEntry.addObjectClasses(role.getProperties(), objectClasses);
+			for (String key : additionalProperties.keySet()) {
+				role.getProperties().put(key, additionalProperties.get(key));
+			}
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot add object classes " + objectClasses + " to " + role, e1);
+		}
+	}
+
+	@Override
+	public void addObjectClasses(HierarchyUnit hierarchyUnit, Set<String> objectClasses,
+			Map<String, Object> additionalProperties) {
+		try {
+			userTransaction.begin();
+			LdapEntry.addObjectClasses(hierarchyUnit.getProperties(), objectClasses);
+			for (String key : additionalProperties.keySet()) {
+				hierarchyUnit.getProperties().put(key, additionalProperties.get(key));
+			}
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot add object classes " + objectClasses + " to " + hierarchyUnit, e1);
+		}
+	}
+
+	@Override
+	public void edit(Runnable action) {
+		Objects.requireNonNull(action);
+		try {
+			userTransaction.begin();
+			action.run();
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot edit", e1);
+		}
+	}
+
+	@Override
+	public void addMember(Group group, Role role) {
+		try {
+			userTransaction.begin();
+			group.addMember(role);
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot add object classes " + role + " to group " + group, e1);
+		}
+	}
+
 	@Override
 	public String getDefaultDomainName() {
 		Map<String, String> dns = getKnownBaseDns(true);
@@ -204,53 +419,38 @@ public class CmsUserManagerImpl implements CmsUserManager {
 					+ dns.keySet().toString() + ". Unable to chose a default one.");
 	}
 
-//	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
-//		Map<String, String> dns = new HashMap<String, String>();
-//		String[] propertyKeys = serviceProperties.keySet().toArray(new String[serviceProperties.size()]);
-//		for (String uri : propertyKeys) {
-//			if (!uri.startsWith("/"))
-//				continue;
-//			Dictionary<String, ?> props = UserAdminConf.uriAsProperties(uri);
-//			String readOnly = UserAdminConf.readOnly.getValue(props);
-//			String baseDn = UserAdminConf.baseDn.getValue(props);
-//
-//			if (onlyWritable && "true".equals(readOnly))
-//				continue;
-//			if (baseDn.equalsIgnoreCase(NodeConstants.ROLES_BASEDN))
-//				continue;
-//			if (baseDn.equalsIgnoreCase(NodeConstants.TOKENS_BASEDN))
-//				continue;
-//			dns.put(baseDn, uri);
-//		}
-//		return dns;
-//	}
-
 	public Map<String, String> getKnownBaseDns(boolean onlyWritable) {
 		Map<String, String> dns = new HashMap<String, String>();
-		for (UserDirectory userDirectory : userDirectories.keySet()) {
+		for (UserDirectory userDirectory : userDirectories) {
 			Boolean readOnly = userDirectory.isReadOnly();
-			String baseDn = userDirectory.getBaseDn().toString();
+			String baseDn = userDirectory.getBase();
 
 			if (onlyWritable && readOnly)
 				continue;
-			if (baseDn.equalsIgnoreCase(CmsConstants.ROLES_BASEDN))
+			if (baseDn.equalsIgnoreCase(CmsConstants.SYSTEM_ROLES_BASEDN))
 				continue;
 			if (baseDn.equalsIgnoreCase(CmsConstants.TOKENS_BASEDN))
 				continue;
-			dns.put(baseDn, UserAdminConf.propertiesAsUri(userDirectories.get(userDirectory)).toString());
+			dns.put(baseDn, DirectoryConf.propertiesAsUri(userDirectory.getProperties()).toString());
 
 		}
 		return dns;
 	}
 
+	public Set<UserDirectory> getUserDirectories() {
+		TreeSet<UserDirectory> res = new TreeSet<>((o1, o2) -> o1.getBase().compareTo(o2.getBase()));
+		res.addAll(userDirectories);
+		return res;
+	}
+
 	public String buildDistinguishedName(String localId, String baseDn, int type) {
 		Map<String, String> dns = getKnownBaseDns(true);
-		Dictionary<String, ?> props = UserAdminConf.uriAsProperties(dns.get(baseDn));
+		Dictionary<String, ?> props = DirectoryConf.uriAsProperties(dns.get(baseDn));
 		String dn = null;
 		if (Role.GROUP == type)
-			dn = LdapAttrs.cn.name() + "=" + localId + "," + UserAdminConf.groupBase.getValue(props) + "," + baseDn;
+			dn = LdapAttrs.cn.name() + "=" + localId + "," + DirectoryConf.groupBase.getValue(props) + "," + baseDn;
 		else if (Role.USER == type)
-			dn = LdapAttrs.uid.name() + "=" + localId + "," + UserAdminConf.userBase.getValue(props) + "," + baseDn;
+			dn = LdapAttrs.uid.name() + "=" + localId + "," + DirectoryConf.userBase.getValue(props) + "," + baseDn;
 		else
 			throw new IllegalStateException("Unknown role type. " + "Cannot deduce dn for " + localId);
 		return dn;
@@ -431,6 +631,20 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		}
 	}
 
+	@Override
+	public UserDirectory getDirectory(Role user) {
+		String name = user.getName();
+		NavigableMap<String, UserDirectory> possible = new TreeMap<>();
+		for (UserDirectory userDirectory : userDirectories) {
+			if (name.endsWith(userDirectory.getBase())) {
+				possible.put(userDirectory.getBase(), userDirectory);
+			}
+		}
+		if (possible.size() == 0)
+			throw new IllegalStateException("No user directory found for user " + name);
+		return possible.lastEntry().getValue();
+	}
+
 //	public User createUserFromPerson(Node person) {
 //		String email = JcrUtils.get(person, LdapAttrs.mail.property());
 //		String dn = buildDefaultDN(email, Role.USER);
@@ -473,6 +687,13 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	/* DEPENDENCY INJECTION */
 	public void setUserAdmin(UserAdmin userAdmin) {
 		this.userAdmin = userAdmin;
+
+		if (userAdmin instanceof AggregatingUserAdmin) {
+			userDirectories = ((AggregatingUserAdmin) userAdmin).getUserDirectories();
+		} else {
+			throw new IllegalArgumentException("Only " + AggregatingUserAdmin.class.getName() + " is supported.");
+		}
+
 //		this.serviceProperties = serviceProperties;
 	}
 
@@ -480,12 +701,12 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		this.userTransaction = userTransaction;
 	}
 
-	public void addUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
-		userDirectories.put(userDirectory, new Hashtable<>(properties));
-	}
-
-	public void removeUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
-		userDirectories.remove(userDirectory);
-	}
+//	public void addUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
+//		userDirectories.put(userDirectory, new Hashtable<>(properties));
+//	}
+//
+//	public void removeUserDirectory(UserDirectory userDirectory, Map<String, Object> properties) {
+//		userDirectories.remove(userDirectory);
+//	}
 
 }

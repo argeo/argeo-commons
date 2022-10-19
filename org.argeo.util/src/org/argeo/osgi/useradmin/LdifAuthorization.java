@@ -71,15 +71,15 @@ class LdifAuthorization implements Authorization {
 
 	final static String extractDisplayName(User user) {
 		Dictionary<String, Object> props = user.getProperties();
-		Object displayName = props.get(LdapAttrs.displayName);
+		Object displayName = props.get(LdapAttrs.displayName.name());
 		if (displayName == null)
-			displayName = props.get(LdapAttrs.cn);
+			displayName = props.get(LdapAttrs.cn.name());
 		if (displayName == null)
-			displayName = props.get(LdapAttrs.uid);
+			displayName = props.get(LdapAttrs.uid.name());
 		if (displayName == null)
 			displayName = user.getName();
 		if (displayName == null)
-			throw new UserDirectoryException("Cannot set display name for " + user);
+			throw new IllegalStateException("Cannot set display name for " + user);
 		return displayName.toString();
 	}
 }

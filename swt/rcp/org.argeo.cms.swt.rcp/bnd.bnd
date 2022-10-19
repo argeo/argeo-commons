@@ -1,0 +1,12 @@
+
+Import-Package:\
+org.argeo.cms.auth,\
+org.eclipse.swt,\
+org.eclipse.swt.graphics,\
+org.w3c.css.sac,\
+*
+
+Service-Component:\
+OSGI-INF/cmsRcpDisplayFactory.xml,\
+OSGI-INF/cmsRcpServletFactory.xml
+

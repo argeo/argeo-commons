@@ -1,43 +1,35 @@
 package org.argeo.cms.acr;
 
-import java.security.AccessController;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
-import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
-import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
-import org.argeo.api.acr.CrName;
-import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedRepository;
-import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.CmsState;
+import org.argeo.api.cms.DataAdminPrincipal;
+import org.argeo.api.uuid.UuidFactory;
+import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.util.CurrentSubject;
 
-public class CmsContentRepository implements ProvidedRepository {
-	private NavigableMap<String, ContentProvider> partitions = new TreeMap<>();
+/**
+ * Multi-session {@link ProvidedRepository}, integrated with a CMS.
+ */
+public class CmsContentRepository extends AbstractContentRepository {
+	public final static String RUN_BASE = "/run";
+	public final static String DIRECTORY_BASE = "/directory";
 
-	// TODO synchronize ?
-	private NavigableMap<String, String> prefixes = new TreeMap<>();
+	private Map<CmsSession, CmsContentSession> userSessions = Collections.synchronizedMap(new HashMap<>());
 
-	public CmsContentRepository() {
-		prefixes.put(CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
-		prefixes.put("basic", CrName.CR_NAMESPACE_URI);
-		prefixes.put("owner", CrName.CR_NAMESPACE_URI);
-		prefixes.put("posix", CrName.CR_NAMESPACE_URI);
-	}
-
-	public void start() {
-
-	}
-
-	public void stop() {
-
-	}
+	private CmsState cmsState;
+	private UuidFactory uuidFactory;
 
 	/*
 	 * REPOSITORY
@@ -50,90 +42,52 @@ public class CmsContentRepository implements ProvidedRepository {
 
 	@Override
 	public ContentSession get(Locale locale) {
-		Subject subject = Subject.getSubject(AccessController.getContext());
-		return new CmsContentSession(subject, locale);
+		if (!CmsSession.hasCmsSession(CurrentSubject.current())) {
+			if (DataAdminPrincipal.isDataAdmin(CurrentSubject.current())) {
+				// TODO open multiple data admin sessions?
+				return getSystemSession();
+			}
+			throw new IllegalStateException("Caller must be authenticated");
+		}
+
+		CmsSession cmsSession = CurrentUser.getCmsSession();
+		CmsContentSession contentSession = userSessions.get(cmsSession);
+		if (contentSession == null) {
+			final CmsContentSession newContentSession = new CmsContentSession(this, cmsSession.getUuid(),
+					cmsSession.getSubject(), locale, uuidFactory);
+			cmsSession.addOnCloseCallback((c) -> {
+				newContentSession.close();
+				userSessions.remove(cmsSession);
+			});
+			contentSession = newContentSession;
+		}
+		return contentSession;
 	}
 
-	public void addProvider(String base, ContentProvider provider) {
-		partitions.put(base, provider);
+	@Override
+	protected CmsContentSession newSystemSession() {
+		LoginContext loginContext;
+		try {
+			loginContext = new LoginContext(CmsAuth.DATA_ADMIN.getLoginContextName());
+			loginContext.login();
+		} catch (LoginException e1) {
+			throw new RuntimeException("Could not login as data admin", e1);
+		} finally {
+		}
+		return new CmsContentSession(this, getCmsState().getUuid(), loginContext.getSubject(), Locale.getDefault(),
+				uuidFactory);
 	}
 
-	public void registerPrefix(String prefix, String namespaceURI) {
-		String registeredUri = prefixes.get(prefix);
-		if (registeredUri == null) {
-			prefixes.put(prefix, namespaceURI);
-			return;
-		}
-		if (!registeredUri.equals(namespaceURI))
-			throw new IllegalStateException("Prefix " + prefix + " is already registred for " + registeredUri);
-		// do nothing if same namespace is already registered
+	protected CmsState getCmsState() {
+		return cmsState;
 	}
 
-	/*
-	 * NAMESPACE CONTEXT
-	 */
+	public void setCmsState(CmsState cmsState) {
+		this.cmsState = cmsState;
+	}
 
-	/*
-	 * SESSION
-	 */
-
-	class CmsContentSession implements ProvidedSession {
-		private Subject subject;
-		private Locale locale;
-
-		public CmsContentSession(Subject subject, Locale locale) {
-			this.subject = subject;
-			this.locale = locale;
-		}
-
-		@Override
-		public Content get(String path) {
-			Map.Entry<String, ContentProvider> entry = partitions.floorEntry(path);
-			String mountPath = entry.getKey();
-			ContentProvider provider = entry.getValue();
-			String relativePath = path.substring(mountPath.length());
-			return provider.get(CmsContentSession.this, mountPath, relativePath);
-		}
-
-		@Override
-		public Subject getSubject() {
-			return subject;
-		}
-
-		@Override
-		public Locale getLocale() {
-			return locale;
-		}
-
-		@Override
-		public ProvidedRepository getRepository() {
-			return CmsContentRepository.this;
-		}
-
-		/*
-		 * NAMESPACE CONTEXT
-		 */
-
-		@Override
-		public String findNamespace(String prefix) {
-			return prefixes.get(prefix);
-		}
-
-		@Override
-		public Set<String> findPrefixes(String namespaceURI) {
-			Set<String> res = prefixes.entrySet().stream().filter(e -> e.getValue().equals(namespaceURI))
-					.map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
-
-			return res;
-		}
-
-		@Override
-		public String findPrefix(String namespaceURI) {
-			if (CrName.CR_NAMESPACE_URI.equals(namespaceURI) && prefixes.containsKey(CrName.CR_DEFAULT_PREFIX))
-				return CrName.CR_DEFAULT_PREFIX;
-			return ProvidedSession.super.findPrefix(namespaceURI);
-		}
-
+	public void setUuidFactory(UuidFactory uuidFactory) {
+		this.uuidFactory = uuidFactory;
 	}
 
 }

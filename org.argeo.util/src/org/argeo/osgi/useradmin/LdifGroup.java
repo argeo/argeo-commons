@@ -4,19 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.naming.InvalidNameException;
-import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.util.directory.ldap.AbstractLdapDirectory;
 import org.osgi.service.useradmin.Role;
 
 /** Directory group implementation */
 class LdifGroup extends LdifUser implements DirectoryGroup {
 	private final String memberAttributeId;
 
-	LdifGroup(AbstractUserDirectory userAdmin, LdapName dn, Attributes attributes) {
-		super(userAdmin, dn, attributes);
+	LdifGroup(AbstractLdapDirectory userAdmin, LdapName dn) {
+		super(userAdmin, dn);
 		memberAttributeId = userAdmin.getMemberAttributeId();
 	}
 
@@ -70,10 +69,10 @@ class LdifGroup extends LdifUser implements DirectoryGroup {
 	@Override
 	public Role[] getMembers() {
 		List<Role> directMembers = new ArrayList<Role>();
-		for (LdapName ldapName : getMemberNames()) {
+		for (LdapName ldapName : getReferences(memberAttributeId)) {
 			Role role = findRole(ldapName);
 			if (role == null) {
-				throw new UserDirectoryException("Role " + ldapName + " cannot be added.");
+				throw new IllegalStateException("Role " + ldapName + " not found.");
 			}
 			directMembers.add(role);
 		}
@@ -94,23 +93,23 @@ class LdifGroup extends LdifUser implements DirectoryGroup {
 		return role;
 	}
 
-	@Override
-	public List<LdapName> getMemberNames() {
-		Attribute memberAttribute = getAttributes().get(memberAttributeId);
-		if (memberAttribute == null)
-			return new ArrayList<LdapName>();
-		try {
-			List<LdapName> roles = new ArrayList<LdapName>();
-			NamingEnumeration<?> values = memberAttribute.getAll();
-			while (values.hasMore()) {
-				LdapName dn = new LdapName(values.next().toString());
-				roles.add(dn);
-			}
-			return roles;
-		} catch (Exception e) {
-			throw new UserDirectoryException("Cannot get members", e);
-		}
-	}
+//	@Override
+//	public List<LdapName> getMemberNames() {
+//		Attribute memberAttribute = getAttributes().get(memberAttributeId);
+//		if (memberAttribute == null)
+//			return new ArrayList<LdapName>();
+//		try {
+//			List<LdapName> roles = new ArrayList<LdapName>();
+//			NamingEnumeration<?> values = memberAttribute.getAll();
+//			while (values.hasMore()) {
+//				LdapName dn = new LdapName(values.next().toString());
+//				roles.add(dn);
+//			}
+//			return roles;
+//		} catch (NamingException e) {
+//			throw new IllegalStateException("Cannot get members", e);
+//		}
+//	}
 
 	@Override
 	public Role[] getRequiredMembers() {
@@ -120,5 +119,9 @@ class LdifGroup extends LdifUser implements DirectoryGroup {
 	@Override
 	public int getType() {
 		return GROUP;
+	}
+
+	protected DirectoryUserAdmin getUserAdmin() {
+		return (DirectoryUserAdmin) getDirectory();
 	}
 }

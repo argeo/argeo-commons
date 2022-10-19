@@ -1,7 +1,4 @@
 **/bin/
-**/target/
-**/generated/
 **/MANIFEST.MF
-/build/
 /sdk.mk
 /output/

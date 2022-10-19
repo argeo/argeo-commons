@@ -1,25 +1,19 @@
 package org.argeo.osgi.useradmin;
 
-import javax.naming.ldap.LdapName;
-import javax.transaction.xa.XAResource;
+import org.argeo.util.directory.Directory;
+import org.argeo.util.directory.HierarchyUnit;
+import org.osgi.service.useradmin.Role;
 
 /** Information about a user directory. */
-public interface UserDirectory {
-	/** The base DN of all entries in this user directory */
-	LdapName getBaseDn();
+public interface UserDirectory extends Directory {
 
-	/** The related {@link XAResource} */
-	XAResource getXaResource();
+	HierarchyUnit getHierarchyUnit(Role role);
 
-	boolean isReadOnly();
+	Iterable<? extends Role> getHierarchyUnitRoles(HierarchyUnit hierarchyUnit, String filter, boolean deep);
 
-	boolean isDisabled();
+	String getRolePath(Role role);
 
-	String getUserObjectClass();
+	String getRoleSimpleName(Role role);
 
-	String getUserBase();
-
-	String getGroupObjectClass();
-
-	String getGroupBase();
+	Role getRoleByPath(String path);
 }
