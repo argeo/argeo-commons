@@ -1,6 +1,4 @@
-Service-Component: OSGI-INF/homeRepository.xml,\
-OSGI-INF/userAdminWrapper.xml,\
-OSGI-INF/defaultCallbackHandler.xml
+Service-Component: OSGI-INF/defaultCallbackHandler.xml
 Bundle-ActivationPolicy: lazy
 
 Import-Package: \

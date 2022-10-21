@@ -5,7 +5,7 @@
       <children xsi:type="advanced:Perspective" xmi:id="_oI_oICnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.perspective.cmsadmin" label="CMS Admin">
         <children xsi:type="basic:PartSashContainer" xmi:id="_qc16ECnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.partsashcontainer.0" horizontal="true">
           <children xsi:type="basic:PartStack" xmi:id="_RE87kDsXEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.rcp.partstack.1">
-            <children xsi:type="basic:Part" xmi:id="_V1WvgDsXEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.rcp.part.files" contributionURI="bundleclass://org.argeo.cms.e4/org.argeo.cms.e4.files.NodeFsBrowserView" label="Files"/>
+            <children xsi:type="basic:Part" xmi:id="_V1WvgDsXEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.rcp.part.files" contributionURI="bundleclass://org.argeo.cms.jcr.e4/org.argeo.cms.e4.files.NodeFsBrowserView" label="Files"/>
             <children xsi:type="basic:Part" xmi:id="_vOqDQCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.part.jcr" containerData="4000" contributionURI="bundleclass://org.argeo.cms.jcr.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR"/>
           </children>
           <children xsi:type="basic:PartStack" xmi:id="_0eRiwCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.partstack.0" containerData="6000">

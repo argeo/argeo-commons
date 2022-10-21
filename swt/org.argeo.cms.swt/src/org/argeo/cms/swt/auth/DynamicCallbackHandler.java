@@ -6,7 +6,7 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.argeo.eclipse.ui.dialogs.LightweightDialog;
+import org.argeo.cms.swt.dialogs.LightweightDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;

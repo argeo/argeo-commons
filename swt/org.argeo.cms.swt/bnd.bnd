@@ -1,5 +1,6 @@
 Import-Package: org.eclipse.swt,\
 org.eclipse.jface.window,\
+org.eclipse.jface.dialogs,\
 org.eclipse.core.commands.common,\
 javax.servlet.*;version="[3,5)",\
 *
