@@ -393,7 +393,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 			}
 			return name;
 		} catch (InvalidNameException e) {
-			throw new IllegalStateException("Cannot get role " + path, e);
+			throw new IllegalStateException("Cannot convert " + path + " to LDAP name", e);
 		}
 
 	}
