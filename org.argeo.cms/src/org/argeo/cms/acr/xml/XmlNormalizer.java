@@ -13,11 +13,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -34,7 +36,9 @@ public class XmlNormalizer {
 //	private final static Logger logger = System.getLogger(XmlNormalizer.class.getName());
 
 	private DocumentBuilder documentBuilder;
-	private Transformer transformer;
+	private TransformerFactory transformerFactory;
+
+	private DOMSource stripSpaceXsl;
 
 	public XmlNormalizer() {
 		this(2);
@@ -43,12 +47,14 @@ public class XmlNormalizer {
 	public XmlNormalizer(int indent) {
 		try {
 			documentBuilder = DocumentBuilderFactory.newNSInstance().newDocumentBuilder();
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			transformerFactory = TransformerFactory.newInstance();
 			transformerFactory.setAttribute("indent-number", indent);
 			try (InputStream in = XmlNormalizer.class.getResourceAsStream("stripSpaces.xsl")) {
-				transformer = transformerFactory.newTransformer(new StreamSource(in));
+				DOMResult result = new DOMResult();
+				transformerFactory.newTransformer().transform(new StreamSource(in), result);
+				stripSpaceXsl = new DOMSource(result.getNode());
 			}
-		} catch (TransformerConfigurationException | ParserConfigurationException | TransformerFactoryConfigurationError
+		} catch (ParserConfigurationException | TransformerFactoryConfigurationError | TransformerException
 				| IOException e) {
 			throw new IllegalStateException("Cannot initialise document builder and transformer", e);
 		}
@@ -69,11 +75,20 @@ public class XmlNormalizer {
 		}
 	}
 
-	public void normalizeAndIndent(InputStream in, OutputStream out) throws IOException {
-		normalizeAndIndent(in, out, 2);
+	public void normalizeAndIndent(Source source, Result result) {
+		try {
+			Transformer transformer = transformerFactory.newTransformer(stripSpaceXsl);
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			// transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+			transformer.transform(source, result);
+		} catch (TransformerException e) {
+			throw new RuntimeException("Cannot strip space from " + source, e);
+		}
 	}
 
-	public void normalizeAndIndent(InputStream in, OutputStream out, int indent) throws IOException {
+	public void normalizeAndIndent(InputStream in, OutputStream out) throws IOException {
 		try {
 			Document document = documentBuilder.parse(in);
 
@@ -88,15 +103,19 @@ public class XmlNormalizer {
 //				node.getParentNode().removeChild(node);
 //			}
 
-			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			// transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-			transformer.transform(new DOMSource(document), new StreamResult(out));
-		} catch (DOMException | IllegalArgumentException | SAXException | TransformerFactoryConfigurationError
-				| TransformerException e) {
+			normalizeAndIndent(new DOMSource(document), new StreamResult(out));
+		} catch (DOMException | IllegalArgumentException | SAXException | TransformerFactoryConfigurationError e) {
 			throw new RuntimeException("Cannot normalise and indent XML", e);
 		}
+	}
+
+	public static void print(Source source, int indent) {
+		XmlNormalizer xmlNormalizer = new XmlNormalizer(indent);
+		xmlNormalizer.normalizeAndIndent(source, new StreamResult(System.out));
+	}
+
+	public static void print(Source source) {
+		print(source, 2);
 	}
 
 	public static void main(String[] args) throws IOException {
