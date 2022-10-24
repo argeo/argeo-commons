@@ -3,6 +3,7 @@ package org.argeo.cms.swt.widgets;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ux.widgets.DataPart;
 import org.argeo.cms.ux.widgets.DataView;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
@@ -16,8 +17,8 @@ public abstract class AbstractSwtView<INPUT, TYPE> extends Composite implements 
 	protected final SelectionListener selectionListener;
 
 	@SuppressWarnings("unchecked")
-	public AbstractSwtView(Composite parent, int style, DataPart<INPUT, TYPE> dataPart) {
-		super(parent, style);
+	public AbstractSwtView(Composite parent, DataPart<INPUT, TYPE> dataPart) {
+		super(parent, SWT.NONE);
 		setLayout(CmsSwtUtils.noSpaceGridLayout());
 
 		this.dataPart = dataPart;

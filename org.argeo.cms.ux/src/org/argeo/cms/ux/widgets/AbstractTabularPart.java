@@ -14,6 +14,7 @@ public abstract class AbstractTabularPart<INPUT, T> extends AbstractDataPart<INP
 		return columns.get(index);
 	}
 
+	@Override
 	public void addColumn(Column<T> column) {
 		columns.add(column);
 	}

@@ -2,6 +2,8 @@ package org.argeo.cms.ux.widgets;
 
 import org.argeo.api.cms.ux.CmsIcon;
 
+/** A column in a data representation. */
+@FunctionalInterface
 public interface Column<T> {
 	String getText(T model);
 

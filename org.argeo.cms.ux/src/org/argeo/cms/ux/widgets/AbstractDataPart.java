@@ -48,6 +48,12 @@ public abstract class AbstractDataPart<INPUT, T> implements DataPart<INPUT, T> {
 		}
 	}
 
+	protected void notifyItemCountChange() {
+		for (DataView<INPUT, T> view : views.keySet()) {
+			view.notifyItemCountChange();
+		}
+	}
+
 	@Override
 	public void addView(DataView<INPUT, T> view) {
 		views.put(view, new Object());

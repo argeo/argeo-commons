@@ -22,10 +22,10 @@ public class SwtTreeView<T> extends AbstractSwtView<T, T> {
 	private CmsSwtTheme theme;
 
 	public SwtTreeView(Composite parent, int style, HierarchicalPart<T> hierarchicalPart) {
-		super(parent, style, hierarchicalPart);
+		super(parent, hierarchicalPart);
 		theme = CmsSwtUtils.getCmsTheme(parent);
 
-		tree = new Tree(this, SWT.BORDER);
+		tree = new Tree(this, style);
 		tree.setLayoutData(CmsSwtUtils.fillAll());
 		this.hierarchicalPart = hierarchicalPart;
 
@@ -81,6 +81,14 @@ public class SwtTreeView<T> extends AbstractSwtView<T, T> {
 		if (grandChildren.size() != 0)
 			new TreeItem(item, SWT.NONE);
 		return item;
+	}
+	
+	
+
+	@Override
+	public void notifyItemCountChange() {
+		// TODO what to update ?
+		
 	}
 
 	protected Tree getTree() {
