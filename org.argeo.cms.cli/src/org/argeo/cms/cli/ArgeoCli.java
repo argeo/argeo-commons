@@ -22,7 +22,11 @@ public class ArgeoCli extends CommandsCli {
 
 	@Override
 	public String getDescription() {
-		return "Argeo utilities";
+		return "Argeo CMS utilities";
+	}
+
+	public static void main(String[] args) {
+		mainImpl(new ArgeoCli("argeo"), args);
 	}
 
 }

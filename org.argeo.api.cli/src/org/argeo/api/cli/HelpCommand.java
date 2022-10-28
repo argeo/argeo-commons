@@ -6,10 +6,20 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 /** A special command that can describe {@link DescribedCommand}. */
 public class HelpCommand implements DescribedCommand<String> {
+	/**
+	 * System property forcing the root command to this value (typically the name of
+	 * a script).
+	 */
+	public final static String ROOT_COMMAND_PROPERTY = "org.argeo.api.cli.rootCommand";
+
+	final static String HELP = "help";
+	final static Option HELP_OPTION = Option.builder().longOpt(HELP).desc("print this help").build();
+
 	private CommandsCli commandsCli;
 	private CommandsCli parentCommandsCli;
 
@@ -91,6 +101,9 @@ public class HelpCommand implements DescribedCommand<String> {
 		if (hc.getParentCommandsCli() != null) {
 			return getCommandCall(hc.getParentCommandsCli()) + " " + commandsCli.getCommandName();
 		} else {
+			String rootCommand = System.getProperty(ROOT_COMMAND_PROPERTY);
+			if (rootCommand != null)
+				return rootCommand;
 			return commandsCli.getCommandName();
 		}
 	}
@@ -99,8 +112,10 @@ public class HelpCommand implements DescribedCommand<String> {
 		String usage = "java " + command.getClass().getName()
 				+ (command.getUsage() != null ? " " + command.getUsage() : "");
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), command.getOptions(),
-				helpLeftPad, helpDescPad, command.getExamples(), false);
+		Options options = command.getOptions();
+		options.addOption(HelpCommand.HELP_OPTION);
+		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), options, helpLeftPad,
+				helpDescPad, command.getExamples(), false);
 
 	}
 
@@ -108,8 +123,10 @@ public class HelpCommand implements DescribedCommand<String> {
 		DescribedCommand<?> command = (DescribedCommand<?>) commandsCli.getCommand(commandName);
 		String usage = commandsCli.getHelpCommand().getCommandUsage(commandName, command);
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), command.getOptions(),
-				helpLeftPad, helpDescPad, command.getExamples(), false);
+		Options options = command.getOptions();
+		options.addOption(HelpCommand.HELP_OPTION);
+		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), options, helpLeftPad,
+				helpDescPad, command.getExamples(), false);
 
 	}
 

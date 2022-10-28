@@ -1,5 +1,6 @@
 package org.argeo.api.cli;
 
+/** Exception thrown when the provided arguments are not correct. */
 public class CommandArgsException extends IllegalArgumentException {
 	private static final long serialVersionUID = -7271050747105253935L;
 	private String commandName;

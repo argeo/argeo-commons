@@ -3,7 +3,7 @@ package org.argeo.api.cli;
 import java.util.List;
 
 /** {@link RuntimeException} referring during a command run. */
-public class CommandRuntimeException extends RuntimeException {
+class CommandRuntimeException extends RuntimeException {
 	private static final long serialVersionUID = 5595999301269377128L;
 
 	private final DescribedCommand<?> command;

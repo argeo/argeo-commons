@@ -18,8 +18,6 @@ import org.apache.commons.cli.ParseException;
 
 /** Base class for a CLI managing sub commands. */
 public abstract class CommandsCli implements DescribedCommand<Object> {
-	public final static String HELP = "help";
-
 	private final String commandName;
 	private Map<String, Function<List<String>, ?>> commands = new TreeMap<>();
 
@@ -33,11 +31,17 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 	public Object apply(List<String> args) {
 		String cmd = null;
 		List<String> newArgs = new ArrayList<>();
+		boolean isHelpOption = false;
 		try {
 			CommandLineParser clParser = new DefaultParser();
 			CommandLine commonCl = clParser.parse(getOptions(), args.toArray(new String[args.size()]), true);
 			List<String> leftOvers = commonCl.getArgList();
 			for (String arg : leftOvers) {
+				if (arg.equals("--" + HelpCommand.HELP_OPTION.getLongOpt())) {
+					isHelpOption = true;
+					// TODO break?
+				}
+
 				if (!arg.startsWith("-") && cmd == null) {
 					cmd = arg;
 				} else {
@@ -50,6 +54,18 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 		}
 
 		Function<List<String>, ?> function = cmd != null ? getCommand(cmd) : getDefaultCommand();
+
+		// --help option
+		if (!(function instanceof CommandsCli))
+			if (function instanceof DescribedCommand<?> command)
+				if (isHelpOption) {
+					throw new PrintHelpRequestException(cmd, this);
+//					StringWriter out = new StringWriter();
+//					HelpCommand.printHelp(command, out);
+//					System.out.println(out.toString());
+//					return null;
+				}
+
 		if (function == null)
 			throw new IllegalArgumentException("Uknown command " + cmd);
 		try {
@@ -85,7 +101,7 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 
 	protected void addCommandsCli(CommandsCli commandsCli) {
 		addCommand(commandsCli.getCommandName(), commandsCli);
-		commandsCli.addCommand(HELP, new HelpCommand(this, commandsCli));
+		commandsCli.addCommand(HelpCommand.HELP, new HelpCommand(this, commandsCli));
 	}
 
 	public String getCommandName() {
@@ -101,7 +117,7 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 	}
 
 	public HelpCommand getHelpCommand() {
-		return (HelpCommand) getCommand(HELP);
+		return (HelpCommand) getCommand(HelpCommand.HELP);
 	}
 
 	public Function<List<String>, String> getDefaultCommand() {
@@ -111,10 +127,15 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 	/** In order to implement quickly a main method. */
 	public static void mainImpl(CommandsCli cli, String[] args) {
 		try {
-			cli.addCommand(CommandsCli.HELP, new HelpCommand(null, cli));
+			cli.addCommand(HelpCommand.HELP, new HelpCommand(null, cli));
 			Object output = cli.apply(Arrays.asList(args));
-			System.out.println(output);
+			if (output != null)
+				System.out.println(output);
 			System.exit(0);
+		} catch (PrintHelpRequestException e) {
+			StringWriter out = new StringWriter();
+			HelpCommand.printHelp(e.getCommandsCli(), e.getCommandName(), out);
+			System.out.println(out.toString());
 		} catch (CommandArgsException e) {
 			System.err.println("Wrong arguments " + Arrays.toString(args) + ": " + e.getMessage());
 			Throwable cause = e.getCause();
