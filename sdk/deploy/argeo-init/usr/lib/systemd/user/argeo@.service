@@ -1,7 +1,5 @@
 [Unit]
-Description=Argeo node %I
-After=network.target
-Wants=postgresql.service
+Description=Argeo user node %I
 
 [Service]
 Type=simple
@@ -9,11 +7,11 @@ StateDirectory=argeo.d/%I
 LogsDirectory=argeo.d/%I
 ConfigurationDirectory=argeo.d/%I
 CacheDirectory=argeo.d/%I
-WorkingDirectory=/var/lib/argeo.d/%I
+#WorkingDirectory=
 
 ExecStart=java \
 -Dosgi.configuration.cascaded=true \
--Dosgi.sharedConfiguration.area=/etc/argeo.d/%I/ \
+-Dosgi.sharedConfiguration.area=/etc/argeo.user.d/%I/ \
 -Dosgi.sharedConfiguration.area.readOnly=true \
 -Dosgi.configuration.area=${STATE_DIRECTORY}/state/ \
 -Dosgi.instance.area=${STATE_DIRECTORY}/data/ \
@@ -21,8 +19,9 @@ ExecStart=java \
 -Declipse.ignoreApp=true \
 -Dosgi.noShutdown=true \
 -Dorg.eclipse.equinox.http.jetty.autostart=false \
-@/etc/argeo.d/jvm.args \
-@${CONFIGURATION_DIRECTORY}/jvm.args \
+-Djava.library.path=/usr/lib/a2/swt/rcp/org.argeo.tp.swt/ \
+@/etc/argeo.user.d/jvm.args \
+@/etc/argeo.user.d/%I/jvm.args \
 @/usr/share/argeo/jvm.args
 # Exit codes of the JVM when SIGTERM or SIGINT have been caught:
 SuccessExitStatus=143 130
