@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
@@ -23,10 +24,7 @@ import com.sun.net.httpserver.HttpServer;
 /** Publishes one {@link CmsRcpServlet} per {@link CmsApp}. */
 public class CmsRcpServletFactory {
 	private final static Logger logger = System.getLogger(CmsRcpServletFactory.class.getName());
-	private HttpServer httpServer;
-//	private BundleContext bundleContext = FrameworkUtil.getBundle(CmsRcpServletFactory.class).getBundleContext();
-//
-//	private Map<String, ServiceRegistration<Servlet>> registrations = Collections.synchronizedMap(new HashMap<>());
+	private CompletableFuture<HttpServer> httpServer =new CompletableFuture<>();
 
 	public void init() {
 
@@ -46,37 +44,33 @@ public class CmsRcpServletFactory {
 	public void addCmsApp(CmsApp cmsApp, Map<String, String> properties) {
 		final String contextName = properties.get(CmsApp.CONTEXT_NAME_PROPERTY);
 		if (contextName != null) {
-			httpServer.createContext("/" + contextName, new HttpHandler() {
+			httpServer.thenAcceptAsync((httpServer) -> {
+				httpServer.createContext("/" + contextName, new HttpHandler() {
 
-				@Override
-				public void handle(HttpExchange exchange) throws IOException {
-					String path = exchange.getRequestURI().getPath();
-					String uiName = path != null ? path.substring(path.lastIndexOf('/') + 1) : "";
-					CmsRcpDisplayFactory.openCmsApp(cmsApp, uiName, null);
-					exchange.sendResponseHeaders(200, -1);
-					logger.log(Level.DEBUG, "Opened RCP UI  " + uiName + " of  CMS App /" + contextName);
-				}
+					@Override
+					public void handle(HttpExchange exchange) throws IOException {
+						String path = exchange.getRequestURI().getPath();
+						String uiName = path != null ? path.substring(path.lastIndexOf('/') + 1) : "";
+						CmsRcpDisplayFactory.openCmsApp(cmsApp, uiName, null);
+						exchange.sendResponseHeaders(200, -1);
+						logger.log(Level.DEBUG, "Opened RCP UI  " + uiName + " of  CMS App /" + contextName);
+					}
+				});
 			});
 			logger.log(Level.DEBUG, "Registered RCP CMS APP /" + contextName);
-//			CmsRcpServlet servlet = new CmsRcpServlet(cmsApp);
-//			Hashtable<String, String> serviceProperties = new Hashtable<>();
-//			serviceProperties.put("osgi.http.whiteboard.servlet.pattern", "/" + contextName + "/*");
-//			ServiceRegistration<Servlet> sr = bundleContext.registerService(Servlet.class, servlet, serviceProperties);
-//			registrations.put(contextName, sr);
 		}
 	}
 
 	public void removeCmsApp(CmsApp cmsApp, Map<String, String> properties) {
 		String contextName = properties.get(CmsApp.CONTEXT_NAME_PROPERTY);
 		if (contextName != null) {
-			httpServer.removeContext("/" + contextName);
-//			ServiceRegistration<Servlet> sr = registrations.get(contextName);
-//			sr.unregister();
+			httpServer.thenAcceptAsync((httpServer) -> {
+				httpServer.removeContext("/" + contextName);
+			});
 		}
 	}
 
 	public void setHttpServer(HttpServer httpServer) {
-		this.httpServer = httpServer;
 		Integer httpPort = httpServer.getAddress().getPort();
 		String baseUrl = "http://localhost:" + httpPort + "/";
 		Path runFile = CmsRcpDisplayFactory.getUrlRunFile();
@@ -100,6 +94,7 @@ public class CmsRcpServletFactory {
 			throw new RuntimeException("Cannot write run file to " + runFile, e);
 		}
 		logger.log(DEBUG, "RCP available under " + baseUrl + ", written to " + runFile);
+		this.httpServer.complete(httpServer);
 	}
 
 	protected boolean isPortAvailable(int port) {
