@@ -28,6 +28,12 @@ import org.osgi.framework.Version;
 public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	protected final Map<String, A2Contribution> contributions = Collections.synchronizedSortedMap(new TreeMap<>());
 
+	private final boolean useReference;
+
+	public AbstractProvisioningSource(boolean useReference) {
+		this.useReference = useReference;
+	}
+
 	public Iterable<A2Contribution> listContributions(Object filter) {
 		return contributions.values();
 	}
@@ -35,16 +41,25 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	@Override
 	public Bundle install(BundleContext bc, A2Module module) {
 		try {
-			Path tempJar = null;
-			if (module.getLocator() instanceof Path && Files.isDirectory((Path) module.getLocator()))
-				tempJar = toTempJar((Path) module.getLocator());
-			Bundle bundle;
-			try (InputStream in = newInputStream(tempJar != null ? tempJar : module.getLocator())) {
-				bundle = bc.installBundle(module.getBranch().getCoordinates(), in);
+			Object locator = module.getLocator();
+			if (useReference && locator instanceof Path locatorPath) {
+				String referenceUrl = "reference:file:" + locatorPath.toString();
+				Bundle bundle = bc.installBundle(referenceUrl);
+				return bundle;
+			} else {
+
+				Path tempJar = null;
+				if (locator instanceof Path && Files.isDirectory((Path) locator))
+					tempJar = toTempJar((Path) locator);
+				Bundle bundle;
+				try (InputStream in = newInputStream(tempJar != null ? tempJar : locator)) {
+					bundle = bc.installBundle(module.getBranch().getCoordinates(), in);
+				}
+
+				if (tempJar != null)
+					Files.deleteIfExists(tempJar);
+				return bundle;
 			}
-			if (tempJar != null)
-				Files.deleteIfExists(tempJar);
-			return bundle;
 		} catch (BundleException | IOException e) {
 			throw new A2Exception("Cannot install module " + module, e);
 		}
@@ -53,14 +68,21 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	@Override
 	public void update(Bundle bundle, A2Module module) {
 		try {
-			Path tempJar = null;
-			if (module.getLocator() instanceof Path && Files.isDirectory((Path) module.getLocator()))
-				tempJar = toTempJar((Path) module.getLocator());
-			try (InputStream in = newInputStream(tempJar != null ? tempJar : module.getLocator())) {
-				bundle.update(in);
+			Object locator = module.getLocator();
+			if (useReference && locator instanceof Path) {
+				try (InputStream in = newInputStream(locator)) {
+					bundle.update(in);
+				}
+			} else {
+				Path tempJar = null;
+				if (locator instanceof Path && Files.isDirectory((Path) locator))
+					tempJar = toTempJar((Path) locator);
+				try (InputStream in = newInputStream(tempJar != null ? tempJar : locator)) {
+					bundle.update(in);
+				}
+				if (tempJar != null)
+					Files.deleteIfExists(tempJar);
 			}
-			if (tempJar != null)
-				Files.deleteIfExists(tempJar);
 		} catch (BundleException | IOException e) {
 			throw new A2Exception("Cannot update module " + module, e);
 		}

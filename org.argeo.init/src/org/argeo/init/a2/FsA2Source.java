@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -18,15 +17,16 @@ import org.osgi.framework.Version;
 /** A file system {@link AbstractProvisioningSource} in A2 format. */
 public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 	private final Path base;
-	private Map<String, String> xOr;
+	private final Map<String, String> xOr;
 
-	public FsA2Source(Path base) {
-		this(base, new HashMap<>());
-	}
+//	public FsA2Source(Path base) {
+//		this(base, new HashMap<>());
+//	}
 
-	public FsA2Source(Path base, Map<String, String> xOr) {
+	public FsA2Source(Path base, Map<String, String> xOr, boolean useReference) {
+		super(useReference);
 		this.base = base;
-		this.xOr = xOr;
+		this.xOr = new HashMap<>(xOr);
 	}
 
 	void load() throws IOException {
@@ -92,19 +92,8 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 					String ext = moduleFileName.substring(lastDot + 1);
 					if (!"jar".equals(ext))
 						continue modules;
-//					String moduleName = moduleFileName.substring(0, lastDot);
-//					if (moduleName.endsWith("-SNAPSHOT"))
-//						moduleName = moduleName.substring(0, moduleName.length() - "-SNAPSHOT".length());
-//					int lastDash = moduleName.lastIndexOf('-');
-//					String versionStr = moduleName.substring(lastDash + 1);
-//					String componentName = moduleName.substring(0, lastDash);
-					// if(versionStr.endsWith("-SNAPSHOT")) {
-					// versionStr = readVersionFromModule(modulePath);
-					// }
 					Version version;
-//					try {
-//						version = new Version(versionStr);
-//					} catch (Exception e) {
+					// TODO optimise? check attributes?
 					String[] nameVersion = readNameVersionFromModule(modulePath);
 					String componentName = nameVersion[0];
 					String versionStr = nameVersion[1];
@@ -139,19 +128,19 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 		}
 	}
 
-	public static void main(String[] args) {
-		if (args.length == 0)
-			throw new IllegalArgumentException("Usage: <path to A2 base>");
-		try {
-			Map<String, String> xOr = new HashMap<>();
-			xOr.put("osgi", "equinox");
-			xOr.put("swt", "rap");
-			FsA2Source context = new FsA2Source(Paths.get(args[0]), xOr);
-			context.load();
-			context.asTree();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	public static void main(String[] args) {
+//		if (args.length == 0)
+//			throw new IllegalArgumentException("Usage: <path to A2 base>");
+//		try {
+//			Map<String, String> xOr = new HashMap<>();
+//			xOr.put("osgi", "equinox");
+//			xOr.put("swt", "rap");
+//			FsA2Source context = new FsA2Source(Paths.get(args[0]), xOr);
+//			context.load();
+//			context.asTree();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 }
