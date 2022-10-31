@@ -23,8 +23,6 @@ public class CmsAuthenticator extends Authenticator {
 
 	@Override
 	public Result authenticate(HttpExchange exch) {
-//		if (log.isTraceEnabled())
-//			HttpUtils.logRequestHeaders(log, request);
 		RemoteAuthHttpExchange remoteAuthExchange = new RemoteAuthHttpExchange(exch);
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(CmsAuthenticator.class.getClassLoader());
@@ -49,20 +47,6 @@ public class CmsAuthenticator extends Authenticator {
 
 		Subject subject = lc.getSubject();
 
-//		CurrentSubject.callAs(subject, () -> {
-//			RemoteAuthUtils.configureRequestSecurity(remoteAuthExchange);
-//			return null;
-//		});
-//		Subject.doAs(subject, new PrivilegedAction<Void>() {
-//
-//			@Override
-//			public Void run() {
-//				// TODO also set login context in order to log out ?
-//				RemoteAuthUtils.configureRequestSecurity(new ServletHttpRequest(request));
-//				return null;
-//			}
-//
-//		});
 		String username = CurrentUser.getUsername(subject);
 		HttpPrincipal httpPrincipal = new HttpPrincipal(username, httpAuthRealm);
 		return new Authenticator.Success(httpPrincipal);
