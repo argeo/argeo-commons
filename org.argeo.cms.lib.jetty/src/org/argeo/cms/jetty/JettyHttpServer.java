@@ -124,7 +124,7 @@ public class JettyHttpServer extends HttpsServer {
 			started = true;
 		} catch (Exception e) {
 			stop();
-			throw new IllegalStateException("Cannot start Jetty HTTPS server", e);
+			throw new IllegalStateException("Cannot start Jetty HTTP server", e);
 		}
 	}
 

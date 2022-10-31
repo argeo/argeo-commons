@@ -14,17 +14,19 @@ import java.util.concurrent.ExecutionException;
 /** Tests connectivity to the web socket server. */
 public class WsPing implements Runnable {
 	private final static int PING_FRAME_SIZE = 125;
+	private final static DecimalFormat decimalFormat = new DecimalFormat("0.0");
+	static {
+		decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
+	}
 
 	private final URI uri;
 	private final UUID uuid;
 
-	private final DecimalFormat decimalFormat;
+	private WebSocket webSocket;
 
 	public WsPing(URI uri) {
 		this.uri = uri;
 		this.uuid = UUID.randomUUID();
-		decimalFormat = new DecimalFormat("0.0");
-		decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
 	}
 
 	@Override
@@ -52,7 +54,7 @@ public class WsPing implements Runnable {
 
 			HttpClient client = HttpClient.newHttpClient();
 			CompletableFuture<WebSocket> ws = client.newWebSocketBuilder().buildAsync(uri, listener);
-			WebSocket webSocket = ws.get();
+			webSocket = ws.get();
 			webSocket.request(Long.MAX_VALUE);
 
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "")));
@@ -67,19 +69,22 @@ public class WsPing implements Runnable {
 				webSocket.sendPing(buffer);
 				Thread.sleep(1000);
 			}
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+		} catch (InterruptedException e) {
+			if (webSocket != null)
+				webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "");
+		} catch (ExecutionException e) {
+			throw new RuntimeException("Cannot ping " + uri, e.getCause());
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		if (args.length == 0) {
-			System.err.println("usage: java " + WsPing.class.getName() + " <url>");
-			System.exit(1);
-			return;
-		}
-		URI uri = URI.create(args[0]);
-		new WsPing(uri).run();
-	}
+//	public static void main(String[] args) throws Exception {
+//		if (args.length == 0) {
+//			System.err.println("usage: java " + WsPing.class.getName() + " <url>");
+//			System.exit(1);
+//			return;
+//		}
+//		URI uri = URI.create(args[0]);
+//		new WsPing(uri).run();
+//	}
 
 }
