@@ -32,6 +32,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 
+/** An {@link HttpServer} implementation based on Jetty. */
 public class JettyHttpServer extends HttpsServer {
 	private final static CmsLog log = CmsLog.getLog(JettyHttpServer.class);
 
@@ -95,15 +96,9 @@ public class JettyHttpServer extends HttpsServer {
 			// httpContext.addServlet(holder, "/*");
 			if (rootContextHandler != null)
 				configureRootContextHandler(rootContextHandler);
-//			server.setHandler(rootContextHandler);
 
-//			ContextHandlerCollection contextHandlers = new ContextHandlerCollection();
 			if (rootContextHandler != null && !contexts.containsKey("/"))
 				contextHandlerCollection.addHandler(rootContextHandler);
-//			for (String contextPath : contexts.keySet()) {
-//				JettyHttpContext ctx = contexts.get(contextPath);
-//				contextHandlers.addHandler(ctx.getContextHandler());
-//			}
 
 			server.setHandler(contextHandlerCollection);
 
@@ -115,19 +110,20 @@ public class JettyHttpServer extends HttpsServer {
 			// Addresses
 			String httpHost = getDeployProperty(CmsDeployProperty.HOST);
 			String fallBackHostname = cmsState != null ? cmsState.getHostname() : "::1";
-			if (httpConnector != null)
+			if (httpConnector != null) {
 				httpAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname,
 						httpConnector.getLocalPort());
-			if (httpsConnector != null)
+			} else if (httpsConnector != null) {
 				httpsAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname,
 						httpsConnector.getLocalPort());
-
+			}
 			// Clean up
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(), "Jetty shutdown"));
 
 			log.info(httpPortsMsg());
 			started = true;
 		} catch (Exception e) {
+			stop();
 			throw new IllegalStateException("Cannot start Jetty HTTPS server", e);
 		}
 	}
@@ -141,12 +137,11 @@ public class JettyHttpServer extends HttpsServer {
 
 	public void stop() {
 		try {
-			// serverConnector.close();
 			server.stop();
 			// TODO delete temp dir
 			started = false;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Cannot stop Jetty HTTP server", e);
 		}
 
 	}
@@ -197,7 +192,10 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public InetSocketAddress getAddress() {
-		return httpAddress;
+		InetSocketAddress res = httpAddress != null ? httpAddress : httpsAddress;
+		if (res == null)
+			throw new IllegalStateException("Neither an HTTP nor and HTTPS address is available");
+		return res;
 	}
 
 	@Override
@@ -215,11 +213,13 @@ public class JettyHttpServer extends HttpsServer {
 
 		String httpPortStr = getDeployProperty(CmsDeployProperty.HTTP_PORT);
 		String httpsPortStr = getDeployProperty(CmsDeployProperty.HTTPS_PORT);
+		if (httpPortStr != null && httpsPortStr != null)
+			throw new IllegalArgumentException("Either an HTTP or an HTTPS should be configured, not both");
+		if (httpPortStr == null && httpsPortStr == null)
+			throw new IllegalArgumentException("Neither an HTTP or HTTPS port was configured");
 
 		/// TODO make it more generic
 		String httpHost = getDeployProperty(CmsDeployProperty.HOST);
-//		String httpsHost = getFrameworkProp(
-//				JettyConfig.JETTY_PROPERTY_PREFIX + CmsHttpConstants.HTTPS_HOST);
 
 		// try {
 		if (httpPortStr != null || httpsPortStr != null) {
@@ -227,9 +227,8 @@ public class JettyHttpServer extends HttpsServer {
 //			String fallBackHostname = InetAddress.getLocalHost().getHostName();
 
 			boolean httpEnabled = httpPortStr != null;
-			// props.put(JettyHttpConstants.HTTP_ENABLED, httpEnabled);
 			boolean httpsEnabled = httpsPortStr != null;
-			// props.put(JettyHttpConstants.HTTPS_ENABLED, httpsEnabled);
+
 			if (httpsEnabled) {
 				int httpsPort = Integer.parseInt(httpsPortStr);
 				httpConfiguration.setSecureScheme("https");
