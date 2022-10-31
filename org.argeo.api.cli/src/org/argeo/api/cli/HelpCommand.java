@@ -120,6 +120,10 @@ public class HelpCommand implements DescribedCommand<String> {
 	}
 
 	public static void printHelp(CommandsCli commandsCli, String commandName, StringWriter out) {
+		if (commandName == null) {
+			printHelp(commandsCli, out);
+			return;
+		}
 		DescribedCommand<?> command = (DescribedCommand<?>) commandsCli.getCommand(commandName);
 		String usage = commandsCli.getHelpCommand().getCommandUsage(commandName, command);
 		HelpFormatter formatter = new HelpFormatter();

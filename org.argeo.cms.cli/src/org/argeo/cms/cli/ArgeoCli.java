@@ -15,6 +15,7 @@ public class ArgeoCli extends CommandsCli {
 				Option.builder("D").hasArgs().argName("property=value").desc("use value for given property").build());
 
 		// common
+		addCommandsCli(new CmsCommands("cms"));
 		addCommandsCli(new SshCli("ssh"));
 		addCommandsCli(new PosixCommands("posix"));
 		addCommandsCli(new FsCommands("fs"));
