@@ -214,7 +214,7 @@ public class JettyHttpServer extends HttpsServer {
 		String httpPortStr = getDeployProperty(CmsDeployProperty.HTTP_PORT);
 		String httpsPortStr = getDeployProperty(CmsDeployProperty.HTTPS_PORT);
 		if (httpPortStr != null && httpsPortStr != null)
-			throw new IllegalArgumentException("Either an HTTP or an HTTPS should be configured, not both");
+			throw new IllegalArgumentException("Either an HTTP or an HTTPS port should be configured, not both");
 		if (httpPortStr == null && httpsPortStr == null)
 			throw new IllegalArgumentException("Neither an HTTP or HTTPS port was configured");
 
