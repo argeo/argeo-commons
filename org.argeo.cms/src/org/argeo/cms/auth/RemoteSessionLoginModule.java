@@ -22,7 +22,7 @@ import org.argeo.cms.internal.runtime.CmsStateImpl;
 import org.argeo.util.http.HttpHeader;
 import org.osgi.service.useradmin.Authorization;
 
-/** Use the HTTP session as the basis for authentication. */
+/** Use a remote session as the basis for authentication. */
 public class RemoteSessionLoginModule implements LoginModule {
 	private final static CmsLog log = CmsLog.getLog(RemoteSessionLoginModule.class);
 
@@ -64,8 +64,6 @@ public class RemoteSessionLoginModule implements LoginModule {
 				return false;
 			// TODO factorize with below
 			String httpSessionId = httpSession.getId();
-//			if (log.isTraceEnabled())
-//				log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
 			CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessionId);
 			if (cmsSession != null && !cmsSession.isAnonymous()) {
 				authorization = cmsSession.getAuthorization();
@@ -77,16 +75,8 @@ public class RemoteSessionLoginModule implements LoginModule {
 			authorization = (Authorization) request.getAttribute(RemoteAuthRequest.AUTHORIZATION);
 			if (authorization == null) {// search by session ID
 				RemoteAuthSession httpSession = request.getSession();
-//				if (httpSession == null) {
-//					// TODO make sure this is always safe
-//					if (log.isTraceEnabled())
-//						log.trace("Create http session");
-//					httpSession = request.createSession();
-//				}
 				if (httpSession != null) {
 					String httpSessionId = httpSession.getId();
-//				if (log.isTraceEnabled())
-//					log.trace("HTTP login: " + request.getPathInfo() + " #" + httpSessionId);
 					CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessionId);
 					if (cmsSession != null && !cmsSession.isAnonymous()) {
 						authorization = cmsSession.getAuthorization();
@@ -191,15 +181,6 @@ public class RemoteSessionLoginModule implements LoginModule {
 				}
 			}
 		}
-
-		// auth token
-		// String mail = request.getParameter(LdapAttrs.mail.name());
-		// String authPassword = request.getParameter(LdapAttrs.authPassword.name());
-		// if (authPassword != null) {
-		// sharedState.put(CmsAuthUtils.SHARED_STATE_PWD, authPassword);
-		// if (mail != null)
-		// sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, mail);
-		// }
 	}
 
 	private void extractClientCertificate(RemoteAuthRequest req) {

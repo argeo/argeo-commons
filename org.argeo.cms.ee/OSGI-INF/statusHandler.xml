@@ -4,6 +4,6 @@
    <service>
       <provide interface="com.sun.net.httpserver.HttpHandler"/>
    </service>
-   <property name="context.path" type="String" value="/cms/status"/>
+   <property name="context.path" type="String" value="/cms/status/"/>
    <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
 </scr:component>

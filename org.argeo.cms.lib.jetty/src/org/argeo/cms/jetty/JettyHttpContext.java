@@ -1,23 +1,15 @@
 package org.argeo.cms.jetty;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.websocket.DeploymentException;
 import javax.websocket.server.ServerContainer;
 
-import org.argeo.cms.servlet.httpserver.HttpContextServlet;
 import org.argeo.cms.websocket.server.WebsocketEndpoints;
-import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
 import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
 
@@ -27,12 +19,13 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-/** Trivial implementation of @{HttpContext}. */
-class JettyHttpContext extends HttpContext {
+/**
+ * An @{HttpContext} implementation based on Jetty. It supports web sockets if
+ * the handler implements {@link WebsocketEndpoints}.
+ */
+abstract class JettyHttpContext extends HttpContext {
 	private final JettyHttpServer httpServer;
 	private final String path;
-	private final ServletContextHandler contextHandler;
-	private final ContextAttributes attributes;
 	private final List<Filter> filters = new ArrayList<>();
 
 	private HttpHandler handler;
@@ -40,21 +33,12 @@ class JettyHttpContext extends HttpContext {
 
 	public JettyHttpContext(JettyHttpServer httpServer, String path) {
 		this.httpServer = httpServer;
+		if (!path.endsWith("/"))
+			throw new IllegalArgumentException("Path " + path + " should end with a /");
 		this.path = path;
-
-		// Jetty context handler
-		ServletContextHandler servletContextHandler = new ServletContextHandler();
-		servletContextHandler.setContextPath(path);
-		HttpContextServlet servlet = new HttpContextServlet(this);
-		servletContextHandler.addServlet(new ServletHolder(servlet), "/*");
-		SessionHandler sessionHandler = new SessionHandler();
-		// FIXME find a better default
-		sessionHandler.setMaxInactiveInterval(-1);
-		servletContextHandler.setSessionHandler(sessionHandler);
-		contextHandler = servletContextHandler;
-
-		attributes = new ContextAttributes();
 	}
+
+	protected abstract ServletContextHandler getServletContextHandler();
 
 	@Override
 	public HttpHandler getHandler() {
@@ -67,32 +51,6 @@ class JettyHttpContext extends HttpContext {
 			throw new IllegalArgumentException("Handler is already set");
 		Objects.requireNonNull(handler);
 		this.handler = handler;
-
-		// web socket
-		if (handler instanceof WebsocketEndpoints) {
-			JavaxWebSocketServletContainerInitializer.configure(contextHandler, new Configurator() {
-
-				@Override
-				public void accept(ServletContext servletContext, ServerContainer serverContainer)
-						throws DeploymentException {
-//					CmsWebSocketConfigurator wsEndpointConfigurator = new CmsWebSocketConfigurator();
-
-					for (Class<?> clss : ((WebsocketEndpoints) handler).getEndPoints()) {
-//						Class<?> clss = websocketEndpoints.get(path);
-//						ServerEndpointConfig config = ServerEndpointConfig.Builder.create(clss, path)
-//								.configurator(wsEndpointConfigurator).build();
-						serverContainer.addEndpoint(clss);
-					}
-				}
-			});
-		}
-
-		if (httpServer.isStarted())
-			try {
-				contextHandler.start();
-			} catch (Exception e) {
-				throw new IllegalStateException("Cannot start context handler", e);
-			}
 	}
 
 	@Override
@@ -102,12 +60,11 @@ class JettyHttpContext extends HttpContext {
 
 	@Override
 	public HttpServer getServer() {
-		return httpServer;
+		return getJettyHttpServer();
 	}
 
-	@Override
-	public Map<String, Object> getAttributes() {
-		return attributes;
+	protected JettyHttpServer getJettyHttpServer() {
+		return httpServer;
 	}
 
 	@Override
@@ -127,51 +84,4 @@ class JettyHttpContext extends HttpContext {
 		return authenticator;
 	}
 
-	ServletContextHandler getContextHandler() {
-		return contextHandler;
-	}
-
-	private class ContextAttributes extends AbstractMap<String, Object> {
-		@Override
-		public Set<Entry<String, Object>> entrySet() {
-			Set<Entry<String, Object>> entries = new HashSet<>();
-			for (Enumeration<String> keys = contextHandler.getAttributeNames(); keys.hasMoreElements();) {
-				entries.add(new ContextAttributeEntry(keys.nextElement()));
-			}
-			return entries;
-		}
-
-		@Override
-		public Object put(String key, Object value) {
-			Object previousValue = get(key);
-			contextHandler.setAttribute(key, value);
-			return previousValue;
-		}
-
-		private class ContextAttributeEntry implements Map.Entry<String, Object> {
-			private final String key;
-
-			public ContextAttributeEntry(String key) {
-				this.key = key;
-			}
-
-			@Override
-			public String getKey() {
-				return key;
-			}
-
-			@Override
-			public Object getValue() {
-				return contextHandler.getAttribute(key);
-			}
-
-			@Override
-			public Object setValue(Object value) {
-				Object previousValue = getValue();
-				contextHandler.setAttribute(key, value);
-				return previousValue;
-			}
-
-		}
-	}
 }

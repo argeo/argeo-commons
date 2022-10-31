@@ -7,7 +7,7 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.argeo.api.cms.CmsLog;
 
-@ServerEndpoint(value = "/ping", configurator = PublicWebSocketConfigurator.class)
+@ServerEndpoint(value = "/cms/status/ping", configurator = PublicWebSocketConfigurator.class)
 public class PingEndpoint {
 	private final static CmsLog log = CmsLog.getLog(PingEndpoint.class);
 

@@ -12,7 +12,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 
 /** Tests connectivity to the web socket server. */
-public class WsPing implements Runnable {
+public class WebSocketPing implements Runnable {
 	private final static int PING_FRAME_SIZE = 125;
 	private final static DecimalFormat decimalFormat = new DecimalFormat("0.0");
 	static {
@@ -24,7 +24,7 @@ public class WsPing implements Runnable {
 
 	private WebSocket webSocket;
 
-	public WsPing(URI uri) {
+	public WebSocketPing(URI uri) {
 		this.uri = uri;
 		this.uuid = UUID.randomUUID();
 	}

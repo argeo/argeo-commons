@@ -21,6 +21,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.osgi.framework.Constants;
 
+/** A {@link CmsJettyServer} integrating with Equinox HTTP framework. */
 public class EquinoxJettyServer extends CmsJettyServer {
 	private static final String INTERNAL_CONTEXT_CLASSLOADER = "org.eclipse.equinox.http.jetty.internal.ContextClassLoader";
 
@@ -31,8 +32,6 @@ public class EquinoxJettyServer extends CmsJettyServer {
 		holder.setInitParameter(Constants.SERVICE_VENDOR, "Eclipse.org"); //$NON-NLS-1$
 		holder.setInitParameter(Constants.SERVICE_DESCRIPTION, "Equinox Jetty-based Http Service"); //$NON-NLS-1$
 
-		// holder.setInitParameter(JettyConstants.CONTEXT_PATH,
-		// httpContext.getContextPath());
 		rootContextHandler.addServlet(holder, "/*");
 
 		// post-start

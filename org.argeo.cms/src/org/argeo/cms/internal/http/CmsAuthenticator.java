@@ -15,12 +15,8 @@ import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpPrincipal;
 
+/** An {@link Authenticator} implementation based on CMS authentication. */
 public class CmsAuthenticator extends Authenticator {
-//	final static String HEADER_AUTHORIZATION = "Authorization";
-//	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
-
-//	private final static CmsLog log = CmsLog.getLog(CmsAuthenticator.class);
-
 	// TODO make it configurable
 	private final String httpAuthRealm = "Argeo";
 	private final boolean forceBasic = false;

@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Provides WebSocket access. */
-@ServerEndpoint(value = "/test/{topic}", configurator = CmsWebSocketConfigurator.class)
+@ServerEndpoint(value = "/cms/status/test/{topic}", configurator = CmsWebSocketConfigurator.class)
 public class TestEndpoint implements EventHandler {
 	private final static CmsLog log = CmsLog.getLog(TestEndpoint.class);
 
