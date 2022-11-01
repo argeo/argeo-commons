@@ -17,9 +17,9 @@ org.argeo.cms \
 org.argeo.cms.ux \
 org.argeo.cms.ee \
 org.argeo.cms.lib.jetty \
-org.argeo.cms.lib.equinox \
 org.argeo.cms.lib.sshd \
 org.argeo.cms.cli \
+osgi/equinox/org.argeo.cms.lib.equinox \
 swt/org.argeo.swt.minidesktop \
 swt/org.argeo.cms.swt \
 swt/org.argeo.cms.e4 \
