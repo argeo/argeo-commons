@@ -12,12 +12,11 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
-import org.apache.commons.io.FilenameUtils;
 
 public class SvgToPng {
 
 	public void convertSvgDir(Path sourceDir, Path targetDir, int width) {
-		System.out.println("##\n## " + width + "px - " + sourceDir+"\n##");
+		System.out.println("##\n## " + width + "px - " + sourceDir + "\n##");
 		try {
 			if (targetDir == null)
 				targetDir = sourceDir.getParent().resolve(Integer.toString(width));
@@ -30,7 +29,8 @@ public class SvgToPng {
 			transcoder.addTranscodingHint(PNGTranscoder.KEY_HEIGHT, (float) width);
 
 			for (Path source : Files.newDirectoryStream(sourceDir, "*.svg")) {
-				String baseName = FilenameUtils.getBaseName(source.toString());
+				// FIXME extract base name
+				String baseName = null; // = FilenameUtils.getBaseName(source.toString());
 				Path target = targetDir.resolve(baseName + ".png");
 				convertSvgFile(transcoder, source, target);
 			}
