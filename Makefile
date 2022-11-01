@@ -26,7 +26,6 @@ swt/org.argeo.cms.swt \
 swt/org.argeo.cms.e4 \
 swt/rap/org.argeo.swt.specific.rap \
 swt/rap/org.argeo.cms.swt.rap \
-swt/rap/org.argeo.cms.swt.rap.cli \
 swt/rap/org.argeo.cms.e4.rap \
 
 DEP_CATEGORIES = \

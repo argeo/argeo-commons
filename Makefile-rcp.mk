@@ -14,7 +14,6 @@ A2_CATEGORY = org.argeo.cms
 BUNDLES = \
 swt/rcp/org.argeo.swt.specific.rcp \
 swt/rcp/org.argeo.cms.swt.rcp \
-swt/rcp/org.argeo.cms.swt.rcp.cli \
 swt/rcp/org.argeo.cms.e4.rcp \
 
 A2_OUTPUT = $(SDK_BUILD_BASE)/a2
