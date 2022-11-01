@@ -24,14 +24,16 @@ public class SimpleProvisioningService implements ProvisioningService {
 		return new Information();
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
-	public synchronized void setInformation(Dictionary<String, ?> info) {
+	public synchronized void setInformation(Dictionary info) {
 		map.clear();
 		addInformation(info);
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public synchronized void addInformation(Dictionary<String, ?> info) {
+	public synchronized void addInformation(Dictionary info) {
 		Enumeration<String> e = info.keys();
 		while (e.hasMoreElements()) {
 			String key = e.nextElement();
@@ -51,6 +53,8 @@ public class SimpleProvisioningService implements ProvisioningService {
 		throw new UnsupportedOperationException();
 	}
 
+	
+	
 	class Information extends Dictionary<String, Object> {
 
 		@Override
