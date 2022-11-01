@@ -1,5 +1,5 @@
 include sdk.mk
-.PHONY: clean all osgi jni
+.PHONY: clean all osgi
 
 all: osgi
 	$(MAKE) -f Makefile-rcp.mk all
@@ -45,28 +45,10 @@ org.argeo.api.uuid \
 org.argeo.api.acr \
 org.argeo.api.cms
 
-jni:
-	$(MAKE) -C jni
-
 clean:
 	rm -rf $(BUILD_BASE)
-	$(MAKE) -C jni clean
 	$(MAKE) -f Makefile-rcp.mk clean
 
 A2_BUNDLES_CLASSPATH = $(subst $(space),$(pathsep),$(strip $(A2_BUNDLES)))
-
-native-image:
-	mkdir -p $(A2_OUTPUT)/libexec/$(A2_CATEGORY)
-#	cd $(A2_OUTPUT)/libexec/$(A2_CATEGORY) && /opt/graalvm-ce/bin/native-image \
-		-cp $(A2_CLASSPATH):$(A2_BUNDLES_CLASSPATH) org.argeo.eclipse.ui.jetty.CmsRapCli \
-		--enable-url-protocols=http,https \
-		-H:AdditionalSecurityProviders=sun.security.jgss.SunProvider,org.bouncycastle.jce.provider.BouncyCastleProvider,net.i2p.crypto.eddsa.EdDSASecurityProvider \
-		--initialize-at-build-time=org.argeo.init.logging.ThinLogging,org.slf4j.LoggerFactory \
-		--no-fallback 
-	cd $(A2_OUTPUT)/libexec/$(A2_CATEGORY) && /opt/graalvm-ce/bin/native-image \
-		-cp $(A2_CLASSPATH):$(A2_BUNDLES_CLASSPATH) org.argeo.cms.ux.cli.FileSync \
-		--initialize-at-build-time=org.argeo.init.logging.ThinLogging,org.slf4j.LoggerFactory \
-		--no-fallback 
-
 
 include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk
