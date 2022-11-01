@@ -1,6 +1,7 @@
 package org.argeo.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -42,6 +43,13 @@ public class StreamUtils {
 			count = count + length;
 		}
 		return count;
+	}
+
+	public static byte[] toByteArray(InputStream in) throws IOException {
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+			copy(in, out);
+			return out.toByteArray();
+		}
 	}
 
 	public static void closeQuietly(InputStream in) {
