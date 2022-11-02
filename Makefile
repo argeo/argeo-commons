@@ -29,7 +29,7 @@ swt/rap/org.argeo.cms.e4.rap \
 
 DEP_CATEGORIES = \
 org.argeo.tp \
-org.argeo.tp.apache \
+org.argeo.tp.crypto \
 org.argeo.tp.jetty \
 osgi/api/org.argeo.tp.osgi \
 osgi/equinox/org.argeo.tp.eclipse \
