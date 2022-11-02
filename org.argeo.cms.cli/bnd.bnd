@@ -14,58 +14,44 @@ org.argeo.cms.lib.sshd.2.3.jar \
 org.argeo.cms.ux.2.3.jar \
 org.argeo.init.2.3.jar \
 org.argeo.util.2.3.jar \
-../org.argeo.tp/bcmail.1.71.jar \
-../org.argeo.tp/bcpg.1.71.jar \
-../org.argeo.tp/bcpkix.1.71.jar \
-../org.argeo.tp/bcprov.1.71.jar \
-../org.argeo.tp/bcutil.1.71.jar \
-../org.argeo.tp/com.fasterxml.jackson.core.jackson-annotations.2.13.jar \
-../org.argeo.tp/com.fasterxml.jackson.core.jackson-core.2.13.jar \
-../org.argeo.tp/com.fasterxml.jackson.core.jackson-databind.2.13.jar \
-../org.argeo.tp/com.googlecode.javaewah.JavaEWAH.1.1.jar \
-../org.argeo.tp/com.sun.mail.mbox.1.6.jar \
-../org.argeo.tp/com.zaxxer.sparsebits.1.2.jar \
-../org.argeo.tp/jakarta.mail.1.6.jar \
-../org.argeo.tp/jakarta.servlet.api.4.0.jar \
-../org.argeo.tp/javax.activation.1.2.jar \
-../org.argeo.tp/javax.websocket.1.1.jar \
-../org.argeo.tp/net.i2p.crypto.eddsa.0.3.jar \
-../org.argeo.tp/org.argeo.ext.slf4j.2.3.jar \
-../org.argeo.tp/org.h2.1.4.jar \
-../org.argeo.tp/org.postgresql.jdbc42.42.3.jar \
-../org.argeo.tp/org.slf4j.api.1.7.jar \
-../org.argeo.tp/org.slf4j.commons.logging.1.7.jar \
-../org.argeo.tp/org.tukaani.xz.1.9.jar \
-../org.argeo.tp/org.w3c.css.sac.1.3.jar \
-../org.argeo.tp/org.w3c.dom.smil.1.0.jar \
-../org.argeo.tp/org.w3c.dom.svg.1.1.jar \
-../org.argeo.tp.apache/org.apache.batik.1.14.jar \
-../org.argeo.tp.apache/org.apache.batik.constants.1.14.jar \
-../org.argeo.tp.apache/org.apache.batik.css.1.14.jar \
-../org.argeo.tp.apache/org.apache.batik.i18n.1.14.jar \
-../org.argeo.tp.apache/org.apache.batik.util.1.14.jar \
-../org.argeo.tp.apache/org.apache.commons.cli.1.5.jar \
-../org.argeo.tp.apache/org.apache.commons.codec.1.15.jar \
-../org.argeo.tp.apache/org.apache.commons.compress.1.21.jar \
-../org.argeo.tp.apache/org.apache.commons.exec.1.3.jar \
-../org.argeo.tp.apache/org.apache.commons.fileupload.1.4.jar \
-../org.argeo.tp.apache/org.apache.commons.httpclient.3.1.jar \
-../org.argeo.tp.apache/org.apache.commons.io.2.11.jar \
-../org.argeo.tp.apache/org.apache.commons.vfs.2.9.jar \
-../org.argeo.tp.apache/org.apache.httpcomponents.httpclient.4.5.jar \
-../org.argeo.tp.apache/org.apache.httpcomponents.httpcore.4.4.jar \
-../org.argeo.tp.apache/org.apache.httpcomponents.httpmime.4.5.jar \
-../org.argeo.tp.apache/org.apache.sshd.2.8.jar \
-../org.argeo.tp.apache/org.apache.sshd.cli.2.8.jar \
-../org.argeo.tp.apache/org.apache.sshd.git.2.8.jar \
-../org.argeo.tp.apache/org.apache.sshd.putty.2.8.jar \
-../org.argeo.tp.apache/org.apache.sshd.scp.2.8.jar \
-../org.argeo.tp.apache/org.apache.sshd.sftp.2.8.jar \
-../org.argeo.tp.apache/org.apache.tika.core.1.28.jar \
-../org.argeo.tp.apache/org.apache.tika.parsers.1.28.jar \
-../org.argeo.tp.apache/org.apache.tomcat.jni.9.0.jar \
-../org.argeo.tp.apache/org.apache.xalan.2.7.jar \
-../org.argeo.tp.apache/org.apache.xerces.2.12.jar \
-../org.argeo.tp.apache/org.apache.xmlgraphics.2.7.jar \
-../org.argeo.tp.apache/org.apache.xml.resolver.1.2.jar \
-
+../org.argeo.tp/com.fasterxml.jackson.core.jackson-annotations.2.13.jar
+../org.argeo.tp/com.fasterxml.jackson.core.jackson-core.2.13.jar
+../org.argeo.tp/com.fasterxml.jackson.core.jackson-databind.2.13.jar
+../org.argeo.tp/com.googlecode.javaewah.JavaEWAH.1.1.jar
+../org.argeo.tp/javax.servlet.4.0.jar
+../org.argeo.tp/javax.websocket.1.1.jar
+../org.argeo.tp/org.apache.batik.1.16.jar
+../org.argeo.tp/org.apache.batik.constants.1.16.jar
+../org.argeo.tp/org.apache.batik.css.1.16.jar
+../org.argeo.tp/org.apache.batik.i18n.1.16.jar
+../org.argeo.tp/org.apache.batik.util.1.16.jar
+../org.argeo.tp/org.apache.commons.cli.1.5.jar
+../org.argeo.tp/org.apache.commons.fileupload.1.4.jar
+../org.argeo.tp/org.apache.commons.io.2.11.jar
+../org.argeo.tp/org.apache.httpcomponents.httpclient.4.5.jar
+../org.argeo.tp/org.apache.httpcomponents.httpcore.4.4.jar
+../org.argeo.tp/org.apache.httpcomponents.httpmime.4.5.jar
+../org.argeo.tp/org.apache.xalan.2.7.jar
+../org.argeo.tp/org.apache.xerces.2.12.jar
+../org.argeo.tp/org.apache.xmlgraphics.2.7.jar
+../org.argeo.tp/org.apache.xml.resolver.1.2.jar
+../org.argeo.tp/org.argeo.ext.slf4j.2.3.jar
+../org.argeo.tp/org.eclipse.jgit.6.3.jar
+../org.argeo.tp/org.slf4j.api.1.7.jar
+../org.argeo.tp/org.slf4j.commons.logging.1.7.jar
+../org.argeo.tp/org.w3c.css.sac.1.3.jar
+../org.argeo.tp/org.w3c.dom.smil.1.0.jar
+../org.argeo.tp/org.w3c.dom.svg.1.1.jar
+../org.argeo.tp.crypto/bcmail.1.72.jar
+../org.argeo.tp.crypto/bcpg.1.72.jar
+../org.argeo.tp.crypto/bcpkix.1.72.jar
+../org.argeo.tp.crypto/bcprov.1.72.jar
+../org.argeo.tp.crypto/bcutil.1.72.jar
+../org.argeo.tp.crypto/net.i2p.crypto.eddsa.0.3.jar
+../org.argeo.tp.crypto/org.apache.sshd.2.9.jar
+../org.argeo.tp.crypto/org.apache.sshd.cli.2.9.jar
+../org.argeo.tp.crypto/org.apache.sshd.git.2.9.jar
+../org.argeo.tp.crypto/org.apache.sshd.putty.2.9.jar
+../org.argeo.tp.crypto/org.apache.sshd.scp.2.9.jar
+../org.argeo.tp.crypto/org.apache.sshd.sftp.2.9.jar
+../org.argeo.tp.crypto/org.apache.tomcat.jni.9.0.jar
