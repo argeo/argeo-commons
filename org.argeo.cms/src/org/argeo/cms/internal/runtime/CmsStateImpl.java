@@ -170,9 +170,11 @@ public class CmsStateImpl implements CmsState {
 			posixPermissions.add(PosixFilePermission.OWNER_WRITE);
 			posixPermissions.add(PosixFilePermission.OWNER_EXECUTE);
 			try {
+				if (!Files.exists(privateDir))
+					Files.createDirectories(privateDir);
 				Files.setPosixFilePermissions(privateDir, posixPermissions);
 			} catch (IOException e) {
-				log.error("Cannot set permissions on " + privateDir);
+				log.error("Cannot set permissions on " + privateDir, e);
 			}
 		}
 
