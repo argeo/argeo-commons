@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.concurrent.ForkJoinPool;
 
 import org.argeo.init.a2.A2Source;
 import org.argeo.init.a2.ProvisioningManager;
@@ -357,6 +358,14 @@ public class OsgiBoot implements OsgiBootConstants {
 		// default and active start levels from System properties
 		Integer defaultStartLevel = Integer.parseInt(getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4"));
 		Integer activeStartLevel = Integer.parseInt(getProperty(PROP_OSGI_STARTLEVEL, "6"));
+		if (OsgiBootUtils.isDebug()) {
+			OsgiBootUtils.debug("OSGi default start level: "
+					+ getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "<not set>") + ", using " + defaultStartLevel);
+			OsgiBootUtils.debug("OSGi active start level: " + getProperty(PROP_OSGI_STARTLEVEL, "<not set>")
+					+ ", using " + activeStartLevel);
+			OsgiBootUtils.debug("Framework start level: " + frameworkStartLevel.getStartLevel() + " (initial: "
+					+ frameworkStartLevel.getInitialBundleStartLevel() + ")");
+		}
 
 		SortedMap<Integer, List<String>> startLevels = new TreeMap<Integer, List<String>>();
 		computeStartLevels(startLevels, properties, defaultStartLevel);
@@ -383,12 +392,21 @@ public class OsgiBoot implements OsgiBootConstants {
 				}
 			}
 		}
-		frameworkStartLevel.setStartLevel(activeStartLevel, (FrameworkEvent event) -> {
-			if (OsgiBootUtils.isDebug())
-				OsgiBootUtils.debug("Framework event: " + event);
-			int initialStartLevel = frameworkStartLevel.getInitialBundleStartLevel();
-			int startLevel = frameworkStartLevel.getStartLevel();
-			OsgiBootUtils.debug("Framework start level: " + startLevel + " (initial: " + initialStartLevel + ")");
+
+		if (OsgiBootUtils.isDebug())
+			OsgiBootUtils.debug("About to set framework start level to " + activeStartLevel + " ...");
+
+		// Start the framework asynchronously
+		ForkJoinPool.commonPool().execute(() -> {
+			frameworkStartLevel.setStartLevel(activeStartLevel, (FrameworkEvent event) -> {
+				if (OsgiBootUtils.isDebug())
+					OsgiBootUtils.debug("Framework event: " + event);
+				int initialStartLevel = frameworkStartLevel.getInitialBundleStartLevel();
+				int startLevel = frameworkStartLevel.getStartLevel();
+				if (OsgiBootUtils.isDebug())
+					OsgiBootUtils
+							.debug("Framework start level: " + startLevel + " (initial: " + initialStartLevel + ")");
+			});
 		});
 	}
 
@@ -666,6 +684,7 @@ public class OsgiBoot implements OsgiBootConstants {
 	private void refreshFramework() {
 		Bundle systemBundle = bundleContext.getBundle(0);
 		FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
+		// TODO deal with refresh breaking native loading (e.g SWT)
 		frameworkWiring.refreshBundles(null);
 	}
 

@@ -55,8 +55,8 @@ public class ProvisioningManager {
 					updatedBundles.add(bundle);
 			}
 		}
-		FrameworkWiring frameworkWiring = bc.getBundle(0).adapt(FrameworkWiring.class);
-		frameworkWiring.refreshBundles(updatedBundles);
+//		FrameworkWiring frameworkWiring = bc.getBundle(0).adapt(FrameworkWiring.class);
+//		frameworkWiring.refreshBundles(updatedBundles);
 	}
 
 	public void registerSource(String uri) {
