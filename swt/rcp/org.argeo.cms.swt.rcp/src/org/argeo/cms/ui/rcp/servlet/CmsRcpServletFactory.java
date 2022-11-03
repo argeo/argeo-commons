@@ -24,7 +24,7 @@ import com.sun.net.httpserver.HttpServer;
 /** Publishes one {@link CmsRcpServlet} per {@link CmsApp}. */
 public class CmsRcpServletFactory {
 	private final static Logger logger = System.getLogger(CmsRcpServletFactory.class.getName());
-	private CompletableFuture<HttpServer> httpServer =new CompletableFuture<>();
+	private CompletableFuture<HttpServer> httpServer = new CompletableFuture<>();
 
 	public void init() {
 
@@ -56,6 +56,9 @@ public class CmsRcpServletFactory {
 						logger.log(Level.DEBUG, "Opened RCP UI  " + uiName + " of  CMS App /" + contextName);
 					}
 				});
+			}).exceptionally(e -> {
+				logger.log(Level.ERROR, "Cannot register RCO app " + contextName, e);
+				return null;
 			});
 			logger.log(Level.DEBUG, "Registered RCP CMS APP /" + contextName);
 		}

@@ -241,10 +241,10 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public synchronized HttpContext createContext(String path) {
+		if (!path.endsWith("/"))
+			path = path + "/";
 		if (contexts.containsKey(path))
 			throw new IllegalArgumentException("Context " + path + " already exists");
-		if (!path.endsWith("/"))
-			throw new IllegalArgumentException("Path " + path + " should end with a /");
 
 		JettyHttpContext httpContext = new ServletHttpContext(this, path);
 		contexts.put(path, httpContext);
