@@ -1,4 +1,4 @@
-package org.argeo.cms.ui.rcp.servlet;
+package org.argeo.cms.ui.rcp;
 
 import static java.lang.System.Logger.Level.DEBUG;
 
@@ -15,15 +15,14 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.argeo.api.cms.CmsApp;
-import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 /** Publishes one {@link CmsRcpServlet} per {@link CmsApp}. */
-public class CmsRcpServletFactory {
-	private final static Logger logger = System.getLogger(CmsRcpServletFactory.class.getName());
+public class CmsRcpHttpLauncher {
+	private final static Logger logger = System.getLogger(CmsRcpHttpLauncher.class.getName());
 	private CompletableFuture<HttpServer> httpServer = new CompletableFuture<>();
 
 	public void init() {

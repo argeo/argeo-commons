@@ -1,5 +1,7 @@
 package org.argeo.cms.ui.rcp;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Path;
 
 import org.argeo.api.cms.CmsApp;
@@ -9,6 +11,8 @@ import org.eclipse.swt.widgets.Display;
 
 /** Creates the SWT {@link Display} in a dedicated thread. */
 public class CmsRcpDisplayFactory {
+	private final static Logger logger = System.getLogger(CmsRcpDisplayFactory.class.getName());
+
 	/** File name in a run directory */
 	private final static String ARGEO_RCP_URL = "argeo.rcp.url";
 
@@ -50,20 +54,22 @@ public class CmsRcpDisplayFactory {
 
 		@Override
 		public void run() {
-			display = Display.getDefault();
-			display.setRuntimeExceptionHandler((e) -> e.printStackTrace());
-			display.setErrorHandler((e) -> e.printStackTrace());
+			try {
+				display = Display.getDefault();
+				display.setRuntimeExceptionHandler((e) -> e.printStackTrace());
+				display.setErrorHandler((e) -> e.printStackTrace());
 
-//			for (String contextName : cmsApps.keySet()) {
-//				openCmsApp(contextName);
-//			}
-
-			while (!shutdown) {
-				if (!display.readAndDispatch())
-					display.sleep();
+				while (!shutdown) {
+					if (!display.readAndDispatch())
+						display.sleep();
+				}
+				display.dispose();
+				display = null;
+			} catch (UnsatisfiedLinkError e) {
+				logger.log(Level.ERROR,
+						"Cannot load SWT, probably because the OSGi framework has been refresh. Restart the application.",
+						e);
 			}
-			display.dispose();
-			display = null;
 		}
 	}
 

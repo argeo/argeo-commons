@@ -1,3 +1,4 @@
+Bundle-SymbolicName: org.argeo.cms.swt.rcp;singleton=true
 
 Import-Package:\
 org.argeo.cms.auth,\
@@ -8,5 +9,5 @@ org.w3c.css.sac,\
 
 Service-Component:\
 OSGI-INF/cmsRcpDisplayFactory.xml,\
-OSGI-INF/cmsRcpServletFactory.xml
+OSGI-INF/cmsRcpHttpLauncher.xml
 
