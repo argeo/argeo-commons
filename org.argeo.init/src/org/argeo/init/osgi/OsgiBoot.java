@@ -401,7 +401,8 @@ public class OsgiBoot implements OsgiBootConstants {
 
 		// Start the framework level after level
 		stages: for (int stage = initialStartLevel; stage <= activeStartLevel; stage++) {
-			OsgiBootUtils.info("Starting stage " + stage + "...");
+			if (OsgiBootUtils.isDebug())
+				OsgiBootUtils.debug("Starting stage " + stage + "...");
 			final int nextStage = stage;
 			final CompletableFuture<FrameworkEvent> stageCompleted = new CompletableFuture<>();
 			ForkJoinPool.commonPool().execute(() -> {
