@@ -19,9 +19,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
 
 import org.argeo.init.a2.A2Source;
 import org.argeo.init.a2.ProvisioningManager;
@@ -399,28 +396,36 @@ public class OsgiBoot implements OsgiBootConstants {
 		if (OsgiBootUtils.isDebug())
 			OsgiBootUtils.debug("About to set framework start level to " + activeStartLevel + " ...");
 
-		// Start the framework level after level
-		stages: for (int stage = initialStartLevel; stage <= activeStartLevel; stage++) {
-			if (OsgiBootUtils.isDebug())
-				OsgiBootUtils.debug("Starting stage " + stage + "...");
-			final int nextStage = stage;
-			final CompletableFuture<FrameworkEvent> stageCompleted = new CompletableFuture<>();
-			ForkJoinPool.commonPool().execute(() -> {
-				frameworkStartLevel.setStartLevel(nextStage, (FrameworkEvent event) -> {
-					stageCompleted.complete(event);
-				});
-			});
-			FrameworkEvent event;
-			try {
-				event = stageCompleted.get();
-			} catch (InterruptedException | ExecutionException e) {
-				throw new IllegalStateException("Cannot continue start", e);
+		frameworkStartLevel.setStartLevel(activeStartLevel, (FrameworkEvent event) -> {
+			if (event.getType() == FrameworkEvent.ERROR) {
+				OsgiBootUtils.error("Start sequence failed", event.getThrowable());
+			} else {
+				if (OsgiBootUtils.isDebug())
+					OsgiBootUtils.debug("Framework started at level " + frameworkStartLevel.getStartLevel());
 			}
-			if (event.getThrowable() != null) {
-				OsgiBootUtils.error("Stage " + nextStage + " failed, aborting start.", event.getThrowable());
-				break stages;
-			}
-		}
+		});
+
+//		// Start the framework level after level
+//		int currentStartLevel = frameworkStartLevel.getStartLevel();
+//		stages: for (int stage = currentStartLevel + 1; stage <= activeStartLevel; stage++) {
+//			if (OsgiBootUtils.isDebug())
+//				OsgiBootUtils.debug("Starting stage " + stage + "...");
+//			final int nextStage = stage;
+//			final CompletableFuture<FrameworkEvent> stageCompleted = new CompletableFuture<>();
+//			frameworkStartLevel.setStartLevel(nextStage, (FrameworkEvent event) -> {
+//				stageCompleted.complete(event);
+//			});
+//			FrameworkEvent event;
+//			try {
+//				event = stageCompleted.get();
+//			} catch (InterruptedException | ExecutionException e) {
+//				throw new IllegalStateException("Cannot continue start", e);
+//			}
+//			if (event.getThrowable() != null) {
+//				OsgiBootUtils.error("Stage " + nextStage + " failed, aborting start.", event.getThrowable());
+//				break stages;
+//			}
+//		}
 	}
 
 	private static void computeStartLevels(SortedMap<Integer, List<String>> startLevels, Map<String, String> properties,
