@@ -32,20 +32,44 @@ public class DefaultLdapEntry implements LdapEntry {
 
 	private final LdapName dn;
 
-//	private Attributes publishedAttributes;
-
-	// Temporarily expose the fields
 	private AttributeDictionary properties;
 	private AttributeDictionary credentials;
+
+//	private String primaryObjectClass;
+//	private List<String> objectClasses = new ArrayList<>();
 
 	protected DefaultLdapEntry(AbstractLdapDirectory directory, LdapName dn) {
 		Objects.requireNonNull(directory);
 		Objects.requireNonNull(dn);
 		this.directory = directory;
 		this.dn = dn;
-//		this.publishedAttributes = attributes;
-//		properties = new AttributeDictionary(false);
-//		credentials = new AttributeDictionary(true);
+
+		// Object classes
+//		Objects.requireNonNull(initialAttributes);
+//		try {
+//			NamingEnumeration<?> en = initialAttributes.get(LdapAttrs.objectClass.name()).getAll();
+//			String first = null;
+//			attrs: while (en.hasMore()) {
+//				String v = en.next().toString();
+//				if (v.equalsIgnoreCase(LdapObjs.top.name()))
+//					continue attrs;
+//				if (first == null)
+//					first = v;
+//				if (v.equalsIgnoreCase(getDirectory().getUserObjectClass()))
+//					primaryObjectClass = getDirectory().getUserObjectClass();
+//				else if (v.equalsIgnoreCase(getDirectory().getGroupObjectClass()))
+//					primaryObjectClass = getDirectory().getGroupObjectClass();
+//				objectClasses.add(v);
+//			}
+//			if (primaryObjectClass == null) {
+//				if (first == null)
+//					throw new IllegalStateException("Could not find primary object class");
+//				primaryObjectClass = first;
+//			}
+//		} catch (NamingException e) {
+//			throw new IllegalStateException("Cannot find object classes", e);
+//		}
+
 	}
 
 	@Override
@@ -54,9 +78,6 @@ public class DefaultLdapEntry implements LdapEntry {
 	}
 
 	public synchronized Attributes getAttributes() {
-//		// lazy loading
-//		if (publishedAttributes == null)
-//			publishedAttributes = getDirectory().getDirectoryDao().doGetAttributes(dn);
 		return isEditing() ? getModifiedAttributes() : getDirectory().getDirectoryDao().doGetAttributes(dn);
 	}
 

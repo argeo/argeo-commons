@@ -213,10 +213,11 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 	public Iterable<HierarchyUnit> doGetDirectHierarchyUnits(LdapName searchBase, boolean functionalOnly) {
 		List<HierarchyUnit> res = new ArrayList<>();
 		try {
+			String structuralFilter = functionalOnly ? ""
+					: "(" + getDirectory().getUserBaseRdn() + ")(" + getDirectory().getGroupBaseRdn() + ")("
+							+ getDirectory().getSystemRoleBaseRdn() + ")";
 			String searchFilter = "(|(" + objectClass + "=" + LdapObjs.organizationalUnit.name() + ")(" + objectClass
-					+ "=" + LdapObjs.organization.name() + "))";
-//			String searchFilter = "(|(" + objectClass + "=" + LdapObjs.organizationalUnit.name() + ")(" + objectClass
-//					+ "=" + LdapObjs.organization.name() + ")(cn=accounts)(cn=users)(cn=groups))";
+					+ "=" + LdapObjs.organization.name() + ")" + structuralFilter + ")";
 
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);

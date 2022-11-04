@@ -118,15 +118,19 @@ public class AggregatingUserAdmin implements UserAdmin {
 		}
 
 		// gather roles from other referentials
-		List<String> allRoles = new ArrayList<>(Arrays.asList(rawAuthorization.getRoles()));
+		List<String> rawRoles = Arrays.asList(rawAuthorization.getRoles());
+		List<String> allRoles = new ArrayList<>(rawRoles);
 		for (LdapName otherBaseDn : businessRoles.keySet()) {
 			if (otherBaseDn.equals(userReferentialOfThisUser.getBaseDn()))
 				continue;
 			DirectoryUserAdmin otherUserAdmin = userAdminToUse(user, businessRoles.get(otherBaseDn));
 			if (otherUserAdmin == null)
 				continue;
-			Authorization auth = otherUserAdmin.getAuthorization(retrievedUser);
-			allRoles.addAll(Arrays.asList(auth.getRoles()));
+			for (String roleStr : rawRoles) {
+				User role = (User) findUserAdmin(roleStr).getRole(roleStr);
+				Authorization auth = otherUserAdmin.getAuthorization(role);
+				allRoles.addAll(Arrays.asList(auth.getRoles()));
+			}
 
 		}
 
@@ -159,6 +163,8 @@ public class AggregatingUserAdmin implements UserAdmin {
 
 	/** Decide whether to scope or not */
 	private DirectoryUserAdmin userAdminToUse(User user, DirectoryUserAdmin userAdmin) {
+		if (userAdmin.isAuthenticated())
+			return userAdmin;
 		if (user instanceof DirectoryUser) {
 			return userAdmin;
 		} else if (user instanceof AuthenticatingUser) {

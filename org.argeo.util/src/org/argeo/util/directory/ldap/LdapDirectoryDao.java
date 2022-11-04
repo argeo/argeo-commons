@@ -9,6 +9,7 @@ import javax.naming.ldap.LdapName;
 import org.argeo.util.directory.HierarchyUnit;
 import org.argeo.util.transaction.WorkingCopyProcessor;
 
+/** Low-level access to an LDAP/LDIF directory. */
 public interface LdapDirectoryDao extends WorkingCopyProcessor<LdapEntryWorkingCopy> {
 	boolean checkConnection();
 

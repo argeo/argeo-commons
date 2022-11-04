@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -61,6 +62,9 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	private WorkingCopyXaResource<LdapEntryWorkingCopy> xaResource;
 
 	private LdapDirectoryDao directoryDao;
+
+	/** Whether the the directory has is authenticated via a service user. */
+	private boolean authenticated = false;
 
 	public AbstractLdapDirectory(URI uriArg, Dictionary<String, ?> props, boolean scoped) {
 		this.configProperties = new Hashtable<String, Object>();
@@ -130,10 +134,13 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 				if (DirectoryConf.SCHEME_LDAP.equals(u.getScheme())
 						|| DirectoryConf.SCHEME_LDAPS.equals(u.getScheme())) {
 					directoryDao = new LdapDao(this);
+					authenticated = configProperties.get(Context.SECURITY_PRINCIPAL) != null;
 				} else if (DirectoryConf.SCHEME_FILE.equals(u.getScheme())) {
 					directoryDao = new LdifDao(this);
+					authenticated = true;
 				} else if (DirectoryConf.SCHEME_OS.equals(u.getScheme())) {
 					directoryDao = new OsUserDirectory(this);
+					authenticated = true;
 					// singleUser = true;
 				} else {
 					throw new IllegalArgumentException("Unsupported scheme " + u.getScheme());
@@ -378,7 +385,8 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 			for (int i = 0; i < segments.length; i++) {
 				String segment = segments[i];
 				// TODO make attr names configurable ?
-				String attr = path.startsWith("accounts/")/* IPA */ ? LdapAttrs.cn.name() : LdapAttrs.ou.name();
+				String attr = getDirectory().getRealm().isPresent()/* IPA */ ? LdapAttrs.cn.name()
+						: LdapAttrs.ou.name();
 				if (parentRdn != null) {
 					if (getUserBaseRdn().equals(parentRdn))
 						attr = LdapAttrs.uid.name();
@@ -488,6 +496,10 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 
 	public boolean isDisabled() {
 		return disabled;
+	}
+
+	public boolean isAuthenticated() {
+		return authenticated;
 	}
 
 	public Rdn getUserBaseRdn() {

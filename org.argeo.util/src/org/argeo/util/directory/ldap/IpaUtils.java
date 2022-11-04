@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.StringJoiner;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
-import javax.naming.ldap.Rdn;
 
 import org.argeo.util.directory.DirectoryConf;
 import org.argeo.util.naming.LdapAttrs;
@@ -22,17 +22,9 @@ public class IpaUtils {
 	public final static String IPA_USER_BASE = "cn=users";
 	public final static String IPA_GROUP_BASE = "cn=groups";
 	public final static String IPA_ROLE_BASE = "cn=roles";
-	public final static String IPA_SERVICE_BASE = "cn=services,cn=accounts";
+	public final static String IPA_SERVICE_BASE = "cn=services";
 
-	public final static Rdn IPA_ACCOUNTS_RDN;
-	static {
-		try {
-			IPA_ACCOUNTS_RDN = new Rdn(LdapAttrs.cn.name(), "accounts");
-		} catch (InvalidNameException e) {
-			// should not happen
-			throw new IllegalStateException(e);
-		}
-	}
+	public final static String IPA_ACCOUNTS_BASE = "cn=accounts";
 
 	private final static String KRB_PRINCIPAL_NAME = LdapAttrs.krbPrincipalName.name().toLowerCase();
 
@@ -56,14 +48,12 @@ public class IpaUtils {
 
 	public static String domainToBaseDn(String domain) {
 		String[] dcs = domain.split("\\.");
-		StringBuilder sb = new StringBuilder();
+		StringJoiner sj = new StringJoiner(",");
 		for (int i = 0; i < dcs.length; i++) {
-			if (i != 0)
-				sb.append(',');
 			String dc = dcs[i];
-			sb.append(LdapAttrs.dc.name()).append('=').append(dc.toLowerCase());
+			sj.add(LdapAttrs.dc.name() + '=' + dc.toLowerCase());
 		}
-		return sb.toString();
+		return IPA_ACCOUNTS_BASE + ',' + sj.toString();
 	}
 
 	public static LdapName kerberosToDn(String kerberosName) {
@@ -72,7 +62,7 @@ public class IpaUtils {
 		String baseDn = domainToBaseDn(kname[1]);
 		String dn;
 		if (!username.contains("/"))
-			dn = LdapAttrs.uid + "=" + username + "," + IPA_USER_BASE + "," + IPA_ACCOUNTS_RDN + "," + baseDn;
+			dn = LdapAttrs.uid + "=" + username + "," + IPA_USER_BASE + "," + baseDn;
 		else
 			dn = KRB_PRINCIPAL_NAME + "=" + kerberosName + "," + IPA_SERVICE_BASE + "," + baseDn;
 		try {

@@ -1,15 +1,14 @@
 package org.argeo.util.directory.ldap;
 
-import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
+/** Base class for LDAP/LDIF directory DAOs. */
 public abstract class AbstractLdapDirectoryDao implements LdapDirectoryDao {
 
 	private AbstractLdapDirectory directory;
 
 	public AbstractLdapDirectoryDao(AbstractLdapDirectory directory) {
 		this.directory = directory;
-
 	}
 
 	public AbstractLdapDirectory getDirectory() {

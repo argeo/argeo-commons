@@ -8,7 +8,6 @@ import static org.argeo.util.naming.LdapObjs.person;
 import static org.argeo.util.naming.LdapObjs.top;
 
 import java.net.URI;
-import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
