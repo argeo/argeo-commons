@@ -19,6 +19,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 import org.argeo.init.a2.A2Source;
@@ -356,15 +358,16 @@ public class OsgiBoot implements OsgiBootConstants {
 		FrameworkStartLevel frameworkStartLevel = bundleContext.getBundle(0).adapt(FrameworkStartLevel.class);
 
 		// default and active start levels from System properties
-		Integer defaultStartLevel = Integer.parseInt(getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4"));
-		Integer activeStartLevel = Integer.parseInt(getProperty(PROP_OSGI_STARTLEVEL, "6"));
+		int initialStartLevel = frameworkStartLevel.getInitialBundleStartLevel();
+		int defaultStartLevel = Integer.parseInt(getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4"));
+		int activeStartLevel = Integer.parseInt(getProperty(PROP_OSGI_STARTLEVEL, "6"));
 		if (OsgiBootUtils.isDebug()) {
 			OsgiBootUtils.debug("OSGi default start level: "
 					+ getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "<not set>") + ", using " + defaultStartLevel);
 			OsgiBootUtils.debug("OSGi active start level: " + getProperty(PROP_OSGI_STARTLEVEL, "<not set>")
 					+ ", using " + activeStartLevel);
 			OsgiBootUtils.debug("Framework start level: " + frameworkStartLevel.getStartLevel() + " (initial: "
-					+ frameworkStartLevel.getInitialBundleStartLevel() + ")");
+					+ initialStartLevel + ")");
 		}
 
 		SortedMap<Integer, List<String>> startLevels = new TreeMap<Integer, List<String>>();
@@ -396,18 +399,27 @@ public class OsgiBoot implements OsgiBootConstants {
 		if (OsgiBootUtils.isDebug())
 			OsgiBootUtils.debug("About to set framework start level to " + activeStartLevel + " ...");
 
-		// Start the framework asynchronously
-		ForkJoinPool.commonPool().execute(() -> {
-			frameworkStartLevel.setStartLevel(activeStartLevel, (FrameworkEvent event) -> {
-				if (OsgiBootUtils.isDebug())
-					OsgiBootUtils.debug("Framework event: " + event);
-				int initialStartLevel = frameworkStartLevel.getInitialBundleStartLevel();
-				int startLevel = frameworkStartLevel.getStartLevel();
-				if (OsgiBootUtils.isDebug())
-					OsgiBootUtils
-							.debug("Framework start level: " + startLevel + " (initial: " + initialStartLevel + ")");
+		// Start the framework level after level
+		stages: for (int stage = initialStartLevel; stage <= activeStartLevel; stage++) {
+			OsgiBootUtils.info("Starting stage " + stage + "...");
+			final int nextStage = stage;
+			final CompletableFuture<FrameworkEvent> stageCompleted = new CompletableFuture<>();
+			ForkJoinPool.commonPool().execute(() -> {
+				frameworkStartLevel.setStartLevel(nextStage, (FrameworkEvent event) -> {
+					stageCompleted.complete(event);
+				});
 			});
-		});
+			FrameworkEvent event;
+			try {
+				event = stageCompleted.get();
+			} catch (InterruptedException | ExecutionException e) {
+				throw new IllegalStateException("Cannot continue start", e);
+			}
+			if (event.getThrowable() != null) {
+				OsgiBootUtils.error("Stage " + nextStage + " failed, aborting start.", event.getThrowable());
+				break stages;
+			}
+		}
 	}
 
 	private static void computeStartLevels(SortedMap<Integer, List<String>> startLevels, Map<String, String> properties,
