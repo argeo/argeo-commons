@@ -2,6 +2,7 @@ package org.argeo.cms.swt.widgets;
 
 import java.util.List;
 
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsIcon;
 import org.argeo.cms.swt.CmsSwtTheme;
 import org.argeo.cms.swt.CmsSwtUtils;
@@ -14,6 +15,8 @@ import org.eclipse.swt.widgets.TreeItem;
 
 /** View of a {@link HierarchicalPart} based on a {@link Tree}. */
 public class SwtTreeView<T> extends AbstractSwtView<T, T> {
+	private final static CmsLog log = CmsLog.getLog(SwtTreeView.class);
+
 	private static final long serialVersionUID = -6247710601465713047L;
 
 	private final Tree tree;
@@ -42,7 +45,12 @@ public class SwtTreeView<T> extends AbstractSwtView<T, T> {
 
 		List<T> rootItems = hierarchicalPart.getChildren(hierarchicalPart.getInput());
 		for (T child : rootItems) {
-			addTreeItem(null, child);
+			try {
+				addTreeItem(null, child);
+			} catch (Exception e) {
+				if (log.isTraceEnabled())
+					log.error("Cannot retrieve child", e);
+			}
 		}
 
 		tree.addListener(SWT.Expand, event -> {
@@ -82,13 +90,11 @@ public class SwtTreeView<T> extends AbstractSwtView<T, T> {
 			new TreeItem(item, SWT.NONE);
 		return item;
 	}
-	
-	
 
 	@Override
 	public void notifyItemCountChange() {
 		// TODO what to update ?
-		
+
 	}
 
 	protected Tree getTree() {
