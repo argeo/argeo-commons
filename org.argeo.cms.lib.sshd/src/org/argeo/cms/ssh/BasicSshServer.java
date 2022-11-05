@@ -9,7 +9,7 @@ import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.config.keys.DefaultAuthorizedKeysAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.shell.ProcessShellFactory;
-import org.argeo.util.OS;
+import org.argeo.cms.util.OS;
 
 /** A simple SSH server with some defaults. Supports SCP. */
 public class BasicSshServer {

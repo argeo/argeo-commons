@@ -5,7 +5,7 @@ import java.util.Enumeration;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.util.directory.DirectoryConf;
+import org.argeo.cms.runtime.DirectoryConf;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;

@@ -9,6 +9,12 @@ import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsState;
+import org.argeo.api.cms.transaction.SimpleTransactionManager;
+import org.argeo.api.cms.transaction.WorkControl;
+import org.argeo.api.cms.transaction.WorkTransaction;
+import org.argeo.api.register.Component;
+import org.argeo.api.register.ComponentRegister;
+import org.argeo.api.register.SimpleRegister;
 import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.acr.CmsUuidFactory;
@@ -18,12 +24,6 @@ import org.argeo.cms.internal.runtime.CmsDeploymentImpl;
 import org.argeo.cms.internal.runtime.CmsStateImpl;
 import org.argeo.cms.internal.runtime.CmsUserAdmin;
 import org.argeo.cms.internal.runtime.DeployedContentRepository;
-import org.argeo.util.register.Component;
-import org.argeo.util.register.ComponentRegister;
-import org.argeo.util.register.SimpleRegister;
-import org.argeo.util.transaction.SimpleTransactionManager;
-import org.argeo.util.transaction.WorkControl;
-import org.argeo.util.transaction.WorkTransaction;
 import org.osgi.service.useradmin.UserAdmin;
 
 /**

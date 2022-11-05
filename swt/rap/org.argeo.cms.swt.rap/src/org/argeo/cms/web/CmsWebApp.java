@@ -12,7 +12,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsTheme;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.util.LangUtils;
+import org.argeo.cms.util.LangUtils;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;

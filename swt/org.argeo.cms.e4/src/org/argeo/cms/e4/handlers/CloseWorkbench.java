@@ -3,7 +3,7 @@ package org.argeo.cms.e4.handlers;
 import javax.security.auth.Subject;
 
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.util.CurrentSubject;
+import org.argeo.cms.util.CurrentSubject;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.ui.workbench.IWorkbench;
 

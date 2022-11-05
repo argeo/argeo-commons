@@ -15,9 +15,9 @@ import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 
-import org.argeo.util.http.HttpHeader;
-import org.argeo.util.http.HttpMethod;
-import org.argeo.util.http.HttpStatus;
+import org.argeo.cms.http.HttpHeader;
+import org.argeo.cms.http.HttpMethod;
+import org.argeo.cms.http.HttpStatus;
 
 public class DavClient {
 

@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.argeo.cms.osgi.FilterRequirement;
 import org.argeo.cms.osgi.PublishNamespace;
-import org.argeo.osgi.util.FilterRequirement;
-import org.argeo.util.StreamUtils;
+import org.argeo.cms.util.StreamUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;

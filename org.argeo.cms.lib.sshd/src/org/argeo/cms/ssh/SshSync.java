@@ -24,7 +24,7 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.sftp.client.fs.SftpFileSystem;
 import org.apache.sshd.sftp.client.fs.SftpFileSystemProvider;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.util.StreamUtils;
+import org.argeo.cms.util.StreamUtils;
 
 public class SshSync {
 	private final static CmsLog log = CmsLog.getLog(SshSync.class);

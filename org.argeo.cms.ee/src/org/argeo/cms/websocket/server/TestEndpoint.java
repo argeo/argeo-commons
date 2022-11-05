@@ -16,9 +16,9 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
+import org.argeo.api.acr.ldap.NamingUtils;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.integration.CmsExceptionsChain;
-import org.argeo.util.naming.NamingUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;

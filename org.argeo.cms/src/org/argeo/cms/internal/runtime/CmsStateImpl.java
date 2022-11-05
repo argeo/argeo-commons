@@ -38,7 +38,7 @@ import org.argeo.api.cms.CmsState;
 import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.auth.ident.IdentClient;
-import org.argeo.util.FsUtils;
+import org.argeo.cms.util.FsUtils;
 
 /**
  * Implementation of a {@link CmsState}, initialising the required services.

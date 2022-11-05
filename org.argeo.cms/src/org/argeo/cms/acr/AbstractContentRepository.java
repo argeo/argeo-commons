@@ -17,6 +17,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.argeo.api.acr.ArgeoNamespace;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
@@ -117,7 +118,7 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 //				document = dBuilder.parse(inputSource);
 //			} else {
 			document = dBuilder.newDocument();
-			Element root = document.createElementNS(CrName.CR_NAMESPACE_URI,
+			Element root = document.createElementNS(ArgeoNamespace.CR_NAMESPACE_URI,
 					NamespaceUtils.toPrefixedName(CrName.root.qName()));
 
 			for (String prefix : RuntimeNamespaceContext.getPrefixes().keySet()) {

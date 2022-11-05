@@ -1,6 +1,6 @@
 package org.argeo.cms.auth;
 
-import static org.argeo.util.naming.LdapAttrs.cn;
+import static org.argeo.api.acr.ldap.LdapAttrs.cn;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
@@ -24,13 +24,13 @@ import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.argeo.api.acr.ldap.LdapAttrs;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.directory.ldap.IpaUtils;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.osgi.useradmin.AuthenticatingUser;
-import org.argeo.osgi.useradmin.TokenUtils;
-import org.argeo.util.directory.ldap.IpaUtils;
-import org.argeo.util.naming.LdapAttrs;
+import org.argeo.cms.osgi.useradmin.AuthenticatingUser;
+import org.argeo.cms.osgi.useradmin.TokenUtils;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;

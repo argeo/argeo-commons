@@ -8,8 +8,8 @@ A2_CATEGORY = org.argeo.cms
 
 BUNDLES = \
 org.argeo.init \
-org.argeo.util \
 org.argeo.api.uuid \
+org.argeo.api.register \
 org.argeo.api.acr \
 org.argeo.api.cli \
 org.argeo.api.cms \

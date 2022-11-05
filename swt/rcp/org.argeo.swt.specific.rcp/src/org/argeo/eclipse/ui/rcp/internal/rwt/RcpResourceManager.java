@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.argeo.util.StreamUtils;
+import org.argeo.cms.util.StreamUtils;
 import org.eclipse.rap.rwt.service.ResourceManager;
 
 public class RcpResourceManager implements ResourceManager {

@@ -20,7 +20,7 @@ import org.argeo.api.cms.CmsSessionId;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.util.CurrentSubject;
+import org.argeo.cms.util.CurrentSubject;
 import org.osgi.service.useradmin.Authorization;
 
 /**

@@ -13,8 +13,8 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import org.argeo.api.acr.ArgeoNamespace;
 import org.argeo.api.acr.ContentResourceException;
-import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ContentProvider;
@@ -62,10 +62,10 @@ public class FsContentProvider implements ContentProvider {
 			}
 
 			// defaults
-			addDefaultNamespace(udfav, CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI);
-			addDefaultNamespace(udfav, "basic", CrName.CR_NAMESPACE_URI);
-			addDefaultNamespace(udfav, "owner", CrName.CR_NAMESPACE_URI);
-			addDefaultNamespace(udfav, "posix", CrName.CR_NAMESPACE_URI);
+			addDefaultNamespace(udfav, ArgeoNamespace.CR_DEFAULT_PREFIX, ArgeoNamespace.CR_NAMESPACE_URI);
+			addDefaultNamespace(udfav, "basic", ArgeoNamespace.CR_NAMESPACE_URI);
+			addDefaultNamespace(udfav, "owner", ArgeoNamespace.CR_NAMESPACE_URI);
+			addDefaultNamespace(udfav, "posix", ArgeoNamespace.CR_NAMESPACE_URI);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot read namespaces from " + rootPath, e);
 		}

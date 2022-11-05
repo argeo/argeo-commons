@@ -5,7 +5,7 @@ import java.lang.System.Logger.Level;
 import java.nio.file.Path;
 
 import org.argeo.api.cms.CmsApp;
-import org.argeo.util.OS;
+import org.argeo.cms.util.OS;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
 

@@ -1,6 +1,6 @@
 package org.argeo.cms.dav;
 
-import org.argeo.util.http.HttpHeader;
+import org.argeo.cms.http.HttpHeader;
 
 import com.sun.net.httpserver.HttpExchange;
 

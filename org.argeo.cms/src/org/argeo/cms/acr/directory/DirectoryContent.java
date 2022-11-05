@@ -10,8 +10,8 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.util.directory.Directory;
-import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.Directory;
+import org.argeo.api.cms.directory.HierarchyUnit;
 
 class DirectoryContent extends AbstractDirectoryContent {
 	private Directory directory;

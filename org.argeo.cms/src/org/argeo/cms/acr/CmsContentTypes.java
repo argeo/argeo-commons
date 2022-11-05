@@ -4,13 +4,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
-import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.ArgeoNamespace;
 
 public enum CmsContentTypes {
 	//
 	// ARGEO
 	//
-	CR_2(CrName.CR_DEFAULT_PREFIX, CrName.CR_NAMESPACE_URI, "cr.xsd", null),
+	CR_2(ArgeoNamespace.CR_DEFAULT_PREFIX, ArgeoNamespace.CR_NAMESPACE_URI, "cr.xsd", null),
 	//
 	SLC("slc", "http://www.argeo.org/ns/slc", null, null),
 	//

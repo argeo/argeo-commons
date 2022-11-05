@@ -8,7 +8,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.argeo.api.acr.CrName;
+import org.argeo.api.acr.ArgeoNamespace;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.cms.auth.RoleNameUtils;
 import org.osgi.service.useradmin.Authorization;
@@ -35,7 +35,7 @@ public final class ImpliedByPrincipal implements Principal {
 		this.name = name;
 		String cn = RoleNameUtils.getLastRdnValue(name);
 		roleName = NamespaceUtils.parsePrefixedName(getNamespaceContext(), cn);
-		if (roleName.getNamespaceURI().equals(CrName.ROLE_NAMESPACE_URI)) {
+		if (roleName.getNamespaceURI().equals(ArgeoNamespace.ROLE_NAMESPACE_URI)) {
 			systemRole = true;
 		}
 		context = RoleNameUtils.getContext(name);

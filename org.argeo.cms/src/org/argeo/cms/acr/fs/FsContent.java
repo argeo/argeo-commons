@@ -44,7 +44,7 @@ import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
-import org.argeo.util.FsUtils;
+import org.argeo.cms.util.FsUtils;
 
 /** Content persisted as a filesystem {@link Path}. */
 public class FsContent extends AbstractContent implements ProvidedContent {

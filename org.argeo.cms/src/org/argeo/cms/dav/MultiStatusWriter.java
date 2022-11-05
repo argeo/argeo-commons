@@ -20,7 +20,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.argeo.util.http.HttpStatus;
+import org.argeo.cms.http.HttpStatus;
 
 class MultiStatusWriter implements Consumer<DavResponse> {
 	private BlockingQueue<DavResponse> queue = new ArrayBlockingQueue<>(64);

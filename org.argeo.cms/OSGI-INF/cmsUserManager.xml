@@ -5,5 +5,5 @@
       <provide interface="org.argeo.cms.CmsUserManager"/>
    </service>
    <reference bind="setUserAdmin" cardinality="1..1" interface="org.osgi.service.useradmin.UserAdmin" name="UserAdmin" policy="static"/>
-   <reference bind="setUserTransaction" cardinality="1..1" interface="org.argeo.util.transaction.WorkTransaction" name="UserTransaction" policy="static"/>
+   <reference bind="setUserTransaction" cardinality="1..1" interface="org.argeo.api.cms.transaction.WorkTransaction" name="UserTransaction" policy="static"/>
 </scr:component>

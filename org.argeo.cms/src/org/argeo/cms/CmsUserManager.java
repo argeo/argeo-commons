@@ -7,9 +7,9 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 
+import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.cms.auth.SystemRole;
-import org.argeo.osgi.useradmin.UserDirectory;
-import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.cms.osgi.useradmin.UserDirectory;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;

@@ -16,10 +16,10 @@ import javax.security.auth.spi.LoginModule;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsDeployProperty;
+import org.argeo.cms.http.HttpHeader;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.internal.runtime.CmsStateImpl;
-import org.argeo.util.http.HttpHeader;
 import org.osgi.service.useradmin.Authorization;
 
 /** Use a remote session as the basis for authentication. */

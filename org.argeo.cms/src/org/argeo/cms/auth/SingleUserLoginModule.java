@@ -11,10 +11,10 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
+import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.cms.directory.ldap.IpaUtils;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.osgi.useradmin.OsUserUtils;
-import org.argeo.util.directory.ldap.IpaUtils;
-import org.argeo.util.naming.LdapAttrs;
+import org.argeo.cms.osgi.useradmin.OsUserUtils;
 import org.osgi.service.useradmin.Authorization;
 
 /** Login module for when the system is owned by a single user. */

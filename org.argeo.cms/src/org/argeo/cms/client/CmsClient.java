@@ -30,7 +30,7 @@ import javax.security.auth.login.LoginException;
 
 import org.argeo.cms.auth.ConsoleCallbackHandler;
 import org.argeo.cms.auth.RemoteAuthUtils;
-import org.argeo.util.http.HttpHeader;
+import org.argeo.cms.http.HttpHeader;
 
 /** Utility to connect to a remote CMS node. */
 public class CmsClient {

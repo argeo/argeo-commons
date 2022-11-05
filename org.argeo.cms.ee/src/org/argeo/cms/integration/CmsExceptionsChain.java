@@ -6,7 +6,7 @@ import java.io.Writer;
 import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.util.ExceptionsChain;
+import org.argeo.cms.util.ExceptionsChain;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;

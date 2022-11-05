@@ -61,9 +61,9 @@ public class RuntimeNamespaceContext implements NamespaceContext {
 		register(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, XSD_INSTANCE_DEFAULT_PREFIX);
 
 		// Argeo specific
-		register(CrName.CR_NAMESPACE_URI, CrName.CR_DEFAULT_PREFIX);
-		register(CrName.LDAP_NAMESPACE_URI, CrName.LDAP_DEFAULT_PREFIX);
-		register(CrName.ROLE_NAMESPACE_URI, CrName.ROLE_DEFAULT_PREFIX);
+		register(ArgeoNamespace.CR_NAMESPACE_URI, ArgeoNamespace.CR_DEFAULT_PREFIX);
+		register(ArgeoNamespace.LDAP_NAMESPACE_URI, ArgeoNamespace.LDAP_DEFAULT_PREFIX);
+		register(ArgeoNamespace.ROLE_NAMESPACE_URI, ArgeoNamespace.ROLE_DEFAULT_PREFIX);
 	}
 
 	public static NamespaceContext getNamespaceContext() {

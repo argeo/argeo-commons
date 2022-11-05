@@ -17,7 +17,7 @@ import org.argeo.api.cms.DataAdminPrincipal;
 import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.util.CurrentSubject;
+import org.argeo.cms.util.CurrentSubject;
 
 /**
  * Multi-session {@link ProvidedRepository}, integrated with a CMS.

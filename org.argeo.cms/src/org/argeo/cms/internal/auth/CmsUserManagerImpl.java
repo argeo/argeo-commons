@@ -1,8 +1,8 @@
 package org.argeo.cms.internal.auth;
 
-import static org.argeo.util.naming.LdapAttrs.cn;
-import static org.argeo.util.naming.LdapAttrs.description;
-import static org.argeo.util.naming.LdapAttrs.owner;
+import static org.argeo.api.acr.ldap.LdapAttrs.cn;
+import static org.argeo.api.acr.ldap.LdapAttrs.description;
+import static org.argeo.api.acr.ldap.LdapAttrs.owner;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -25,22 +25,22 @@ import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 
 import org.argeo.api.acr.NamespaceUtils;
+import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.NamingUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.directory.HierarchyUnit;
+import org.argeo.api.cms.transaction.WorkTransaction;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.SystemRole;
 import org.argeo.cms.auth.UserAdminUtils;
-import org.argeo.osgi.useradmin.AggregatingUserAdmin;
-import org.argeo.osgi.useradmin.TokenUtils;
-import org.argeo.osgi.useradmin.UserDirectory;
-import org.argeo.util.directory.DirectoryConf;
-import org.argeo.util.directory.HierarchyUnit;
-import org.argeo.util.directory.ldap.LdapEntry;
-import org.argeo.util.directory.ldap.SharedSecret;
-import org.argeo.util.naming.LdapAttrs;
-import org.argeo.util.naming.NamingUtils;
-import org.argeo.util.transaction.WorkTransaction;
+import org.argeo.cms.directory.ldap.LdapEntry;
+import org.argeo.cms.directory.ldap.SharedSecret;
+import org.argeo.cms.osgi.useradmin.AggregatingUserAdmin;
+import org.argeo.cms.osgi.useradmin.TokenUtils;
+import org.argeo.cms.osgi.useradmin.UserDirectory;
+import org.argeo.cms.runtime.DirectoryConf;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;

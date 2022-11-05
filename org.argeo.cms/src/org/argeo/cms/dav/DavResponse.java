@@ -10,7 +10,7 @@ import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
-import org.argeo.util.http.HttpStatus;
+import org.argeo.cms.http.HttpStatus;
 
 /** The WebDav response for a given resource. */
 public class DavResponse {

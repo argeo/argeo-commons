@@ -15,11 +15,11 @@ import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.DName;
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.directory.Directory;
+import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.cms.CmsUserManager;
-import org.argeo.osgi.useradmin.UserDirectory;
-import org.argeo.util.CurrentSubject;
-import org.argeo.util.directory.Directory;
-import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.cms.osgi.useradmin.UserDirectory;
+import org.argeo.cms.util.CurrentSubject;
 import org.osgi.service.useradmin.Role;
 
 /** Utilities and routines around {@link Content}. */
