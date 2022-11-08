@@ -8,7 +8,9 @@ import org.argeo.api.acr.ContentName;
 /** Standard CMS system roles. */
 public enum CmsRole implements SystemRole {
 	userAdmin, //
-	groupAdmin;
+	groupAdmin, //
+	//
+	;
 
 	private final static String QUALIFIER = "cms.";
 
