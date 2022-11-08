@@ -26,7 +26,11 @@ public interface HierarchyUnit {
 	 * @return <code>true</code> if functional, <code>false</code> is technical
 	 *         (e.g. People, Groups, etc.)
 	 */
-	boolean isFunctional();
+	default boolean isFunctional() {
+		return isType(Type.FUNCTIONAL);
+	}
+
+	boolean isType(Type type);
 
 	/**
 	 * The base of this organisational unit within the hierarchy. This would
@@ -39,4 +43,11 @@ public interface HierarchyUnit {
 
 	/** Its metadata (typically LDAP attributes). */
 	Dictionary<String, Object> getProperties();
+
+	enum Type {
+		PEOPLE, //
+		GROUPS, //
+		ROLES, //
+		FUNCTIONAL;
+	}
 }

@@ -75,7 +75,7 @@ public final class CurrentUser {
 		return role.implied(currentSubject(), context);
 	}
 
-	/** Implies this {@link SystemRole} in this context. */
+	/** Implies this role name, also independently of the context. */
 	public final static boolean implies(String role, String context) {
 		return SystemRole.implied(NamespaceUtils.parsePrefixedName(role), currentSubject(), context);
 	}

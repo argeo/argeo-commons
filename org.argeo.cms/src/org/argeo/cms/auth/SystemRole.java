@@ -8,13 +8,27 @@ import javax.xml.namespace.QName;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 
+/** A programmatic role. */
 public interface SystemRole {
 	QName getName();
 
+	/** Whether this role is implied for this authenticated user. */
 	default boolean implied(Subject subject, String context) {
 		return implied(getName(), subject, context);
 	}
 
+	/** Whether this role is implied for this distinguished name. */
+	default boolean implied(String dn, String context) {
+		String roleContext = RoleNameUtils.getContext(dn);
+		QName roleName = RoleNameUtils.getLastRdnAsName(dn);
+		return roleContext.equalsIgnoreCase(context) && getName().equals(roleName);
+	}
+
+	/**
+	 * Whether this role is implied for this authenticated subject. If context is
+	 * <code>null</code>, it is not considered; this should be used to build user
+	 * interfaces, but not to authorise.
+	 */
 	static boolean implied(QName name, Subject subject, String context) {
 		Set<ImpliedByPrincipal> roles = subject.getPrincipals(ImpliedByPrincipal.class);
 		for (ImpliedByPrincipal role : roles) {
@@ -30,6 +44,5 @@ public interface SystemRole {
 			}
 		}
 		return false;
-
 	}
 }

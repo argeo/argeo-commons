@@ -9,14 +9,24 @@ import org.argeo.api.cms.directory.HierarchyUnit;
 
 /** LDIF/LDAP based implementation of {@link HierarchyUnit}. */
 public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit {
-	private final boolean functional;
+//	private final boolean functional;
+
+	private final Type type;
 
 	public LdapHierarchyUnit(AbstractLdapDirectory directory, LdapName dn) {
 		super(directory, dn);
 
 		Rdn rdn = LdapNameUtils.getLastRdn(dn);
-		functional = !(directory.getUserBaseRdn().equals(rdn) || directory.getGroupBaseRdn().equals(rdn)
-				|| directory.getSystemRoleBaseRdn().equals(rdn));
+		if (directory.getUserBaseRdn().equals(rdn))
+			type = Type.PEOPLE;
+		else if (directory.getGroupBaseRdn().equals(rdn))
+			type = Type.GROUPS;
+		else if (directory.getSystemRoleBaseRdn().equals(rdn))
+			type = Type.ROLES;
+		else
+			type = Type.FUNCTIONAL;
+//		functional = !(directory.getUserBaseRdn().equals(rdn) || directory.getGroupBaseRdn().equals(rdn)
+//				|| directory.getSystemRoleBaseRdn().equals(rdn));
 	}
 
 	@Override
@@ -30,8 +40,8 @@ public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit
 	}
 
 	@Override
-	public boolean isFunctional() {
-		return functional;
+	public boolean isType(Type type) {
+		return this.type.equals(type);
 	}
 
 	@Override

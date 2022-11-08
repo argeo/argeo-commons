@@ -320,8 +320,8 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	}
 
 	@Override
-	public boolean isFunctional() {
-		return true;
+	public boolean isType(Type type) {
+		return Type.FUNCTIONAL.equals(type);
 	}
 
 	@Override
