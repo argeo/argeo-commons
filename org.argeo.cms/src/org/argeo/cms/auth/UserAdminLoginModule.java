@@ -155,20 +155,24 @@ public class UserAdminLoginModule implements LoginModule {
 			return true;// expect Kerberos
 
 		if (password != null) {
+			//  TODO disabling bind for the time being,
+			// as it requires authorisations to be set at LDAP level
+			boolean tryBind = false;
 			// try bind first
-			try {
-				AuthenticatingUser authenticatingUser = new AuthenticatingUser(user.getName(), password);
-				bindAuthorization = userAdmin.getAuthorization(authenticatingUser);
-				// TODO check tokens as well
-				if (bindAuthorization != null) {
-					authenticatedUser = user;
-					return true;
+			if (tryBind)
+				try {
+					AuthenticatingUser authenticatingUser = new AuthenticatingUser(user.getName(), password);
+					bindAuthorization = userAdmin.getAuthorization(authenticatingUser);
+					// TODO check tokens as well
+					if (bindAuthorization != null) {
+						authenticatedUser = user;
+						return true;
+					}
+				} catch (Exception e) {
+					// silent
+					if (log.isTraceEnabled())
+						log.trace("Bind failed", e);
 				}
-			} catch (Exception e) {
-				// silent
-				if (log.isTraceEnabled())
-					log.trace("Bind failed", e);
-			}
 
 			// works only if a connection password is provided
 			if (!user.hasCredential(null, password)) {
