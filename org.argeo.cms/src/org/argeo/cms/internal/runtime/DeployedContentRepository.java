@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.CmsUserManager;
+import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.cms.acr.CmsContentRepository;
 import org.argeo.cms.acr.directory.DirectoryContentProvider;
 import org.argeo.cms.acr.fs.FsContentProvider;

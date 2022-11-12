@@ -16,9 +16,9 @@ import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.DName;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.directory.CmsDirectory;
+import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
-import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.util.CurrentSubject;
 import org.osgi.service.useradmin.Role;
 

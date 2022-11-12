@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.auth;
+package org.argeo.cms.internal.runtime;
 
 import static org.argeo.api.acr.ldap.LdapAttrs.cn;
 import static org.argeo.api.acr.ldap.LdapAttrs.description;
@@ -32,10 +32,10 @@ import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.directory.CmsGroup;
 import org.argeo.api.cms.directory.CmsUser;
+import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.api.cms.transaction.WorkTransaction;
-import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.directory.ldap.LdapEntry;
@@ -91,8 +91,12 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public Role[] getRoles(String filter) throws InvalidSyntaxException {
-		return userAdmin.getRoles(filter);
+	public Role[] getRoles(String filter) {
+		try {
+			return userAdmin.getRoles(filter);
+		} catch (InvalidSyntaxException e) {
+			throw new IllegalArgumentException("Invalid filter " + filter, e);
+		}
 	}
 
 	// ALL USER: WARNING access to this will be later reduced
@@ -287,8 +291,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	@Override
 	public CmsGroup getOrCreateSystemRole(HierarchyUnit roles, QName systemRole) {
 		try {
-			String dn = LdapAttrs.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole) + ","
-					+ roles.getBase();
+			String dn = LdapAttrs.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole) + "," + roles.getBase();
 			CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
 			if (group != null)
 				return group;

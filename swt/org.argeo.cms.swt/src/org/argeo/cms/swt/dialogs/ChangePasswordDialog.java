@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.CmsMsg;
-import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;

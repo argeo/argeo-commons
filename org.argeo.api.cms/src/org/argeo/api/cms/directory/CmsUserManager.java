@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.api.cms.directory;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -8,11 +8,6 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
-import org.argeo.api.cms.directory.CmsGroup;
-import org.argeo.api.cms.directory.CmsUser;
-import org.argeo.api.cms.directory.HierarchyUnit;
-import org.argeo.api.cms.directory.UserDirectory;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
@@ -47,7 +42,7 @@ public interface CmsUserManager {
 
 	// Search
 	/** Returns a filtered list of roles */
-	Role[] getRoles(String filter) throws InvalidSyntaxException;
+	Role[] getRoles(String filter);
 
 	/** Recursively lists users in a given group. */
 	Set<CmsUser> listUsersInGroup(String groupDn, String filter);

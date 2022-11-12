@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.api.acr.ldap.NamingUtils;
 import org.argeo.api.cms.CmsAuth;
-import org.argeo.cms.CmsUserManager;
+import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.cms.auth.RemoteAuthCallback;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.servlet.ServletHttpRequest;
