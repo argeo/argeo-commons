@@ -23,6 +23,7 @@ import java.util.UUID;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
+import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.ldap.LdapAttrs;
@@ -36,7 +37,6 @@ import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.api.cms.transaction.WorkTransaction;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.auth.SystemRole;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.directory.ldap.LdapEntry;
 import org.argeo.cms.directory.ldap.SharedSecret;
@@ -285,9 +285,9 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public CmsGroup getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole) {
+	public CmsGroup getOrCreateSystemRole(HierarchyUnit roles, QName systemRole) {
 		try {
-			String dn = LdapAttrs.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole.getName()) + ","
+			String dn = LdapAttrs.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole) + ","
 					+ roles.getBase();
 			CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
 			if (group != null)

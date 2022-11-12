@@ -4,6 +4,7 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.ArgeoNamespace;
 import org.argeo.api.acr.ContentName;
+import org.argeo.cms.SystemRole;
 
 /** Standard CMS system roles. */
 public enum CmsRole implements SystemRole {

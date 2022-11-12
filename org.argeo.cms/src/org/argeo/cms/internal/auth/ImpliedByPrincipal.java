@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.argeo.cms.auth.RoleNameUtils;
+import org.argeo.cms.RoleNameUtils;
 import org.osgi.service.useradmin.Authorization;
 
 /**

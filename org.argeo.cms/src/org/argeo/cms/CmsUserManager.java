@@ -6,12 +6,12 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.security.auth.Subject;
+import javax.xml.namespace.QName;
 
 import org.argeo.api.cms.directory.CmsGroup;
 import org.argeo.api.cms.directory.CmsUser;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
-import org.argeo.cms.auth.SystemRole;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -72,7 +72,7 @@ public interface CmsUserManager {
 	CmsGroup getOrCreateGroup(HierarchyUnit groups, String commonName);
 
 	/** Creates a new system role. */
-	CmsGroup getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole);
+	CmsGroup getOrCreateSystemRole(HierarchyUnit roles, QName systemRole);
 
 	/** Add additional object classes to this role. */
 	void addObjectClasses(Role role, Set<String> objectClasses, Map<String, Object> additionalProperties);

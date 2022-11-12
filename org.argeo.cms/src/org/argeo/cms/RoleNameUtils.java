@@ -1,4 +1,4 @@
-package org.argeo.cms.auth;
+package org.argeo.cms;
 
 import static org.argeo.api.acr.RuntimeNamespaceContext.getNamespaceContext;
 
