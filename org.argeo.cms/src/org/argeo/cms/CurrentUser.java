@@ -28,10 +28,6 @@ import org.osgi.service.useradmin.Authorization;
  * context.
  */
 public final class CurrentUser {
-	/*
-	 * CURRENT USER API
-	 */
-
 	/**
 	 * Technical username of the currently authenticated user.
 	 * 
@@ -55,12 +51,12 @@ public final class CurrentUser {
 	}
 
 	/** Locale of the current user */
-	public final static Locale locale() {
+	public static Locale locale() {
 		return locale(currentSubject());
 	}
 
 	/** Roles of the currently logged-in user */
-	public final static Set<String> roles() {
+	public static Set<String> roles() {
 		return roles(currentSubject());
 	}
 
@@ -71,22 +67,28 @@ public final class CurrentUser {
 	}
 
 	/** Implies this {@link SystemRole} in this context. */
-	public final static boolean implies(SystemRole role, String context) {
+	public static boolean implies(SystemRole role, String context) {
 		return role.implied(currentSubject(), context);
 	}
 
 	/** Implies this role name, also independently of the context. */
-	public final static boolean implies(String role, String context) {
+	public static boolean implies(String role, String context) {
 		return SystemRole.implied(NamespaceUtils.parsePrefixedName(role), currentSubject(), context);
 	}
 
+	/** Get the primary context this user belongs to. */
+	public static boolean isUserContext(String context) {
+		// TODO have the role context as a separated credential in the Subjecto?
+		return RoleNameUtils.getContext(getUsername()).equalsIgnoreCase(context);
+	}
+
 	/** Executes as the current user */
-	public final static <T> T doAs(PrivilegedAction<T> action) {
+	public static <T> T doAs(PrivilegedAction<T> action) {
 		return Subject.doAs(currentSubject(), action);
 	}
 
 	/** Executes as the current user */
-	public final static <T> T tryAs(PrivilegedExceptionAction<T> action) throws PrivilegedActionException {
+	public static <T> T tryAs(PrivilegedExceptionAction<T> action) throws PrivilegedActionException {
 		return Subject.doAs(currentSubject(), action);
 	}
 
@@ -94,7 +96,7 @@ public final class CurrentUser {
 	 * WRAPPERS
 	 */
 
-	public final static String getUsername(Subject subject) {
+	public static String getUsername(Subject subject) {
 		if (subject == null)
 			throw new IllegalArgumentException("Subject cannot be null");
 		if (subject.getPrincipals(X500Principal.class).size() != 1)
@@ -103,11 +105,11 @@ public final class CurrentUser {
 		return principal.getName();
 	}
 
-	public final static String getDisplayName(Subject subject) {
+	public static String getDisplayName(Subject subject) {
 		return getAuthorization(subject).toString();
 	}
 
-	public final static Set<String> roles(Subject subject) {
+	public static Set<String> roles(Subject subject) {
 		Set<String> roles = new HashSet<String>();
 		roles.add(getUsername(subject));
 		for (Principal group : subject.getPrincipals(ImpliedByPrincipal.class)) {
@@ -116,7 +118,7 @@ public final class CurrentUser {
 		return roles;
 	}
 
-	public final static Locale locale(Subject subject) {
+	public static Locale locale(Subject subject) {
 		Set<Locale> locales = subject.getPublicCredentials(Locale.class);
 		if (locales.isEmpty()) {
 			Locale defaultLocale = CmsContextImpl.getCmsContext().getDefaultLocale();
