@@ -15,7 +15,7 @@ import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsState;
 import org.argeo.api.cms.DataAdminPrincipal;
 import org.argeo.api.uuid.UuidFactory;
-import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.CurrentUser;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.util.CurrentSubject;
 

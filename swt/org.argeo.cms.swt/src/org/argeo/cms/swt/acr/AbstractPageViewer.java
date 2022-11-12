@@ -9,7 +9,7 @@ import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsEditable;
-import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.CurrentUser;
 import org.argeo.cms.swt.SwtEditablePart;
 import org.argeo.cms.swt.widgets.ScrolledPage;
 import org.eclipse.swt.SWT;

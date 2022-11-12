@@ -14,7 +14,7 @@ import javax.naming.ldap.LdapName;
 
 import org.argeo.api.cms.keyring.CryptoKeyring;
 import org.argeo.api.cms.transaction.WorkTransaction;
-import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.CurrentUser;
 import org.argeo.cms.swt.dialogs.CmsFeedback;
 import org.argeo.cms.swt.dialogs.CmsMessageDialog;
 import org.eclipse.e4.core.di.annotations.Execute;

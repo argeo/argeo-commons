@@ -5,7 +5,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsAuth;
-import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;

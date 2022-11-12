@@ -1,4 +1,4 @@
-package org.argeo.cms.auth;
+package org.argeo.cms;
 
 import java.security.Principal;
 import java.security.PrivilegedAction;
@@ -17,7 +17,6 @@ import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsSessionId;
-import org.argeo.cms.SystemRole;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.runtime.CmsContextImpl;

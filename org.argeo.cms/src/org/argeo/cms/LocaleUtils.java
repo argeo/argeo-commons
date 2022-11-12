@@ -4,7 +4,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.auth.CurrentUser;
 
 /** Utilities simplifying the development of localization enums. */
 public class LocaleUtils {

@@ -8,6 +8,7 @@ import javax.naming.ldap.Rdn;
 
 import org.argeo.api.acr.ldap.LdapAttrs;
 import org.argeo.api.cms.CmsConstants;
+import org.argeo.cms.CurrentUser;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;

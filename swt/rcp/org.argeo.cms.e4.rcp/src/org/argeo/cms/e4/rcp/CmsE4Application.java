@@ -12,8 +12,7 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.api.cms.ux.UxContext;
-import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.swt.CmsException;
+import org.argeo.cms.CurrentUser;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.SimpleSwtUxContext;
 import org.argeo.cms.swt.auth.CmsLoginShell;
@@ -156,7 +155,7 @@ public class CmsE4Application implements IApplication, CmsView {
 	@Override
 	public void authChange(LoginContext loginContext) {
 		if (loginContext == null)
-			throw new CmsException("Login context cannot be null");
+			throw new IllegalStateException("Login context cannot be null");
 		// logout previous login context
 		// if (this.loginContext != null)
 		// try {
@@ -170,12 +169,12 @@ public class CmsE4Application implements IApplication, CmsView {
 	@Override
 	public void logout() {
 		if (loginContext == null)
-			throw new CmsException("Login context should not bet null");
+			throw new IllegalStateException("Login context should not bet null");
 		try {
 			CurrentUser.logoutCmsSession(loginContext.getSubject());
 			loginContext.logout();
 		} catch (LoginException e) {
-			throw new CmsException("Cannot log out", e);
+			throw new IllegalStateException("Cannot log out", e);
 		}
 	}
 

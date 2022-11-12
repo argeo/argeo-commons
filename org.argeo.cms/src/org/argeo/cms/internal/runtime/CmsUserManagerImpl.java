@@ -36,7 +36,7 @@ import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.api.cms.transaction.WorkTransaction;
-import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.CurrentUser;
 import org.argeo.cms.auth.UserAdminUtils;
 import org.argeo.cms.directory.ldap.LdapEntry;
 import org.argeo.cms.directory.ldap.SharedSecret;
