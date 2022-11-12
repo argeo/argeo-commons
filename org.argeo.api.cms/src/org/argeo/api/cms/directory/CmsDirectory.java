@@ -4,8 +4,8 @@ import java.util.Optional;
 
 import org.argeo.api.cms.transaction.WorkControl;
 
-/** An information directory (typicylly LDAP). */
-public interface Directory extends HierarchyUnit {
+/** An information directory (typically LDAP). */
+public interface CmsDirectory extends HierarchyUnit {
 	String getName();
 
 	/** Whether this directory is read only. */

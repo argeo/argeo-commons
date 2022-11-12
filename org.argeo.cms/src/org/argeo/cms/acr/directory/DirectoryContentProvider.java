@@ -15,10 +15,10 @@ import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.cms.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
-import org.argeo.cms.osgi.useradmin.UserDirectory;
 import org.osgi.service.useradmin.User;
 
 public class DirectoryContentProvider implements ContentProvider {

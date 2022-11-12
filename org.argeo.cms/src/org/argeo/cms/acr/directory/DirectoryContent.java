@@ -10,13 +10,13 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.api.cms.directory.Directory;
+import org.argeo.api.cms.directory.CmsDirectory;
 import org.argeo.api.cms.directory.HierarchyUnit;
 
 class DirectoryContent extends AbstractDirectoryContent {
-	private Directory directory;
+	private CmsDirectory directory;
 
-	public DirectoryContent(ProvidedSession session, DirectoryContentProvider provider, Directory directory) {
+	public DirectoryContent(ProvidedSession session, DirectoryContentProvider provider, CmsDirectory directory) {
 		super(session, provider);
 		this.directory = directory;
 	}

@@ -29,7 +29,10 @@ import org.argeo.api.acr.ldap.LdapAttrs;
 import org.argeo.api.acr.ldap.NamingUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.directory.CmsGroup;
+import org.argeo.api.cms.directory.CmsUser;
 import org.argeo.api.cms.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.api.cms.transaction.WorkTransaction;
 import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.auth.CurrentUser;
@@ -39,7 +42,6 @@ import org.argeo.cms.directory.ldap.LdapEntry;
 import org.argeo.cms.directory.ldap.SharedSecret;
 import org.argeo.cms.osgi.useradmin.AggregatingUserAdmin;
 import org.argeo.cms.osgi.useradmin.TokenUtils;
-import org.argeo.cms.osgi.useradmin.UserDirectory;
 import org.argeo.cms.runtime.DirectoryConf;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
@@ -96,8 +98,8 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	// ALL USER: WARNING access to this will be later reduced
 
 	/** Retrieve a user given his dn, or <code>null</code> if it doesn't exist. */
-	public User getUser(String dn) {
-		return (User) getUserAdmin().getRole(dn);
+	public CmsUser getUser(String dn) {
+		return (CmsUser) getUserAdmin().getRole(dn);
 	}
 
 	/** Can be a group or a user */
@@ -132,11 +134,11 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		return false;
 	}
 
-	public Set<User> listUsersInGroup(String groupDn, String filter) {
+	public Set<CmsUser> listUsersInGroup(String groupDn, String filter) {
 		Group group = (Group) userAdmin.getRole(groupDn);
 		if (group == null)
 			throw new IllegalArgumentException("Group " + groupDn + " not found");
-		Set<User> users = new HashSet<User>();
+		Set<CmsUser> users = new HashSet<>();
 		addUsers(users, group, filter);
 		return users;
 	}
@@ -158,21 +160,21 @@ public class CmsUserManagerImpl implements CmsUserManager {
 //	}
 
 	/** Recursively add users to list */
-	private void addUsers(Set<User> users, Group group, String filter) {
+	private void addUsers(Set<CmsUser> users, Group group, String filter) {
 		Role[] roles = group.getMembers();
 		for (Role role : roles) {
 			if (role.getType() == Role.GROUP) {
-				addUsers(users, (Group) role, filter);
+				addUsers(users, (CmsGroup) role, filter);
 			} else if (role.getType() == Role.USER) {
 				if (match(role, filter))
-					users.add((User) role);
+					users.add((CmsUser) role);
 			} else {
 				// ignore
 			}
 		}
 	}
 
-	public List<User> listGroups(String filter, boolean includeUsers, boolean includeSystemRoles) {
+	public List<CmsUser> listGroups(String filter, boolean includeUsers, boolean includeSystemRoles) {
 		Role[] roles = null;
 		try {
 			roles = getUserAdmin().getRoles(filter);
@@ -180,13 +182,13 @@ public class CmsUserManagerImpl implements CmsUserManager {
 			throw new IllegalArgumentException("Unable to get roles with filter: " + filter, e);
 		}
 
-		List<User> users = new ArrayList<User>();
+		List<CmsUser> users = new ArrayList<>();
 		for (Role role : roles) {
 			if ((includeUsers && role.getType() == Role.USER || role.getType() == Role.GROUP) && !users.contains(role)
 					&& (includeSystemRoles
 							|| !role.getName().toLowerCase().endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))) {
 				if (match(role, filter))
-					users.add((User) role);
+					users.add((CmsUser) role);
 			}
 		}
 		return users;
@@ -215,10 +217,10 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public User getUserFromLocalId(String localId) {
-		User user = getUserAdmin().getUser(LdapAttrs.uid.name(), localId);
+	public CmsUser getUserFromLocalId(String localId) {
+		CmsUser user = (CmsUser) getUserAdmin().getUser(LdapAttrs.uid.name(), localId);
 		if (user == null)
-			user = getUserAdmin().getUser(LdapAttrs.cn.name(), localId);
+			user = (CmsUser) getUserAdmin().getUser(LdapAttrs.cn.name(), localId);
 		return user;
 	}
 
@@ -231,10 +233,10 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	 * EDITION
 	 */
 	@Override
-	public User createUser(String username, Map<String, Object> properties, Map<String, Object> credentials) {
+	public CmsUser createUser(String username, Map<String, Object> properties, Map<String, Object> credentials) {
 		try {
 			userTransaction.begin();
-			User user = (User) userAdmin.createRole(username, Role.USER);
+			CmsUser user = (CmsUser) userAdmin.createRole(username, Role.USER);
 			if (properties != null) {
 				for (String key : properties.keySet())
 					user.getProperties().put(key, properties.get(key));
@@ -259,14 +261,14 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public Group getOrCreateGroup(HierarchyUnit groups, String commonName) {
+	public CmsGroup getOrCreateGroup(HierarchyUnit groups, String commonName) {
 		try {
 			String dn = LdapAttrs.cn.name() + "=" + commonName + "," + groups.getBase();
-			Group group = (Group) getUserAdmin().getRole(dn);
+			CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
 			if (group != null)
 				return group;
 			userTransaction.begin();
-			group = (Group) userAdmin.createRole(dn, Role.GROUP);
+			group = (CmsGroup) userAdmin.createRole(dn, Role.GROUP);
 			userTransaction.commit();
 			return group;
 		} catch (Exception e) {
@@ -283,15 +285,15 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public Group getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole) {
+	public CmsGroup getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole) {
 		try {
 			String dn = LdapAttrs.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole.getName()) + ","
 					+ roles.getBase();
-			Group group = (Group) getUserAdmin().getRole(dn);
+			CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
 			if (group != null)
 				return group;
 			userTransaction.begin();
-			group = (Group) userAdmin.createRole(dn, Role.GROUP);
+			group = (CmsGroup) userAdmin.createRole(dn, Role.GROUP);
 			userTransaction.commit();
 			return group;
 		} catch (Exception e) {
@@ -392,7 +394,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public void addMember(Group group, Role role) {
+	public void addMember(CmsGroup group, Role role) {
 		try {
 			userTransaction.begin();
 			group.addMember(role);

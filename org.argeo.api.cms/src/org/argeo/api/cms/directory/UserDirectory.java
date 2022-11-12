@@ -1,11 +1,9 @@
-package org.argeo.cms.osgi.useradmin;
+package org.argeo.api.cms.directory;
 
-import org.argeo.api.cms.directory.Directory;
-import org.argeo.api.cms.directory.HierarchyUnit;
 import org.osgi.service.useradmin.Role;
 
 /** Information about a user directory. */
-public interface UserDirectory extends Directory {
+public interface UserDirectory extends CmsDirectory {
 
 	HierarchyUnit getHierarchyUnit(Role role);
 

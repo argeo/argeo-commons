@@ -7,7 +7,7 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.cms.osgi.useradmin.UserDirectory;
+import org.argeo.api.cms.directory.UserDirectory;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;

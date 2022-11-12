@@ -16,6 +16,8 @@ import java.util.TreeSet;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.api.cms.directory.CmsUser;
+import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.runtime.DirectoryConf;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.useradmin.Authorization;
@@ -165,7 +167,7 @@ public class AggregatingUserAdmin implements UserAdmin {
 	private DirectoryUserAdmin userAdminToUse(User user, DirectoryUserAdmin userAdmin) {
 		if (userAdmin.isAuthenticated())
 			return userAdmin;
-		if (user instanceof DirectoryUser) {
+		if (user instanceof CmsUser) {
 			return userAdmin;
 		} else if (user instanceof AuthenticatingUser) {
 			return userAdmin.scope(user).orElse(null);

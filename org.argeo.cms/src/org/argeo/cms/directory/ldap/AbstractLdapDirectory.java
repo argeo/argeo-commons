@@ -28,7 +28,7 @@ import javax.transaction.xa.XAResource;
 
 import org.argeo.api.acr.ldap.LdapAttrs;
 import org.argeo.api.acr.ldap.LdapObjs;
-import org.argeo.api.cms.directory.Directory;
+import org.argeo.api.cms.directory.CmsDirectory;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.transaction.WorkControl;
 import org.argeo.api.cms.transaction.WorkingCopyXaResource;
@@ -36,8 +36,8 @@ import org.argeo.api.cms.transaction.XAResourceProvider;
 import org.argeo.cms.osgi.useradmin.OsUserDirectory;
 import org.argeo.cms.runtime.DirectoryConf;
 
-/** A {@link Directory} based either on LDAP or LDIF. */
-public abstract class AbstractLdapDirectory implements Directory, XAResourceProvider {
+/** A {@link CmsDirectory} based either on LDAP or LDIF. */
+public abstract class AbstractLdapDirectory implements CmsDirectory, XAResourceProvider {
 	protected static final String SHARED_STATE_USERNAME = "javax.security.auth.login.name";
 	protected static final String SHARED_STATE_PASSWORD = "javax.security.auth.login.password";
 
@@ -325,7 +325,7 @@ public abstract class AbstractLdapDirectory implements Directory, XAResourceProv
 	}
 
 	@Override
-	public Directory getDirectory() {
+	public CmsDirectory getDirectory() {
 		return this;
 	}
 

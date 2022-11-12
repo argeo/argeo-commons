@@ -1,8 +1,8 @@
-package org.argeo.cms.osgi.useradmin;
+package org.argeo.api.cms.directory;
 
 import org.osgi.service.useradmin.Group;
 
 /** A group in a user directroy. */
-interface DirectoryGroup extends Group, DirectoryUser {
+public interface CmsGroup extends Group, CmsUser {
 //	List<LdapName> getMemberNames();
 }

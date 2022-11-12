@@ -13,7 +13,7 @@ public interface HierarchyUnit {
 
 	/**
 	 * The parent {@link HierarchyUnit}, or <code>null</code> if a
-	 * {@link Directory}.
+	 * {@link CmsDirectory}.
 	 */
 	HierarchyUnit getParent();
 
@@ -38,8 +38,8 @@ public interface HierarchyUnit {
 	 */
 	String getBase();
 
-	/** The related {@link Directory}. */
-	Directory getDirectory();
+	/** The related {@link CmsDirectory}. */
+	CmsDirectory getDirectory();
 
 	/** Its metadata (typically LDAP attributes). */
 	Dictionary<String, Object> getProperties();

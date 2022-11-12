@@ -8,10 +8,11 @@ import java.util.Set;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.argeo.api.cms.directory.CmsAuthorization;
 import org.osgi.service.useradmin.Authorization;
 
 /** An {@link Authorization} which combines roles form various auth sources. */
-class AggregatingAuthorization implements Authorization {
+class AggregatingAuthorization implements CmsAuthorization {
 	private final String name;
 	private final String displayName;
 	private final Set<String> systemRoles;

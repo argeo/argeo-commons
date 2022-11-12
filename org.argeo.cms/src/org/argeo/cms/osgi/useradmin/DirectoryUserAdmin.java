@@ -26,7 +26,9 @@ import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosTicket;
 
 import org.argeo.api.cms.directory.DirectoryDigestUtils;
+import org.argeo.api.cms.directory.CmsUser;
 import org.argeo.api.cms.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.directory.ldap.AbstractLdapDirectory;
 import org.argeo.cms.directory.ldap.LdapDao;
 import org.argeo.cms.directory.ldap.LdapEntry;
@@ -146,7 +148,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		}
 	}
 
-	protected List<Role> getAllRoles(DirectoryUser user) {
+	protected List<Role> getAllRoles(CmsUser user) {
 		List<Role> allRoles = new ArrayList<Role>();
 		if (user != null) {
 			collectRoles((LdapEntry) user, allRoles);
@@ -182,23 +184,23 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		return res.toArray(new Role[res.size()]);
 	}
 
-	List<DirectoryUser> getRoles(LdapName searchBase, String filter, boolean deep) throws InvalidSyntaxException {
+	List<CmsUser> getRoles(LdapName searchBase, String filter, boolean deep) throws InvalidSyntaxException {
 		LdapEntryWorkingCopy wc = getWorkingCopy();
 //		Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
 		List<LdapEntry> searchRes = getDirectoryDao().doGetEntries(searchBase, filter, deep);
-		List<DirectoryUser> res = new ArrayList<>();
+		List<CmsUser> res = new ArrayList<>();
 		for (LdapEntry entry : searchRes)
-			res.add((DirectoryUser) entry);
+			res.add((CmsUser) entry);
 		if (wc != null) {
-			for (Iterator<DirectoryUser> it = res.iterator(); it.hasNext();) {
-				DirectoryUser user = (DirectoryUser) it.next();
+			for (Iterator<CmsUser> it = res.iterator(); it.hasNext();) {
+				CmsUser user = (CmsUser) it.next();
 				LdapName dn = LdapNameUtils.toLdapName(user.getName());
 				if (wc.getDeletedData().containsKey(dn))
 					it.remove();
 			}
 			Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
 			for (LdapEntry ldapEntry : wc.getNewData().values()) {
-				DirectoryUser user = (DirectoryUser) ldapEntry;
+				CmsUser user = (CmsUser) ldapEntry;
 				if (f == null || f.match(user.getProperties()))
 					res.add(user);
 			}
@@ -211,7 +213,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	@Override
 	public User getUser(String key, String value) {
 		// TODO check value null or empty
-		List<DirectoryUser> collectedUsers = new ArrayList<DirectoryUser>();
+		List<CmsUser> collectedUsers = new ArrayList<CmsUser>();
 		if (key != null) {
 			doGetUser(key, value, collectedUsers);
 		} else {
@@ -227,11 +229,11 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		return null;
 	}
 
-	protected void doGetUser(String key, String value, List<DirectoryUser> collectedUsers) {
+	protected void doGetUser(String key, String value, List<CmsUser> collectedUsers) {
 		String f = "(" + key + "=" + value + ")";
 		List<LdapEntry> users = getDirectoryDao().doGetEntries(getBaseDn(), f, true);
 		for (LdapEntry entry : users)
-			collectedUsers.add((DirectoryUser) entry);
+			collectedUsers.add((CmsUser) entry);
 	}
 
 	@Override
@@ -261,8 +263,8 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 				return getAuthorizationFromScoped(scopedUserAdmin, user);
 			}
 
-			if (user instanceof DirectoryUser) {
-				return new LdifAuthorization(user, getAllRoles((DirectoryUser) user));
+			if (user instanceof CmsUser) {
+				return new LdifAuthorization(user, getAllRoles((CmsUser) user));
 			} else {
 				// bind with authenticating user
 				DirectoryUserAdmin scopedUserAdmin = scope(user).orElseThrow();
@@ -273,7 +275,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 
 	private Authorization getAuthorizationFromScoped(DirectoryUserAdmin scopedUserAdmin, User user) {
 		try {
-			DirectoryUser directoryUser = (DirectoryUser) scopedUserAdmin.getRole(user.getName());
+			CmsUser directoryUser = (CmsUser) scopedUserAdmin.getRole(user.getName());
 			if (directoryUser == null)
 				throw new IllegalStateException("No scoped user found for " + user);
 			LdifAuthorization authorization = new LdifAuthorization(directoryUser,

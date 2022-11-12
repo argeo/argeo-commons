@@ -7,11 +7,12 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 
+import org.argeo.api.cms.directory.CmsGroup;
+import org.argeo.api.cms.directory.CmsUser;
 import org.argeo.api.cms.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.auth.SystemRole;
-import org.argeo.cms.osgi.useradmin.UserDirectory;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
@@ -30,7 +31,7 @@ public interface CmsUserManager {
 
 	// Other users
 	/** Returns a {@link User} given a username */
-	User getUser(String username);
+	CmsUser getUser(String username);
 
 	/** Can be a group or a user */
 	String getUserDisplayName(String dn);
@@ -49,10 +50,10 @@ public interface CmsUserManager {
 	Role[] getRoles(String filter) throws InvalidSyntaxException;
 
 	/** Recursively lists users in a given group. */
-	Set<User> listUsersInGroup(String groupDn, String filter);
+	Set<CmsUser> listUsersInGroup(String groupDn, String filter);
 
 	/** Search among groups including system roles and users if needed */
-	List<User> listGroups(String filter, boolean includeUsers, boolean includeSystemRoles);
+	List<CmsUser> listGroups(String filter, boolean includeUsers, boolean includeSystemRoles);
 
 //	/**
 //	 * Lists functional accounts, that is users with regular access to the system
@@ -65,13 +66,13 @@ public interface CmsUserManager {
 	 * EDITION
 	 */
 	/** Creates a new user. */
-	User createUser(String username, Map<String, Object> properties, Map<String, Object> credentials);
+	CmsUser createUser(String username, Map<String, Object> properties, Map<String, Object> credentials);
 
 	/** Creates a group. */
-	Group getOrCreateGroup(HierarchyUnit groups, String commonName);
+	CmsGroup getOrCreateGroup(HierarchyUnit groups, String commonName);
 
 	/** Creates a new system role. */
-	Group getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole);
+	CmsGroup getOrCreateSystemRole(HierarchyUnit roles, SystemRole systemRole);
 
 	/** Add additional object classes to this role. */
 	void addObjectClasses(Role role, Set<String> objectClasses, Map<String, Object> additionalProperties);
@@ -81,8 +82,8 @@ public interface CmsUserManager {
 			Map<String, Object> additionalProperties);
 
 	/** Add a member to this group. */
-	void addMember(Group group, Role role);
-	
+	void addMember(CmsGroup group, Role role);
+
 	void edit(Runnable action);
 
 	/* MISCELLANEOUS */
@@ -97,7 +98,7 @@ public interface CmsUserManager {
 	 * to localId within the various user repositories defined in the current
 	 * context.
 	 */
-	User getUserFromLocalId(String localId);
+	CmsUser getUserFromLocalId(String localId);
 
 	void changeOwnPassword(char[] oldPassword, char[] newPassword);
 

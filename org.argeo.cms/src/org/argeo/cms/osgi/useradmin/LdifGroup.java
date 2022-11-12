@@ -7,11 +7,12 @@ import javax.naming.InvalidNameException;
 import javax.naming.directory.Attribute;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.api.cms.directory.CmsGroup;
 import org.argeo.cms.directory.ldap.AbstractLdapDirectory;
 import org.osgi.service.useradmin.Role;
 
 /** Directory group implementation */
-class LdifGroup extends LdifUser implements DirectoryGroup {
+class LdifGroup extends LdifUser implements CmsGroup {
 	private final String memberAttributeId;
 
 	LdifGroup(AbstractLdapDirectory userAdmin, LdapName dn) {
