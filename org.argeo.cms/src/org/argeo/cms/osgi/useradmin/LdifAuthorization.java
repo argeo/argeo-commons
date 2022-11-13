@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
@@ -71,11 +71,11 @@ class LdifAuthorization implements Authorization {
 
 	final static String extractDisplayName(User user) {
 		Dictionary<String, Object> props = user.getProperties();
-		Object displayName = props.get(LdapAttrs.displayName.name());
+		Object displayName = props.get(LdapAttr.displayName.name());
 		if (displayName == null)
-			displayName = props.get(LdapAttrs.cn.name());
+			displayName = props.get(LdapAttr.cn.name());
 		if (displayName == null)
-			displayName = props.get(LdapAttrs.uid.name());
+			displayName = props.get(LdapAttr.uid.name());
 		if (displayName == null)
 			displayName = user.getName();
 		if (displayName == null)

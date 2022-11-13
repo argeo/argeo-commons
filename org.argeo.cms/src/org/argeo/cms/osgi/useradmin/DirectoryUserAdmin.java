@@ -1,11 +1,11 @@
 package org.argeo.cms.osgi.useradmin;
 
-import static org.argeo.api.acr.ldap.LdapAttrs.objectClass;
-import static org.argeo.api.acr.ldap.LdapObjs.extensibleObject;
-import static org.argeo.api.acr.ldap.LdapObjs.inetOrgPerson;
-import static org.argeo.api.acr.ldap.LdapObjs.organizationalPerson;
-import static org.argeo.api.acr.ldap.LdapObjs.person;
-import static org.argeo.api.acr.ldap.LdapObjs.top;
+import static org.argeo.api.acr.ldap.LdapAttr.objectClass;
+import static org.argeo.api.acr.ldap.LdapObj.extensibleObject;
+import static org.argeo.api.acr.ldap.LdapObj.inetOrgPerson;
+import static org.argeo.api.acr.ldap.LdapObj.organizationalPerson;
+import static org.argeo.api.acr.ldap.LdapObj.person;
+import static org.argeo.api.acr.ldap.LdapObj.top;
 
 import java.net.URI;
 import java.util.ArrayList;

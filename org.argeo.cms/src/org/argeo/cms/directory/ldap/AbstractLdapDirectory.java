@@ -26,8 +26,8 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import javax.transaction.xa.XAResource;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
-import org.argeo.api.acr.ldap.LdapObjs;
+import org.argeo.api.acr.ldap.LdapAttr;
+import org.argeo.api.acr.ldap.LdapObj;
 import org.argeo.api.cms.directory.CmsDirectory;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.transaction.WorkControl;
@@ -56,7 +56,7 @@ public abstract class AbstractLdapDirectory implements CmsDirectory, XAResourceP
 	private final boolean scoped;
 
 	private List<String> credentialAttributeIds = Arrays
-			.asList(new String[] { LdapAttrs.userPassword.name(), LdapAttrs.authPassword.name() });
+			.asList(new String[] { LdapAttr.userPassword.name(), LdapAttr.authPassword.name() });
 
 	private WorkControl transactionControl;
 	private WorkingCopyXaResource<LdapEntryWorkingCopy> xaResource;
@@ -249,7 +249,7 @@ public abstract class AbstractLdapDirectory implements CmsDirectory, XAResourceP
 	protected void collectGroups(LdapEntry user, List<LdapEntry> allRoles) {
 		Attributes attrs = user.getAttributes();
 		// TODO centralize attribute name
-		Attribute memberOf = attrs.get(LdapAttrs.memberOf.name());
+		Attribute memberOf = attrs.get(LdapAttr.memberOf.name());
 		// if user belongs to this directory, we only check memberOf
 		if (memberOf != null && user.getDn().startsWith(getBaseDn())) {
 			try {
@@ -338,7 +338,7 @@ public abstract class AbstractLdapDirectory implements CmsDirectory, XAResourceP
 				|| wc.getNewData().containsKey(dn))
 			throw new IllegalArgumentException("Already a hierarchy unit " + path);
 		BasicAttributes attrs = new BasicAttributes(true);
-		attrs.put(LdapAttrs.objectClass.name(), LdapObjs.organizationalUnit.name());
+		attrs.put(LdapAttr.objectClass.name(), LdapObj.organizationalUnit.name());
 		Rdn nameRdn = dn.getRdn(dn.size() - 1);
 		// TODO deal with multiple attr RDN
 		attrs.put(nameRdn.getType(), nameRdn.getValue());
@@ -385,15 +385,15 @@ public abstract class AbstractLdapDirectory implements CmsDirectory, XAResourceP
 			for (int i = 0; i < segments.length; i++) {
 				String segment = segments[i];
 				// TODO make attr names configurable ?
-				String attr = getDirectory().getRealm().isPresent()/* IPA */ ? LdapAttrs.cn.name()
-						: LdapAttrs.ou.name();
+				String attr = getDirectory().getRealm().isPresent()/* IPA */ ? LdapAttr.cn.name()
+						: LdapAttr.ou.name();
 				if (parentRdn != null) {
 					if (getUserBaseRdn().equals(parentRdn))
-						attr = LdapAttrs.uid.name();
+						attr = LdapAttr.uid.name();
 					else if (getGroupBaseRdn().equals(parentRdn))
-						attr = LdapAttrs.cn.name();
+						attr = LdapAttr.cn.name();
 					else if (getSystemRoleBaseRdn().equals(parentRdn))
-						attr = LdapAttrs.cn.name();
+						attr = LdapAttr.cn.name();
 				}
 				Rdn rdn = new Rdn(attr, segment);
 				name.add(rdn);
@@ -413,13 +413,13 @@ public abstract class AbstractLdapDirectory implements CmsDirectory, XAResourceP
 		return !name.startsWith(baseDn);
 	}
 
-	protected static boolean hasObjectClass(Attributes attrs, LdapObjs objectClass) {
+	protected static boolean hasObjectClass(Attributes attrs, LdapObj objectClass) {
 		return hasObjectClass(attrs, objectClass.name());
 	}
 
 	protected static boolean hasObjectClass(Attributes attrs, String objectClass) {
 		try {
-			Attribute attr = attrs.get(LdapAttrs.objectClass.name());
+			Attribute attr = attrs.get(LdapAttr.objectClass.name());
 			NamingEnumeration<?> en = attr.getAll();
 			while (en.hasMore()) {
 				String v = en.next().toString();

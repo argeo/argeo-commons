@@ -22,7 +22,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 
 /** Basic LDIF parser. */
 public class LdifParser {
@@ -113,7 +113,7 @@ public class LdifParser {
 					Object attributeValue = isBase64 ? Base64.getDecoder().decode(cleanValueStr) : cleanValueStr;
 
 					// manage DN attributes
-					if (attributeId.equals(LdapAttrs.DN) || isLastLine) {
+					if (attributeId.equals(LdapAttr.DN) || isLastLine) {
 						if (currentDn != null) {
 							//
 							// ADD
@@ -125,7 +125,7 @@ public class LdifParser {
 							}
 						}
 
-						if (attributeId.equals(LdapAttrs.DN))
+						if (attributeId.equals(LdapAttr.DN))
 							try {
 								currentDn = new LdapName(attributeValue.toString());
 								currentAttributes = new BasicAttributes(true);

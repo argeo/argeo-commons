@@ -15,7 +15,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.api.cms.transaction.WorkingCopy;
 
 /** A synchronized wrapper for a single {@link InitialLdapContext}. */
@@ -28,7 +28,7 @@ public class LdapConnection {
 			Hashtable<String, Object> connEnv = new Hashtable<String, Object>();
 			connEnv.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
 			connEnv.put(Context.PROVIDER_URL, url);
-			connEnv.put("java.naming.ldap.attributes.binary", LdapAttrs.userPassword.name());
+			connEnv.put("java.naming.ldap.attributes.binary", LdapAttr.userPassword.name());
 			// use pooling in order to avoid connection timeout
 //			connEnv.put("com.sun.jndi.ldap.connect.pool", "true");
 //			connEnv.put("com.sun.jndi.ldap.connect.pool.timeout", 300000);

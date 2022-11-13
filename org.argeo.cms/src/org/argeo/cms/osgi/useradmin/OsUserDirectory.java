@@ -8,7 +8,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.cms.directory.ldap.AbstractLdapDirectory;
 import org.argeo.cms.directory.ldap.AbstractLdapDirectoryDao;
@@ -24,7 +24,7 @@ public class OsUserDirectory extends AbstractLdapDirectoryDao {
 	public OsUserDirectory(AbstractLdapDirectory directory) {
 		super(directory);
 		try {
-			osUserDn = new LdapName(LdapAttrs.uid.name() + "=" + osUsername + "," + directory.getUserBaseRdn() + ","
+			osUserDn = new LdapName(LdapAttr.uid.name() + "=" + osUsername + "," + directory.getUserBaseRdn() + ","
 					+ directory.getBaseDn());
 //			Attributes attributes = new BasicAttributes();
 //			attributes.put(LdapAttrs.uid.name(), osUsername);

@@ -3,8 +3,6 @@ package org.argeo.api.acr.ldap;
 import static org.argeo.api.acr.ArgeoNamespace.LDAP_DEFAULT_PREFIX;
 import static org.argeo.api.acr.ArgeoNamespace.LDAP_NAMESPACE_URI;
 
-import java.util.function.Supplier;
-
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.ArgeoNamespace;
@@ -17,7 +15,7 @@ import org.argeo.api.acr.RuntimeNamespaceContext;
  * <a href="https://www.ldap.com/ldap-oid-reference">https://www.ldap.com/ldap-
  * oid-reference</a>
  */
-public enum LdapObjs implements QNamed, SpecifiedName, Supplier<String> {
+public enum LdapObj implements QNamed, SpecifiedName {
 	account("0.9.2342.19200300.100.4.5", "RFC 4524"),
 	/** */
 	document("0.9.2342.19200300.100.4.6", "RFC 4524"),
@@ -115,7 +113,7 @@ public enum LdapObjs implements QNamed, SpecifiedName, Supplier<String> {
 	private final String oid, spec;
 	private final QName value;
 
-	private LdapObjs(String oid, String spec) {
+	private LdapObj(String oid, String spec) {
 		this.oid = oid;
 		this.spec = spec;
 		this.value = new ContentName(ArgeoNamespace.LDAP_NAMESPACE_URI, name());
@@ -138,7 +136,8 @@ public enum LdapObjs implements QNamed, SpecifiedName, Supplier<String> {
 		return get();
 	}
 
-	@Override
+	/** @deprecated use {@link #qName()} instead. */
+	@Deprecated
 	public String get() {
 		return RuntimeNamespaceContext.getNamespaceContext().getPrefix(LDAP_NAMESPACE_URI) + ":" + name();
 	}

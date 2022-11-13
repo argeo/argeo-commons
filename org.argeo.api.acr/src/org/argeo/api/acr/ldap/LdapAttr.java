@@ -3,8 +3,6 @@ package org.argeo.api.acr.ldap;
 import static org.argeo.api.acr.ArgeoNamespace.LDAP_DEFAULT_PREFIX;
 import static org.argeo.api.acr.ArgeoNamespace.LDAP_NAMESPACE_URI;
 
-import java.util.function.Supplier;
-
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.ContentName;
@@ -18,7 +16,7 @@ import org.argeo.api.acr.RuntimeNamespaceContext;
  * "https://github.com/krb5/krb5/blob/master/src/plugins/kdb/ldap/libkdb_ldap/kerberos.schema">Kerberos
  * LDAP (partial)</a>
  */
-public enum LdapAttrs implements QNamed, SpecifiedName, Supplier<String> {
+public enum LdapAttr implements QNamed, SpecifiedName {
 	/** */
 	uid("0.9.2342.19200300.100.1.1", "RFC 4519"),
 	/** */
@@ -315,7 +313,7 @@ public enum LdapAttrs implements QNamed, SpecifiedName, Supplier<String> {
 	private final String oid, spec;
 	private final QName value;
 
-	LdapAttrs(String oid, String spec) {
+	LdapAttr(String oid, String spec) {
 		this.oid = oid;
 		this.spec = spec;
 		this.value = new ContentName(LDAP_NAMESPACE_URI, name());
@@ -345,7 +343,8 @@ public enum LdapAttrs implements QNamed, SpecifiedName, Supplier<String> {
 		return get();
 	}
 
-	@Override
+	/** @deprecated use {@link #qName()} instead. */
+	@Deprecated
 	public String get() {
 		return RuntimeNamespaceContext.getNamespaceContext().getPrefix(LDAP_NAMESPACE_URI) + ":" + name();
 	}

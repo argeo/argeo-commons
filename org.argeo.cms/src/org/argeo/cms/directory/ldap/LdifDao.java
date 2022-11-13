@@ -1,7 +1,7 @@
 package org.argeo.cms.directory.ldap;
 
-import static org.argeo.api.acr.ldap.LdapAttrs.objectClass;
-import static org.argeo.api.acr.ldap.LdapObjs.inetOrgPerson;
+import static org.argeo.api.acr.ldap.LdapAttr.objectClass;
+import static org.argeo.api.acr.ldap.LdapObj.inetOrgPerson;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -26,7 +26,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.api.acr.ldap.LdapObjs;
+import org.argeo.api.acr.ldap.LdapObj;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -119,7 +119,7 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 					} else if (objectClass.toLowerCase().equals(getDirectory().getGroupObjectClass().toLowerCase())) {
 						entries.put(key, newGroup(key));
 						break objectClasses;
-					} else if (objectClass.equalsIgnoreCase(LdapObjs.organizationalUnit.name())) {
+					} else if (objectClass.equalsIgnoreCase(LdapObj.organizationalUnit.name())) {
 						// TODO skip if it does not contain groups or users
 						hierarchy.put(key, new LdapHierarchyUnit(getDirectory(), key));
 						break objectClasses;

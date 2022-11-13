@@ -14,7 +14,7 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 
 /** LDAP authPassword field according to RFC 3112 */
 public class AuthPassword implements CallbackHandler {
@@ -98,7 +98,7 @@ public class AuthPassword implements CallbackHandler {
 
 	public static AuthPassword matchAuthValue(Attributes attributes, char[] value) {
 		try {
-			Attribute authPassword = attributes.get(LdapAttrs.authPassword.name());
+			Attribute authPassword = attributes.get(LdapAttr.authPassword.name());
 			if (authPassword != null) {
 				NamingEnumeration<?> values = authPassword.getAll();
 				while (values.hasMore()) {
@@ -123,7 +123,7 @@ public class AuthPassword implements CallbackHandler {
 	}
 
 	public static boolean remove(Attributes attributes, AuthPassword value) {
-		Attribute authPassword = attributes.get(LdapAttrs.authPassword.name());
+		Attribute authPassword = attributes.get(LdapAttr.authPassword.name());
 		return authPassword.remove(value.toAuthPassword());
 	}
 

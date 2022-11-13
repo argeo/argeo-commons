@@ -1,6 +1,6 @@
 package org.argeo.cms.directory.ldap;
 
-import static org.argeo.api.acr.ldap.LdapAttrs.objectClass;
+import static org.argeo.api.acr.ldap.LdapAttr.objectClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +19,8 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
-import org.argeo.api.acr.ldap.LdapObjs;
+import org.argeo.api.acr.ldap.LdapAttr;
+import org.argeo.api.acr.ldap.LdapObj;
 import org.argeo.api.cms.directory.HierarchyUnit;
 
 /** A user admin based on a LDAP server. */
@@ -72,22 +72,22 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 			if (getDirectory().getGroupBaseRdn().equals(technicalRdn)) {
 				if (attrs.size() == 0) {// exists but not accessible
 					attrs = new BasicAttributes();
-					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
-					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getGroupObjectClass());
+					attrs.put(LdapAttr.objectClass.name(), LdapObj.top.name());
+					attrs.put(LdapAttr.objectClass.name(), getDirectory().getGroupObjectClass());
 				}
 				res = newGroup(name);
 			} else if (getDirectory().getSystemRoleBaseRdn().equals(technicalRdn)) {
 				if (attrs.size() == 0) {// exists but not accessible
 					attrs = new BasicAttributes();
-					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
-					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getGroupObjectClass());
+					attrs.put(LdapAttr.objectClass.name(), LdapObj.top.name());
+					attrs.put(LdapAttr.objectClass.name(), getDirectory().getGroupObjectClass());
 				}
 				res = newGroup(name);
 			} else if (getDirectory().getUserBaseRdn().equals(technicalRdn)) {
 				if (attrs.size() == 0) {// exists but not accessible
 					attrs = new BasicAttributes();
-					attrs.put(LdapAttrs.objectClass.name(), LdapObjs.top.name());
-					attrs.put(LdapAttrs.objectClass.name(), getDirectory().getUserObjectClass());
+					attrs.put(LdapAttr.objectClass.name(), LdapObj.top.name());
+					attrs.put(LdapAttr.objectClass.name(), getDirectory().getUserObjectClass());
 				}
 				res = newUser(name);
 			} else {
@@ -216,8 +216,8 @@ public class LdapDao extends AbstractLdapDirectoryDao {
 			String structuralFilter = functionalOnly ? ""
 					: "(" + getDirectory().getUserBaseRdn() + ")(" + getDirectory().getGroupBaseRdn() + ")("
 							+ getDirectory().getSystemRoleBaseRdn() + ")";
-			String searchFilter = "(|(" + objectClass + "=" + LdapObjs.organizationalUnit.name() + ")(" + objectClass
-					+ "=" + LdapObjs.organization.name() + ")" + structuralFilter + ")";
+			String searchFilter = "(|(" + objectClass + "=" + LdapObj.organizationalUnit.name() + ")(" + objectClass
+					+ "=" + LdapObj.organization.name() + ")" + structuralFilter + ")";
 
 			SearchControls searchControls = new SearchControls();
 			searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);

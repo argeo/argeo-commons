@@ -13,7 +13,7 @@ import java.util.StringJoiner;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.cms.dns.DnsBrowser;
 import org.argeo.cms.runtime.DirectoryConf;
 
@@ -26,7 +26,7 @@ public class IpaUtils {
 
 	public final static String IPA_ACCOUNTS_BASE = "cn=accounts";
 
-	private final static String KRB_PRINCIPAL_NAME = LdapAttrs.krbPrincipalName.name().toLowerCase();
+	private final static String KRB_PRINCIPAL_NAME = LdapAttr.krbPrincipalName.name().toLowerCase();
 
 	public final static String IPA_USER_DIRECTORY_CONFIG = DirectoryConf.userBase + "=" + IPA_USER_BASE + "&"
 			+ DirectoryConf.groupBase + "=" + IPA_GROUP_BASE + "&" + DirectoryConf.systemRoleBase + "=" + IPA_ROLE_BASE
@@ -51,7 +51,7 @@ public class IpaUtils {
 		StringJoiner sj = new StringJoiner(",");
 		for (int i = 0; i < dcs.length; i++) {
 			String dc = dcs[i];
-			sj.add(LdapAttrs.dc.name() + '=' + dc.toLowerCase());
+			sj.add(LdapAttr.dc.name() + '=' + dc.toLowerCase());
 		}
 		return IPA_ACCOUNTS_BASE + ',' + sj.toString();
 	}
@@ -62,7 +62,7 @@ public class IpaUtils {
 		String baseDn = domainToBaseDn(kname[1]);
 		String dn;
 		if (!username.contains("/"))
-			dn = LdapAttrs.uid + "=" + username + "," + IPA_USER_BASE + "," + baseDn;
+			dn = LdapAttr.uid + "=" + username + "," + IPA_USER_BASE + "," + baseDn;
 		else
 			dn = KRB_PRINCIPAL_NAME + "=" + kerberosName + "," + IPA_SERVICE_BASE + "," + baseDn;
 		try {

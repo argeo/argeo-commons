@@ -1,6 +1,6 @@
 package org.argeo.cms.auth;
 
-import static org.argeo.api.acr.ldap.LdapAttrs.cn;
+import static org.argeo.api.acr.ldap.LdapAttr.cn;
 
 import java.io.IOException;
 import java.security.PrivilegedAction;
@@ -24,7 +24,7 @@ import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.directory.ldap.IpaUtils;
@@ -47,8 +47,8 @@ public class UserAdminLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private Map<String, Object> sharedState = null;
 
-	private List<String> indexedUserProperties = Arrays.asList(new String[] { LdapAttrs.mail.name(),
-			LdapAttrs.uid.name(), LdapAttrs.employeeNumber.name(), LdapAttrs.authPassword.name() });
+	private List<String> indexedUserProperties = Arrays.asList(new String[] { LdapAttr.mail.name(),
+			LdapAttr.uid.name(), LdapAttr.employeeNumber.name(), LdapAttr.authPassword.name() });
 
 	// private state
 //	private BundleContext bc;

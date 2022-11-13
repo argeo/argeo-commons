@@ -1,9 +1,9 @@
 package org.argeo.cms.directory.ldap;
 
-import static org.argeo.api.acr.ldap.LdapAttrs.DN;
-import static org.argeo.api.acr.ldap.LdapAttrs.member;
-import static org.argeo.api.acr.ldap.LdapAttrs.objectClass;
-import static org.argeo.api.acr.ldap.LdapAttrs.uniqueMember;
+import static org.argeo.api.acr.ldap.LdapAttr.DN;
+import static org.argeo.api.acr.ldap.LdapAttr.member;
+import static org.argeo.api.acr.ldap.LdapAttr.objectClass;
+import static org.argeo.api.acr.ldap.LdapAttr.uniqueMember;
 
 import java.io.IOException;
 import java.io.OutputStream;

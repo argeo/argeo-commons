@@ -1,8 +1,8 @@
 package org.argeo.cms.internal.runtime;
 
-import static org.argeo.api.acr.ldap.LdapAttrs.cn;
-import static org.argeo.api.acr.ldap.LdapAttrs.description;
-import static org.argeo.api.acr.ldap.LdapAttrs.owner;
+import static org.argeo.api.acr.ldap.LdapAttr.cn;
+import static org.argeo.api.acr.ldap.LdapAttr.description;
+import static org.argeo.api.acr.ldap.LdapAttr.owner;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -26,7 +26,7 @@ import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.NamespaceUtils;
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.api.acr.ldap.NamingUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
@@ -69,8 +69,8 @@ public class CmsUserManagerImpl implements CmsUserManager {
 //	private Map<String, String> serviceProperties;
 	private WorkTransaction userTransaction;
 
-	private final String[] knownProps = { LdapAttrs.cn.name(), LdapAttrs.sn.name(), LdapAttrs.givenName.name(),
-			LdapAttrs.uid.name() };
+	private final String[] knownProps = { LdapAttr.cn.name(), LdapAttr.sn.name(), LdapAttr.givenName.name(),
+			LdapAttr.uid.name() };
 
 //	private Map<UserDirectory, Hashtable<String, Object>> userDirectories = Collections
 //			.synchronizedMap(new LinkedHashMap<>());
@@ -222,9 +222,9 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	@Override
 	public CmsUser getUserFromLocalId(String localId) {
-		CmsUser user = (CmsUser) getUserAdmin().getUser(LdapAttrs.uid.name(), localId);
+		CmsUser user = (CmsUser) getUserAdmin().getUser(LdapAttr.uid.name(), localId);
 		if (user == null)
-			user = (CmsUser) getUserAdmin().getUser(LdapAttrs.cn.name(), localId);
+			user = (CmsUser) getUserAdmin().getUser(LdapAttr.cn.name(), localId);
 		return user;
 	}
 
@@ -267,7 +267,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	@Override
 	public CmsGroup getOrCreateGroup(HierarchyUnit groups, String commonName) {
 		try {
-			String dn = LdapAttrs.cn.name() + "=" + commonName + "," + groups.getBase();
+			String dn = LdapAttr.cn.name() + "=" + commonName + "," + groups.getBase();
 			CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
 			if (group != null)
 				return group;
@@ -291,7 +291,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	@Override
 	public CmsGroup getOrCreateSystemRole(HierarchyUnit roles, QName systemRole) {
 		try {
-			String dn = LdapAttrs.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole) + "," + roles.getBase();
+			String dn = LdapAttr.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole) + "," + roles.getBase();
 			CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
 			if (group != null)
 				return group;
@@ -453,9 +453,9 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		Dictionary<String, ?> props = DirectoryConf.uriAsProperties(dns.get(baseDn));
 		String dn = null;
 		if (Role.GROUP == type)
-			dn = LdapAttrs.cn.name() + "=" + localId + "," + DirectoryConf.groupBase.getValue(props) + "," + baseDn;
+			dn = LdapAttr.cn.name() + "=" + localId + "," + DirectoryConf.groupBase.getValue(props) + "," + baseDn;
 		else if (Role.USER == type)
-			dn = LdapAttrs.uid.name() + "=" + localId + "," + DirectoryConf.userBase.getValue(props) + "," + baseDn;
+			dn = LdapAttr.uid.name() + "=" + localId + "," + DirectoryConf.userBase.getValue(props) + "," + baseDn;
 		else
 			throw new IllegalStateException("Unknown role type. " + "Cannot deduce dn for " + localId);
 		return dn;
@@ -520,7 +520,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	public String addSharedSecret(String email, int hours) {
-		User user = (User) userAdmin.getUser(LdapAttrs.mail.name(), email);
+		User user = (User) userAdmin.getUser(LdapAttr.mail.name(), email);
 		try {
 			userTransaction.begin();
 			String uuid = UUID.randomUUID().toString();

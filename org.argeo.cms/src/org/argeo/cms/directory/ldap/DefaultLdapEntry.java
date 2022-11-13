@@ -22,8 +22,8 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
-import org.argeo.api.acr.ldap.LdapObjs;
+import org.argeo.api.acr.ldap.LdapAttr;
+import org.argeo.api.acr.ldap.LdapObj;
 import org.argeo.api.cms.directory.DirectoryDigestUtils;
 
 /** An entry in an LDAP (or LDIF) directory. */
@@ -180,7 +180,7 @@ public class DefaultLdapEntry implements LdapEntry {
 
 			// Regular password
 //			byte[] hashedPassword = hash(password, DigestUtils.PASSWORD_SCHEME_PBKDF2_SHA256);
-			if (hasCredential(LdapAttrs.userPassword.name(), DirectoryDigestUtils.charsToBytes(password)))
+			if (hasCredential(LdapAttr.userPassword.name(), DirectoryDigestUtils.charsToBytes(password)))
 				return true;
 			return false;
 		}
@@ -305,7 +305,7 @@ public class DefaultLdapEntry implements LdapEntry {
 				throw new IllegalStateException("Cannot initialise attribute dictionary", e);
 			}
 			if (!credentials)
-				effectiveKeys.add(LdapAttrs.objectClasses.name());
+				effectiveKeys.add(LdapAttr.objectClasses.name());
 		}
 
 		@Override
@@ -345,13 +345,13 @@ public class DefaultLdapEntry implements LdapEntry {
 		@Override
 		public Object get(Object key) {
 			try {
-				Attribute attr = !key.equals(LdapAttrs.objectClasses.name()) ? getAttributes().get(key.toString())
-						: getAttributes().get(LdapAttrs.objectClass.name());
+				Attribute attr = !key.equals(LdapAttr.objectClasses.name()) ? getAttributes().get(key.toString())
+						: getAttributes().get(LdapAttr.objectClass.name());
 				if (attr == null)
 					return null;
 				Object value = attr.get();
 				if (value instanceof byte[]) {
-					if (key.equals(LdapAttrs.userPassword.name()))
+					if (key.equals(LdapAttr.userPassword.name()))
 						// TODO other cases (certificates, images)
 						return value;
 					value = new String((byte[]) value, StandardCharsets.UTF_8);
@@ -359,13 +359,13 @@ public class DefaultLdapEntry implements LdapEntry {
 				if (attr.size() == 1)
 					return value;
 				// special case for object class
-				if (key.equals(LdapAttrs.objectClass.name())) {
+				if (key.equals(LdapAttr.objectClass.name())) {
 					// TODO support multiple object classes
 					NamingEnumeration<?> en = attr.getAll();
 					String first = null;
 					attrs: while (en.hasMore()) {
 						String v = en.next().toString();
-						if (v.equalsIgnoreCase(LdapObjs.top.name()))
+						if (v.equalsIgnoreCase(LdapObj.top.name()))
 							continue attrs;
 						if (first == null)
 							first = v;
@@ -402,10 +402,10 @@ public class DefaultLdapEntry implements LdapEntry {
 					// TODO persist to other sources (like PKCS12)
 					char[] password = DirectoryDigestUtils.bytesToChars(value);
 					byte[] hashedPassword = sha1hash(password);
-					return put(LdapAttrs.userPassword.name(), hashedPassword);
+					return put(LdapAttr.userPassword.name(), hashedPassword);
 				}
 				if (key.startsWith("X-")) {
-					return put(LdapAttrs.authPassword.name(), value);
+					return put(LdapAttr.authPassword.name(), value);
 				}
 
 				// start editing
@@ -414,8 +414,8 @@ public class DefaultLdapEntry implements LdapEntry {
 					startEditing();
 
 				// object classes special case.
-				if (key.equals(LdapAttrs.objectClasses.name())) {
-					Attribute attribute = new BasicAttribute(LdapAttrs.objectClass.name());
+				if (key.equals(LdapAttr.objectClasses.name())) {
+					Attribute attribute = new BasicAttribute(LdapAttr.objectClass.name());
 					String[] objectClasses = value.toString().split("\n");
 					for (String objectClass : objectClasses) {
 						if (objectClass.trim().equals(""))

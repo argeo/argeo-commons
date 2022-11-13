@@ -4,7 +4,7 @@ package org.argeo.api.acr.ldap;
  * A name which has been specified and for which an id has been defined
  * (typically an OID).
  */
-public interface SpecifiedName {
+interface SpecifiedName {
 	/** The name */
 	String name();
 

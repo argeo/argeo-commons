@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.api.acr.ldap.LdapAttrs;
+import org.argeo.api.acr.ldap.LdapAttr;
 
 /** An LDAP entry. */
 public interface LdapEntry {
@@ -36,12 +36,12 @@ public interface LdapEntry {
 	 * backend.
 	 */
 	public static void addObjectClasses(Dictionary<String, Object> properties, Collection<String> objectClasses) {
-		String value = properties.get(LdapAttrs.objectClasses.name()).toString();
+		String value = properties.get(LdapAttr.objectClasses.name()).toString();
 		Set<String> currentObjectClasses = new TreeSet<>(Arrays.asList(value.toString().split("\n")));
 		currentObjectClasses.addAll(objectClasses);
 		StringJoiner values = new StringJoiner("\n");
 		currentObjectClasses.forEach((s) -> values.add(s));
-		properties.put(LdapAttrs.objectClasses.name(), values.toString());
+		properties.put(LdapAttr.objectClasses.name(), values.toString());
 	}
 
 	public static Object getLocalized(Dictionary<String, Object> properties, String key, Locale locale) {

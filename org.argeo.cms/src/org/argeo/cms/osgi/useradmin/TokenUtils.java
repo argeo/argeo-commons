@@ -1,7 +1,7 @@
 package org.argeo.cms.osgi.useradmin;
 
-import static org.argeo.api.acr.ldap.LdapAttrs.description;
-import static org.argeo.api.acr.ldap.LdapAttrs.owner;
+import static org.argeo.api.acr.ldap.LdapAttr.description;
+import static org.argeo.api.acr.ldap.LdapAttr.owner;
 
 import java.security.Principal;
 import java.time.Instant;
