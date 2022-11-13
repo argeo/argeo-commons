@@ -2,22 +2,27 @@ package org.argeo.cms.ux.widgets;
 
 import java.util.function.Consumer;
 
-public interface DataPart<INPUT, T> {
+public interface DataPart<INPUT, TYPE> {
 	void setInput(INPUT data);
 
 	INPUT getInput();
 
-	void onSelected(Consumer<T> onSelected);
+	void onSelected(Consumer<TYPE> onSelected);
 
-	Consumer<T> getOnSelected();
+	Consumer<TYPE> getOnSelected();
 
-	void onAction(Consumer<T> onAction);
+	void onAction(Consumer<TYPE> onAction);
 
-	Consumer<T> getOnAction();
+	Consumer<TYPE> getOnAction();
 
 	void refresh();
 
-	void addView(DataView<INPUT, T> view);
+	void addView(DataView<INPUT, TYPE> view);
 
-	void removeView(DataView<INPUT, T> view);
+	void removeView(DataView<INPUT, TYPE> view);
+
+//	void select(TYPE data);
+//
+//	TYPE getSelected();
+
 }

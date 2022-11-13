@@ -6,6 +6,7 @@ import org.argeo.cms.CmsMsg;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.Selected;
 import org.argeo.cms.swt.dialogs.LightweightDialog;
+import org.argeo.cms.ux.widgets.CmsDialog;
 import org.argeo.cms.ux.widgets.GuidedForm;
 import org.argeo.cms.ux.widgets.GuidedForm.Page;
 import org.argeo.eclipse.ui.EclipseUiUtils;
@@ -65,7 +66,7 @@ public class SwtGuidedFormDialog extends LightweightDialog implements GuidedForm
 			Button cancelButton = new Button(messageArea, SWT.FLAT);
 			cancelButton.setText(CmsMsg.cancel.lead());
 			cancelButton.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false, 1, 3));
-			cancelButton.addSelectionListener((Selected) (e) -> closeShell(CANCEL));
+			cancelButton.addSelectionListener((Selected) (e) -> closeShell(CmsDialog.CANCEL));
 			message = new Label(messageArea, SWT.WRAP);
 			message.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 2));
 			updateMessage();
@@ -191,7 +192,7 @@ public class SwtGuidedFormDialog extends LightweightDialog implements GuidedForm
 
 	protected void finishPressed() {
 		if (guidedForm.performFinish())
-			closeShell(OK);
+			closeShell(CmsDialog.OK);
 	}
 
 	private static void setSwitchingFormData(Composite composite) {

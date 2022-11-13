@@ -3,6 +3,7 @@ package org.argeo.cms.swt.dialogs;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.Selected;
+import org.argeo.cms.ux.widgets.CmsDialog;
 import org.argeo.eclipse.ui.EclipseUiUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TraverseEvent;
@@ -80,7 +81,7 @@ public class CmsMessageDialog extends LightweightDialog {
 			Button close = new Button(buttons, SWT.FLAT);
 			close.setText(CmsMsg.close.lead());
 			close.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
-			close.addSelectionListener((Selected) (e) -> closeShell(OK));
+			close.addSelectionListener((Selected) (e) -> closeShell(CmsDialog.OK));
 			close.setFocus();
 			close.addTraverseListener(traverseListener);
 
@@ -124,15 +125,15 @@ public class CmsMessageDialog extends LightweightDialog {
 	}
 
 	protected void okPressed() {
-		closeShell(OK);
+		closeShell(CmsDialog.OK);
 	}
 
 	protected void cancelPressed() {
-		closeShell(CANCEL);
+		closeShell(CmsDialog.CANCEL);
 	}
 
 	protected void cancel() {
-		closeShell(CANCEL);
+		closeShell(CmsDialog.CANCEL);
 	}
 
 	protected Point getInitialSize() {

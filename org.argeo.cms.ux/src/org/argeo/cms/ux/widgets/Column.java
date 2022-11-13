@@ -4,14 +4,14 @@ import org.argeo.api.cms.ux.CmsIcon;
 
 /** A column in a data representation. */
 @FunctionalInterface
-public interface Column<T> {
-	String getText(T model);
+public interface Column<TYPE> {
+	String getText(TYPE model);
 
 	default int getWidth() {
 		return 200;
 	}
 
-	default CmsIcon getIcon(T model) {
+	default CmsIcon getIcon(TYPE model) {
 		return null;
 	}
 
