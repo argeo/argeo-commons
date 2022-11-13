@@ -10,8 +10,8 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.widgets.SwtTreeView;
 import org.argeo.cms.swt.widgets.SwtTableView;
+import org.argeo.cms.swt.widgets.SwtTreeView;
 import org.argeo.cms.ux.acr.ContentHierarchicalPart;
 import org.argeo.cms.ux.widgets.Column;
 import org.argeo.cms.ux.widgets.DefaultTabularPart;
@@ -37,6 +37,13 @@ public class AcrContentTreeView extends Composite {
 		split.setLayoutData(CmsSwtUtils.fillAll());
 
 		ContentHierarchicalPart contentPart = new ContentHierarchicalPart();
+		contentPart.addColumn((model) -> {
+			try {
+				return NamespaceUtils.toPrefixedName(model.getName());
+			} catch (IllegalStateException e) {
+				return model.getName().toString();
+			}
+		});
 		contentPart.setInput(rootContent);
 
 		new SwtTreeView<>(split, getStyle(), contentPart);

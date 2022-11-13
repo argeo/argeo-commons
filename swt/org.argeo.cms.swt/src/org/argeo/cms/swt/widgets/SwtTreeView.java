@@ -6,6 +6,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsIcon;
 import org.argeo.cms.swt.CmsSwtTheme;
 import org.argeo.cms.swt.CmsSwtUtils;
+import org.argeo.cms.ux.widgets.Column;
 import org.argeo.cms.ux.widgets.HierarchicalPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -76,15 +77,18 @@ public class SwtTreeView<T> extends AbstractSwtView<T, T> {
 	protected TreeItem addTreeItem(TreeItem parent, T data) {
 		TreeItem item = parent == null ? new TreeItem(tree, SWT.NONE) : new TreeItem(parent, SWT.NONE);
 		item.setData(data);
-		String txt = hierarchicalPart.getText(data);
-		if (txt != null)
-			item.setText(hierarchicalPart.getText(data));
-		CmsIcon icon = hierarchicalPart.getIcon(data);
-		if (icon != null) {
-			Image image = theme.getSmallIcon(icon);
-			item.setImage(image);
+		for (int i = 0; i < hierarchicalPart.getColumnCount(); i++) {
+			Column<T> column = hierarchicalPart.getColumn(i);
+			String txt = column.getText(data);
+			if (txt != null)
+				item.setText(txt);
+			CmsIcon icon = column.getIcon(data);
+			if (icon != null) {
+				Image image = theme.getSmallIcon(icon);
+				item.setImage(image);
+			}
 		}
-		// TODO optimize
+		// TODO optimise
 		List<T> grandChildren = hierarchicalPart.getChildren(data);
 		if (grandChildren.size() != 0)
 			new TreeItem(item, SWT.NONE);

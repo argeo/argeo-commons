@@ -60,9 +60,9 @@ public class SwtTableView<INPUT, T> extends AbstractSwtView<INPUT, T> {
 
 	protected void refreshItem(TableItem item) {
 		int row = getTable().indexOf(item);
+		T data = tabularPart.getData(row);
 		for (int i = 0; i < tabularPart.getColumnCount(); i++) {
 			Column<T> column = tabularPart.getColumn(i);
-			T data = tabularPart.getData(row);
 			item.setData(data);
 			String text = data != null ? column.getText(data) : "";
 			if (text != null)
