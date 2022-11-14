@@ -136,8 +136,8 @@ public enum LdapObj implements QNamed, SpecifiedName {
 		return get();
 	}
 
-	/** @deprecated use {@link #qName()} instead. */
-	@Deprecated
+	/** #deprecated use {@link #qName()} instead. */
+//	@Deprecated
 	public String get() {
 		return RuntimeNamespaceContext.getNamespaceContext().getPrefix(LDAP_NAMESPACE_URI) + ":" + name();
 	}
