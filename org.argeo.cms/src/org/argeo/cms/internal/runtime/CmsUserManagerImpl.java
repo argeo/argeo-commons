@@ -265,6 +265,26 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
+	public CmsGroup createGroup(String dn) {
+		try {
+			userTransaction.begin();
+			CmsGroup group = (CmsGroup) userAdmin.createRole(dn, Role.GROUP);
+			userTransaction.commit();
+			return group;
+		} catch (Exception e) {
+			try {
+				userTransaction.rollback();
+			} catch (Exception e1) {
+				log.error("Could not roll back", e1);
+			}
+			if (e instanceof RuntimeException)
+				throw (RuntimeException) e;
+			else
+				throw new RuntimeException("Cannot create group " + dn, e);
+		}
+	}
+
+	@Override
 	public CmsGroup getOrCreateGroup(HierarchyUnit groups, String commonName) {
 		try {
 			String dn = LdapAttr.cn.name() + "=" + commonName + "," + groups.getBase();
@@ -410,7 +430,25 @@ public class CmsUserManagerImpl implements CmsUserManager {
 				if (log.isTraceEnabled())
 					log.trace("Cannot rollback transaction", e2);
 			}
-			throw new RuntimeException("Cannot add object classes " + role + " to group " + group, e1);
+			throw new RuntimeException("Cannot add member " + role + " to group " + group, e1);
+		}
+	}
+
+	@Override
+	public void removeMember(CmsGroup group, Role role) {
+		try {
+			userTransaction.begin();
+			group.removeMember(role);
+			userTransaction.commit();
+		} catch (Exception e1) {
+			try {
+				if (!userTransaction.isNoTransactionStatus())
+					userTransaction.rollback();
+			} catch (Exception e2) {
+				if (log.isTraceEnabled())
+					log.trace("Cannot rollback transaction", e2);
+			}
+			throw new RuntimeException("Cannot remove member " + role + " from group " + group, e1);
 		}
 	}
 

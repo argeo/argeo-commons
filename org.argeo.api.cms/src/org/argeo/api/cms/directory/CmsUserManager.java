@@ -63,6 +63,9 @@ public interface CmsUserManager {
 	/** Creates a new user. */
 	CmsUser createUser(String username, Map<String, Object> properties, Map<String, Object> credentials);
 
+	/** Created a new group. */
+	CmsGroup createGroup(String dn);
+
 	/** Creates a group. */
 	CmsGroup getOrCreateGroup(HierarchyUnit groups, String commonName);
 
@@ -78,6 +81,9 @@ public interface CmsUserManager {
 
 	/** Add a member to this group. */
 	void addMember(CmsGroup group, Role role);
+
+	/** Remove a member from this group. */
+	void removeMember(CmsGroup group, Role role);
 
 	void edit(Runnable action);
 
