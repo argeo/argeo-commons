@@ -22,7 +22,7 @@ public enum CmsRole implements SystemRole {
 	}
 
 	@Override
-	public QName getName() {
+	public QName qName() {
 		return name;
 	}
 

@@ -32,6 +32,9 @@ public interface HierarchyUnit {
 
 	boolean isType(Type type);
 
+	/** A technical direct child. */
+	HierarchyUnit getDirectChild(Type type);
+
 	/**
 	 * The base of this organisational unit within the hierarchy. This would
 	 * typically be an LDAP base DN.

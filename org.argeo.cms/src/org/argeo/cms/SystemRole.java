@@ -10,18 +10,18 @@ import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 
 /** A programmatic role. */
 public interface SystemRole {
-	QName getName();
+	QName qName();
 
 	/** Whether this role is implied for this authenticated user. */
 	default boolean implied(Subject subject, String context) {
-		return implied(getName(), subject, context);
+		return implied(qName(), subject, context);
 	}
 
 	/** Whether this role is implied for this distinguished name. */
 	default boolean implied(String dn, String context) {
 		String roleContext = RoleNameUtils.getContext(dn);
 		QName roleName = RoleNameUtils.getLastRdnAsName(dn);
-		return roleContext.equalsIgnoreCase(context) && getName().equals(roleName);
+		return roleContext.equalsIgnoreCase(context) && qName().equals(roleName);
 	}
 
 	/**

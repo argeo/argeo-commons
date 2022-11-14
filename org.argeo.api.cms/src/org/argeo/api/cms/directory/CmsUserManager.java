@@ -84,7 +84,7 @@ public interface CmsUserManager {
 
 	/** Remove a member from this group. */
 	void removeMember(CmsGroup group, Role role);
-
+	
 	void edit(Runnable action);
 
 	/* MISCELLANEOUS */

@@ -300,6 +300,17 @@ public abstract class AbstractLdapDirectory implements CmsDirectory, XAResourceP
 	}
 
 	@Override
+	public HierarchyUnit getDirectChild(Type type) {
+		// TODO factorise with hierarchy unit?
+		return switch (type) {
+		case ROLES -> getDirectoryDao().doGetHierarchyUnit((LdapName) getBaseDn().add(getSystemRoleBaseRdn()));
+		case PEOPLE -> getDirectoryDao().doGetHierarchyUnit((LdapName) getBaseDn().add(getUserBaseRdn()));
+		case GROUPS -> getDirectoryDao().doGetHierarchyUnit((LdapName) getBaseDn().add(getGroupBaseRdn()));
+		case FUNCTIONAL -> throw new IllegalArgumentException("Type must be a technical type");
+		};
+	}
+
+	@Override
 	public String getHierarchyUnitName() {
 		return getName();
 	}
@@ -385,8 +396,7 @@ public abstract class AbstractLdapDirectory implements CmsDirectory, XAResourceP
 			for (int i = 0; i < segments.length; i++) {
 				String segment = segments[i];
 				// TODO make attr names configurable ?
-				String attr = getDirectory().getRealm().isPresent()/* IPA */ ? LdapAttr.cn.name()
-						: LdapAttr.ou.name();
+				String attr = getDirectory().getRealm().isPresent()/* IPA */ ? LdapAttr.cn.name() : LdapAttr.ou.name();
 				if (parentRdn != null) {
 					if (getUserBaseRdn().equals(parentRdn))
 						attr = LdapAttr.uid.name();

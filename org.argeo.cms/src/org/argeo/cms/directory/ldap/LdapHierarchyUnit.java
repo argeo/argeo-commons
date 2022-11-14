@@ -40,6 +40,17 @@ public class LdapHierarchyUnit extends DefaultLdapEntry implements HierarchyUnit
 	}
 
 	@Override
+	public HierarchyUnit getDirectChild(Type type) {
+		return switch (type) {
+		case ROLES ->
+			getDirectoryDao().doGetHierarchyUnit((LdapName) getDn().add(getDirectory().getSystemRoleBaseRdn()));
+		case PEOPLE -> getDirectoryDao().doGetHierarchyUnit((LdapName) getDn().add(getDirectory().getUserBaseRdn()));
+		case GROUPS -> getDirectoryDao().doGetHierarchyUnit((LdapName) getDn().add(getDirectory().getGroupBaseRdn()));
+		case FUNCTIONAL -> throw new IllegalArgumentException("Type must be a technical type");
+		};
+	}
+
+	@Override
 	public boolean isType(Type type) {
 		return this.type.equals(type);
 	}

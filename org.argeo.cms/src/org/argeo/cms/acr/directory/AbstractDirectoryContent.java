@@ -81,8 +81,7 @@ abstract class AbstractDirectoryContent extends AbstractContent {
 	@Override
 	public Object put(QName key, Object value) {
 		Object previous = get(key);
-		// TODO deal with typing
-		doGetProperties().put(key.getLocalPart(), value);
+		provider.getUserManager().edit(() -> doGetProperties().put(key.getLocalPart(), value));
 		return previous;
 	}
 

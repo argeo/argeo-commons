@@ -108,6 +108,10 @@ public class DirectoryContentProvider implements ContentProvider {
 		this.userManager = userManager;
 	}
 
+	public CmsUserManager getUserManager() {
+		return userManager;
+	}
+
 	UserManagerContent getRootContent(ProvidedSession session) {
 		return new UserManagerContent(session);
 	}
