@@ -76,4 +76,23 @@ public class TimeUuid extends TypedUuid {
 		Duration duration = Duration.between(TimeUuid.TIMESTAMP_ZERO, instant);
 		return durationToTimestamp(duration);
 	}
+
+	/**
+	 * Crate a time UUID with this instant as timestamp and clock and node id set to
+	 * zero.
+	 */
+	public static UUID fromInstant(Instant instant) {
+		long timestamp = instantToTimestamp(instant);
+		long mostSig = toMostSignificantBits(timestamp);
+		UUID uuid = new UUID(mostSig, UuidFactory.LEAST_SIG_RFC4122_VARIANT);
+		return uuid;
+	}
+
+	/** Convert timestamp in UUID format to most significant bits of a time UUID. */
+	static long toMostSignificantBits(long timestamp) {
+		long mostSig = UuidFactory.MOST_SIG_VERSION1 | ((timestamp & 0xFFFFFFFFL) << 32) // time_low
+				| (((timestamp >> 32) & 0xFFFFL) << 16) // time_mid
+				| ((timestamp >> 48) & 0x0FFFL);// time_hi_and_version
+		return mostSig;
+	}
 }

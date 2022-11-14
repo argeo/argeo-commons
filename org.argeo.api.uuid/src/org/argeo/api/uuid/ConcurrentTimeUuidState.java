@@ -143,9 +143,7 @@ public class ConcurrentTimeUuidState implements UuidFactory.TimeUuidState {
 	@Override
 	public long getMostSignificantBits() {
 		long timestamp = useTimestamp();
-		long mostSig = UuidFactory.MOST_SIG_VERSION1 | ((timestamp & 0xFFFFFFFFL) << 32) // time_low
-				| (((timestamp >> 32) & 0xFFFFL) << 16) // time_mid
-				| ((timestamp >> 48) & 0x0FFFL);// time_hi_and_version
+		long mostSig = TimeUuid.toMostSignificantBits(timestamp);
 		return mostSig;
 	}
 
