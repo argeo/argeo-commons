@@ -156,7 +156,7 @@ class CmsContentSession implements ProvidedSession {
 		return uuid;
 	}
 
-	@Override
+//	@Override
 	public Content getSessionRunDir() {
 		if (sessionRunDir == null) {
 			String runDirPath = CmsContentRepository.RUN_BASE + '/' + uuid.toString();
@@ -170,25 +170,4 @@ class CmsContentSession implements ProvidedSession {
 		}
 		return sessionRunDir;
 	}
-
-//		@Override
-//		public String findNamespace(String prefix) {
-//			return prefixes.get(prefix);
-//		}
-//
-//		@Override
-//		public Set<String> findPrefixes(String namespaceURI) {
-//			Set<String> res = prefixes.entrySet().stream().filter(e -> e.getValue().equals(namespaceURI))
-//					.map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
-//
-//			return res;
-//		}
-//
-//		@Override
-//		public String findPrefix(String namespaceURI) {
-//			if (CrName.CR_NAMESPACE_URI.equals(namespaceURI) && prefixes.containsKey(CrName.CR_DEFAULT_PREFIX))
-//				return CrName.CR_DEFAULT_PREFIX;
-//			return ProvidedSession.super.findPrefix(namespaceURI);
-//		}
-
 }

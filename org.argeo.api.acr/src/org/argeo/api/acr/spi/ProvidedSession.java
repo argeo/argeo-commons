@@ -22,7 +22,7 @@ public interface ProvidedSession extends ContentSession {
 
 	UUID getUuid();
 
-	Content getSessionRunDir();
+//	Content getSessionRunDir();
 
 	/*
 	 * NAMESPACE CONTEXT
