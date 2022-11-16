@@ -24,7 +24,7 @@ public enum CmsContentNamespace implements ContentNamespace {
 	//
 	XML("xml", "http://www.w3.org/XML/1998/namespace", "xml.xsd", "http://www.w3.org/2001/xml.xsd"),
 	//
-	XLINK("xlink", "http://www.w3.org/1999/xlink", "xlink.xsd", "http://www.w3.org/XML/2008/06/xlink.xsd"),
+	XLINK("xlink", "http://www.w3.org/1999/xlink", "xlink.xsd", "https://www.w3.org/1999/xlink.xsd"),
 	//
 	WEBDAV("D", "DAV:", null, "https://raw.githubusercontent.com/lookfirst/sardine/master/webdav.xsd"),
 	//
