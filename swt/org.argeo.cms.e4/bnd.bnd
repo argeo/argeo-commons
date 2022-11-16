@@ -12,6 +12,7 @@ org.eclipse.core.commands.common,\
 org.eclipse.jface.window,\
 org.eclipse.jface.dialogs,\
 org.argeo.cms.swt.auth,\
+org.argeo.cms.ux.widgets,\
 javax.servlet.*;version="[3,5)",\
 org.eclipse.*;resolution:=optional,\
 javax.*;resolution:=optional,\

@@ -20,7 +20,6 @@ import org.argeo.cms.swt.dialogs.CmsMessageDialog;
 import org.argeo.cms.ux.widgets.CmsDialog;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
