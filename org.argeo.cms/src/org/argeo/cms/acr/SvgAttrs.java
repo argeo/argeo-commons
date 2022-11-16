@@ -20,12 +20,12 @@ public enum SvgAttrs implements QNamed {
 
 	@Override
 	public String getNamespace() {
-		return CmsContentTypes.SVG_1_1.getNamespace();
+		return CmsContentNamespace.SVG.getNamespaceURI();
 	}
 
 	@Override
 	public String getDefaultPrefix() {
-		return CmsContentTypes.SVG_1_1.getDefaultPrefix();
+		return CmsContentNamespace.SVG.getDefaultPrefix();
 	}
 
 }

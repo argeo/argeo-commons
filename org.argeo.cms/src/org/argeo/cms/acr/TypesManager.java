@@ -43,6 +43,7 @@ import org.apache.xerces.xs.XSTypeDefinition;
 import org.argeo.api.acr.CrAttributeType;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.RuntimeNamespaceContext;
+import org.argeo.api.acr.spi.ContentNamespace;
 import org.argeo.api.cms.CmsLog;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
@@ -78,29 +79,33 @@ class TypesManager {
 	}
 
 	public void init() {
-		for (CmsContentTypes cs : CmsContentTypes.values()) {
-			if (cs.getResource() != null) {
-				StreamSource source = new StreamSource(cs.getResource().toExternalForm());
-				sources.add(source);
-			}
-			RuntimeNamespaceContext.register(cs.getNamespace(), cs.getDefaultPrefix());
-		}
+//		for (CmsContentTypes cs : CmsContentTypes.values()) {
+//			if (cs.getSchemaResource() != null) {
+//				StreamSource source = new StreamSource(cs.getSchemaResource().toExternalForm());
+//				sources.add(source);
+//			}
+//			RuntimeNamespaceContext.register(cs.getNamespace(), cs.getDefaultPrefix());
+//		}
 
-		reload();
+		registerTypes(CmsContentNamespace.values());
+//		reload();
 	}
 
-	public void registerTypes(String defaultPrefix, String namespace, String xsdSystemId) {
+	public void registerTypes(ContentNamespace... namespaces) {
 //		if (prefixes.containsKey(defaultPrefix))
 //			throw new IllegalStateException(
 //					"Prefix " + defaultPrefix + " is already mapped with " + prefixes.get(defaultPrefix));
 //		prefixes.put(defaultPrefix, namespace);
-		RuntimeNamespaceContext.register(namespace, defaultPrefix);
+		for (ContentNamespace contentNamespace : namespaces) {
+			RuntimeNamespaceContext.register(contentNamespace.getNamespaceURI(), contentNamespace.getDefaultPrefix());
 
-		if (xsdSystemId != null) {
-			sources.add(new StreamSource(xsdSystemId));
-			reload();
-			log.debug(() -> "Registered types " + namespace + " from " + xsdSystemId);
+			if (contentNamespace.getSchemaResource() != null) {
+				sources.add(new StreamSource(contentNamespace.getSchemaResource().toExternalForm()));
+				log.debug(() -> "Registered types " + contentNamespace.getNamespaceURI() + " from "
+						+ contentNamespace.getSchemaResource().toExternalForm());
+			}
 		}
+		reload();
 	}
 
 	public Set<QName> listTypes() {

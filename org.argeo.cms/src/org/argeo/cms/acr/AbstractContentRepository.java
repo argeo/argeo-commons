@@ -22,6 +22,7 @@ import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.RuntimeNamespaceContext;
+import org.argeo.api.acr.spi.ContentNamespace;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
@@ -94,8 +95,9 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 		}
 	}
 
-	public void registerTypes(String prefix, String namespaceURI, String schemaSystemId) {
-		typesManager.registerTypes(prefix, namespaceURI, schemaSystemId);
+	@Override
+	public void registerTypes(ContentNamespace... namespaces) {
+		typesManager.registerTypes(namespaces);
 	}
 
 	/*

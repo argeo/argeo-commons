@@ -7,7 +7,7 @@ import org.argeo.api.acr.ContentRepository;
 
 /** A {@link ContentRepository} implementation. */
 public interface ProvidedRepository extends ContentRepository {
-	void registerTypes(String prefix, String namespaceURI, String schemaSystemId);
+	void registerTypes(ContentNamespace... namespaces);
 
 	ContentProvider getMountContentProvider(Content mountPoint, boolean initialize, QName... types);
 
