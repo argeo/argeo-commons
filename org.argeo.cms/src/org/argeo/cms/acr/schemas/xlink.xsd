@@ -267,4 +267,14 @@ constructs, e.g.
   <xs:attributeGroup ref="xlink:arcAttrs"/>
  </xs:complexType>
 
+ <!-- Hack required for GML support -->
+ <xs:attributeGroup name="simpleLink">
+  <xs:attribute name="type" type="xs:string" use="optional" fixed="simple" form="qualified"/>
+  <xs:attribute ref="xlink:href" use="optional"/>
+  <xs:attribute ref="xlink:role" use="optional"/>
+  <xs:attribute ref="xlink:arcrole" use="optional"/>
+  <xs:attribute ref="xlink:title" use="optional"/>
+  <xs:attribute ref="xlink:show" use="optional"/>
+  <xs:attribute ref="xlink:actuate" use="optional"/>
+ </xs:attributeGroup>
 </xs:schema>
