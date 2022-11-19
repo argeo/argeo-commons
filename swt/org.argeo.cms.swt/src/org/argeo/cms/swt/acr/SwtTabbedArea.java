@@ -40,6 +40,7 @@ public class SwtTabbedArea extends Composite {
 	private StackLayout stackLayout;
 
 	private boolean singleTab = false;
+	private String singleTabTitle = null;
 
 	public SwtTabbedArea(Composite parent, int style) {
 		super(parent, SWT.NONE);
@@ -86,13 +87,15 @@ public class SwtTabbedArea extends Composite {
 			Button title = new Button(sectionHeader, SWT.FLAT);
 			CmsSwtUtils.style(title, selected ? tabSelectedStyle : tabStyle);
 			title.setLayoutData(CmsSwtUtils.fillWidth());
-			title.addSelectionListener((Selected) (e) -> showTab(tabIndex(section.getNode())));
+			title.addSelectionListener((Selected) (e) -> showTab(tabIndex(section.getContent())));
 			Content node = section.getContent();
 
 			// FIXME find a standard way to display titles
 			String titleStr = node.getName().getLocalPart();
-			
-			// TODO internationalize
+			if (singleTab && singleTabTitle != null)
+				titleStr = singleTabTitle;
+
+			// TODO internationalise
 			title.setText(titleStr);
 			if (!singleTab) {
 				ToolBar toolBar = new ToolBar(sectionHeader, SWT.NONE);
@@ -119,7 +122,7 @@ public class SwtTabbedArea extends Composite {
 			return;
 		}
 		SwtSection section = (SwtSection) body.getChildren()[0];
-		previousNode = (ProvidedContent) section.getNode();
+		previousNode = (ProvidedContent) section.getContent();
 		if (previousNode == null) {// empty state
 			previousNode = (ProvidedContent) context;
 			previousUiProvider = uiProvider;
@@ -229,7 +232,7 @@ public class SwtTabbedArea extends Composite {
 	public Content getCurrentContext() {
 		SwtSection section = getCurrentSection();
 		if (section != null) {
-			return section.getNode();
+			return section.getContent();
 		} else {
 			return null;
 		}
@@ -253,6 +256,10 @@ public class SwtTabbedArea extends Composite {
 
 	public void setSingleTab(boolean singleTab) {
 		this.singleTab = singleTab;
+	}
+
+	public void setSingleTabTitle(String singleTabTitle) {
+		this.singleTabTitle = singleTabTitle;
 	}
 
 }
