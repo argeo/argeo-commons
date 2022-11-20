@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 
 import org.argeo.init.osgi.OsgiBootUtils;
@@ -17,16 +18,16 @@ import org.osgi.framework.Version;
 /** A file system {@link AbstractProvisioningSource} in A2 format. */
 public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 	private final Path base;
-	private final Map<String, String> xOr;
+	private final Map<String, String> variantsXOr;
 
 //	public FsA2Source(Path base) {
 //		this(base, new HashMap<>());
 //	}
 
-	public FsA2Source(Path base, Map<String, String> xOr, boolean useReference) {
-		super(useReference);
+	public FsA2Source(Path base, Map<String, String> variantsXOr, boolean usingReference) {
+		super(usingReference);
 		this.base = base;
-		this.xOr = new HashMap<>(xOr);
+		this.variantsXOr = new HashMap<>(variantsXOr);
 	}
 
 	void load() throws IOException {
@@ -44,7 +45,7 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 				} else {// variants
 					Path variantPath = null;
 					// is it an explicit variant?
-					String variant = xOr.get(contributionPath.getFileName().toString());
+					String variant = variantsXOr.get(contributionPath.getFileName().toString());
 					if (variant != null) {
 						variantPath = contributionPath.resolve(variant);
 					}
@@ -119,13 +120,26 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 		URI baseUri = base.toUri();
 		try {
 			if (baseUri.getScheme().equals("file")) {
-				return new URI(SCHEME_A2, null, base.toString(), null);
+				String queryPart = "";
+				if (!getVariantsXOr().isEmpty()) {
+					StringJoiner sj = new StringJoiner("&");
+					for (String key : getVariantsXOr().keySet()) {
+						sj.add(key + "=" + getVariantsXOr().get(key));
+					}
+					queryPart = sj.toString();
+				}
+				return new URI(isUsingReference() ? SCHEME_A2_REFERENCE : SCHEME_A2, null, base.toString(), queryPart,
+						null);
 			} else {
 				throw new UnsupportedOperationException("Unsupported scheme " + baseUri.getScheme());
 			}
 		} catch (URISyntaxException e) {
 			throw new IllegalStateException("Cannot build URI from " + baseUri, e);
 		}
+	}
+
+	protected Map<String, String> getVariantsXOr() {
+		return variantsXOr;
 	}
 
 //	public static void main(String[] args) {

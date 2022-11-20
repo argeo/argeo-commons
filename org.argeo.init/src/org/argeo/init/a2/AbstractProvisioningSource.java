@@ -28,10 +28,10 @@ import org.osgi.framework.Version;
 public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	protected final Map<String, A2Contribution> contributions = Collections.synchronizedSortedMap(new TreeMap<>());
 
-	private final boolean useReference;
+	private final boolean usingReference;
 
-	public AbstractProvisioningSource(boolean useReference) {
-		this.useReference = useReference;
+	public AbstractProvisioningSource(boolean usingReference) {
+		this.usingReference = usingReference;
 	}
 
 	public Iterable<A2Contribution> listContributions(Object filter) {
@@ -42,7 +42,7 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	public Bundle install(BundleContext bc, A2Module module) {
 		try {
 			Object locator = module.getLocator();
-			if (useReference && locator instanceof Path locatorPath) {
+			if (usingReference && locator instanceof Path locatorPath) {
 				String referenceUrl = "reference:file:" + locatorPath.toString();
 				Bundle bundle = bc.installBundle(referenceUrl);
 				return bundle;
@@ -69,7 +69,7 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	public void update(Bundle bundle, A2Module module) {
 		try {
 			Object locator = module.getLocator();
-			if (useReference && locator instanceof Path) {
+			if (usingReference && locator instanceof Path) {
 				try (InputStream in = newInputStream(locator)) {
 					bundle.update(in);
 				}
@@ -196,6 +196,20 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 		return symbolicName;
 	}
 
+	protected boolean isUsingReference() {
+		return usingReference;
+	}
+
+	private InputStream newInputStream(Object locator) throws IOException {
+		if (locator instanceof Path) {
+			return Files.newInputStream((Path) locator);
+		} else if (locator instanceof URL) {
+			return ((URL) locator).openStream();
+		} else {
+			throw new IllegalArgumentException("Unsupported module locator type " + locator.getClass());
+		}
+	}
+
 	private static Manifest findManifest(Path currentPath) {
 		Path metaInfPath = currentPath.resolve("META-INF");
 		if (Files.exists(metaInfPath) && Files.isDirectory(metaInfPath)) {
@@ -241,13 +255,4 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 
 	}
 
-	private InputStream newInputStream(Object locator) throws IOException {
-		if (locator instanceof Path) {
-			return Files.newInputStream((Path) locator);
-		} else if (locator instanceof URL) {
-			return ((URL) locator).openStream();
-		} else {
-			throw new IllegalArgumentException("Unsupported module locator type " + locator.getClass());
-		}
-	}
 }

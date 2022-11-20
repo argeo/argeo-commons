@@ -21,7 +21,6 @@ osgi/api/org.argeo.tp.osgi \
 swt/rcp/org.argeo.tp.swt \
 lib/linux/x86_64/swt/rcp/org.argeo.tp.swt \
 swt/rcp/org.argeo.tp.swt.workbench \
-org.argeo.tp.jcr
 
 
 clean:
