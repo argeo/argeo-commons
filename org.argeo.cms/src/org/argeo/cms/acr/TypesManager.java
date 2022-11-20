@@ -1,6 +1,7 @@
 package org.argeo.cms.acr;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +59,7 @@ class TypesManager {
 	private SchemaFactory schemaFactory;
 
 	/** Schema sources. */
-	private List<Source> sources = new ArrayList<>();
+	private List<URL> sources = new ArrayList<>();
 
 	// cached
 	private Schema schema;
@@ -66,7 +67,8 @@ class TypesManager {
 	private XSModel xsModel;
 	private SortedMap<QName, Map<QName, CrAttributeType>> types;
 
-	private boolean validating = true;
+	private boolean validating = false;
+	private boolean creatingXsModel = false;
 
 	private final static boolean limited = false;
 
@@ -79,16 +81,7 @@ class TypesManager {
 	}
 
 	public void init() {
-//		for (CmsContentTypes cs : CmsContentTypes.values()) {
-//			if (cs.getSchemaResource() != null) {
-//				StreamSource source = new StreamSource(cs.getSchemaResource().toExternalForm());
-//				sources.add(source);
-//			}
-//			RuntimeNamespaceContext.register(cs.getNamespace(), cs.getDefaultPrefix());
-//		}
-
 		registerTypes(CmsContentNamespace.values());
-//		reload();
 	}
 
 	public void registerTypes(ContentNamespace... namespaces) {
@@ -100,7 +93,7 @@ class TypesManager {
 			RuntimeNamespaceContext.register(contentNamespace.getNamespaceURI(), contentNamespace.getDefaultPrefix());
 
 			if (contentNamespace.getSchemaResource() != null) {
-				sources.add(new StreamSource(contentNamespace.getSchemaResource().toExternalForm()));
+				sources.add(contentNamespace.getSchemaResource());
 				log.debug(() -> "Registered types " + contentNamespace.getNamespaceURI() + " from "
 						+ contentNamespace.getSchemaResource().toExternalForm());
 			}
@@ -121,7 +114,21 @@ class TypesManager {
 	private synchronized void reload() {
 		try {
 			// schema
-			schema = schemaFactory.newSchema(sources.toArray(new Source[sources.size()]));
+			if (validating) {
+				List<StreamSource> sourcesToUse = new ArrayList<>();
+				for (URL sourceUrl : sources) {
+					sourcesToUse.add(new StreamSource(sourceUrl.toExternalForm()));
+				}
+				schema = schemaFactory.newSchema(sourcesToUse.toArray(new Source[sourcesToUse.size()]));
+//				for (StreamSource source : sourcesToUse) {
+//					try {
+//						source.getInputStream().close();
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+			}
 
 			// document builder factory
 			// we force usage of Xerces for predictability
@@ -129,31 +136,37 @@ class TypesManager {
 			documentBuilderFactory.setNamespaceAware(true);
 			if (!limited) {
 				documentBuilderFactory.setXIncludeAware(true);
-				documentBuilderFactory.setSchema(getSchema());
-				documentBuilderFactory.setValidating(validating);
+				if (validating) {
+					documentBuilderFactory.setSchema(getSchema());
+					documentBuilderFactory.setValidating(validating);
+				}
 			}
 
-			// XS model
-			// TODO use JVM implementation?
+			if (creatingXsModel) {
+				// XS model
+				// TODO use JVM implementation?
 //			DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
 //			XSImplementation implementation = (XSImplementation) registry.getDOMImplementation("XS-Loader");
-			XSImplementation xsImplementation = new XSImplementationImpl();
-			XSLoader xsLoader = xsImplementation.createXSLoader(null);
-			List<String> systemIds = new ArrayList<>();
-			for (Source source : sources) {
-				systemIds.add(source.getSystemId());
-			}
-			StringList sl = new StringListImpl(systemIds.toArray(new String[systemIds.size()]), systemIds.size());
-			xsModel = xsLoader.loadURIList(sl);
+				XSImplementation xsImplementation = new XSImplementationImpl();
+				XSLoader xsLoader = xsImplementation.createXSLoader(null);
+				List<String> systemIds = new ArrayList<>();
+				for (URL sourceUrl : sources) {
+					systemIds.add(sourceUrl.toExternalForm());
+				}
+				StringList sl = new StringListImpl(systemIds.toArray(new String[systemIds.size()]), systemIds.size());
+				xsModel = xsLoader.loadURIList(sl);
 
-			// types
+				// types
 //			XSNamedMap map = xsModel.getComponents(XSConstants.ELEMENT_DECLARATION);
 //			for (int i = 0; i < map.getLength(); i++) {
 //				XSElementDeclaration eDec = (XSElementDeclaration) map.item(i);
 //				QName type = new QName(eDec.getNamespace(), eDec.getName());
 //				types.add(type);
 //			}
-			collectTypes();
+				collectTypes();
+				
+				log.debug("Created XS model");
+			}
 		} catch (XSException | SAXException e) {
 			throw new IllegalStateException("Cannot reload types", e);
 		}
@@ -417,34 +430,35 @@ class TypesManager {
 	}
 
 	public void printTypes() {
-		try {
+		if (xsModel != null)
+			try {
 
-			// Convert top level complex type definitions to node types
-			log.debug("\n## TYPES");
-			XSNamedMap map = xsModel.getComponents(XSConstants.TYPE_DEFINITION);
-			for (int i = 0; i < map.getLength(); i++) {
-				XSTypeDefinition tDef = (XSTypeDefinition) map.item(i);
-				log.debug(tDef);
+				// Convert top level complex type definitions to node types
+				log.debug("\n## TYPES");
+				XSNamedMap map = xsModel.getComponents(XSConstants.TYPE_DEFINITION);
+				for (int i = 0; i < map.getLength(); i++) {
+					XSTypeDefinition tDef = (XSTypeDefinition) map.item(i);
+					log.debug(tDef);
+				}
+				// Convert local (anonymous) complex type defs found in top level
+				// element declarations
+				log.debug("\n## ELEMENTS");
+				map = xsModel.getComponents(XSConstants.ELEMENT_DECLARATION);
+				for (int i = 0; i < map.getLength(); i++) {
+					XSElementDeclaration eDec = (XSElementDeclaration) map.item(i);
+					XSTypeDefinition tDef = eDec.getTypeDefinition();
+					log.debug(eDec + ", " + tDef);
+				}
+				log.debug("\n## ATTRIBUTES");
+				map = xsModel.getComponents(XSConstants.ATTRIBUTE_DECLARATION);
+				for (int i = 0; i < map.getLength(); i++) {
+					XSAttributeDeclaration eDec = (XSAttributeDeclaration) map.item(i);
+					XSTypeDefinition tDef = eDec.getTypeDefinition();
+					log.debug(eDec.getNamespace() + ":" + eDec.getName() + ", " + tDef);
+				}
+			} catch (ClassCastException | XSException e) {
+				throw new RuntimeException(e);
 			}
-			// Convert local (anonymous) complex type defs found in top level
-			// element declarations
-			log.debug("\n## ELEMENTS");
-			map = xsModel.getComponents(XSConstants.ELEMENT_DECLARATION);
-			for (int i = 0; i < map.getLength(); i++) {
-				XSElementDeclaration eDec = (XSElementDeclaration) map.item(i);
-				XSTypeDefinition tDef = eDec.getTypeDefinition();
-				log.debug(eDec + ", " + tDef);
-			}
-			log.debug("\n## ATTRIBUTES");
-			map = xsModel.getComponents(XSConstants.ATTRIBUTE_DECLARATION);
-			for (int i = 0; i < map.getLength(); i++) {
-				XSAttributeDeclaration eDec = (XSAttributeDeclaration) map.item(i);
-				XSTypeDefinition tDef = eDec.getTypeDefinition();
-				log.debug(eDec.getNamespace() + ":" + eDec.getName() + ", " + tDef);
-			}
-		} catch (ClassCastException | XSException e) {
-			throw new RuntimeException(e);
-		}
 
 	}
 
@@ -467,9 +481,9 @@ class TypesManager {
 //		return prefixes;
 //	}
 
-	public List<Source> getSources() {
-		return sources;
-	}
+//	public List<Source> getSources() {
+//		return sources;
+//	}
 
 	public Schema getSchema() {
 		return schema;
