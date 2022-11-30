@@ -5,16 +5,17 @@ Wants=postgresql.service
 
 [Service]
 Type=simple
+
+User=daemon
+Group=daemon
+
 StateDirectory=argeo.d/%I
 LogsDirectory=argeo.d/%I
 ConfigurationDirectory=argeo.d/%I
 CacheDirectory=argeo.d/%I
 WorkingDirectory=/var/lib/argeo.d/%I
 
-Environment=JVM=java
-Environment=JVM_OPTS=
-
-ExecStart=${JVM} ${JVM_OPTS} \
+ExecStart=java \
 -Dosgi.configuration.cascaded=true \
 -Dosgi.sharedConfiguration.area=/etc/argeo.d/%I/ \
 -Dosgi.sharedConfiguration.area.readOnly=true \
