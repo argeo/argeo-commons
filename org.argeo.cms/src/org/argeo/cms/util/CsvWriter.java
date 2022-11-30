@@ -89,7 +89,7 @@ public class CsvWriter {
 	 * Write a CSV line. Also used to write a header if needed (this is transparent
 	 * for the CSV writer): simply call it first, before writing the lines.
 	 */
-	public void writeLine(Object[] tokens) {
+	public void writeLine(Object... tokens) {
 		try {
 			for (int i = 0; i < tokens.length; i++) {
 				if (tokens[i] == null) {
