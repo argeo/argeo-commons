@@ -131,8 +131,6 @@ public class JettyHttpServer extends HttpsServer {
 	}
 
 	protected void configureConnectors() {
-		HttpConfiguration httpConfiguration = new HttpConfiguration();
-
 		String httpPortStr = getDeployProperty(CmsDeployProperty.HTTP_PORT);
 		String httpsPortStr = getDeployProperty(CmsDeployProperty.HTTPS_PORT);
 		if (httpPortStr != null && httpsPortStr != null)
@@ -151,13 +149,15 @@ public class JettyHttpServer extends HttpsServer {
 			boolean httpEnabled = httpPortStr != null;
 			boolean httpsEnabled = httpsPortStr != null;
 
-			if (httpsEnabled) {
-				int httpsPort = Integer.parseInt(httpsPortStr);
-				httpConfiguration.setSecureScheme("https");
-				httpConfiguration.setSecurePort(httpsPort);
-			}
-
 			if (httpEnabled) {
+				HttpConfiguration httpConfiguration = new HttpConfiguration();
+
+				if (httpsEnabled) {// not supported anymore to have both http and https, but it may change again
+					int httpsPort = Integer.parseInt(httpsPortStr);
+					httpConfiguration.setSecureScheme("https");
+					httpConfiguration.setSecurePort(httpsPort);
+				}
+
 				int httpPort = Integer.parseInt(httpPortStr);
 				httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration));
 				httpConnector.setPort(httpPort);
@@ -188,13 +188,13 @@ public class JettyHttpServer extends HttpsServer {
 					sslContextFactory.setNeedClientAuth(true);
 
 				// HTTPS Configuration
-				HttpConfiguration https_config = new HttpConfiguration(httpConfiguration);
-				https_config.addCustomizer(new SecureRequestCustomizer());
-				https_config.setUriCompliance(UriCompliance.LEGACY);
+				HttpConfiguration httpsConfiguration = new HttpConfiguration();
+				httpsConfiguration.addCustomizer(new SecureRequestCustomizer());
+				httpsConfiguration.setUriCompliance(UriCompliance.LEGACY);
 
 				// HTTPS connector
 				httpsConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
-						new HttpConnectionFactory(https_config));
+						new HttpConnectionFactory(httpsConfiguration));
 				int httpsPort = Integer.parseInt(httpsPortStr);
 				httpsConnector.setPort(httpsPort);
 				httpsConnector.setHost(httpHost);
