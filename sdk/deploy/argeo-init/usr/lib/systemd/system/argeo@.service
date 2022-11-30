@@ -1,6 +1,6 @@
 [Unit]
 Description=Argeo node %I
-After=network.target
+After=network-online.target
 Wants=postgresql.service
 
 [Service]
@@ -11,7 +11,10 @@ ConfigurationDirectory=argeo.d/%I
 CacheDirectory=argeo.d/%I
 WorkingDirectory=/var/lib/argeo.d/%I
 
-ExecStart=java \
+Environment=JVM=java
+Environment=JVM_OPTS=
+
+ExecStart=${JVM} ${JVM_OPTS} \
 -Dosgi.configuration.cascaded=true \
 -Dosgi.sharedConfiguration.area=/etc/argeo.d/%I/ \
 -Dosgi.sharedConfiguration.area.readOnly=true \
@@ -24,8 +27,15 @@ ExecStart=java \
 @/etc/argeo.d/jvm.args \
 @${CONFIGURATION_DIRECTORY}/jvm.args \
 @/usr/share/argeo/jvm.args
+
 # Exit codes of the JVM when SIGTERM or SIGINT have been caught:
 SuccessExitStatus=143 130
+
+CPUAccounting=true
+MemoryAccounting=true
+TasksAccounting=true
+IOAccounting=true
+IPAccounting=true
 
 [Install]
 WantedBy=multi-user.target
