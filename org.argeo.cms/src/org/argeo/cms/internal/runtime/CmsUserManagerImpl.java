@@ -286,11 +286,11 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	@Override
 	public CmsGroup getOrCreateGroup(HierarchyUnit groups, String commonName) {
+		String dn = LdapAttr.cn.name() + "=" + commonName + "," + groups.getBase();
+		CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
+		if (group != null)
+			return group;
 		try {
-			String dn = LdapAttr.cn.name() + "=" + commonName + "," + groups.getBase();
-			CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
-			if (group != null)
-				return group;
 			userTransaction.begin();
 			group = (CmsGroup) userAdmin.createRole(dn, Role.GROUP);
 			userTransaction.commit();
@@ -310,11 +310,11 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	@Override
 	public CmsGroup getOrCreateSystemRole(HierarchyUnit roles, QName systemRole) {
+		String dn = LdapAttr.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole) + "," + roles.getBase();
+		CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
+		if (group != null)
+			return group;
 		try {
-			String dn = LdapAttr.cn.name() + "=" + NamespaceUtils.toPrefixedName(systemRole) + "," + roles.getBase();
-			CmsGroup group = (CmsGroup) getUserAdmin().getRole(dn);
-			if (group != null)
-				return group;
 			userTransaction.begin();
 			group = (CmsGroup) userAdmin.createRole(dn, Role.GROUP);
 			userTransaction.commit();
