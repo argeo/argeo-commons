@@ -74,7 +74,8 @@ public class DefaultLdapEntry implements LdapEntry {
 
 	@Override
 	public LdapName getDn() {
-		return dn;
+		// always return a copy since LdapName is mutable
+		return (LdapName) dn.clone();
 	}
 
 	public synchronized Attributes getAttributes() {

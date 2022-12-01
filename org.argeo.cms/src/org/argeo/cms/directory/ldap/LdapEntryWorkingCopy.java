@@ -9,7 +9,7 @@ import org.argeo.api.cms.transaction.AbstractWorkingCopy;
 public class LdapEntryWorkingCopy extends AbstractWorkingCopy<LdapEntry, Attributes, LdapName> {
 	@Override
 	protected LdapName getId(LdapEntry entry) {
-		return entry.getDn();
+		return (LdapName) entry.getDn().clone();
 	}
 
 	@Override
