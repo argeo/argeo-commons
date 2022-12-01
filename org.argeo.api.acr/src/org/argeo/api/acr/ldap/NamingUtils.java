@@ -96,11 +96,11 @@ public class NamingUtils {
 
 	}
 
-	public static void main(String args[]) {
-		ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
-		String str = utcLdapDate.format(now);
-		System.out.println(str);
-		utcLdapDate.parse(str);
-		utcLdapDate.parse("19520512000000Z");
-	}
+//	public static void main(String args[]) {
+//		ZonedDateTime now = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
+//		String str = utcLdapDate.format(now);
+//		System.out.println(str);
+//		utcLdapDate.parse(str);
+//		utcLdapDate.parse("19520512000000Z");
+//	}
 }
