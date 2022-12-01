@@ -45,4 +45,14 @@ class DirectoryContent extends AbstractDirectoryContent {
 		return provider.getRootContent(getSession());
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public <A> A adapt(Class<A> clss) {
+		if (clss.equals(HierarchyUnit.class))
+			return (A) directory;
+		if (clss.equals(CmsDirectory.class))
+			return (A) directory;
+		return super.adapt(clss);
+	}
+
 }
