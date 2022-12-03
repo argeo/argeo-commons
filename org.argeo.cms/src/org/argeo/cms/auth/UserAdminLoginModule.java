@@ -3,6 +3,7 @@ package org.argeo.cms.auth;
 import static org.argeo.api.acr.ldap.LdapAttr.cn;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -47,8 +48,8 @@ public class UserAdminLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private Map<String, Object> sharedState = null;
 
-	private List<String> indexedUserProperties = Arrays.asList(new String[] { LdapAttr.mail.name(),
-			LdapAttr.uid.name(), LdapAttr.employeeNumber.name(), LdapAttr.authPassword.name() });
+	private List<String> indexedUserProperties = Arrays.asList(new String[] { LdapAttr.mail.name(), LdapAttr.uid.name(),
+			LdapAttr.employeeNumber.name(), LdapAttr.authPassword.name() });
 
 	// private state
 //	private BundleContext bc;
@@ -155,7 +156,7 @@ public class UserAdminLoginModule implements LoginModule {
 			return true;// expect Kerberos
 
 		if (password != null) {
-			//  TODO disabling bind for the time being,
+			// TODO disabling bind for the time being,
 			// as it requires authorisations to be set at LDAP level
 			boolean tryBind = false;
 			// try bind first
@@ -274,8 +275,21 @@ public class UserAdminLoginModule implements LoginModule {
 		// Register CmsSession with initial subject
 		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 
-		if (log.isDebugEnabled())
-			log.debug("Logged in to CMS: " + subject);
+		if (log.isDebugEnabled()) {
+			StringBuilder msg = new StringBuilder();
+			msg.append("Logged in to CMS: " + authorization.getName() + "(" + authorization + ")\n");
+			for (Principal principal : subject.getPrincipals()) {
+				msg.append("  Principal: " + principal.getName()).append(" (")
+						.append(principal.getClass().getSimpleName()).append(")\n");
+			}
+			for (Object credential : subject.getPublicCredentials()) {
+				msg.append("  Public Credential: " + credential).append(" (")
+						.append(credential.getClass().getSimpleName()).append(")\n");
+			}
+			log.debug(msg);
+		}
+//		if (log.isTraceEnabled())
+//			log.trace(" Subject: " + subject);
 		return true;
 	}
 
