@@ -1,5 +1,6 @@
 package org.argeo.cms.internal.http;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -22,8 +23,14 @@ public class RemoteAuthHttpExchange implements RemoteAuthRequest, RemoteAuthResp
 	}
 
 	@Override
-	public void setHeader(String keys, String value) {
-		httpExchange.getResponseHeaders().put(keys, Collections.singletonList(value));
+	public void setHeader(String headerName, String value) {
+		httpExchange.getResponseHeaders().put(headerName, Collections.singletonList(value));
+	}
+
+	@Override
+	public void addHeader(String headerName, String value) {
+		List<String> values = httpExchange.getResponseHeaders().getOrDefault(headerName, new ArrayList<>());
+		values.add(value);
 	}
 
 	@Override

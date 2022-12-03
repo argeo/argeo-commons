@@ -15,8 +15,13 @@ public class ServletHttpResponse implements RemoteAuthResponse {
 	}
 
 	@Override
-	public void setHeader(String keys, String value) {
-		response.setHeader(keys, value);
+	public void setHeader(String headerName, String value) {
+		response.setHeader(headerName, value);
+	}
+
+	@Override
+	public void addHeader(String headerName, String value) {
+		response.addHeader(headerName, value);
 	}
 
 }

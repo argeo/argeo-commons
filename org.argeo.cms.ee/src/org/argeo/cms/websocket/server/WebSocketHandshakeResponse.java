@@ -1,6 +1,8 @@
 package org.argeo.cms.websocket.server;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.websocket.HandshakeResponse;
 
@@ -14,9 +16,14 @@ public class WebSocketHandshakeResponse implements RemoteAuthResponse {
 	}
 
 	@Override
-	public void setHeader(String key, String value) {
-		handshakeResponse.getHeaders().put(key, Collections.singletonList(value));
+	public void setHeader(String headerName, String value) {
+		handshakeResponse.getHeaders().put(headerName, Collections.singletonList(value));
+	}
 
+	@Override
+	public void addHeader(String headerName, String value) {
+		List<String> values = handshakeResponse.getHeaders().getOrDefault(headerName, new ArrayList<>());
+		values.add(value);
 	}
 
 }
