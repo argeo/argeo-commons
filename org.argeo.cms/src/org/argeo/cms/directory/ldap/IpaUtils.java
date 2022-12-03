@@ -79,9 +79,18 @@ public class IpaUtils {
 	public static String kerberosDomainFromDns() {
 		String kerberosDomain;
 		try (DnsBrowser dnsBrowser = new DnsBrowser()) {
+			// TODO retrieve hostname from CMS config
 			InetAddress localhost = InetAddress.getLocalHost();
 			String hostname = localhost.getHostName();
-			String dnsZone = hostname.substring(hostname.indexOf('.') + 1);
+			int dotIndex = hostname.indexOf('.');
+			if (dotIndex <= 0) {
+				hostname = localhost.getCanonicalHostName();
+				dotIndex = hostname.indexOf('.');
+				if (dotIndex <= 0)
+					throw new IllegalArgumentException(
+							"Cannot extract DNS zone from hostname " + hostname + " (" + localhost + ")");
+			}
+			String dnsZone = hostname.substring(dotIndex + 1);
 			kerberosDomain = dnsBrowser.getRecord("_kerberos." + dnsZone, "TXT");
 			return kerberosDomain;
 		} catch (IOException e) {
