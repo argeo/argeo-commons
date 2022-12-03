@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 
+/** HTTP utilities on the server-side. */
 public class HttpServerUtils {
 	private final static String SLASH = "/";
 

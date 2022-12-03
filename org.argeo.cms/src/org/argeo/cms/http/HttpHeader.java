@@ -1,14 +1,18 @@
 package org.argeo.cms.http;
 
-/** Standard HTTP headers (including WebDav). */
+/** Selection of standard or common HTTP headers (including WebDav). */
 public enum HttpHeader {
 	AUTHORIZATION("Authorization"), //
 	WWW_AUTHENTICATE("WWW-Authenticate"), //
 	ALLOW("Allow"), //
+	VIA("Via"), //
 
 	// WebDav
 	DAV("DAV"), //
 	DEPTH("Depth"), //
+
+	// Non-standard
+	X_FORWARDED_HOST("X-Forwarded-Host"), //
 	;
 
 	public final static String BASIC = "Basic";
