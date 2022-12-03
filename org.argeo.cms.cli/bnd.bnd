@@ -17,6 +17,7 @@ org.argeo.util.2.3.jar \
 ../org.argeo.tp/com.fasterxml.jackson.core.jackson-core.2.13.jar \
 ../org.argeo.tp/com.fasterxml.jackson.core.jackson-databind.2.13.jar \
 ../org.argeo.tp/com.googlecode.javaewah.JavaEWAH.1.1.jar \
+../org.argeo.tp/de.thjom.java.systemd.2.1.jar \
 ../org.argeo.tp/javax.servlet.4.0.jar \
 ../org.argeo.tp/javax.websocket.1.1.jar \
 ../org.argeo.tp/org.apache.batik.1.16.jar \
@@ -36,6 +37,7 @@ org.argeo.util.2.3.jar \
 ../org.argeo.tp/org.apache.xml.resolver.1.2.jar \
 ../org.argeo.tp/org.argeo.ext.slf4j.2.3.jar \
 ../org.argeo.tp/org.eclipse.jgit.6.3.jar \
+../org.argeo.tp/org.freeedesktop.dbus.4.2.jar \
 ../org.argeo.tp/org.slf4j.api.1.7.jar \
 ../org.argeo.tp/org.slf4j.commons.logging.1.7.jar \
 ../org.argeo.tp/org.w3c.css.sac.1.3.jar \
