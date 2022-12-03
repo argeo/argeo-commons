@@ -36,8 +36,15 @@ public class SpnegoLoginModule implements LoginModule {
 	@Override
 	public boolean login() throws LoginException {
 		byte[] spnegoToken = (byte[]) sharedState.get(CmsAuthUtils.SHARED_STATE_SPNEGO_TOKEN);
-		if (spnegoToken == null)
+		if (spnegoToken == null) {
+			if (!sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)) {
+				// workaround: set shared state name to empty
+				// in order to avoid Krb5LoginModule printing to System.out
+				// TODO ask upstream to only log in debug mode
+				sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, "");
+			}
 			return false;
+		}
 		gssContext = checkToken(spnegoToken);
 		if (gssContext == null)
 			return false;
