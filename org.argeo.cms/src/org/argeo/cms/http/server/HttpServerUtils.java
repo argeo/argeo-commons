@@ -1,4 +1,4 @@
-package org.argeo.cms.http;
+package org.argeo.cms.http.server;
 
 import java.net.URI;
 import java.util.Objects;

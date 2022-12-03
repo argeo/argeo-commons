@@ -13,7 +13,7 @@ import javax.websocket.server.ServerContainer;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
-import org.argeo.cms.http.HttpServerUtils;
+import org.argeo.cms.http.server.HttpServerUtils;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
