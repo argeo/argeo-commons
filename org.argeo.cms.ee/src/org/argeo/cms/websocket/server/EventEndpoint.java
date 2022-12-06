@@ -1,9 +1,11 @@
 package org.argeo.cms.websocket.server;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.util.Map;
 
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnOpen;
 import javax.websocket.RemoteEndpoint;
 import javax.websocket.Session;
@@ -12,11 +14,13 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsEventSubscriber;
+import org.argeo.api.cms.CmsLog;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
-@ServerEndpoint(value = "/event/{topic}", configurator = CmsWebSocketConfigurator.class)
+@ServerEndpoint(value = "/cms/status/event/{topic}", configurator = CmsWebSocketConfigurator.class)
 public class EventEndpoint implements CmsEventSubscriber {
+	private final static CmsLog log = CmsLog.getLog(EventEndpoint.class);
 	private BundleContext bc = FrameworkUtil.getBundle(TestEndpoint.class).getBundleContext();
 
 	private RemoteEndpoint.Basic remote;
@@ -46,5 +50,14 @@ public class EventEndpoint implements CmsEventSubscriber {
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
+	}
+
+	@OnError
+	public void onError(Throwable e) {
+		if (e instanceof ClosedChannelException) {
+			// ignore, as it probably means ping was closed on the other side
+			return;
+		}
+		log.error("Cannot process ping", e);
 	}
 }

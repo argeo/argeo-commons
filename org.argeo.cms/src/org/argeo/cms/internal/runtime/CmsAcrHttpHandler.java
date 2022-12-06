@@ -25,9 +25,9 @@ import org.argeo.cms.dav.DavDepth;
 import org.argeo.cms.dav.DavHttpHandler;
 import org.argeo.cms.dav.DavPropfind;
 import org.argeo.cms.dav.DavResponse;
+import org.argeo.cms.http.HttpStatus;
 import org.argeo.cms.internal.http.RemoteAuthHttpExchange;
-import org.argeo.util.StreamUtils;
-import org.argeo.util.http.HttpStatus;
+import org.argeo.cms.util.StreamUtils;
 
 import com.sun.net.httpserver.HttpExchange;
 

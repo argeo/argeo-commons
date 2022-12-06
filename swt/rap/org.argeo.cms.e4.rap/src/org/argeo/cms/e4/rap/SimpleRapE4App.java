@@ -2,7 +2,6 @@ package org.argeo.cms.e4.rap;
 
 import java.util.Enumeration;
 
-import org.apache.commons.io.FilenameUtils;
 import org.argeo.api.cms.CmsLog;
 import org.eclipse.rap.rwt.application.Application;
 import org.osgi.framework.Bundle;
@@ -21,7 +20,8 @@ public class SimpleRapE4App extends AbstractRapE4App {
 			String p = paths.nextElement();
 			if (p.endsWith(".e4xmi")) {
 				String e4xmiPath = bundle.getSymbolicName() + '/' + p;
-				String name = '/' + FilenameUtils.removeExtension(FilenameUtils.getName(p));
+				// FIXME deal with base name
+				String name=null;// = '/' + FilenameUtils.removeExtension(FilenameUtils.getName(p));
 				addE4EntryPoint(application, name, e4xmiPath, getBaseProperties());
 				if (log.isDebugEnabled())
 					log.debug("Registered " + e4xmiPath + " as " + getContextName() + name);

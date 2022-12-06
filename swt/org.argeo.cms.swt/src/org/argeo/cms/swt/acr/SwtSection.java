@@ -27,10 +27,14 @@ public class SwtSection extends ContentComposite {
 		this(section, section, style, node);
 	}
 
+	public SwtSection(SwtSection section, int style) {
+		this(section, style, null);
+	}
+
 	protected SwtSection(Composite parent, SwtSection parentSection, int style, Content node) {
 		super(parent, style, node);
 		this.parentSection = parentSection;
-		if (parentSection != null) {
+		if (parentSection != null && hasContent() && parentSection.hasContent()) {
 			relativeDepth = getProvidedContent().getDepth() - parentSection.getProvidedContent().getDepth();
 		} else {
 			relativeDepth = 0;

@@ -27,7 +27,7 @@ import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 import org.argeo.cms.internal.auth.RemoteCmsSessionImpl;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.osgi.useradmin.AuthenticatingUser;
+import org.argeo.cms.osgi.useradmin.AuthenticatingUser;
 import org.osgi.service.useradmin.Authorization;
 
 /** Centralises security related registrations. */

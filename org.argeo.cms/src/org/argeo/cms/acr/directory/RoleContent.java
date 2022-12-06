@@ -7,10 +7,8 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.osgi.useradmin.UserDirectory;
-import org.osgi.service.useradmin.Group;
+import org.argeo.api.cms.directory.UserDirectory;
 import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.User;
 
 class RoleContent extends AbstractDirectoryContent {
 
@@ -43,11 +41,7 @@ class RoleContent extends AbstractDirectoryContent {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <A> A adapt(Class<A> clss) {
-		if (clss.equals(Group.class))
-			return (A) role;
-		else if (clss.equals(User.class))
-			return (A) role;
-		else if (clss.equals(Role.class))
+		if (Role.class.isAssignableFrom(clss))
 			return (A) role;
 		return super.adapt(clss);
 	}

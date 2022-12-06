@@ -22,10 +22,10 @@ public class SwtTableView<INPUT, T> extends AbstractSwtView<INPUT, T> {
 	private CmsSwtTheme theme;
 
 	public SwtTableView(Composite parent, int style, TabularPart<INPUT, T> tabularPart) {
-		super(parent, style, tabularPart);
+		super(parent, tabularPart);
 		theme = CmsSwtUtils.getCmsTheme(parent);
 
-		table = new Table(this, SWT.VIRTUAL | SWT.BORDER);
+		table = new Table(this, SWT.VIRTUAL | style);
 		table.setLinesVisible(true);
 		table.setLayoutData(CmsSwtUtils.fillAll());
 
@@ -60,9 +60,9 @@ public class SwtTableView<INPUT, T> extends AbstractSwtView<INPUT, T> {
 
 	protected void refreshItem(TableItem item) {
 		int row = getTable().indexOf(item);
+		T data = tabularPart.getData(row);
 		for (int i = 0; i < tabularPart.getColumnCount(); i++) {
 			Column<T> column = tabularPart.getColumn(i);
-			T data = tabularPart.getData(row);
 			item.setData(data);
 			String text = data != null ? column.getText(data) : "";
 			if (text != null)
@@ -73,6 +73,11 @@ public class SwtTableView<INPUT, T> extends AbstractSwtView<INPUT, T> {
 				item.setImage(i, image);
 			}
 		}
+	}
+
+	@Override
+	public void notifyItemCountChange() {
+		table.setItemCount(tabularPart.getItemCount());
 	}
 
 	protected Table getTable() {

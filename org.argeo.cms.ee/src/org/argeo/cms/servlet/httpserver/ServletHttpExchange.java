@@ -18,7 +18,8 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpPrincipal;
 import com.sun.net.httpserver.HttpsExchange;
 
-public class ServletHttpExchange extends HttpsExchange {
+/** Integrates {@link HttpsExchange} in a servlet container. */
+class ServletHttpExchange extends HttpsExchange {
 	private final HttpContext httpContext;
 	private final HttpServletRequest httpServletRequest;
 	private final HttpServletResponse httpServletResponse;

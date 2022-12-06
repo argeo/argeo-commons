@@ -11,10 +11,10 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
 
+import org.argeo.api.acr.ldap.LdapAttr;
+import org.argeo.cms.directory.ldap.IpaUtils;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.osgi.useradmin.OsUserUtils;
-import org.argeo.util.directory.ldap.IpaUtils;
-import org.argeo.util.naming.LdapAttrs;
+import org.argeo.cms.osgi.useradmin.OsUserUtils;
 import org.osgi.service.useradmin.Authorization;
 
 /** Login module for when the system is owned by a single user. */
@@ -54,7 +54,7 @@ public class SingleUserLoginModule implements LoginModule {
 				throw new LoginException("No username available");
 			String hostname = CmsContextImpl.getCmsContext().getCmsState().getHostname();
 			String baseDn = ("." + hostname).replaceAll("\\.", ",dc=");
-			X500Principal principal = new X500Principal(LdapAttrs.uid + "=" + username + baseDn);
+			X500Principal principal = new X500Principal(LdapAttr.uid + "=" + username + baseDn);
 			authorizationName = principal.getName();
 		}
 

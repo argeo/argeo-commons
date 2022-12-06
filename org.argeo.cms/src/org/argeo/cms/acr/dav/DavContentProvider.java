@@ -10,7 +10,7 @@ import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.dav.DavClient;
 import org.argeo.cms.dav.DavResponse;
-import org.argeo.util.http.HttpStatus;
+import org.argeo.cms.http.HttpStatus;
 
 public class DavContentProvider implements ContentProvider {
 	private String mountPath;

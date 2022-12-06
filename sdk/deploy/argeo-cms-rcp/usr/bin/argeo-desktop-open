@@ -1,0 +1,2 @@
+#!/bin/sh
+curl $(cat $XDG_RUNTIME_DIR/argeo.rcp.url)$1

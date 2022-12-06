@@ -15,11 +15,11 @@ import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.DName;
 import org.argeo.api.cms.CmsAuth;
-import org.argeo.cms.CmsUserManager;
-import org.argeo.osgi.useradmin.UserDirectory;
-import org.argeo.util.CurrentSubject;
-import org.argeo.util.directory.Directory;
-import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.CmsDirectory;
+import org.argeo.api.cms.directory.CmsUserManager;
+import org.argeo.api.cms.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.UserDirectory;
+import org.argeo.cms.util.CurrentSubject;
 import org.osgi.service.useradmin.Role;
 
 /** Utilities and routines around {@link Content}. */
@@ -135,7 +135,7 @@ public class ContentUtils {
 	}
 
 	public static Content hierarchyUnitToContent(ContentSession contentSession, HierarchyUnit hierarchyUnit) {
-		Directory directory = hierarchyUnit.getDirectory();
+		CmsDirectory directory = hierarchyUnit.getDirectory();
 		StringJoiner relativePath = new StringJoiner(SLASH_STRING);
 		buildHierarchyUnitPath(hierarchyUnit, relativePath);
 		String path = directoryPath(directory) + relativePath.toString();
@@ -143,8 +143,8 @@ public class ContentUtils {
 		return content;
 	}
 
-	/** The path to this {@link Directory}. Ends with a /. */
-	private static String directoryPath(Directory directory) {
+	/** The path to this {@link CmsDirectory}. Ends with a /. */
+	private static String directoryPath(CmsDirectory directory) {
 		return CmsContentRepository.DIRECTORY_BASE + SLASH + directory.getName() + SLASH;
 	}
 

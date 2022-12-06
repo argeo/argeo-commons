@@ -10,7 +10,14 @@ public class ContentComposite extends Composite {
 
 	public ContentComposite(Composite parent, int style, Content item) {
 		super(parent, style);
-		setData(item);
+		if (item != null)
+			setData(item);
+	}
+
+	public boolean hasContent() {
+		if (getData() == null)
+			return false;
+		return getData() instanceof Content;
 	}
 
 	public Content getContent() {

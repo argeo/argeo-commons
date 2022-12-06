@@ -15,7 +15,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.api.cms.ux.UxContext;
-import org.argeo.cms.auth.CurrentUser;
+import org.argeo.cms.CurrentUser;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.SimpleSwtUxContext;
 import org.argeo.cms.swt.acr.AcrSwtImageManager;

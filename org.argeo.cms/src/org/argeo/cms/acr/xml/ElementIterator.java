@@ -3,6 +3,7 @@ package org.argeo.cms.acr.xml;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.argeo.api.acr.ArgeoNamespace;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedSession;
@@ -52,7 +53,7 @@ class ElementIterator implements Iterator<Content> {
 		if (nextElement == null)
 			throw new NoSuchElementException();
 		Content result;
-		String isMount = nextElement.getAttributeNS(CrName.CR_NAMESPACE_URI, CrName.mount.qName().getLocalPart());
+		String isMount = nextElement.getAttributeNS(ArgeoNamespace.CR_NAMESPACE_URI, CrName.mount.qName().getLocalPart());
 		if (isMount.equals("true")) {
 			result = session.get(parent.getPath() + '/' + nextElement.getTagName());
 		}

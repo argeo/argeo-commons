@@ -7,18 +7,18 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import org.argeo.api.acr.ArgeoNamespace;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.ContentNotFoundException;
-import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.cms.CmsUserManager;
+import org.argeo.api.cms.directory.CmsUserManager;
+import org.argeo.api.cms.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
-import org.argeo.osgi.useradmin.UserDirectory;
-import org.argeo.util.directory.HierarchyUnit;
 import org.osgi.service.useradmin.User;
 
 public class DirectoryContentProvider implements ContentProvider {
@@ -92,20 +92,24 @@ public class DirectoryContentProvider implements ContentProvider {
 
 	@Override
 	public String getNamespaceURI(String prefix) {
-		if (CrName.LDAP_DEFAULT_PREFIX.equals(prefix))
-			return CrName.LDAP_NAMESPACE_URI;
-		throw new IllegalArgumentException("Only prefix " + CrName.LDAP_DEFAULT_PREFIX + " is supported");
+		if (ArgeoNamespace.LDAP_DEFAULT_PREFIX.equals(prefix))
+			return ArgeoNamespace.LDAP_NAMESPACE_URI;
+		throw new IllegalArgumentException("Only prefix " + ArgeoNamespace.LDAP_DEFAULT_PREFIX + " is supported");
 	}
 
 	@Override
 	public Iterator<String> getPrefixes(String namespaceURI) {
-		if (CrName.LDAP_NAMESPACE_URI.equals(namespaceURI))
-			return Collections.singletonList(CrName.LDAP_DEFAULT_PREFIX).iterator();
-		throw new IllegalArgumentException("Only namespace URI " + CrName.LDAP_NAMESPACE_URI + " is supported");
+		if (ArgeoNamespace.LDAP_NAMESPACE_URI.equals(namespaceURI))
+			return Collections.singletonList(ArgeoNamespace.LDAP_DEFAULT_PREFIX).iterator();
+		throw new IllegalArgumentException("Only namespace URI " + ArgeoNamespace.LDAP_NAMESPACE_URI + " is supported");
 	}
 
 	public void setUserManager(CmsUserManager userManager) {
 		this.userManager = userManager;
+	}
+
+	public CmsUserManager getUserManager() {
+		return userManager;
 	}
 
 	UserManagerContent getRootContent(ProvidedSession session) {

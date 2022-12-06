@@ -15,6 +15,10 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpPrincipal;
 
+/**
+ * An {@link HttpServlet} which integrates an {@link HttpContext} and its
+ * {@link Authenticator} in a servlet container.
+ */
 public class HttpContextServlet extends HttpServlet {
 	private static final long serialVersionUID = 2321612280413662738L;
 

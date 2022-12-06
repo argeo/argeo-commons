@@ -17,8 +17,8 @@ import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsUi;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.api.cms.ux.UxContext;
-import org.argeo.cms.auth.CurrentUser;
-import org.argeo.util.CurrentSubject;
+import org.argeo.cms.CurrentUser;
+import org.argeo.cms.util.CurrentSubject;
 import org.eclipse.swt.widgets.Display;
 
 public abstract class AbstractSwtCmsView implements CmsView {

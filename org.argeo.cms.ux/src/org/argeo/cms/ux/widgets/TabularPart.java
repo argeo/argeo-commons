@@ -1,11 +1,8 @@
 package org.argeo.cms.ux.widgets;
 
-public interface TabularPart<INPUT, T> extends ColumnsPart<INPUT, T> {
+/** A tabular presentation of data. */
+public interface TabularPart<INPUT, TYPE> extends ColumnsPart<INPUT, TYPE> {
 	int getItemCount();
 
-	T getData(int row);
-
-	Column<T> getColumn(int index);
-
-	int getColumnCount();
+	TYPE getData(int row);
 }

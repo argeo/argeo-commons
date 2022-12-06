@@ -2,11 +2,8 @@ package org.argeo.cms.servlet;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.http.HttpHeaders;
-import java.security.PrivilegedAction;
 import java.util.Map;
 
-import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +16,6 @@ import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.servlet.internal.HttpUtils;
-import org.argeo.util.http.HttpHeader;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.context.ServletContextHelper;

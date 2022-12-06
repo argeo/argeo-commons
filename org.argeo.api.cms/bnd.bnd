@@ -1,4 +1,6 @@
 Import-Package: \
-javax.security.*
+javax.transaction.xa,\
+javax.security.*,\
+org.osgi.service.useradmin,\
 
 Export-Package: org.argeo.api.cms.*

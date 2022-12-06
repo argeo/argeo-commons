@@ -41,6 +41,11 @@ public interface DescribedCommand<T> extends Function<List<String>, T> {
 			Object output = command.apply(Arrays.asList(args));
 			System.out.println(output);
 			System.exit(0);
+		} catch (PrintHelpRequestException e) {
+			StringWriter out = new StringWriter();
+			HelpCommand.printHelp(command, out);
+			System.out.println(out.toString());
+			System.exit(1);
 		} catch (IllegalArgumentException e) {
 			StringWriter out = new StringWriter();
 			HelpCommand.printHelp(command, out);

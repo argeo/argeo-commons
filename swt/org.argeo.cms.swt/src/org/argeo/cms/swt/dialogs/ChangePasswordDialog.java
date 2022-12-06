@@ -4,10 +4,11 @@ import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.CmsMsg;
-import org.argeo.cms.CmsUserManager;
 import org.argeo.cms.swt.CmsSwtUtils;
+import org.argeo.cms.ux.widgets.CmsDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -46,17 +47,17 @@ public class ChangePasswordDialog extends CmsMessageDialog {
 			if (Arrays.equals(newPassword.getTextChars(), confirmPassword.getTextChars())) {
 				try {
 					cmsUserManager.changeOwnPassword(previousPassword.getTextChars(), newPassword.getTextChars());
-					return OK;
+					return CmsDialog.OK;
 				} catch (Exception e1) {
 					log.error("Could not change password", e1);
 					cancel();
 					CmsMessageDialog.openError(CmsMsg.invalidPassword.lead());
-					return CANCEL;
+					return CmsDialog.CANCEL;
 				}
 			} else {
 				cancel();
 				CmsMessageDialog.openError(CmsMsg.repeatNewPassword.lead());
-				return CANCEL;
+				return CmsDialog.CANCEL;
 			}
 		};
 
@@ -67,7 +68,7 @@ public class ChangePasswordDialog extends CmsMessageDialog {
 	@Override
 	protected void okPressed() {
 		Integer returnCode = cmsView.doAs(doIt);
-		if (returnCode.equals(OK)) {
+		if (returnCode.equals(CmsDialog.OK)) {
 			super.okPressed();
 			CmsMessageDialog.openInformation(CmsMsg.passwordChanged.lead());
 		}

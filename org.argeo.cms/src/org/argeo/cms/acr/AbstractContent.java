@@ -17,7 +17,7 @@ import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.util.LangUtils;
+import org.argeo.cms.util.LangUtils;
 
 /** Partial reference implementation of a {@link ProvidedContent}. */
 public abstract class AbstractContent extends AbstractMap<QName, Object> implements ProvidedContent {

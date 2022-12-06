@@ -12,7 +12,6 @@ import javax.security.auth.Subject;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
-import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.DName;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
@@ -119,23 +118,8 @@ class CmsContentSession implements ProvidedSession {
 	}
 
 	/*
-	 * NAMESPACE CONTEXT
+	 * EDITION
 	 */
-
-//	@Override
-//	public String getNamespaceURI(String prefix) {
-//		return RuntimeNamespaceContext.getNamespaceContext().getNamespaceURI(prefix);
-////		return NamespaceUtils.getNamespaceURI((p) -> contentRepository.getTypesManager().getPrefixes().get(p), prefix);
-//	}
-//
-//	@Override
-//	public Iterator<String> getPrefixes(String namespaceURI) {
-//		return RuntimeNamespaceContext.getNamespaceContext().getPrefixes(namespaceURI);
-////		return NamespaceUtils.getPrefixes((ns) -> contentRepository.getTypesManager().getPrefixes().entrySet().stream()
-////				.filter(e -> e.getValue().equals(ns)).map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet()),
-////				namespaceURI);
-//	}
-
 	@Override
 	public CompletionStage<ContentSession> edit(Consumer<ContentSession> work) {
 		edition = CompletableFuture.supplyAsync(() -> {
@@ -172,7 +156,7 @@ class CmsContentSession implements ProvidedSession {
 		return uuid;
 	}
 
-	@Override
+//	@Override
 	public Content getSessionRunDir() {
 		if (sessionRunDir == null) {
 			String runDirPath = CmsContentRepository.RUN_BASE + '/' + uuid.toString();
@@ -181,30 +165,9 @@ class CmsContentSession implements ProvidedSession {
 			else {
 				Content runDir = get(CmsContentRepository.RUN_BASE);
 				// TODO deal with no run dir available?
-				sessionRunDir = runDir.add(uuid.toString(),DName.collection.qName());
+				sessionRunDir = runDir.add(uuid.toString(), DName.collection.qName());
 			}
 		}
 		return sessionRunDir;
 	}
-
-//		@Override
-//		public String findNamespace(String prefix) {
-//			return prefixes.get(prefix);
-//		}
-//
-//		@Override
-//		public Set<String> findPrefixes(String namespaceURI) {
-//			Set<String> res = prefixes.entrySet().stream().filter(e -> e.getValue().equals(namespaceURI))
-//					.map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
-//
-//			return res;
-//		}
-//
-//		@Override
-//		public String findPrefix(String namespaceURI) {
-//			if (CrName.CR_NAMESPACE_URI.equals(namespaceURI) && prefixes.containsKey(CrName.CR_DEFAULT_PREFIX))
-//				return CrName.CR_DEFAULT_PREFIX;
-//			return ProvidedSession.super.findPrefix(namespaceURI);
-//		}
-
 }

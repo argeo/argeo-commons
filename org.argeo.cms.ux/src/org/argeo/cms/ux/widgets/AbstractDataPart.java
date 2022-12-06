@@ -3,12 +3,11 @@ package org.argeo.cms.ux.widgets;
 import java.util.IdentityHashMap;
 import java.util.function.Consumer;
 
-public abstract class AbstractDataPart<INPUT, T> implements DataPart<INPUT, T> {
+public abstract class AbstractDataPart<INPUT, TYPE> implements DataPart<INPUT, TYPE> {
+	private Consumer<TYPE> onSelected;
+	private Consumer<TYPE> onAction;
 
-	private Consumer<T> onSelected;
-	private Consumer<T> onAction;
-
-	private IdentityHashMap<DataView<INPUT, T>, Object> views = new IdentityHashMap<>();
+	private IdentityHashMap<DataView<INPUT, TYPE>, Object> views = new IdentityHashMap<>();
 
 	private INPUT data;
 
@@ -24,38 +23,43 @@ public abstract class AbstractDataPart<INPUT, T> implements DataPart<INPUT, T> {
 	}
 
 	@Override
-	public void onSelected(Consumer<T> onSelected) {
+	public void onSelected(Consumer<TYPE> onSelected) {
 		this.onSelected = onSelected;
 	}
 
 	@Override
-	public void onAction(Consumer<T> onAction) {
+	public void onAction(Consumer<TYPE> onAction) {
 		this.onAction = onAction;
 	}
 
-	public Consumer<T> getOnSelected() {
+	public Consumer<TYPE> getOnSelected() {
 		return onSelected;
 	}
 
-	public Consumer<T> getOnAction() {
+	public Consumer<TYPE> getOnAction() {
 		return onAction;
 	}
 
 	@Override
 	public void refresh() {
-		for (DataView<INPUT, T> view : views.keySet()) {
+		for (DataView<INPUT, TYPE> view : views.keySet()) {
 			view.refresh();
 		}
 	}
 
+	protected void notifyItemCountChange() {
+		for (DataView<INPUT, TYPE> view : views.keySet()) {
+			view.notifyItemCountChange();
+		}
+	}
+
 	@Override
-	public void addView(DataView<INPUT, T> view) {
+	public void addView(DataView<INPUT, TYPE> view) {
 		views.put(view, new Object());
 	}
 
 	@Override
-	public void removeView(DataView<INPUT, T> view) {
+	public void removeView(DataView<INPUT, TYPE> view) {
 		views.remove(view);
 	}
-
 }

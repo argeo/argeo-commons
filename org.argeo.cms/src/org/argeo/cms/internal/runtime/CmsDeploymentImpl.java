@@ -18,7 +18,7 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-/** Implementation of a CMS deployment. */
+/** Reference implementation of {@link CmsDeployment}. */
 public class CmsDeploymentImpl implements CmsDeployment {
 	private final CmsLog log = CmsLog.getLog(getClass());
 

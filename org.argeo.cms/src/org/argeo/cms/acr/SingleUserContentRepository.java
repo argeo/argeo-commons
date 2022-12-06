@@ -10,11 +10,11 @@ import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
 import org.argeo.api.acr.ContentSession;
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.uuid.MacAddressUuidFactory;
 import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.acr.fs.FsContentProvider;
-import org.argeo.util.naming.LdapAttrs;
 
 /**
  * A standalone {@link ProvidedRepository} with a single {@link Subject} (which
@@ -86,7 +86,7 @@ public class SingleUserContentRepository extends AbstractContentRepository {
 	public static void main(String... args) {
 		Path homePath = Paths.get(System.getProperty("user.home"));
 		String username = System.getProperty("user.name");
-		X500Principal principal = new X500Principal(LdapAttrs.uid + "=" + username + ",dc=localhost");
+		X500Principal principal = new X500Principal(LdapAttr.uid + "=" + username + ",dc=localhost");
 		Subject subject = new Subject();
 		subject.getPrincipals().add(principal);
 

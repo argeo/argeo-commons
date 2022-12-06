@@ -6,10 +6,10 @@ import java.net.URISyntaxException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 
 import org.argeo.init.osgi.OsgiBootUtils;
@@ -18,15 +18,16 @@ import org.osgi.framework.Version;
 /** A file system {@link AbstractProvisioningSource} in A2 format. */
 public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 	private final Path base;
-	private Map<String, String> xOr;
+	private final Map<String, String> variantsXOr;
 
-	public FsA2Source(Path base) {
-		this(base, new HashMap<>());
-	}
+//	public FsA2Source(Path base) {
+//		this(base, new HashMap<>());
+//	}
 
-	public FsA2Source(Path base, Map<String, String> xOr) {
+	public FsA2Source(Path base, Map<String, String> variantsXOr, boolean usingReference) {
+		super(usingReference);
 		this.base = base;
-		this.xOr = xOr;
+		this.variantsXOr = new HashMap<>(variantsXOr);
 	}
 
 	void load() throws IOException {
@@ -44,7 +45,7 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 				} else {// variants
 					Path variantPath = null;
 					// is it an explicit variant?
-					String variant = xOr.get(contributionPath.getFileName().toString());
+					String variant = variantsXOr.get(contributionPath.getFileName().toString());
 					if (variant != null) {
 						variantPath = contributionPath.resolve(variant);
 					}
@@ -92,19 +93,8 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 					String ext = moduleFileName.substring(lastDot + 1);
 					if (!"jar".equals(ext))
 						continue modules;
-//					String moduleName = moduleFileName.substring(0, lastDot);
-//					if (moduleName.endsWith("-SNAPSHOT"))
-//						moduleName = moduleName.substring(0, moduleName.length() - "-SNAPSHOT".length());
-//					int lastDash = moduleName.lastIndexOf('-');
-//					String versionStr = moduleName.substring(lastDash + 1);
-//					String componentName = moduleName.substring(0, lastDash);
-					// if(versionStr.endsWith("-SNAPSHOT")) {
-					// versionStr = readVersionFromModule(modulePath);
-					// }
 					Version version;
-//					try {
-//						version = new Version(versionStr);
-//					} catch (Exception e) {
+					// TODO optimise? check attributes?
 					String[] nameVersion = readNameVersionFromModule(modulePath);
 					String componentName = nameVersion[0];
 					String versionStr = nameVersion[1];
@@ -130,7 +120,16 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 		URI baseUri = base.toUri();
 		try {
 			if (baseUri.getScheme().equals("file")) {
-				return new URI(SCHEME_A2, null, base.toString(), null);
+				String queryPart = "";
+				if (!getVariantsXOr().isEmpty()) {
+					StringJoiner sj = new StringJoiner("&");
+					for (String key : getVariantsXOr().keySet()) {
+						sj.add(key + "=" + getVariantsXOr().get(key));
+					}
+					queryPart = sj.toString();
+				}
+				return new URI(isUsingReference() ? SCHEME_A2_REFERENCE : SCHEME_A2, null, base.toString(), queryPart,
+						null);
 			} else {
 				throw new UnsupportedOperationException("Unsupported scheme " + baseUri.getScheme());
 			}
@@ -139,19 +138,23 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 		}
 	}
 
-	public static void main(String[] args) {
-		if (args.length == 0)
-			throw new IllegalArgumentException("Usage: <path to A2 base>");
-		try {
-			Map<String, String> xOr = new HashMap<>();
-			xOr.put("osgi", "equinox");
-			xOr.put("swt", "rap");
-			FsA2Source context = new FsA2Source(Paths.get(args[0]), xOr);
-			context.load();
-			context.asTree();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	protected Map<String, String> getVariantsXOr() {
+		return variantsXOr;
 	}
+
+//	public static void main(String[] args) {
+//		if (args.length == 0)
+//			throw new IllegalArgumentException("Usage: <path to A2 base>");
+//		try {
+//			Map<String, String> xOr = new HashMap<>();
+//			xOr.put("osgi", "equinox");
+//			xOr.put("swt", "rap");
+//			FsA2Source context = new FsA2Source(Paths.get(args[0]), xOr);
+//			context.load();
+//			context.asTree();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 }

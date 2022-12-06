@@ -55,17 +55,8 @@ class KernelUtils implements KernelConstants {
 		Path executionDir = Paths.get(getFrameworkProp("user.dir"));
 		if (relativePath == null)
 			return executionDir;
-//		try {
 		return executionDir.resolve(relativePath);
-//		} catch (IOException e) {
-//			throw new IllegalArgumentException("Cannot get canonical file", e);
-//		}
 	}
-
-//	static File getOsgiInstanceDir() {
-//		return new File(CmsActivator.getBundleContext().getProperty(OSGI_INSTANCE_AREA).substring("file:".length()))
-//				.getAbsoluteFile();
-//	}
 
 	public static Path getOsgiInstancePath(String relativePath) {
 		URI uri = getOsgiInstanceUri(relativePath);
@@ -81,21 +72,8 @@ class KernelUtils implements KernelConstants {
 
 		if (!osgiInstanceBaseUri.endsWith("/"))
 			osgiInstanceBaseUri = osgiInstanceBaseUri + "/";
-//		if (osgiInstanceBaseUri != null)
 		return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
-//		else
-//			return Paths.get(System.getProperty("user.dir"), (relativePath != null ? relativePath : "")).toUri();
 	}
-
-//	static File getOsgiConfigurationFile(String relativePath) {
-//		try {
-//			return new File(
-//					new URI(CmsActivator.getBundleContext().getProperty(OSGI_CONFIGURATION_AREA) + relativePath))
-//					.getCanonicalFile();
-//		} catch (Exception e) {
-//			throw new IllegalArgumentException("Cannot get configuration file for " + relativePath, e);
-//		}
-//	}
 
 	static String getFrameworkProp(String key, String def) {
 		String value;
@@ -112,32 +90,10 @@ class KernelUtils implements KernelConstants {
 		return getFrameworkProp(key, null);
 	}
 
-	// Security
-	// static Subject anonymousLogin() {
-	// Subject subject = new Subject();
-	// LoginContext lc;
-	// try {
-	// lc = new LoginContext(NodeConstants.LOGIN_CONTEXT_USER, subject);
-	// lc.login();
-	// return subject;
-	// } catch (LoginException e) {
-	// throw new CmsException("Cannot login as anonymous", e);
-	// }
-	// }
-
 	static void logFrameworkProperties(CmsLog log) {
 		for (Object sysProp : new TreeSet<Object>(System.getProperties().keySet())) {
 			log.debug(sysProp + "=" + getFrameworkProp(sysProp.toString()));
 		}
-		// String[] keys = { Constants.FRAMEWORK_STORAGE,
-		// Constants.FRAMEWORK_OS_NAME, Constants.FRAMEWORK_OS_VERSION,
-		// Constants.FRAMEWORK_PROCESSOR, Constants.FRAMEWORK_SECURITY,
-		// Constants.FRAMEWORK_TRUST_REPOSITORIES,
-		// Constants.FRAMEWORK_WINDOWSYSTEM, Constants.FRAMEWORK_VENDOR,
-		// Constants.FRAMEWORK_VERSION, Constants.FRAMEWORK_STORAGE_CLEAN,
-		// Constants.FRAMEWORK_LANGUAGE, Constants.FRAMEWORK_UUID };
-		// for (String key : keys)
-		// log.debug(key + "=" + bc.getProperty(key));
 	}
 
 	static void printSystemProperties(PrintStream out) {
@@ -147,84 +103,6 @@ class KernelUtils implements KernelConstants {
 		for (String key : display.keySet())
 			out.println(key + "=" + display.get(key));
 	}
-
-//	static Session openAdminSession(Repository repository) {
-//		return openAdminSession(repository, null);
-//	}
-//
-//	static Session openAdminSession(final Repository repository, final String workspaceName) {
-//		LoginContext loginContext = loginAsDataAdmin();
-//		return Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Session>() {
-//
-//			@Override
-//			public Session run() {
-//				try {
-//					return repository.login(workspaceName);
-//				} catch (RepositoryException e) {
-//					throw new IllegalStateException("Cannot open admin session", e);
-//				} finally {
-//					try {
-//						loginContext.logout();
-//					} catch (LoginException e) {
-//						throw new IllegalStateException(e);
-//					}
-//				}
-//			}
-//
-//		});
-//	}
-//
-//	static LoginContext loginAsDataAdmin() {
-//		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
-//		Thread.currentThread().setContextClassLoader(KernelUtils.class.getClassLoader());
-//		LoginContext loginContext;
-//		try {
-//			loginContext = new LoginContext(NodeConstants.LOGIN_CONTEXT_DATA_ADMIN);
-//			loginContext.login();
-//		} catch (LoginException e1) {
-//			throw new IllegalStateException("Could not login as data admin", e1);
-//		} finally {
-//			Thread.currentThread().setContextClassLoader(currentCl);
-//		}
-//		return loginContext;
-//	}
-
-//	static void doAsDataAdmin(Runnable action) {
-//		LoginContext loginContext = loginAsDataAdmin();
-//		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
-//
-//			@Override
-//			public Void run() {
-//				try {
-//					action.run();
-//					return null;
-//				} finally {
-//					try {
-//						loginContext.logout();
-//					} catch (LoginException e) {
-//						throw new IllegalStateException(e);
-//					}
-//				}
-//			}
-//
-//		});
-//	}
-
-//	public static void asyncOpen(ServiceTracker<?, ?> st) {
-//		Runnable run = new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				st.open();
-//			}
-//		};
-//		Activator.getInternalExecutorService().execute(run);
-////		new Thread(run, "Open service tracker " + st).start();
-//	}
-
-//	static BundleContext getBundleContext() {
-//		return Activator.getBundleContext();
-//	}
 
 	static boolean asBoolean(String value) {
 		if (value == null)

@@ -34,14 +34,7 @@ public enum CrName implements QNamed {
 	//
 	;
 
-	public final static String CR_NAMESPACE_URI = "http://www.argeo.org/ns/cr";
-	public final static String CR_DEFAULT_PREFIX = "cr";
-
-	public final static String LDAP_NAMESPACE_URI = "http://www.argeo.org/ns/ldap";
-	public final static String LDAP_DEFAULT_PREFIX = "ldap";
-
-	public final static String ROLE_NAMESPACE_URI = "http://www.argeo.org/ns/role";
-	public final static String ROLE_DEFAULT_PREFIX = "role";
+	
 
 //	private final ContentName value;
 
@@ -55,12 +48,12 @@ public enum CrName implements QNamed {
 
 	@Override
 	public String getNamespace() {
-		return CR_NAMESPACE_URI;
+		return ArgeoNamespace.CR_NAMESPACE_URI;
 	}
 
 	@Override
 	public String getDefaultPrefix() {
-		return CR_DEFAULT_PREFIX;
+		return ArgeoNamespace.CR_DEFAULT_PREFIX;
 	}
 
 }

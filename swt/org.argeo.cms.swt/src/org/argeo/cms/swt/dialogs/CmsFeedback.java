@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.CmsMsg;
 import org.argeo.cms.swt.Selected;
+import org.argeo.cms.ux.widgets.CmsDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -85,7 +86,7 @@ public class CmsFeedback extends LightweightDialog {
 		Button close = new Button(parent, SWT.FLAT);
 		close.setText(CmsMsg.close.lead());
 		close.setLayoutData(new GridData(SWT.END, SWT.TOP, false, false));
-		close.addSelectionListener((Selected) (e) -> closeShell(OK));
+		close.addSelectionListener((Selected) (e) -> closeShell(CmsDialog.OK));
 
 		if (exception != null) {
 			stack = new Text(parent, SWT.MULTI | SWT.LEAD | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);

@@ -7,17 +7,16 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.io.IOUtils;
+import org.argeo.cms.util.StreamUtils;
 import org.eclipse.rap.rwt.service.ResourceManager;
 
 public class RcpResourceManager implements ResourceManager {
-	private Map<String, byte[]> register = Collections
-			.synchronizedMap(new TreeMap<String, byte[]>());
+	private Map<String, byte[]> register = Collections.synchronizedMap(new TreeMap<String, byte[]>());
 
 	@Override
 	public void register(String name, InputStream in) {
 		try {
-			register.put(name, IOUtils.toByteArray(in));
+			register.put(name, StreamUtils.toByteArray(in));
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot register " + name, e);
 		}

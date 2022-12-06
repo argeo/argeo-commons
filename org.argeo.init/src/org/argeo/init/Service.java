@@ -40,7 +40,7 @@ public class Service {
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.exit(1);
+				Runtime.getRuntime().halt(1);
 			}
 		}, "Runtime shutdown"));
 

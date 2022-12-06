@@ -28,7 +28,7 @@ public enum CrAttributeType {
 	// we do not support short and float, like recent additions to Java
 	// (e.g. optional primitives)
 	DATE_TIME(Instant.class, W3C_XML_SCHEMA_NS_URI, "dateTime", new InstantFormatter()), //
-	UUID(UUID.class, CrName.CR_NAMESPACE_URI, "uuid", new UuidFormatter()), //
+	UUID(UUID.class, ArgeoNamespace.CR_NAMESPACE_URI, "uuid", new UuidFormatter()), //
 	ANY_URI(URI.class, W3C_XML_SCHEMA_NS_URI, "anyUri", new UriFormatter()), //
 	STRING(String.class, W3C_XML_SCHEMA_NS_URI, "string", new StringFormatter()), //
 	;

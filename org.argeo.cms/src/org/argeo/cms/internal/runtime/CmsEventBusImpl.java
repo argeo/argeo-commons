@@ -10,16 +10,12 @@ import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsEventSubscriber;
 import org.argeo.api.cms.CmsLog;
 
+/** {@link CmsEventBus} implementation based on {@link Flow}. */
 public class CmsEventBusImpl implements CmsEventBus {
 	private final CmsLog log = CmsLog.getLog(CmsEventBus.class);
 
-	// CMS events
 	private Map<String, SubmissionPublisher<Map<String, Object>>> topics = new TreeMap<>();
-//	private IdentityHashMap<CmsEventSubscriber, List<CmsEventFlowSubscriber>> subscriptions = new IdentityHashMap<>();
 
-	/*
-	 * CMS Events
-	 */
 	@Override
 	public void sendEvent(String topic, Map<String, Object> event) {
 		SubmissionPublisher<Map<String, Object>> publisher = topics.get(topic);
@@ -58,6 +54,7 @@ public class CmsEventBusImpl implements CmsEventBus {
 		}
 	}
 
+	/** A subscriber to a topic. */
 	static class CmsEventFlowSubscriber implements Flow.Subscriber<Map<String, Object>> {
 		private String topic;
 		private CmsEventSubscriber eventSubscriber;

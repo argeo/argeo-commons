@@ -12,10 +12,10 @@ import javax.security.auth.login.LoginException;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
+import org.argeo.cms.http.HttpHeader;
+import org.argeo.cms.http.HttpStatus;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.util.CurrentSubject;
-import org.argeo.util.http.HttpHeader;
-import org.argeo.util.http.HttpStatus;
+import org.argeo.cms.util.CurrentSubject;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
@@ -161,11 +161,15 @@ public class RemoteAuthUtils {
 
 		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
 		// realm=\"" + httpAuthRealm + "\"");
-		if (hasAcceptorCredentials() && !forceBasic && !negotiateFailed)// SPNEGO
-			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(), HttpHeader.NEGOTIATE);
-		else
+		if (hasAcceptorCredentials() && !forceBasic && !negotiateFailed) {// SPNEGO
+			remoteAuthResponse.addHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(), HttpHeader.NEGOTIATE);
+			// TODO make it configurable ?
+			remoteAuthResponse.addHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(),
+					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + realm + "\"");
+		} else {
 			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(),
 					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + realm + "\"");
+		}
 
 		// response.setDateHeader("Date", System.currentTimeMillis());
 		// response.setDateHeader("Expires", System.currentTimeMillis() + (24 *

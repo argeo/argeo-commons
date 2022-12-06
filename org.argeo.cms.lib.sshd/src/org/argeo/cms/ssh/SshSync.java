@@ -11,7 +11,6 @@ import java.security.KeyPair;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.sshd.agent.SshAgent;
 import org.apache.sshd.agent.SshAgentFactory;
 import org.apache.sshd.agent.local.LocalAgentFactory;
@@ -25,6 +24,7 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.sftp.client.fs.SftpFileSystem;
 import org.apache.sshd.sftp.client.fs.SftpFileSystemProvider;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.util.StreamUtils;
 
 public class SshSync {
 	private final static CmsLog log = CmsLog.getLog(SshSync.class);
@@ -124,7 +124,7 @@ public class SshSync {
 			log.debug("Relative copied file " + relativeCopiedFile);
 			try (OutputStream out = Files.newOutputStream(copiedFile);
 					InputStream in = Files.newInputStream(testPath)) {
-				IOUtils.copy(in, out);
+				StreamUtils.copy(in, out);
 			}
 			log.debug("Copied " + testPath + " to " + copiedFile);
 			Files.delete(testPath);

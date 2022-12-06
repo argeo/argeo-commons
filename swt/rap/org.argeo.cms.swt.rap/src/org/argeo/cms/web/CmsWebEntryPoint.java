@@ -17,8 +17,8 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsView;
+import org.argeo.cms.CurrentUser;
 import org.argeo.cms.LocaleUtils;
-import org.argeo.cms.auth.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.servlet.ServletHttpRequest;
 import org.argeo.cms.servlet.ServletHttpResponse;
@@ -283,9 +283,9 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 						}
 					} else if (e instanceof ThreadDeath) {
 						throw (ThreadDeath) e;
-					} else if (e instanceof Error) {
-						log.error("Unexpected error in event loop, shutting down...", e);
-						break eventLoop;
+//					} else if (e instanceof Error) {
+//						log.error("Unexpected error in event loop, shutting down...", e);
+//						break eventLoop;
 					} else {
 						log.error("Unexpected exception in event loop, ignoring it. " + e.getMessage());
 						continue eventLoop;

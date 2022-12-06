@@ -26,29 +26,7 @@ public class CmsActivator implements BundleActivator {
 
 	private static BundleContext bundleContext;
 
-//	private LogReaderService logReaderService;
-//
-//	private CmsOsgiLogger logger;
-
 	void init() {
-//		Runtime.getRuntime().addShutdownHook(new CmsShutdown());
-//		instance = this;
-//		this.bc = bundleContext;
-//		if (bundleContext != null)
-//			this.logReaderService = getService(LogReaderService.class);
-//		initArgeoLogger();
-//		this.internalExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-//
-//		try {
-//			initSecurity();
-////			initArgeoLogger();
-//			initNode();
-//
-//			if (log.isTraceEnabled())
-//				log.trace("Kernel bundle started");
-//		} catch (Throwable e) {
-//			log.error("## FATAL: CMS activator failed", e);
-//		}
 	}
 
 	void destroy() {
@@ -97,12 +75,6 @@ public class CmsActivator implements BundleActivator {
 		}
 
 	}
-
-//	private void initArgeoLogger() {
-//		logger = new CmsOsgiLogger(logReaderService);
-//		if (bundleContext != null)
-//			bundleContext.registerService(ArgeoLogger.class, logger, null);
-//	}
 
 	public static <T> void registerService(Class<T> clss, T service, Dictionary<String, ?> properties) {
 		if (bundleContext != null) {

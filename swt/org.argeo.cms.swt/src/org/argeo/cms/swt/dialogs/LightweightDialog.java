@@ -1,6 +1,7 @@
 package org.argeo.cms.swt.dialogs;
 
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.ux.widgets.CmsDialog;
 import org.argeo.eclipse.ui.EclipseUiException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -19,11 +20,6 @@ import org.eclipse.swt.widgets.Shell;
 /** Generic lightweight dialog, not based on JFace. */
 public class LightweightDialog {
 	private final static CmsLog log = CmsLog.getLog(LightweightDialog.class);
-
-	// must be the same value as org.eclipse.jface.window.Window#OK
-	public final static int OK = 0;
-	// must be the same value as org.eclipse.jface.window.Window#CANCEL
-	public final static int CANCEL = 1;
 
 	private Shell parentShell;
 	private Shell backgroundShell;
@@ -88,7 +84,7 @@ public class LightweightDialog {
 				if (hasChildShells())
 					return;
 				if (returnCode == null)// not yet closed
-					closeShell(CANCEL);
+					closeShell(CmsDialog.CANCEL);
 			}
 
 			@Override
@@ -113,7 +109,7 @@ public class LightweightDialog {
 				if (hasChildShells())
 					return;
 				if (returnCode == null)// not yet closed
-					closeShell(CANCEL);
+					closeShell(CmsDialog.CANCEL);
 			}
 		});
 		backgroundShell.addDisposeListener((event) -> onClose());
@@ -122,7 +118,7 @@ public class LightweightDialog {
 			block();
 		}
 		if (returnCode == null)
-			returnCode = OK;
+			returnCode = CmsDialog.OK;
 		return returnCode;
 	}
 
@@ -130,11 +126,11 @@ public class LightweightDialog {
 		try {
 			runEventLoop(foregoundShell);
 		} catch (ThreadDeath t) {
-			returnCode = CANCEL;
+			returnCode = CmsDialog.CANCEL;
 			if (log.isTraceEnabled())
 				log.error("Thread death, canceling dialog", t);
 		} catch (Throwable t) {
-			returnCode = CANCEL;
+			returnCode = CmsDialog.CANCEL;
 			log.error("Cannot open blocking lightweight dialog", t);
 		}
 	}
@@ -162,13 +158,13 @@ public class LightweightDialog {
 
 	private synchronized void notifyClose() {
 		if (returnCode == null)
-			returnCode = CANCEL;
+			returnCode = CmsDialog.CANCEL;
 		notifyAll();
 	}
 
 	protected void closeShell(int returnCode) {
 		this.returnCode = returnCode;
-		if (CANCEL == returnCode)
+		if (CmsDialog.CANCEL == returnCode)
 			onCancel();
 		if (foregoundShell != null && !foregoundShell.isDisposed()) {
 			foregoundShell.close();

@@ -8,11 +8,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.servlet.ServletException;
+import javax.websocket.server.ServerContainer;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
-import org.argeo.util.http.HttpServerUtils;
+import org.argeo.cms.http.server.HttpServerUtils;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -32,6 +33,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 
+/** An {@link HttpServer} implementation based on Jetty. */
 public class JettyHttpServer extends HttpsServer {
 	private final static CmsLog log = CmsLog.getLog(JettyHttpServer.class);
 
@@ -51,6 +53,7 @@ public class JettyHttpServer extends HttpsServer {
 
 	private final Map<String, JettyHttpContext> contexts = new TreeMap<>();
 
+	private ServletContextHandler rootContextHandler;
 	protected final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
 
 	private boolean started;
@@ -91,19 +94,13 @@ public class JettyHttpServer extends HttpsServer {
 			// holder
 
 			// context
-			ServletContextHandler rootContextHandler = createRootContextHandler();
+			rootContextHandler = createRootContextHandler();
 			// httpContext.addServlet(holder, "/*");
 			if (rootContextHandler != null)
 				configureRootContextHandler(rootContextHandler);
-//			server.setHandler(rootContextHandler);
 
-//			ContextHandlerCollection contextHandlers = new ContextHandlerCollection();
 			if (rootContextHandler != null && !contexts.containsKey("/"))
 				contextHandlerCollection.addHandler(rootContextHandler);
-//			for (String contextPath : contexts.keySet()) {
-//				JettyHttpContext ctx = contexts.get(contextPath);
-//				contextHandlers.addHandler(ctx.getContextHandler());
-//			}
 
 			server.setHandler(contextHandlerCollection);
 
@@ -115,20 +112,93 @@ public class JettyHttpServer extends HttpsServer {
 			// Addresses
 			String httpHost = getDeployProperty(CmsDeployProperty.HOST);
 			String fallBackHostname = cmsState != null ? cmsState.getHostname() : "::1";
-			if (httpConnector != null)
+			if (httpConnector != null) {
 				httpAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname,
 						httpConnector.getLocalPort());
-			if (httpsConnector != null)
+			} else if (httpsConnector != null) {
 				httpsAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname,
 						httpsConnector.getLocalPort());
-
+			}
 			// Clean up
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> stop(), "Jetty shutdown"));
 
 			log.info(httpPortsMsg());
 			started = true;
 		} catch (Exception e) {
-			throw new IllegalStateException("Cannot start Jetty HTTPS server", e);
+			stop();
+			throw new IllegalStateException("Cannot start Jetty HTTP server", e);
+		}
+	}
+
+	protected void configureConnectors() {
+		String httpPortStr = getDeployProperty(CmsDeployProperty.HTTP_PORT);
+		String httpsPortStr = getDeployProperty(CmsDeployProperty.HTTPS_PORT);
+		if (httpPortStr != null && httpsPortStr != null)
+			throw new IllegalArgumentException("Either an HTTP or an HTTPS port should be configured, not both");
+		if (httpPortStr == null && httpsPortStr == null)
+			throw new IllegalArgumentException("Neither an HTTP or HTTPS port was configured");
+
+		/// TODO make it more generic
+		String httpHost = getDeployProperty(CmsDeployProperty.HOST);
+
+		// try {
+		if (httpPortStr != null || httpsPortStr != null) {
+			// TODO deal with hostname resolving taking too much time
+//			String fallBackHostname = InetAddress.getLocalHost().getHostName();
+
+			boolean httpEnabled = httpPortStr != null;
+			boolean httpsEnabled = httpsPortStr != null;
+
+			if (httpEnabled) {
+				HttpConfiguration httpConfiguration = new HttpConfiguration();
+
+				if (httpsEnabled) {// not supported anymore to have both http and https, but it may change again
+					int httpsPort = Integer.parseInt(httpsPortStr);
+					httpConfiguration.setSecureScheme("https");
+					httpConfiguration.setSecurePort(httpsPort);
+				}
+
+				int httpPort = Integer.parseInt(httpPortStr);
+				httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration));
+				httpConnector.setPort(httpPort);
+				httpConnector.setHost(httpHost);
+				httpConnector.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
+
+			}
+
+			if (httpsEnabled) {
+				SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+				// sslContextFactory.setKeyStore(KeyS)
+
+				sslContextFactory.setKeyStoreType(getDeployProperty(CmsDeployProperty.SSL_KEYSTORETYPE));
+				sslContextFactory.setKeyStorePath(getDeployProperty(CmsDeployProperty.SSL_KEYSTORE));
+				sslContextFactory.setKeyStorePassword(getDeployProperty(CmsDeployProperty.SSL_PASSWORD));
+				// sslContextFactory.setKeyManagerPassword(getFrameworkProp(CmsDeployProperty.SSL_KEYPASSWORD));
+				sslContextFactory.setProtocol("TLS");
+
+				sslContextFactory.setTrustStoreType(getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORETYPE));
+				sslContextFactory.setTrustStorePath(getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORE));
+				sslContextFactory.setTrustStorePassword(getDeployProperty(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD));
+
+				String wantClientAuth = getDeployProperty(CmsDeployProperty.SSL_WANTCLIENTAUTH);
+				if (wantClientAuth != null && wantClientAuth.equals(Boolean.toString(true)))
+					sslContextFactory.setWantClientAuth(true);
+				String needClientAuth = getDeployProperty(CmsDeployProperty.SSL_NEEDCLIENTAUTH);
+				if (needClientAuth != null && needClientAuth.equals(Boolean.toString(true)))
+					sslContextFactory.setNeedClientAuth(true);
+
+				// HTTPS Configuration
+				HttpConfiguration httpsConfiguration = new HttpConfiguration();
+				httpsConfiguration.addCustomizer(new SecureRequestCustomizer());
+				httpsConfiguration.setUriCompliance(UriCompliance.LEGACY);
+
+				// HTTPS connector
+				httpsConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
+						new HttpConnectionFactory(httpsConfiguration));
+				int httpsPort = Integer.parseInt(httpsPortStr);
+				httpsConnector.setPort(httpsPort);
+				httpsConnector.setHost(httpHost);
+			}
 		}
 	}
 
@@ -141,12 +211,11 @@ public class JettyHttpServer extends HttpsServer {
 
 	public void stop() {
 		try {
-			// serverConnector.close();
 			server.stop();
 			// TODO delete temp dir
 			started = false;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Cannot stop Jetty HTTP server", e);
 		}
 
 	}
@@ -172,12 +241,15 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public synchronized HttpContext createContext(String path) {
+		if (!path.endsWith("/"))
+			path = path + "/";
 		if (contexts.containsKey(path))
 			throw new IllegalArgumentException("Context " + path + " already exists");
-		JettyHttpContext httpContext = new JettyHttpContext(this, path);
+
+		JettyHttpContext httpContext = new ServletHttpContext(this, path);
 		contexts.put(path, httpContext);
 
-		contextHandlerCollection.addHandler(httpContext.getContextHandler());
+		contextHandlerCollection.addHandler(httpContext.getServletContextHandler());
 		return httpContext;
 	}
 
@@ -186,8 +258,10 @@ public class JettyHttpServer extends HttpsServer {
 		if (!contexts.containsKey(path))
 			throw new IllegalArgumentException("Context " + path + " does not exist");
 		JettyHttpContext httpContext = contexts.remove(path);
-		// TODO stop handler first?
-		contextHandlerCollection.removeHandler(httpContext.getContextHandler());
+		if (httpContext instanceof ContextHandlerHttpContext contextHandlerHttpContext) {
+			// TODO stop handler first?
+			contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
+		}
 	}
 
 	@Override
@@ -197,7 +271,10 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public InetSocketAddress getAddress() {
-		return httpAddress;
+		InetSocketAddress res = httpAddress != null ? httpAddress : httpsAddress;
+		if (res == null)
+			throw new IllegalStateException("Neither an HTTP nor and HTTPS address is available");
+		return res;
 	}
 
 	@Override
@@ -210,80 +287,6 @@ public class JettyHttpServer extends HttpsServer {
 		return httpsConfigurator;
 	}
 
-	protected void configureConnectors() {
-		HttpConfiguration httpConfiguration = new HttpConfiguration();
-
-		String httpPortStr = getDeployProperty(CmsDeployProperty.HTTP_PORT);
-		String httpsPortStr = getDeployProperty(CmsDeployProperty.HTTPS_PORT);
-
-		/// TODO make it more generic
-		String httpHost = getDeployProperty(CmsDeployProperty.HOST);
-//		String httpsHost = getFrameworkProp(
-//				JettyConfig.JETTY_PROPERTY_PREFIX + CmsHttpConstants.HTTPS_HOST);
-
-		// try {
-		if (httpPortStr != null || httpsPortStr != null) {
-			// TODO deal with hostname resolving taking too much time
-//			String fallBackHostname = InetAddress.getLocalHost().getHostName();
-
-			boolean httpEnabled = httpPortStr != null;
-			// props.put(JettyHttpConstants.HTTP_ENABLED, httpEnabled);
-			boolean httpsEnabled = httpsPortStr != null;
-			// props.put(JettyHttpConstants.HTTPS_ENABLED, httpsEnabled);
-			if (httpsEnabled) {
-				int httpsPort = Integer.parseInt(httpsPortStr);
-				httpConfiguration.setSecureScheme("https");
-				httpConfiguration.setSecurePort(httpsPort);
-			}
-
-			if (httpEnabled) {
-				int httpPort = Integer.parseInt(httpPortStr);
-				httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration));
-				httpConnector.setPort(httpPort);
-				httpConnector.setHost(httpHost);
-				httpConnector.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
-
-			}
-
-			if (httpsEnabled) {
-
-				SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-				// sslContextFactory.setKeyStore(KeyS)
-
-				sslContextFactory.setKeyStoreType(getDeployProperty(CmsDeployProperty.SSL_KEYSTORETYPE));
-				sslContextFactory.setKeyStorePath(getDeployProperty(CmsDeployProperty.SSL_KEYSTORE));
-				sslContextFactory.setKeyStorePassword(getDeployProperty(CmsDeployProperty.SSL_PASSWORD));
-				// sslContextFactory.setKeyManagerPassword(getFrameworkProp(CmsDeployProperty.SSL_KEYPASSWORD));
-				sslContextFactory.setProtocol("TLS");
-
-				sslContextFactory.setTrustStoreType(getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORETYPE));
-				sslContextFactory.setTrustStorePath(getDeployProperty(CmsDeployProperty.SSL_TRUSTSTORE));
-				sslContextFactory.setTrustStorePassword(getDeployProperty(CmsDeployProperty.SSL_TRUSTSTOREPASSWORD));
-
-				String wantClientAuth = getDeployProperty(CmsDeployProperty.SSL_WANTCLIENTAUTH);
-				if (wantClientAuth != null && wantClientAuth.equals(Boolean.toString(true)))
-					sslContextFactory.setWantClientAuth(true);
-				String needClientAuth = getDeployProperty(CmsDeployProperty.SSL_NEEDCLIENTAUTH);
-				if (needClientAuth != null && needClientAuth.equals(Boolean.toString(true)))
-					sslContextFactory.setNeedClientAuth(true);
-
-				// HTTPS Configuration
-				HttpConfiguration https_config = new HttpConfiguration(httpConfiguration);
-				https_config.addCustomizer(new SecureRequestCustomizer());
-				https_config.setUriCompliance(UriCompliance.LEGACY);
-
-				// HTTPS connector
-				httpsConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
-						new HttpConnectionFactory(https_config));
-				int httpsPort = Integer.parseInt(httpsPortStr);
-				httpsConnector.setPort(httpsPort);
-				httpsConnector.setHost(httpHost);
-			}
-
-		}
-
-	}
-
 	protected String getDeployProperty(CmsDeployProperty deployProperty) {
 		return cmsState != null ? cmsState.getDeployProperty(deployProperty.getProperty())
 				: System.getProperty(deployProperty.getProperty());
@@ -291,7 +294,7 @@ public class JettyHttpServer extends HttpsServer {
 
 	private String httpPortsMsg() {
 
-		return (httpConnector != null ? "HTTP " + getHttpPort() + " " : " ")
+		return (httpConnector != null ? "HTTP " + getHttpPort() + " " : "")
 				+ (httpsConnector != null ? "HTTPS " + getHttpsPort() : "");
 	}
 
@@ -319,8 +322,16 @@ public class JettyHttpServer extends HttpsServer {
 		this.cmsState = cmsState;
 	}
 
-	public boolean isStarted() {
+	boolean isStarted() {
 		return started;
+	}
+
+	ServletContextHandler getRootContextHandler() {
+		return rootContextHandler;
+	}
+
+	ServerContainer getRootServerContainer() {
+		throw new UnsupportedOperationException();
 	}
 
 	public static void main(String... args) {

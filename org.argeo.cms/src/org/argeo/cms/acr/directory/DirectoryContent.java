@@ -10,13 +10,13 @@ import javax.xml.namespace.QName;
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.util.directory.Directory;
-import org.argeo.util.directory.HierarchyUnit;
+import org.argeo.api.cms.directory.CmsDirectory;
+import org.argeo.api.cms.directory.HierarchyUnit;
 
 class DirectoryContent extends AbstractDirectoryContent {
-	private Directory directory;
+	private CmsDirectory directory;
 
-	public DirectoryContent(ProvidedSession session, DirectoryContentProvider provider, Directory directory) {
+	public DirectoryContent(ProvidedSession session, DirectoryContentProvider provider, CmsDirectory directory) {
 		super(session, provider);
 		this.directory = directory;
 	}
@@ -43,6 +43,16 @@ class DirectoryContent extends AbstractDirectoryContent {
 	@Override
 	public Content getParent() {
 		return provider.getRootContent(getSession());
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <A> A adapt(Class<A> clss) {
+		if (clss.equals(HierarchyUnit.class))
+			return (A) directory;
+		if (clss.equals(CmsDirectory.class))
+			return (A) directory;
+		return super.adapt(clss);
 	}
 
 }

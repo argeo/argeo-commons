@@ -128,6 +128,14 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		return true;
 	}
 
+	/** AND */
+	default boolean isContentClass(QNamed... contentClass) {
+		List<QName> lst = new ArrayList<>();
+		for (QNamed qNamed : contentClass)
+			lst.add(qNamed.qName());
+		return isContentClass(lst.toArray(new QName[lst.size()]));
+	}
+
 	/** OR */
 	default boolean hasContentClass(QName... contentClass) {
 		List<QName> contentClasses = getContentClasses();
@@ -138,8 +146,12 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		return false;
 	}
 
-	default boolean hasContentClass(QNamed contentClass) {
-		return hasContentClass(contentClass.qName());
+	/** OR */
+	default boolean hasContentClass(QNamed... contentClass) {
+		List<QName> lst = new ArrayList<>();
+		for (QNamed qNamed : contentClass)
+			lst.add(qNamed.qName());
+		return hasContentClass(lst.toArray(new QName[lst.size()]));
 	}
 
 	/*

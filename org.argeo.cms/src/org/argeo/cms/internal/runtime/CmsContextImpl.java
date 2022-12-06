@@ -25,19 +25,18 @@ import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.ietf.jgss.GSSCredential;
 import org.osgi.service.useradmin.UserAdmin;
 
+/** Reference implementation of {@link CmsContext}. */
 public class CmsContextImpl implements CmsContext {
 
 	private final CmsLog log = CmsLog.getLog(getClass());
 
 	private static CompletableFuture<CmsContextImpl> instance = new CompletableFuture<CmsContextImpl>();
-//	private static CmsContextImpl instance = null;
 
 	private CmsState cmsState;
 	private CmsDeployment cmsDeployment;
 	private UserAdmin userAdmin;
 	private UuidFactory uuidFactory;
 	private CmsEventBus cmsEventBus;
-//	private ProvidedRepository contentRepository;
 
 	// i18n
 	private Locale defaultLocale;
@@ -64,9 +63,6 @@ public class CmsContextImpl implements CmsContext {
 				}
 			}
 		}, "Check readiness").start();
-
-		// checkReadiness();
-
 		setInstance(this);
 	}
 
@@ -178,14 +174,6 @@ public class CmsContextImpl implements CmsContext {
 		this.uuidFactory = uuidFactory;
 	}
 
-//	public ProvidedRepository getContentRepository() {
-//		return contentRepository;
-//	}
-//
-//	public void setContentRepository(ProvidedRepository contentRepository) {
-//		this.contentRepository = contentRepository;
-//	}
-
 	@Override
 	public Locale getDefaultLocale() {
 		return defaultLocale;
@@ -238,15 +226,6 @@ public class CmsContextImpl implements CmsContext {
 	}
 
 	private static void setInstance(CmsContextImpl cmsContextImpl) {
-//		if (cmsContextImpl != null) {
-//			if (instance != null)
-//				throw new IllegalStateException("CMS Context is already set");
-//			instance = cmsContextImpl;
-//		} else {
-//			instance = null;
-//		}
-//		CmsContextImpl.class.notifyAll();
-
 		if (cmsContextImpl != null) {
 			if (instance.isDone())
 				throw new IllegalStateException("CMS Context is already set");
@@ -259,15 +238,6 @@ public class CmsContextImpl implements CmsContext {
 	}
 
 	private static CmsContextImpl getInstance() {
-//		while (instance == null) {
-//			try {
-//				CmsContextImpl.class.wait();
-//			} catch (InterruptedException e) {
-//				throw new IllegalStateException("Cannot wait for CMS context instance", e);
-//			}
-//		}
-//		return instance;
-
 		try {
 			return instance.get();
 		} catch (InterruptedException | ExecutionException e) {

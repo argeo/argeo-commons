@@ -12,15 +12,14 @@ import javax.inject.Inject;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.argeo.cms.auth.CurrentUser;
-import org.argeo.cms.security.CryptoKeyring;
-import org.argeo.cms.swt.CmsException;
+import org.argeo.api.cms.keyring.CryptoKeyring;
+import org.argeo.api.cms.transaction.WorkTransaction;
+import org.argeo.cms.CurrentUser;
+import org.argeo.cms.swt.dialogs.CmsFeedback;
 import org.argeo.cms.swt.dialogs.CmsMessageDialog;
-import org.argeo.eclipse.ui.dialogs.ErrorFeedback;
-import org.argeo.util.transaction.WorkTransaction;
+import org.argeo.cms.ux.widgets.CmsDialog;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
-import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -46,7 +45,7 @@ public class ChangePassword {
 	@Execute
 	public void execute() {
 		ChangePasswordDialog dialog = new ChangePasswordDialog(Display.getCurrent().getActiveShell(), userAdmin);
-		if (dialog.open() == Dialog.OK) {
+		if (dialog.open() == CmsDialog.OK) {
 			new CmsMessageDialog(Display.getCurrent().getActiveShell(), passwordChanged.lead(),
 					CmsMessageDialog.INFORMATION).open();
 		}
@@ -58,13 +57,13 @@ public class ChangePassword {
 		try {
 			dn = new LdapName(name);
 		} catch (InvalidNameException e) {
-			throw new CmsException("Invalid user dn " + name, e);
+			throw new IllegalArgumentException("Invalid user dn " + name, e);
 		}
 		User user = (User) userAdmin.getRole(dn.toString());
 		if (!user.hasCredential(null, oldPassword))
-			throw new CmsException("Invalid password");
+			throw new IllegalArgumentException("Invalid password");
 		if (Arrays.equals(newPassword, new char[0]))
-			throw new CmsException("New password empty");
+			throw new IllegalArgumentException("New password empty");
 		try {
 			userTransaction.begin();
 			user.getCredentials().put(null, newPassword);
@@ -82,7 +81,7 @@ public class ChangePassword {
 			if (e instanceof RuntimeException)
 				throw (RuntimeException) e;
 			else
-				throw new CmsException("Cannot change password", e);
+				throw new IllegalStateException("Cannot change password", e);
 		}
 	}
 
@@ -116,11 +115,11 @@ public class ChangePassword {
 		protected void okPressed() {
 			try {
 				if (!newPassword1.getText().equals(newPassword2.getText()))
-					throw new CmsException("New passwords are different");
+					throw new IllegalArgumentException("New passwords are different");
 				changePassword(oldPassword.getTextChars(), newPassword1.getTextChars());
-				closeShell(OK);
+				closeShell(CmsDialog.OK);
 			} catch (Exception e) {
-				ErrorFeedback.show("Cannot change password", e);
+				CmsFeedback.error("Cannot change password", e);
 			}
 		}
 

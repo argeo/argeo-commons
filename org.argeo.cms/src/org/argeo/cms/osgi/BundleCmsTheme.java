@@ -17,7 +17,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.argeo.api.cms.ux.CmsTheme;
-import org.argeo.util.StreamUtils;
+import org.argeo.cms.util.StreamUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
