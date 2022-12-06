@@ -11,11 +11,12 @@ class OsgiContext extends AbstractProvisioningSource {
 	private final BundleContext bc;
 
 	public OsgiContext(BundleContext bc) {
-		super();
+		super(false);
 		this.bc = bc;
 	}
 
 	public OsgiContext() {
+		super(false);
 		Bundle bundle = FrameworkUtil.getBundle(OsgiContext.class);
 		if (bundle == null)
 			throw new IllegalArgumentException(

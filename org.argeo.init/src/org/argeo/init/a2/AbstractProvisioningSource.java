@@ -28,6 +28,12 @@ import org.osgi.framework.Version;
 public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	protected final Map<String, A2Contribution> contributions = Collections.synchronizedSortedMap(new TreeMap<>());
 
+	private final boolean usingReference;
+
+	public AbstractProvisioningSource(boolean usingReference) {
+		this.usingReference = usingReference;
+	}
+
 	public Iterable<A2Contribution> listContributions(Object filter) {
 		return contributions.values();
 	}
@@ -35,16 +41,25 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	@Override
 	public Bundle install(BundleContext bc, A2Module module) {
 		try {
-			Path tempJar = null;
-			if (module.getLocator() instanceof Path && Files.isDirectory((Path) module.getLocator()))
-				tempJar = toTempJar((Path) module.getLocator());
-			Bundle bundle;
-			try (InputStream in = newInputStream(tempJar != null ? tempJar : module.getLocator())) {
-				bundle = bc.installBundle(module.getBranch().getCoordinates(), in);
+			Object locator = module.getLocator();
+			if (usingReference && locator instanceof Path locatorPath) {
+				String referenceUrl = "reference:file:" + locatorPath.toString();
+				Bundle bundle = bc.installBundle(referenceUrl);
+				return bundle;
+			} else {
+
+				Path tempJar = null;
+				if (locator instanceof Path && Files.isDirectory((Path) locator))
+					tempJar = toTempJar((Path) locator);
+				Bundle bundle;
+				try (InputStream in = newInputStream(tempJar != null ? tempJar : locator)) {
+					bundle = bc.installBundle(module.getBranch().getCoordinates(), in);
+				}
+
+				if (tempJar != null)
+					Files.deleteIfExists(tempJar);
+				return bundle;
 			}
-			if (tempJar != null)
-				Files.deleteIfExists(tempJar);
-			return bundle;
 		} catch (BundleException | IOException e) {
 			throw new A2Exception("Cannot install module " + module, e);
 		}
@@ -53,14 +68,21 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 	@Override
 	public void update(Bundle bundle, A2Module module) {
 		try {
-			Path tempJar = null;
-			if (module.getLocator() instanceof Path && Files.isDirectory((Path) module.getLocator()))
-				tempJar = toTempJar((Path) module.getLocator());
-			try (InputStream in = newInputStream(tempJar != null ? tempJar : module.getLocator())) {
-				bundle.update(in);
+			Object locator = module.getLocator();
+			if (usingReference && locator instanceof Path) {
+				try (InputStream in = newInputStream(locator)) {
+					bundle.update(in);
+				}
+			} else {
+				Path tempJar = null;
+				if (locator instanceof Path && Files.isDirectory((Path) locator))
+					tempJar = toTempJar((Path) locator);
+				try (InputStream in = newInputStream(tempJar != null ? tempJar : locator)) {
+					bundle.update(in);
+				}
+				if (tempJar != null)
+					Files.deleteIfExists(tempJar);
 			}
-			if (tempJar != null)
-				Files.deleteIfExists(tempJar);
 		} catch (BundleException | IOException e) {
 			throw new A2Exception("Cannot update module " + module, e);
 		}
@@ -122,6 +144,25 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 
 	}
 
+	protected String[] readNameVersionFromModule(Path modulePath) {
+		Manifest manifest;
+		if (Files.isDirectory(modulePath)) {
+			manifest = findManifest(modulePath);
+		} else {
+			try (JarInputStream in = new JarInputStream(newInputStream(modulePath))) {
+				manifest = in.getManifest();
+			} catch (IOException e) {
+				throw new A2Exception("Cannot read manifest from " + modulePath, e);
+			}
+		}
+		String versionStr = manifest.getMainAttributes().getValue(Constants.BUNDLE_VERSION);
+		String symbolicName = manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME);
+		int semiColIndex = symbolicName.indexOf(';');
+		if (semiColIndex >= 0)
+			symbolicName = symbolicName.substring(0, semiColIndex);
+		return new String[] { symbolicName, versionStr };
+	}
+
 	protected String readVersionFromModule(Path modulePath) {
 		Manifest manifest;
 		if (Files.isDirectory(modulePath)) {
@@ -153,6 +194,20 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 		if (semiColIndex >= 0)
 			symbolicName = symbolicName.substring(0, semiColIndex);
 		return symbolicName;
+	}
+
+	protected boolean isUsingReference() {
+		return usingReference;
+	}
+
+	private InputStream newInputStream(Object locator) throws IOException {
+		if (locator instanceof Path) {
+			return Files.newInputStream((Path) locator);
+		} else if (locator instanceof URL) {
+			return ((URL) locator).openStream();
+		} else {
+			throw new IllegalArgumentException("Unsupported module locator type " + locator.getClass());
+		}
 	}
 
 	private static Manifest findManifest(Path currentPath) {
@@ -200,13 +255,4 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 
 	}
 
-	private InputStream newInputStream(Object locator) throws IOException {
-		if (locator instanceof Path) {
-			return Files.newInputStream((Path) locator);
-		} else if (locator instanceof URL) {
-			return ((URL) locator).openStream();
-		} else {
-			throw new IllegalArgumentException("Unsupported module locator type " + locator.getClass());
-		}
-	}
 }

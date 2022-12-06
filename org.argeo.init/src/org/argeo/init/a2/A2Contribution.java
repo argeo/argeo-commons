@@ -13,6 +13,8 @@ public class A2Contribution implements Comparable<A2Contribution> {
 	final static String RUNTIME = "runtime";
 	final static String CLASSPATH = "classpath";
 
+	final static String DEFAULT = "default";
+
 	private final ProvisioningSource source;
 	private final String id;
 
@@ -28,6 +30,10 @@ public class A2Contribution implements Comparable<A2Contribution> {
 		this.id = id;
 //		if (context != null)
 //			context.contributions.put(id, this);
+	}
+
+	public Iterable<A2Component> listComponents(Object filter) {
+		return components.values();
 	}
 
 	A2Component getOrAddComponent(String componentId) {

@@ -6,8 +6,9 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.util.naming.LdapAttrs;
+import org.argeo.cms.CurrentUser;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
@@ -18,7 +19,7 @@ public class UserAdminUtils {
 	// CURRENTUSER HELPERS
 	/** Checks if current user is the same as the passed one */
 	public static boolean isCurrentUser(User user) {
-		String userUsername = getProperty(user, LdapAttrs.DN);
+		String userUsername = getProperty(user, LdapAttr.DN);
 		LdapName userLdapName = getLdapName(userUsername);
 		LdapName selfUserName = getCurrentUserLdapName();
 		return userLdapName.equals(selfUserName);
@@ -43,7 +44,7 @@ public class UserAdminUtils {
 
 	/** Retrieves the current logged-in user common name */
 	public final static String getCommonName(User user) {
-		return getProperty(user, LdapAttrs.cn.name());
+		return getProperty(user, LdapAttr.cn.name());
 	}
 
 	// OTHER USERS HELPERS
@@ -54,8 +55,8 @@ public class UserAdminUtils {
 	public static String getUserLocalId(String dn) {
 		LdapName ldapName = getLdapName(dn);
 		Rdn last = ldapName.getRdn(ldapName.size() - 1);
-		if (last.getType().toLowerCase().equals(LdapAttrs.uid.name())
-				|| last.getType().toLowerCase().equals(LdapAttrs.cn.name()))
+		if (last.getType().toLowerCase().equals(LdapAttr.uid.name())
+				|| last.getType().toLowerCase().equals(LdapAttr.cn.name()))
 			return (String) last.getValue();
 		else
 			throw new IllegalArgumentException("Cannot retrieve user local id, non valid dn: " + dn);
@@ -67,16 +68,19 @@ public class UserAdminUtils {
 	 */
 	public static String getUserDisplayName(UserAdmin userAdmin, String dn) {
 		Role user = userAdmin.getRole(dn);
-		String dName;
 		if (user == null)
-			dName = getUserLocalId(dn);
-		else {
-			dName = getProperty(user, LdapAttrs.displayName.name());
-			if (isEmpty(dName))
-				dName = getProperty(user, LdapAttrs.cn.name());
-			if (isEmpty(dName))
-				dName = getUserLocalId(dn);
-		}
+			return getUserLocalId(dn);
+		return getUserDisplayName(user);
+	}
+
+	public static String getUserDisplayName(Role user) {
+		String dName = getProperty(user, LdapAttr.displayName.name());
+		if (isEmpty(dName))
+			dName = getProperty(user, LdapAttr.cn.name());
+		if (isEmpty(dName))
+			dName = getProperty(user, LdapAttr.uid.name());
+		if (isEmpty(dName))
+			dName = getUserLocalId(user.getName());
 		return dName;
 	}
 
@@ -89,7 +93,7 @@ public class UserAdminUtils {
 		if (user == null)
 			return null;
 		else
-			return getProperty(user, LdapAttrs.mail.name());
+			return getProperty(user, LdapAttr.mail.name());
 	}
 
 	// LDAP NAMES HELPERS
@@ -122,7 +126,7 @@ public class UserAdminUtils {
 	}
 
 	/**
-	 * Simply retrieves a LDAP name from a {@link LdapAttrs.DN} with no exception
+	 * Simply retrieves a LDAP name from a {@link LdapAttr.DN} with no exception
 	 */
 	private static LdapName getLdapName(String dn) {
 		try {
@@ -135,7 +139,7 @@ public class UserAdminUtils {
 	/** Simply retrieves a display name of the relevant domain */
 	public final static String getDomainName(User user) {
 		String dn = user.getName();
-		if (dn.endsWith(CmsConstants.ROLES_BASEDN))
+		if (dn.endsWith(CmsConstants.SYSTEM_ROLES_BASEDN))
 			return "System roles";
 		if (dn.endsWith(CmsConstants.TOKENS_BASEDN))
 			return "Tokens";
@@ -147,8 +151,8 @@ public class UserAdminUtils {
 			int i = 0;
 			loop: while (i < rdns.size()) {
 				Rdn currrRdn = rdns.get(i);
-				if (LdapAttrs.uid.name().equals(currrRdn.getType()) || LdapAttrs.cn.name().equals(currrRdn.getType())
-						|| LdapAttrs.ou.name().equals(currrRdn.getType()))
+				if (LdapAttr.uid.name().equals(currrRdn.getType()) || LdapAttr.cn.name().equals(currrRdn.getType())
+						|| LdapAttr.ou.name().equals(currrRdn.getType()))
 					break loop;
 				else {
 					String currVal = (String) currrRdn.getValue();

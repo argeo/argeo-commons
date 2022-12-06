@@ -1,0 +1,12 @@
+Import-Package:\
+org.osgi.service.http;version=0.0.0,\
+org.osgi.service.http.whiteboard;version=0.0.0,\
+org.osgi.framework.namespace;version=0.0.0,\
+org.argeo.cms.osgi,\
+javax.servlet.*;version="[3,5)",\
+*
+
+Service-Component:\
+OSGI-INF/pkgServletContext.xml,\
+OSGI-INF/pkgServlet.xml,\
+OSGI-INF/statusHandler.xml,\

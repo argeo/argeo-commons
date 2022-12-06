@@ -11,10 +11,15 @@ import org.argeo.init.osgi.OsgiBootUtils;
 import org.osgi.framework.Version;
 
 /**
- * A provisioning source based on the linear classpath with which the JCM has
+ * A provisioning source based on the linear classpath with which the JVM has
  * been started.
  */
 public class ClasspathSource extends AbstractProvisioningSource {
+	
+	public ClasspathSource() {
+		super(true);
+	}
+
 	void load() throws IOException {
 		A2Contribution classpathContribution = getOrAddContribution( A2Contribution.CLASSPATH);
 		List<String> classpath = Arrays.asList(System.getProperty("java.class.path").split(File.pathSeparator));

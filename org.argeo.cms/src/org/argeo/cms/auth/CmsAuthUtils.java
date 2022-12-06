@@ -1,30 +1,33 @@
 package org.argeo.cms.auth;
 
+import static org.argeo.api.cms.CmsConstants.ROLE_ADMIN;
+import static org.argeo.api.cms.CmsConstants.ROLE_ANONYMOUS;
+import static org.argeo.api.cms.CmsConstants.ROLE_USER;
+import static org.argeo.api.cms.CmsConstants.ROLE_USER_ADMIN;
+
 import java.security.Principal;
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
+//import javax.naming.InvalidNameException;
+//import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.x500.X500Principal;
 
+import org.argeo.api.cms.AnonymousPrincipal;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.CmsSessionId;
 import org.argeo.api.cms.DataAdminPrincipal;
-import org.argeo.api.cms.AnonymousPrincipal;
-import org.argeo.api.cms.CmsConstants;
 import org.argeo.cms.internal.auth.CmsSessionImpl;
 import org.argeo.cms.internal.auth.ImpliedByPrincipal;
-import org.argeo.cms.internal.http.WebCmsSessionImpl;
-import org.argeo.cms.security.NodeSecurityUtils;
-import org.argeo.osgi.useradmin.AuthenticatingUser;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.HttpContext;
+import org.argeo.cms.internal.auth.RemoteCmsSessionImpl;
+import org.argeo.cms.internal.runtime.CmsContextImpl;
+import org.argeo.cms.osgi.useradmin.AuthenticatingUser;
 import org.osgi.service.useradmin.Authorization;
 
 /** Centralises security related registrations. */
@@ -32,8 +35,8 @@ class CmsAuthUtils {
 	// Standard
 	final static String SHARED_STATE_NAME = AuthenticatingUser.SHARED_STATE_NAME;
 	final static String SHARED_STATE_PWD = AuthenticatingUser.SHARED_STATE_PWD;
-	final static String HEADER_AUTHORIZATION = "Authorization";
-	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+//	final static String HEADER_AUTHORIZATION = "Authorization";
+//	final static String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
 	// Argeo specific
 	final static String SHARED_STATE_HTTP_REQUEST = "org.argeo.cms.auth.http.request";
@@ -42,6 +45,11 @@ class CmsAuthUtils {
 	final static String SHARED_STATE_CERTIFICATE_CHAIN = "org.argeo.cms.auth.certificateChain";
 	final static String SHARED_STATE_REMOTE_ADDR = "org.argeo.cms.auth.remote.addr";
 	final static String SHARED_STATE_REMOTE_PORT = "org.argeo.cms.auth.remote.port";
+
+	final static String SINGLE_USER_LOCAL_ID = "single-user";
+
+	private final static List<String> RESERVED_ROLES = Collections
+			.unmodifiableList(Arrays.asList(new String[] { ROLE_ADMIN, ROLE_ANONYMOUS, ROLE_USER, ROLE_USER_ADMIN }));
 
 	static void addAuthorization(Subject subject, Authorization authorization) {
 		assert subject != null;
@@ -54,46 +62,46 @@ class CmsAuthUtils {
 		boolean singleUser = authorization instanceof SingleUserAuthorization;
 
 		Set<Principal> principals = subject.getPrincipals();
-		try {
-			String authName = authorization.getName();
+//		try {
+		String authName = authorization.getName();
 
-			// determine user's principal
-			final LdapName name;
-			final Principal userPrincipal;
-			if (authName == null) {
-				name = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
-				userPrincipal = new AnonymousPrincipal();
-				principals.add(userPrincipal);
-			} else {
-				name = new LdapName(authName);
-				NodeSecurityUtils.checkUserName(name);
-				userPrincipal = new X500Principal(name.toString());
-				principals.add(userPrincipal);
+		// determine user's principal
+//			final LdapName name;
+		final Principal userPrincipal;
+		if (authName == null) {
+//				name = NodeSecurityUtils.ROLE_ANONYMOUS_NAME;
+			userPrincipal = new AnonymousPrincipal();
+			principals.add(userPrincipal);
+		} else {
+//				name = new LdapName(authName);
+			checkUserName(authName);
+			userPrincipal = new X500Principal(authName.toString());
+			principals.add(userPrincipal);
 
-				if (singleUser) {
-					principals.add(new ImpliedByPrincipal(NodeSecurityUtils.ROLE_ADMIN_NAME, userPrincipal));
-					principals.add(new DataAdminPrincipal());
-				}
+			if (singleUser) {
+				principals.add(new ImpliedByPrincipal(CmsConstants.ROLE_ADMIN, userPrincipal));
+				principals.add(new DataAdminPrincipal());
 			}
-
-			// Add roles provided by authorization
-			for (String role : authorization.getRoles()) {
-				LdapName roleName = new LdapName(role);
-				if (roleName.equals(name)) {
-					// skip
-				} else if (roleName.equals(NodeSecurityUtils.ROLE_ANONYMOUS_NAME)) {
-					// skip
-				} else {
-					NodeSecurityUtils.checkImpliedPrincipalName(roleName);
-					principals.add(new ImpliedByPrincipal(roleName.toString(), userPrincipal));
-					if (roleName.equals(NodeSecurityUtils.ROLE_ADMIN_NAME))
-						principals.add(new DataAdminPrincipal());
-				}
-			}
-
-		} catch (InvalidNameException e) {
-			throw new IllegalArgumentException("Cannot commit", e);
 		}
+
+		// Add roles provided by authorization
+		for (String role : authorization.getRoles()) {
+//				LdapName roleName = new LdapName(role);
+			if (role.equals(authName)) {
+				// skip
+			} else if (role.equals(CmsConstants.ROLE_ANONYMOUS)) {
+				// skip
+			} else {
+//					NodeSecurityUtils.checkImpliedPrincipalName(role);
+				principals.add(new ImpliedByPrincipal(role, userPrincipal));
+				if (role.equals(CmsConstants.ROLE_ADMIN))
+					principals.add(new DataAdminPrincipal());
+			}
+		}
+
+//		} catch (InvalidNameException e) {
+//			throw new IllegalArgumentException("Cannot commit", e);
+//		}
 	}
 
 	private static void checkSubjectEmpty(Subject subject) {
@@ -128,30 +136,33 @@ class CmsAuthUtils {
 		// TODO move it to a service in order to avoid static synchronization
 		if (request != null) {
 			RemoteAuthSession httpSession = request.getSession();
-			assert httpSession != null;
-			String httpSessId = httpSession.getId();
+			String httpSessId = httpSession != null ? httpSession.getId() : null;
 			boolean anonymous = authorization.getName() == null;
 			String remoteUser = !anonymous ? authorization.getName() : CmsConstants.ROLE_ANONYMOUS;
-			request.setAttribute(HttpContext.REMOTE_USER, remoteUser);
-			request.setAttribute(HttpContext.AUTHORIZATION, authorization);
+			request.setAttribute(RemoteAuthRequest.REMOTE_USER, remoteUser);
+			request.setAttribute(RemoteAuthRequest.AUTHORIZATION, authorization);
 
 			CmsSessionImpl cmsSession;
-			CmsSessionImpl currentLocalSession = CmsSessionImpl.getByLocalId(httpSessId);
+			CmsSessionImpl currentLocalSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(httpSessId);
 			if (currentLocalSession != null) {
-				boolean currentLocalSessionAnonymous = currentLocalSession.getAuthorization().getName() == null;
+				boolean currentLocalSessionAnonymous = currentLocalSession.isAnonymous();
 				if (!anonymous) {
 					if (currentLocalSessionAnonymous) {
 						currentLocalSession.close();
 						// new CMS session
-						cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
+						UUID cmsSessionUuid = CmsContextImpl.getCmsContext().getUuidFactory().timeUUID();
+						cmsSession = new RemoteCmsSessionImpl(cmsSessionUuid, subject, authorization, locale, request);
+						CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 					} else if (!authorization.getName().equals(currentLocalSession.getAuthorization().getName())) {
 						throw new IllegalStateException("Inconsistent user " + authorization.getName()
 								+ " for existing CMS session " + currentLocalSession);
 					} else {
 						// keep current session
 						cmsSession = currentLocalSession;
-						// keyring
-						subject.getPrivateCredentials().addAll(cmsSession.getSecretKeys());
+						// credentials
+						// TODO control it more??
+						subject.getPrivateCredentials().addAll(cmsSession.getSubject().getPrivateCredentials());
+						subject.getPublicCredentials().addAll(cmsSession.getSubject().getPublicCredentials());
 					}
 				} else {// anonymous
 					if (!currentLocalSessionAnonymous) {
@@ -164,7 +175,9 @@ class CmsAuthUtils {
 				}
 			} else {
 				// new CMS session
-				cmsSession = new WebCmsSessionImpl(subject, authorization, locale, request);
+				UUID cmsSessionUuid = CmsContextImpl.getCmsContext().getUuidFactory().timeUUID();
+				cmsSession = new RemoteCmsSessionImpl(cmsSessionUuid, subject, authorization, locale, request);
+				CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
 			}
 
 			if (cmsSession == null)// should be dead code (cf. SuppressWarning of the method)
@@ -175,39 +188,45 @@ class CmsAuthUtils {
 				subject.getPrivateCredentials().add(nodeSessionId);
 			} else {
 				UUID storedSessionId = subject.getPrivateCredentials(CmsSessionId.class).iterator().next().getUuid();
-				// if (storedSessionId.equals(httpSessionId.getValue()))
-				throw new IllegalStateException(
-						"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
+				if (!storedSessionId.equals(nodeSessionId.getUuid()))
+					throw new IllegalStateException(
+							"Subject already logged with session " + storedSessionId + " (not " + nodeSessionId + ")");
 			}
+			request.setAttribute(CmsSession.class.getName(), cmsSession);
 		} else {
-			CmsSessionImpl cmsSession = new CmsSessionImpl(subject, authorization, locale, "desktop");
+			CmsSessionImpl cmsSession = CmsContextImpl.getCmsContext().getCmsSessionByLocalId(SINGLE_USER_LOCAL_ID);
+			if (cmsSession == null) {
+				UUID cmsSessionUuid = CmsContextImpl.getCmsContext().getUuidFactory().timeUUID();
+				cmsSession = new CmsSessionImpl(cmsSessionUuid, subject, authorization, locale, SINGLE_USER_LOCAL_ID);
+				CmsContextImpl.getCmsContext().registerCmsSession(cmsSession);
+			}
 			CmsSessionId nodeSessionId = new CmsSessionId(cmsSession.getUuid());
 			subject.getPrivateCredentials().add(nodeSessionId);
 		}
 	}
 
-	public static CmsSessionImpl cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
-		Authorization authorization = null;
-		Collection<ServiceReference<CmsSession>> sr;
-		try {
-			sr = bc.getServiceReferences(CmsSession.class,
-					"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
-		} catch (InvalidSyntaxException e) {
-			throw new IllegalArgumentException("Cannot get CMS session for id " + httpSessionId, e);
-		}
-		CmsSessionImpl cmsSession;
-		if (sr.size() == 1) {
-			cmsSession = (CmsSessionImpl) bc.getService(sr.iterator().next());
-//			locale = cmsSession.getLocale();
-			authorization = cmsSession.getAuthorization();
-			if (authorization.getName() == null)
-				return null;// anonymous is not sufficient
-		} else if (sr.size() == 0)
-			return null;
-		else
-			throw new IllegalStateException(sr.size() + ">1 web sessions detected for http session " + httpSessionId);
-		return cmsSession;
-	}
+//	public static CmsSessionImpl cmsSessionFromHttpSession(BundleContext bc, String httpSessionId) {
+//		Authorization authorization = null;
+//		Collection<ServiceReference<CmsSession>> sr;
+//		try {
+//			sr = bc.getServiceReferences(CmsSession.class,
+//					"(" + CmsSession.SESSION_LOCAL_ID + "=" + httpSessionId + ")");
+//		} catch (InvalidSyntaxException e) {
+//			throw new IllegalArgumentException("Cannot get CMS session for id " + httpSessionId, e);
+//		}
+//		CmsSessionImpl cmsSession;
+//		if (sr.size() == 1) {
+//			cmsSession = (CmsSessionImpl) bc.getService(sr.iterator().next());
+////			locale = cmsSession.getLocale();
+//			authorization = cmsSession.getAuthorization();
+//			if (authorization.getName() == null)
+//				return null;// anonymous is not sufficient
+//		} else if (sr.size() == 0)
+//			return null;
+//		else
+//			throw new IllegalStateException(sr.size() + ">1 web sessions detected for http session " + httpSessionId);
+//		return cmsSession;
+//	}
 
 	public static <T extends Principal> T getSinglePrincipal(Subject subject, Class<T> clss) {
 		Set<T> principals = subject.getPrincipals(clss);
@@ -216,6 +235,11 @@ class CmsAuthUtils {
 		if (principals.size() > 1)
 			throw new IllegalStateException("Only one " + clss + " principal expected in " + subject);
 		return principals.iterator().next();
+	}
+
+	private static void checkUserName(String name) throws IllegalArgumentException {
+		if (RESERVED_ROLES.contains(name))
+			throw new IllegalArgumentException(name + " is a reserved name");
 	}
 
 	private CmsAuthUtils() {

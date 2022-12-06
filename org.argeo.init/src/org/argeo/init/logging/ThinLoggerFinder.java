@@ -21,17 +21,24 @@ public class ThinLoggerFinder extends LoggerFinder {
 	public ThinLoggerFinder() {
 		if (logging != null)
 			throw new IllegalStateException("Only one logging can be initialised.");
-		init();
+//		init();
 	}
 
 	@Override
 	public Logger getLogger(String name, Module module) {
+		lazyInit();
 		return logging.getLogger(name, module);
 	}
 
 	private static void init() {
 		logging = new ThinLogging();
+		reloadConfiguration();
+	}
 
+	/** Reload configuration form system properties */
+	public static void reloadConfiguration() {
+		if (logging == null)
+			return;
 		Map<String, Object> configuration = new HashMap<>();
 		for (Object key : System.getProperties().keySet()) {
 			Objects.requireNonNull(key);

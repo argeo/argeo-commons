@@ -4,6 +4,9 @@ import java.util.Locale;
 
 /** Transitional interface to decouple from the Servlet API. */
 public interface RemoteAuthRequest {
+	final static String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
+	final static String AUTHORIZATION = "org.osgi.service.useradmin.authorization";
+
 	RemoteAuthSession getSession();
 
 	RemoteAuthSession createSession();

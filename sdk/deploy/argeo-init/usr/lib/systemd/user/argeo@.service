@@ -1,0 +1,30 @@
+[Unit]
+Description=Argeo user node %I
+
+[Service]
+Type=simple
+StateDirectory=argeo.d/%I
+LogsDirectory=argeo.d/%I
+ConfigurationDirectory=argeo.d/%I
+CacheDirectory=argeo.d/%I
+#WorkingDirectory=
+
+ExecStart=java \
+-Dosgi.configuration.cascaded=true \
+-Dosgi.sharedConfiguration.area=/etc/argeo.user.d/%I/ \
+-Dosgi.sharedConfiguration.area.readOnly=true \
+-Dosgi.configuration.area=${STATE_DIRECTORY}/state/ \
+-Dosgi.instance.area=${STATE_DIRECTORY}/data/ \
+-Dargeo.node.repo.indexesBase=${CACHE_DIRECTORY}/indexes \
+-Declipse.ignoreApp=true \
+-Dosgi.noShutdown=true \
+-Dorg.eclipse.equinox.http.jetty.autostart=false \
+-Djava.library.path=/usr/lib/a2/swt/rcp/org.argeo.tp.swt/ \
+@/etc/argeo.user.d/jvm.args \
+@/etc/argeo.user.d/%I/jvm.args \
+@/usr/share/argeo/jvm.args
+# Exit codes of the JVM when SIGTERM or SIGINT have been caught:
+SuccessExitStatus=143 130
+
+[Install]
+WantedBy=multi-user.target

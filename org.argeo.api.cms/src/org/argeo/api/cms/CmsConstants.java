@@ -35,6 +35,12 @@ public interface CmsConstants {
 	String GUESTS_WORKSPACE = "guests";
 	String PUBLIC_WORKSPACE = "public";
 	String SECURITY_WORKSPACE = "security";
+	String MIGRATION_WORKSPACE = "migration";
+
+	/*
+	 * ACR CONVENTIONS
+	 */
+	String SRV_BASE = "/srv";
 
 	/*
 	 * BASE DNs
@@ -49,17 +55,18 @@ public interface CmsConstants {
 	/*
 	 * RESERVED ROLES
 	 */
-	String ROLES_BASEDN = "ou=roles,ou=node";
+	String NODE_BASEDN = "ou=node";
+	String SYSTEM_ROLES_BASEDN = "ou=roles," + NODE_BASEDN;
 	String TOKENS_BASEDN = "ou=tokens,ou=node";
-	String ROLE_ADMIN = "cn=admin," + ROLES_BASEDN;
-	String ROLE_USER_ADMIN = "cn=userAdmin," + ROLES_BASEDN;
-	String ROLE_DATA_ADMIN = "cn=dataAdmin," + ROLES_BASEDN;
+	String ROLE_ADMIN = "cn=admin," + SYSTEM_ROLES_BASEDN;
+	String ROLE_USER_ADMIN = "cn=userAdmin," + SYSTEM_ROLES_BASEDN;
+	String ROLE_DATA_ADMIN = "cn=dataAdmin," + SYSTEM_ROLES_BASEDN;
 	// Special system groups that cannot be edited:
 	// user U anonymous = everyone
-	String ROLE_USER = "cn=user," + ROLES_BASEDN;
-	String ROLE_ANONYMOUS = "cn=anonymous," + ROLES_BASEDN;
+	String ROLE_USER = "cn=user," + SYSTEM_ROLES_BASEDN;
+	String ROLE_ANONYMOUS = "cn=anonymous," + SYSTEM_ROLES_BASEDN;
 	// Account lifecycle
-	String ROLE_REGISTERING = "cn=registering," + ROLES_BASEDN;
+	String ROLE_REGISTERING = "cn=registering," + SYSTEM_ROLES_BASEDN;
 
 	/*
 	 * PATHS
@@ -68,6 +75,7 @@ public interface CmsConstants {
 	String PATH_JCR = "/jcr";
 	String PATH_FILES = "/files";
 	// String PATH_JCR_PUB = "/pub";
+	String PATH_API_ACR = "/api/acr";
 
 	/*
 	 * FILE SYSTEMS
@@ -80,33 +88,17 @@ public interface CmsConstants {
 	String NODE_SERVICE = NODE;
 
 	/*
-	 * INIT FRAMEWORK PROPERTIES
+	 * COMPONENT PROPERTIES
 	 */
-	String NODE_INIT = "argeo.node.init";
-	String I18N_DEFAULT_LOCALE = "argeo.i18n.defaultLocale";
-	String I18N_LOCALES = "argeo.i18n.locales";
-	// Node Security
-	String ROLES_URI = "argeo.node.roles.uri";
-	String TOKENS_URI = "argeo.node.tokens.uri";
-	/** URI to an LDIF file or LDAP server used as initialization or backend */
-	String USERADMIN_URIS = "argeo.node.useradmin.uris";
-	// Transaction manager
-	String TRANSACTION_MANAGER = "argeo.node.transaction.manager";
-	String TRANSACTION_MANAGER_SIMPLE = "simple";
-	String TRANSACTION_MANAGER_BITRONIX = "bitronix";
-	// Node
-	/** Properties configuring the node repository */
-	String NODE_REPO_PROP_PREFIX = "argeo.node.repo.";
-	/** Additional standalone repositories, related to data models. */
-	String NODE_REPOS_PROP_PREFIX = "argeo.node.repos.";
-	// HTTP
-	String HTTP_PORT = "org.osgi.service.http.port";
-	String HTTP_PORT_SECURE = "org.osgi.service.http.port.secure";
-	/**
-	 * The HTTP header used to convey the DN of a client verified by a reverse
-	 * proxy. Typically SSL_CLIENT_S_DN for Apache.
+	String CONTEXT_PATH = "context.path";
+	String CONTEXT_PUBLIC = "context.public";
+	String EVENT_TOPICS = "event.topics";
+	String ACR_MOUNT_PATH = "acr.mount.path";
+
+	/*
+	 * FILE SYSTEM
 	 */
-	String HTTP_PROXY_SSL_DN = "argeo.http.proxy.ssl.dn";
+	String CMS_FS_SCHEME = "cms";
 
 	/*
 	 * PIDs

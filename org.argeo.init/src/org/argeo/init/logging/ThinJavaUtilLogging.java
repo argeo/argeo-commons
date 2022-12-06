@@ -91,8 +91,13 @@ class ThinJavaUtilLogging {
 		@Override
 		public void publish(LogRecord record) {
 			java.lang.System.Logger systemLogger = ThinLoggerFinder.getLogger(record.getLoggerName());
-			systemLogger.log(ThinJavaUtilLogging.fromJulLevel(record.getLevel()), record.getMessage(),
-					record.getThrown());
+			if (record.getParameters() != null && record.getParameters().length > 0) {
+				systemLogger.log(ThinJavaUtilLogging.fromJulLevel(record.getLevel()), record.getMessage(),
+						record.getParameters());
+			} else {
+				systemLogger.log(ThinJavaUtilLogging.fromJulLevel(record.getLevel()), record.getMessage(),
+						record.getThrown());
+			}
 		}
 
 		@Override

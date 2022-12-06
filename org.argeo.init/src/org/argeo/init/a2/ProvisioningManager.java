@@ -1,7 +1,13 @@
 package org.argeo.init.a2;
 
+import static org.argeo.init.a2.A2Source.SCHEME_A2;
+import static org.argeo.init.a2.A2Source.SCHEME_A2_REFERENCE;
+
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,6 +16,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +27,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
-import org.osgi.framework.launch.Framework;
 import org.osgi.framework.wiring.FrameworkWiring;
 
 /** Loads provisioning sources into an OSGi context. */
@@ -48,14 +55,25 @@ public class ProvisioningManager {
 					updatedBundles.add(bundle);
 			}
 		}
-		FrameworkWiring frameworkWiring = bc.getBundle(0).adapt(FrameworkWiring.class);
-		frameworkWiring.refreshBundles(updatedBundles);
+//		FrameworkWiring frameworkWiring = bc.getBundle(0).adapt(FrameworkWiring.class);
+//		frameworkWiring.refreshBundles(updatedBundles);
 	}
 
 	public void registerSource(String uri) {
 		try {
 			URI u = new URI(uri);
-			if (A2Source.SCHEME_A2.equals(u.getScheme())) {
+
+			// XOR
+			Map<String, List<String>> properties = queryToMap(u);
+			Map<String, String> xOr = new HashMap<>();
+			for (String key : properties.keySet()) {
+				List<String> lst = properties.get(key);
+				if (lst.size() != 1)
+					throw new IllegalArgumentException("Invalid XOR definitions in " + uri);
+				xOr.put(key, lst.get(0));
+			}
+
+			if (SCHEME_A2.equals(u.getScheme()) || SCHEME_A2_REFERENCE.equals(u.getScheme())) {
 				if (u.getHost() == null || "".equals(u.getHost())) {
 					String baseStr = u.getPath();
 					if (File.separatorChar == '\\') {// MS Windows
@@ -63,12 +81,19 @@ public class ProvisioningManager {
 					}
 					Path base = Paths.get(baseStr);
 					if (Files.exists(base)) {
-						FsA2Source source = new FsA2Source(base);
+						FsA2Source source = new FsA2Source(base, xOr, SCHEME_A2_REFERENCE.equals(u.getScheme()));
 						source.load();
 						addSource(source);
 						OsgiBootUtils.info("Registered " + uri + " as source");
+					} else {
+						OsgiBootUtils.debug("Source " + base + " does not exist, ignoring.");
 					}
+				} else {
+					throw new UnsupportedOperationException(
+							"Remote installation is not yet supported, cannot add source " + u);
 				}
+			} else {
+				throw new IllegalArgumentException("Unkown scheme: for source " + u);
 			}
 		} catch (Exception e) {
 			throw new A2Exception("Cannot add source " + uri, e);
@@ -172,29 +197,74 @@ public class ProvisioningManager {
 		return updatedBundles;
 	}
 
-	public static void main(String[] args) {
-		Map<String, String> configuration = new HashMap<>();
-		configuration.put("osgi.console", "2323");
-		Framework framework = OsgiBootUtils.launch(configuration);
+	private static Map<String, List<String>> queryToMap(URI uri) {
+		return queryToMap(uri.getQuery());
+	}
+
+	private static Map<String, List<String>> queryToMap(String queryPart) {
 		try {
-			ProvisioningManager pm = new ProvisioningManager(framework.getBundleContext());
-			FsA2Source context = new FsA2Source(Paths.get(
-					"/home/mbaudier/dev/git/apache2/argeo-commons/dist/argeo-node/target/argeo-node-2.1.74-SNAPSHOT/argeo-node/share/osgi"));
-			context.load();
-			if (framework.getBundleContext().getBundles().length == 1) {// initial
-				pm.install(null);
-			} else {
-				pm.update();
+			final Map<String, List<String>> query_pairs = new LinkedHashMap<String, List<String>>();
+			if (queryPart == null)
+				return query_pairs;
+			final String[] pairs = queryPart.split("&");
+			for (String pair : pairs) {
+				final int idx = pair.indexOf("=");
+				final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8.name())
+						: pair;
+				if (!query_pairs.containsKey(key)) {
+					query_pairs.put(key, new LinkedList<String>());
+				}
+				final String value = idx > 0 && pair.length() > idx + 1
+						? URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8.name())
+						: null;
+				query_pairs.get(key).add(value);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				// framework.stop();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			return query_pairs;
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalArgumentException("Cannot convert " + queryPart + " to map", e);
 		}
 	}
+
+//	public static void main(String[] args) {
+//		if (args.length == 0)
+//			throw new IllegalArgumentException("Usage: <path to A2 base>");
+//		Map<String, String> configuration = new HashMap<>();
+//		configuration.put("osgi.console", "2323");
+//		configuration.put("org.osgi.framework.bootdelegation",
+//				"com.sun.jndi.ldap,com.sun.jndi.ldap.sasl,com.sun.security.jgss,com.sun.jndi.dns,com.sun.nio.file,com.sun.nio.sctp,sun.nio.cs");
+//		Framework framework = OsgiBootUtils.launch(configuration);
+//		try {
+//			ProvisioningManager pm = new ProvisioningManager(framework.getBundleContext());
+//			Map<String, String> xOr = new HashMap<>();
+//			xOr.put("osgi", "equinox");
+//			xOr.put("swt", "rap");
+//			FsA2Source context = new FsA2Source(Paths.get(args[0]), xOr);
+//			context.load();
+//			pm.addSource(context);
+//			if (framework.getBundleContext().getBundles().length == 1) {// initial
+//				pm.install(null);
+//			} else {
+//				pm.update();
+//			}
+//
+//			Thread.sleep(2000);
+//
+//			Bundle[] bundles = framework.getBundleContext().getBundles();
+//			Arrays.sort(bundles, (b1, b2) -> b1.getSymbolicName().compareTo(b2.getSymbolicName()));
+//			for (Bundle b : bundles)
+//				if (b.getState() == Bundle.RESOLVED || b.getState() == Bundle.STARTING || b.getState() == Bundle.ACTIVE)
+//					System.out.println(b.getSymbolicName() + " " + b.getVersion());
+//				else
+//					System.err.println(b.getSymbolicName() + " " + b.getVersion() + " (" + b.getState() + ")");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				framework.stop();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 
 }

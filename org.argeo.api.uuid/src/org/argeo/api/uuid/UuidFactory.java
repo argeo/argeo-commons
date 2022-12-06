@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  * {@link Supplier#get()} method MUST be a v4 UUID (random).
  * 
  * @see UUID
- * @see https://datatracker.ietf.org/doc/html/rfc4122
+ * @see "https://datatracker.ietf.org/doc/html/rfc4122"
  */
 public interface UuidFactory extends Supplier<UUID> {
 
@@ -184,7 +184,7 @@ public interface UuidFactory extends Supplier<UUID> {
 	 * Whether this UUID is time based but was not generated from an IEEE 802
 	 * address, as per Section 4.5 of RFC4122.
 	 * 
-	 * @see https://datatracker.ietf.org/doc/html/rfc4122#section-4.5
+	 * @see "https://datatracker.ietf.org/doc/html/rfc4122#section-4.5"
 	 */
 	static boolean isTimeBasedWithMacAddress(UUID uuid) {
 		if (uuid.version() == 1) {
@@ -202,7 +202,7 @@ public interface UuidFactory extends Supplier<UUID> {
 	 * The state of a time based UUID generator, as described and discussed in
 	 * section 4.2.1 of RFC4122.
 	 * 
-	 * @see https://datatracker.ietf.org/doc/html/rfc4122#section-4.2.1
+	 * @see "https://datatracker.ietf.org/doc/html/rfc4122#section-4.2.1"
 	 */
 	interface TimeUuidState {
 		/** Current node id and clock sequence for this thread. */

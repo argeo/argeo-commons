@@ -1,0 +1,20 @@
+Service-Component: OSGI-INF/defaultCallbackHandler.xml
+Bundle-ActivationPolicy: lazy
+
+Import-Package: \
+org.argeo.api.acr,\
+org.eclipse.swt,\
+org.eclipse.swt.widgets;version="0.0.0",\
+org.eclipse.e4.ui.model.application.ui;resolution:=optional,\
+org.eclipse.e4.ui.model.application;resolution:=optional,\
+org.argeo.cms,\
+org.eclipse.core.commands.common,\
+org.eclipse.jface.window,\
+org.eclipse.jface.dialogs,\
+org.argeo.cms.swt.auth,\
+org.argeo.cms.ux.widgets,\
+javax.servlet.*;version="[3,5)",\
+org.eclipse.*;resolution:=optional,\
+javax.*;resolution:=optional,\
+*
+

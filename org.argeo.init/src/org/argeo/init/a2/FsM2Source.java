@@ -17,7 +17,7 @@ public class FsM2Source extends AbstractProvisioningSource {
 	private final Path base;
 
 	public FsM2Source(Path base) {
-		super();
+		super(false);
 		this.base = base;
 	}
 

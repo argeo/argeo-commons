@@ -1,1 +1,1 @@
--cp /usr/share/a2/org.argeo.tp.eclipse.equinox/org.eclipse.osgi.3.17.jar:/usr/share/a2/org.argeo.cms/org.argeo.init.2.1.jar org.argeo.init.Service
+-cp /usr/share/a2/osgi/equinox/org.argeo.tp.osgi/org.eclipse.osgi.3.18.jar:/usr/share/a2/org.argeo.cms/org.argeo.init.2.3.jar org.argeo.init.Service

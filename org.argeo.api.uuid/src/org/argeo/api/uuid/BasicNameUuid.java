@@ -13,7 +13,7 @@ public class BasicNameUuid extends TypedUuid {
 	}
 
 	/**
-	 * Always returns <code>true</true> since it is unknown from which values it was
+	 * Always returns <code>true</code> since it is unknown from which values it was
 	 * constructed..
 	 */
 	@Override

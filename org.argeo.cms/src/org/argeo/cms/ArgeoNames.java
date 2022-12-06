@@ -1,6 +1,7 @@
 package org.argeo.cms;
 
 /** JCR names in the http://www.argeo.org/argeo namespace */
+@Deprecated
 public interface ArgeoNames {
 	public final static String ARGEO_NAMESPACE = "http://www.argeo.org/ns/argeo";
 

@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 
 /** An authenticated user session. */
@@ -18,7 +17,7 @@ public interface CmsSession {
 
 	String getUserRole();
 
-	LdapName getUserDn();
+	String getUserDn();
 
 	String getLocalId();
 
@@ -40,4 +39,8 @@ public interface CmsSession {
 	void registerView(String uid, Object view);
 
 	void addOnCloseCallback(Consumer<CmsSession> onClose);
+
+	public static boolean hasCmsSession(Subject subject) {
+		return !subject.getPrivateCredentials(CmsSessionId.class).isEmpty();
+	}
 }

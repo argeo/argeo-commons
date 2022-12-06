@@ -25,7 +25,7 @@ class BundlesSet {
 				dirPath = dirPath.substring("file:".length());
 
 			dir = new File(dirPath.replace('/', File.separatorChar)).getCanonicalPath();
-			if (OsgiBootUtils.debug)
+			if (OsgiBootUtils.isDebug())
 				OsgiBootUtils.debug("Base dir: " + dir);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot convert to absolute path", e);

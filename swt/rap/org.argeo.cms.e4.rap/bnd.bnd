@@ -1,0 +1,9 @@
+Import-Package: \
+org.argeo.api.acr, \
+org.eclipse.swt,\
+org.eclipse.swt.graphics,\
+org.eclipse.e4.ui.workbench,\
+org.eclipse.rap.rwt.client,\
+org.eclipse.nebula.widgets.richtext;resolution:=optional,\
+org.eclipse.*;resolution:=optional,\
+*

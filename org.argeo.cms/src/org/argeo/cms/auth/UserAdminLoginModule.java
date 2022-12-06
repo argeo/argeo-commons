@@ -1,8 +1,9 @@
 package org.argeo.cms.auth;
 
-import static org.argeo.util.naming.LdapAttrs.cn;
+import static org.argeo.api.acr.ldap.LdapAttr.cn;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -24,18 +25,13 @@ import javax.security.auth.login.CredentialNotFoundException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
+import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.internal.osgi.NodeUserAdmin;
+import org.argeo.cms.directory.ldap.IpaUtils;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
-import org.argeo.cms.security.CryptoKeyring;
-import org.argeo.osgi.useradmin.AuthenticatingUser;
-import org.argeo.osgi.useradmin.IpaUtils;
-import org.argeo.osgi.useradmin.TokenUtils;
-import org.argeo.util.naming.LdapAttrs;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
+import org.argeo.cms.osgi.useradmin.AuthenticatingUser;
+import org.argeo.cms.osgi.useradmin.TokenUtils;
 import org.osgi.service.useradmin.Authorization;
 import org.osgi.service.useradmin.Group;
 import org.osgi.service.useradmin.User;
@@ -52,11 +48,11 @@ public class UserAdminLoginModule implements LoginModule {
 	private CallbackHandler callbackHandler;
 	private Map<String, Object> sharedState = null;
 
-	private List<String> indexedUserProperties = Arrays
-			.asList(new String[] { LdapAttrs.mail.name(), LdapAttrs.uid.name(), LdapAttrs.authPassword.name() });
+	private List<String> indexedUserProperties = Arrays.asList(new String[] { LdapAttr.mail.name(), LdapAttr.uid.name(),
+			LdapAttr.employeeNumber.name(), LdapAttr.authPassword.name() });
 
 	// private state
-	private BundleContext bc;
+//	private BundleContext bc;
 	private User authenticatedUser = null;
 	private Locale locale;
 
@@ -70,7 +66,7 @@ public class UserAdminLoginModule implements LoginModule {
 			Map<String, ?> options) {
 		this.subject = subject;
 		try {
-			bc = FrameworkUtil.getBundle(UserAdminLoginModule.class).getBundleContext();
+//			bc = FrameworkUtil.getBundle(UserAdminLoginModule.class).getBundleContext();
 			this.callbackHandler = callbackHandler;
 			this.sharedState = (Map<String, Object>) sharedState;
 		} catch (Exception e) {
@@ -80,7 +76,7 @@ public class UserAdminLoginModule implements LoginModule {
 
 	@Override
 	public boolean login() throws LoginException {
-		UserAdmin userAdmin = CmsContextImpl.getUserAdmin();
+		UserAdmin userAdmin = CmsContextImpl.getCmsContext().getUserAdmin();
 		final String username;
 		final char[] password;
 		Object certificateChain = null;
@@ -92,16 +88,12 @@ public class UserAdminLoginModule implements LoginModule {
 			password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
 			// // TODO locale?
 		} else if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
+				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_SPNEGO_TOKEN)) {
+			// SPNEGO login has succeeded, that's enough for us at this stage
+			return true;
+		} else if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME)
 				&& sharedState.containsKey(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN)) {
 			String certDn = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
-//			LdapName ldapName;
-//			try {
-//				ldapName = new LdapName(certificateName);
-//			} catch (InvalidNameException e) {
-//				e.printStackTrace();
-//				return false;
-//			}
-//			username = ldapName.getRdn(ldapName.size() - 1).getValue().toString();
 			username = certDn;
 			certificateChain = sharedState.get(CmsAuthUtils.SHARED_STATE_CERTIFICATE_CHAIN);
 			password = null;
@@ -111,11 +103,6 @@ public class UserAdminLoginModule implements LoginModule {
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			password = null;
 			preauth = true;
-//		} else if (singleUser) {
-//			username = OsUserUtils.getOsUsername();
-//			password = null;
-//			// TODO retrieve from http session
-//			locale = Locale.getDefault();
 		} else {
 
 			// ask for username and password
@@ -169,20 +156,24 @@ public class UserAdminLoginModule implements LoginModule {
 			return true;// expect Kerberos
 
 		if (password != null) {
+			// TODO disabling bind for the time being,
+			// as it requires authorisations to be set at LDAP level
+			boolean tryBind = false;
 			// try bind first
-			try {
-				AuthenticatingUser authenticatingUser = new AuthenticatingUser(user.getName(), password);
-				bindAuthorization = userAdmin.getAuthorization(authenticatingUser);
-				// TODO check tokens as well
-				if (bindAuthorization != null) {
-					authenticatedUser = user;
-					return true;
+			if (tryBind)
+				try {
+					AuthenticatingUser authenticatingUser = new AuthenticatingUser(user.getName(), password);
+					bindAuthorization = userAdmin.getAuthorization(authenticatingUser);
+					// TODO check tokens as well
+					if (bindAuthorization != null) {
+						authenticatedUser = user;
+						return true;
+					}
+				} catch (Exception e) {
+					// silent
+					if (log.isTraceEnabled())
+						log.trace("Bind failed", e);
 				}
-			} catch (Exception e) {
-				// silent
-				if (log.isTraceEnabled())
-					log.trace("Bind failed", e);
-			}
 
 			// works only if a connection password is provided
 			if (!user.hasCredential(null, password)) {
@@ -212,7 +203,7 @@ public class UserAdminLoginModule implements LoginModule {
 //		if (singleUser) {
 //			OsUserUtils.loginAsSystemUser(subject);
 //		}
-		UserAdmin userAdmin = CmsContextImpl.getUserAdmin();
+		UserAdmin userAdmin = CmsContextImpl.getCmsContext().getUserAdmin();
 		Authorization authorization;
 		if (callbackHandler == null) {// anonymous
 			authorization = userAdmin.getAuthorization(null);
@@ -237,6 +228,8 @@ public class UserAdminLoginModule implements LoginModule {
 					throw new LoginException("Kerberos login " + authenticatingUser.getName()
 							+ " is inconsistent with user admin login " + authenticatedUser.getName());
 			}
+			if (log.isTraceEnabled())
+				log.trace("Retrieve authorization for " + authenticatingUser + "... ");
 			authorization = Subject.doAs(subject, new PrivilegedAction<Authorization>() {
 
 				@Override
@@ -256,34 +249,47 @@ public class UserAdminLoginModule implements LoginModule {
 		CmsAuthUtils.addAuthorization(subject, authorization);
 
 		// Unlock keyring (underlying login to the JCR repository)
-		char[] password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
-		if (password != null) {
-			ServiceReference<CryptoKeyring> keyringSr = bc.getServiceReference(CryptoKeyring.class);
-			if (keyringSr != null) {
-				CryptoKeyring keyring = bc.getService(keyringSr);
-				Subject.doAs(subject, new PrivilegedAction<Void>() {
-
-					@Override
-					public Void run() {
-						try {
-							keyring.unlock(password);
-						} catch (Exception e) {
-							e.printStackTrace();
-							log.warn("Could not unlock keyring with the password provided by " + authorization.getName()
-									+ ": " + e.getMessage());
-						}
-						return null;
-					}
-
-				});
-			}
-		}
+//		char[] password = (char[]) sharedState.get(CmsAuthUtils.SHARED_STATE_PWD);
+//		if (password != null) {
+//			ServiceReference<CryptoKeyring> keyringSr = bc.getServiceReference(CryptoKeyring.class);
+//			if (keyringSr != null) {
+//				CryptoKeyring keyring = bc.getService(keyringSr);
+//				Subject.doAs(subject, new PrivilegedAction<Void>() {
+//
+//					@Override
+//					public Void run() {
+//						try {
+//							keyring.unlock(password);
+//						} catch (Exception e) {
+//							e.printStackTrace();
+//							log.warn("Could not unlock keyring with the password provided by " + authorization.getName()
+//									+ ": " + e.getMessage());
+//						}
+//						return null;
+//					}
+//
+//				});
+//			}
+//		}
 
 		// Register CmsSession with initial subject
 		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 
-		if (log.isDebugEnabled())
-			log.debug("Logged in to CMS: " + subject);
+		if (log.isDebugEnabled()) {
+			StringBuilder msg = new StringBuilder();
+			msg.append("Logged in to CMS: " + authorization.getName() + "(" + authorization + ")\n");
+			for (Principal principal : subject.getPrincipals()) {
+				msg.append("  Principal: " + principal.getName()).append(" (")
+						.append(principal.getClass().getSimpleName()).append(")\n");
+			}
+			for (Object credential : subject.getPublicCredentials()) {
+				msg.append("  Public Credential: " + credential).append(" (")
+						.append(credential.getClass().getSimpleName()).append(")\n");
+			}
+			log.debug(msg);
+		}
+//		if (log.isTraceEnabled())
+//			log.trace(" Subject: " + subject);
 		return true;
 	}
 

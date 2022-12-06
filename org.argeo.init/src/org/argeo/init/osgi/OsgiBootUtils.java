@@ -1,12 +1,12 @@
 package org.argeo.init.osgi;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.StringTokenizer;
@@ -18,33 +18,26 @@ import org.osgi.framework.launch.FrameworkFactory;
 
 /** Utilities, mostly related to logging. */
 public class OsgiBootUtils {
-	/** ISO8601 (as per log4j) and difference to UTC */
-	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS Z");
-
-	static boolean debug = System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_DEBUG) == null ? false
-			: !System.getProperty(OsgiBoot.PROP_ARGEO_OSGI_BOOT_DEBUG).trim().equals("false");
+	private final static Logger logger = System.getLogger(OsgiBootUtils.class.getName());
 
 	public static void info(Object obj) {
-		System.out.println("# OSGiBOOT      # " + dateFormat.format(new Date()) + " # " + obj);
+		logger.log(Level.INFO, () -> Objects.toString(obj));
 	}
 
 	public static void debug(Object obj) {
-		if (debug)
-			System.out.println("# OSGiBOOT DBG  # " + dateFormat.format(new Date()) + " # " + obj);
+		logger.log(Level.TRACE, () -> Objects.toString(obj));
 	}
 
 	public static void warn(Object obj) {
-		System.out.println("# OSGiBOOT WARN # " + dateFormat.format(new Date()) + " # " + obj);
+		logger.log(Level.WARNING, () -> Objects.toString(obj));
 	}
 
 	public static void error(Object obj, Throwable e) {
-		System.err.println("# OSGiBOOT ERR  # " + dateFormat.format(new Date()) + " # " + obj);
-		if (e != null)
-			e.printStackTrace();
+		logger.log(Level.ERROR, () -> Objects.toString(obj), e);
 	}
 
 	public static boolean isDebug() {
-		return debug;
+		return logger.isLoggable(Level.TRACE);
 	}
 
 	public static String stateAsString(int state) {
@@ -137,6 +130,7 @@ public class OsgiBootUtils {
 		return framework;
 	}
 
+	@Deprecated
 	public static Map<String, String> equinoxArgsToConfiguration(String[] args) {
 		// FIXME implement it
 		return new HashMap<>();

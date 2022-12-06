@@ -1,15 +1,9 @@
 package org.argeo.cms;
 
-import java.security.AccessController;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import javax.security.auth.Subject;
-
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.auth.CurrentUser;
 
 /** Utilities simplifying the development of localization enums. */
 public class LocaleUtils {
@@ -64,9 +58,10 @@ public class LocaleUtils {
 	/** Where the search for a message is actually performed. */
 	public static String local(String key, Locale locale, String resource, ClassLoader classLoader) {
 		ResourceBundle rb = ResourceBundle.getBundle(resource, locale, classLoader);
-		assert key.length() > 2;
-		if (isLocaleKey(key))
+		if (isLocaleKey(key)) {
+			assert key.length() > 1;
 			key = key.substring(1);
+		}
 		if (rb.containsKey(key))
 			return rb.getString(key);
 		else // for simple cases, the key will actually be the English word
@@ -102,7 +97,7 @@ public class LocaleUtils {
 
 	static Locale getCurrentLocale() {
 		Locale currentLocale = null;
-		if (Subject.getSubject(AccessController.getContext()) != null)
+		if (CurrentUser.isAvailable())
 			currentLocale = CurrentUser.locale();
 		else if (threadLocale.get() != null) {
 			currentLocale = threadLocale.get();
@@ -118,26 +113,4 @@ public class LocaleUtils {
 		// return Locale.getDefault();
 	}
 
-	/** Returns null if argument is null. */
-	public static List<Locale> asLocaleList(Object locales) {
-		if (locales == null)
-			return null;
-		ArrayList<Locale> availableLocales = new ArrayList<Locale>();
-		String[] codes = locales.toString().split(",");
-		for (int i = 0; i < codes.length; i++) {
-			String code = codes[i];
-			// variant not supported
-			int indexUnd = code.indexOf("_");
-			Locale locale;
-			if (indexUnd > 0) {
-				String language = code.substring(0, indexUnd);
-				String country = code.substring(indexUnd + 1);
-				locale = new Locale(language, country);
-			} else {
-				locale = new Locale(code);
-			}
-			availableLocales.add(locale);
-		}
-		return availableLocales;
-	}
 }

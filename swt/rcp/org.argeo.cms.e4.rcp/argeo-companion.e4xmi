@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="ASCII"?>
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmi:id="_c4iAgCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.application">
+  <children xsi:type="basic:TrimmedWindow" xmi:id="_hSGBwCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.trimmedwindow.argeocompanion" label="Argeo Companion">
+    <children xsi:type="advanced:PerspectiveStack" xmi:id="_nxzQICnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.perspectivestack.0">
+      <children xsi:type="advanced:Perspective" xmi:id="_oI_oICnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.perspective.cmsadmin" label="CMS Admin">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_qc16ECnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.partsashcontainer.0" horizontal="true">
+          <children xsi:type="basic:PartStack" xmi:id="_RE87kDsXEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.rcp.partstack.1">
+            <children xsi:type="basic:Part" xmi:id="_V1WvgDsXEeiUntFYWh-hFg" elementId="org.argeo.cms.e4.rcp.part.files" contributionURI="bundleclass://org.argeo.cms.jcr.e4/org.argeo.cms.e4.files.NodeFsBrowserView" label="Files"/>
+            <children xsi:type="basic:Part" xmi:id="_vOqDQCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.part.jcr" containerData="4000" contributionURI="bundleclass://org.argeo.cms.jcr.e4/org.argeo.cms.e4.jcr.JcrBrowserView" label="JCR"/>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_0eRiwCnCEei1F8sdBz8Mpw" elementId="org.argeo.cms.e4.rcp.partstack.0" containerData="6000">
+            <tags>editorArea</tags>
+          </children>
+        </children>
+      </children>
+    </children>
+  </children>
+  <descriptors xmi:id="__9SDsC8JEeq0koquN4xGyg" elementId="org.argeo.cms.e4.partdescriptor.nodeEditor" allowMultiple="true" category="editorArea" closeable="true" contributionURI="bundleclass://org.argeo.cms.jcr.e4/org.argeo.cms.e4.jcr.JcrNodeEditor"/>
+  <addons xmi:id="_c4iAgSnCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
+  <addons xmi:id="_c4iAginCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
+  <addons xmi:id="_c4iAgynCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
+  <addons xmi:id="_c4iAhCnCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.ui.workbench.commands.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.CommandProcessingAddon"/>
+  <addons xmi:id="_c4iAhSnCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
+  <addons xmi:id="_c4iAhinCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
+  <addons xmi:id="_c4iAhynCEei1F8sdBz8Mpw" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
+</application:Application>

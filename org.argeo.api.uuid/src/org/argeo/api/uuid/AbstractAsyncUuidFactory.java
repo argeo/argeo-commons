@@ -63,7 +63,7 @@ public abstract class AbstractAsyncUuidFactory extends AbstractUuidFactory imple
 	}
 
 	/**
-	 * If positive, only clock_hi is taken from the argument (range & 0x3F00), if
+	 * If positive, only clock_hi is taken from the argument (range amp; 0x3F00), if
 	 * negative, the full range of possible values is used.
 	 */
 	public void setCurrentClockSequenceRange(long range) {

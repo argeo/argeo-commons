@@ -1,5 +1,0 @@
-<config>
-	<protecteditemremovehandler>
-		<class name="org.apache.jackrabbit.server.remoting.davex.AclRemoveHandler" />
-	</protecteditemremovehandler>
-</config>

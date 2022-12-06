@@ -8,15 +8,21 @@ import java.util.Map;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsAppListener;
-import org.argeo.api.cms.CmsTheme;
+import org.argeo.api.cms.CmsContext;
+import org.argeo.api.cms.ux.CmsTheme;
 
 /** Base class for {@link CmsApp}s. */
 public abstract class AbstractCmsApp implements CmsApp {
+	private CmsContext cmsContext;
+	
 	private Map<String, CmsTheme> themes = Collections.synchronizedMap(new HashMap<>());
 
 	private List<CmsAppListener> cmsAppListeners = new ArrayList<>();
 
-	protected abstract String getThemeId(String uiName);
+	/** To be overridden in order to provide themes. */
+	protected String getThemeId(String uiName) {
+		return null;
+	}
 
 	@Override
 	public CmsTheme getTheme(String uiName) {
@@ -35,7 +41,7 @@ public abstract class AbstractCmsApp implements CmsApp {
 			String themeId = getThemeId(uiName);
 			if ("org.eclipse.rap.rwt.theme.Default".equals(themeId))
 				continue uiNames;
-			if (!themes.containsKey(themeId)) {
+			if (themeId != null && !themes.containsKey(themeId)) {
 				themeMissing = true;
 				break uiNames;
 			}
@@ -65,5 +71,16 @@ public abstract class AbstractCmsApp implements CmsApp {
 	public void removeCmsAppListener(CmsAppListener listener) {
 		cmsAppListeners.remove(listener);
 	}
+
+	@Override
+	public CmsContext getCmsContext() {
+		return cmsContext;
+	}
+
+	public void setCmsContext(CmsContext cmsContext) {
+		this.cmsContext = cmsContext;
+	}
+	
+	
 
 }

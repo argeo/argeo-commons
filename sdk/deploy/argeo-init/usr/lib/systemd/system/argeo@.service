@@ -1,32 +1,42 @@
 [Unit]
 Description=Argeo node %I
-After=network.target
+After=network-online.target
 Wants=postgresql.service
 
 [Service]
 Type=simple
+
+User=daemon
+Group=daemon
+
 StateDirectory=argeo.d/%I
 LogsDirectory=argeo.d/%I
 ConfigurationDirectory=argeo.d/%I
 CacheDirectory=argeo.d/%I
 WorkingDirectory=/var/lib/argeo.d/%I
 
-ExecStart=/usr/lib/jvm/java-17-openjdk-amd64/bin/java \
+ExecStart=java \
 -Dosgi.configuration.cascaded=true \
--Dosgi.sharedConfiguration.area=/etc/argeo.d/%I \
+-Dosgi.sharedConfiguration.area=/etc/argeo.d/%I/ \
 -Dosgi.sharedConfiguration.area.readOnly=true \
--Dosgi.configuration.area=/var/lib/argeo.d/%I/state \
--Dosgi.instance.area=/var/lib/argeo.d/%I/data \
--Dargeo.node.repo.indexesBase=/var/cache/argeo.d/%I/indexes \
--Dorg.osgi.framework.bootdelegation=com.sun.jndi.ldap,com.sun.jndi.ldap.sasl,com.sun.security.jgss,com.sun.jndi.dns,com.sun.nio.file,com.sun.nio.sctp \
+-Dosgi.configuration.area=${STATE_DIRECTORY}/state/ \
+-Dosgi.instance.area=${STATE_DIRECTORY}/data/ \
+-Dargeo.node.repo.indexesBase=${CACHE_DIRECTORY}/indexes \
 -Declipse.ignoreApp=true \
 -Dosgi.noShutdown=true \
 -Dorg.eclipse.equinox.http.jetty.autostart=false \
 @/etc/argeo.d/jvm.args \
-@/etc/argeo.d/%I/jvm.args \
+@${CONFIGURATION_DIRECTORY}/jvm.args \
 @/usr/share/argeo/jvm.args
+
 # Exit codes of the JVM when SIGTERM or SIGINT have been caught:
 SuccessExitStatus=143 130
+
+CPUAccounting=true
+MemoryAccounting=true
+TasksAccounting=true
+IOAccounting=true
+IPAccounting=true
 
 [Install]
 WantedBy=multi-user.target
