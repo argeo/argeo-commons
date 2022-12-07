@@ -1,5 +1,6 @@
 Import-Package: \
 javax.security.*, \
-javax.xml.*
+javax.xml.*, \
+*
 
 Export-Package: org.argeo.api.acr.*
