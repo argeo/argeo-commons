@@ -91,19 +91,21 @@ public class CmsStateImpl implements CmsState {
 	}
 
 	public void start() {
-//		Runtime.getRuntime().addShutdownHook(new CmsShutdown());
-
 		try {
+			// First init check
+			Path privateBase = getDataPath(KernelConstants.DIR_PRIVATE);
+			if (privateBase != null && !Files.exists(privateBase)) {// first init
+				firstInit();
+				Files.createDirectories(privateBase);
+			}
+
 			initSecurity();
 //			initArgeoLogger();
 
 			if (log.isTraceEnabled())
 				log.trace("CMS State started");
 
-//			String stateUuidStr = KernelUtils.getFrameworkProp(Constants.FRAMEWORK_UUID);
-//			this.uuid = UUID.fromString(stateUuidStr);
 			this.uuid = uuidFactory.timeUUID();
-//		this.cleanState = stateUuid.equals(frameworkUuid);
 
 			// hostname
 			this.hostname = getDeployProperty(CmsDeployProperty.HOST);
@@ -149,12 +151,6 @@ public class CmsStateImpl implements CmsState {
 				log.debug("## CMS starting... (" + uuid + ")\n" + sb + "\n");
 			}
 
-			Path privateBase = getDataPath(KernelConstants.DIR_PRIVATE);
-			if (privateBase != null && !Files.exists(privateBase)) {// first init
-				firstInit();
-				Files.createDirectories(privateBase);
-			}
-
 		} catch (RuntimeException | IOException e) {
 			log.error("## FATAL: CMS state failed", e);
 		}
@@ -162,7 +158,7 @@ public class CmsStateImpl implements CmsState {
 
 	private void initSecurity() {
 		// private directory permissions
-		Path privateDir = KernelUtils.getOsgiInstancePath(KernelConstants.DIR_PRIVATE);
+		Path privateDir = getDataPath(KernelConstants.DIR_PRIVATE);
 		if (privateDir != null) {
 			// TODO rather check whether we can read and write
 			Set<PosixFilePermission> posixPermissions = new HashSet<>();
