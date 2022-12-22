@@ -39,6 +39,7 @@ import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.auth.ident.IdentClient;
 import org.argeo.cms.util.FsUtils;
+import org.argeo.cms.util.OS;
 
 /**
  * Implementation of a {@link CmsState}, initialising the required services.
@@ -168,7 +169,8 @@ public class CmsStateImpl implements CmsState {
 			try {
 				if (!Files.exists(privateDir))
 					Files.createDirectories(privateDir);
-				Files.setPosixFilePermissions(privateDir, posixPermissions);
+				if (!OS.LOCAL.isMSWindows())
+					Files.setPosixFilePermissions(privateDir, posixPermissions);
 			} catch (IOException e) {
 				log.error("Cannot set permissions on " + privateDir, e);
 			}

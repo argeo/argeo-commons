@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import javax.xml.namespace.QName;
+
 import org.argeo.api.acr.ArgeoNamespace;
 import org.argeo.api.acr.ContentResourceException;
 import org.argeo.api.acr.NamespaceUtils;
@@ -20,15 +22,18 @@ import org.argeo.api.acr.RuntimeNamespaceContext;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.cms.util.OS;
 
 /** Access a file system as a {@link ContentProvider}. */
 public class FsContentProvider implements ContentProvider {
-	final static String XMLNS_ = "xmlns:";
 
 	protected String mountPath;
 	protected Path rootPath;
 
 	private NavigableMap<String, String> prefixes = new TreeMap<>();
+
+	private final boolean isNtfs;
+	private final String XMLNS_;
 
 	public FsContentProvider(String mountPath, Path rootPath) {
 		Objects.requireNonNull(mountPath);
@@ -36,12 +41,17 @@ public class FsContentProvider implements ContentProvider {
 
 		this.mountPath = mountPath;
 		this.rootPath = rootPath;
+
+		this.isNtfs = OS.LOCAL.isMSWindows();
+		this.XMLNS_ = isNtfs ? "xmlns%3A" : "xmlns:";
+
 		// FIXME make it more robust
 		initNamespaces();
 	}
 
 	protected FsContentProvider() {
-
+		this.isNtfs = OS.LOCAL.isMSWindows();
+		this.XMLNS_ = isNtfs ? "xmlns%3A" : "xmlns:";
 	}
 
 	protected void initNamespaces() {
@@ -115,6 +125,27 @@ public class FsContentProvider implements ContentProvider {
 	@Override
 	public boolean exists(ProvidedSession session, String relativePath) {
 		return Files.exists(rootPath.resolve(relativePath));
+	}
+
+	/*
+	 * ATTRIBUTE NAMES
+	 */
+	/**
+	 * Make sure that the prefixed name is compatible with the underlying file
+	 * system for file names/attributes (NTFS does not accept :)
+	 */
+	String toFsPrefixedName(QName key) {
+		return isNtfs ? NamespaceUtils.toPrefixedName(this, key).replace(":", "%3A")
+				: NamespaceUtils.toPrefixedName(this, key);
+	}
+
+	/**
+	 * PArse a prefixed name which is compatible with the underlying file system for
+	 * file names/attributes (NTFS does not accept :)
+	 */
+	QName fromFsPrefixedName(String name) {
+		return isNtfs ? NamespaceUtils.parsePrefixedName(this, name.replace("%3A", ":"))
+				: NamespaceUtils.parsePrefixedName(this, name);
 	}
 
 	/*

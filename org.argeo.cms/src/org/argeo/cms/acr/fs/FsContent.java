@@ -90,7 +90,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		} else {
 
 			// TODO should we support prefixed name for known types?
-			QName providerName = NamespaceUtils.parsePrefixedName(provider, path.getFileName().toString());
+			QName providerName = provider.fromFsPrefixedName(path.getFileName().toString());
 //			QName providerName = new QName(path.getFileName().toString());
 			// TODO remove extension if mounted?
 			this.name = new ContentName(providerName, session);
@@ -126,7 +126,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			} else {
 				UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path,
 						UserDefinedFileAttributeView.class);
-				String prefixedName = NamespaceUtils.toPrefixedName(provider, key);
+				String prefixedName = provider.toFsPrefixedName(key);
 				if (!udfav.list().contains(prefixedName))
 					return Optional.empty();
 				ByteBuffer buf = ByteBuffer.allocate(udfav.size(prefixedName));
@@ -198,7 +198,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		if (udfav != null) {
 			try {
 				for (String name : udfav.list()) {
-					QName providerName = NamespaceUtils.parsePrefixedName(provider, name);
+					QName providerName = provider.fromFsPrefixedName(name);
 					if (providerName.getNamespaceURI().equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI))
 						continue; // skip prefix mapping
 					QName sessionName = new ContentName(providerName, getSession());
@@ -215,7 +215,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	protected void removeAttr(QName key) {
 		UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
 		try {
-			udfav.delete(NamespaceUtils.toPrefixedName(provider, key));
+			udfav.delete(provider.toFsPrefixedName(key));
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot delete attribute " + key + " for " + path, e);
 		}
@@ -239,7 +239,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		UserDefinedFileAttributeView udfav = Files.getFileAttributeView(path, UserDefinedFileAttributeView.class);
 		ByteBuffer bb = ByteBuffer.wrap(toWrite.getBytes(StandardCharsets.UTF_8));
 		try {
-			udfav.write(NamespaceUtils.toPrefixedName(provider, key), bb);
+			udfav.write(provider.toFsPrefixedName(key), bb);
 		} catch (IOException e) {
 			throw new ContentResourceException("Cannot delete attribute " + key + " for " + path, e);
 		}
@@ -250,7 +250,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		if (POSIX_KEYS.containsKey(key))
 			return POSIX_KEYS.get(key);
 		else
-			return USER_ + NamespaceUtils.toPrefixedName(provider, key);
+			return USER_ + provider.toFsPrefixedName(key);
 	}
 
 	/*
@@ -285,7 +285,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 	public Content add(QName name, QName... classes) {
 		FsContent fsContent;
 		try {
-			Path newPath = path.resolve(NamespaceUtils.toPrefixedName(provider, name));
+			Path newPath = path.resolve(provider.toFsPrefixedName(name));
 			if (ContentName.contains(classes, DName.collection.qName()))
 				Files.createDirectory(newPath);
 			else

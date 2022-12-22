@@ -19,6 +19,7 @@ public class CmsDBusImpl implements CmsDBus {
 	private BusAddress sessionBusAddress;
 
 	private EmbeddedDBusDaemon dBusDaemon;
+	private Path dBusDaemonSocket;
 
 	private CmsEventBus cmsEventBus;
 
@@ -27,8 +28,9 @@ public class CmsDBusImpl implements CmsDBus {
 			final String envSessionBusAddress = System.getenv(DBUS_SESSION_BUS_ADDRESS);
 			if (envSessionBusAddress != null) {
 				sessionBusAddress = BusAddress.of(envSessionBusAddress);
-				
-				// !! We must first initialise a connection, otherwise there are classloader issues later on 
+
+				// !! We must first initialise a connection, otherwise there are classloader
+				// issues later on
 				try (DBusConnection dBusConnection = DBusConnectionBuilder.forAddress(sessionBusAddress)
 						.withShared(false).build()) {
 
@@ -36,11 +38,15 @@ public class CmsDBusImpl implements CmsDBus {
 				log.debug(() -> "Found session DBus with address " + sessionBusAddress);
 			} else {
 				Path socketLocation = Paths.get(System.getProperty("user.home"), ".cache", "argeo", "bus");
-				Files.createDirectories(socketLocation.getParent());
-				// TODO escape : on Windows?
-				String embeddedSessionBusAddress = "unix:path=" + socketLocation.toUri().getPath();
-				dBusDaemon = new EmbeddedDBusDaemon(embeddedSessionBusAddress);
+				if (Files.exists(socketLocation))
+					Files.delete(socketLocation);
+				else
+					Files.createDirectories(socketLocation.getParent());
+
+				String embeddedSessionBusAddress = "unix:path=" + socketLocation.toString();
+				dBusDaemon = new EmbeddedDBusDaemon(embeddedSessionBusAddress + ",listen=true");
 				dBusDaemon.startInBackgroundAndWait(30 * 1000);
+				dBusDaemonSocket = socketLocation;
 
 				sessionBusAddress = BusAddress.of(embeddedSessionBusAddress);
 				try (DBusConnection dBusConnection = DBusConnectionBuilder.forAddress(sessionBusAddress)
@@ -62,6 +68,11 @@ public class CmsDBusImpl implements CmsDBus {
 				dBusDaemon.close();
 			} catch (IOException e) {
 				log.error("Cannot close embedded DBus daemon", e);
+			}
+			try {
+				Files.delete(dBusDaemonSocket);
+			} catch (IOException e) {
+				log.error("Cannot delete DBus daemon socket " + dBusDaemonSocket, e);
 			}
 		}
 	}
