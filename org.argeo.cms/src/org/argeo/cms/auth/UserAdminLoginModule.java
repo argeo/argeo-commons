@@ -103,6 +103,11 @@ public class UserAdminLoginModule implements LoginModule {
 			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
 			password = null;
 			preauth = true;
+		} else if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_OS_USERNAME)) {
+			// single user, we assume Kerberos or other mean for commit
+			username = (String) sharedState.get(CmsAuthUtils.SHARED_STATE_OS_USERNAME);
+			password = null;
+			preauth = true;
 		} else {
 
 			// ask for username and password
@@ -205,7 +210,7 @@ public class UserAdminLoginModule implements LoginModule {
 //		}
 		UserAdmin userAdmin = CmsContextImpl.getCmsContext().getUserAdmin();
 		Authorization authorization;
-		if (callbackHandler == null) {// anonymous
+		if (callbackHandler == null && !sharedState.containsKey(CmsAuthUtils.SHARED_STATE_OS_USERNAME)) {// anonymous
 			authorization = userAdmin.getAuthorization(null);
 		} else if (bindAuthorization != null) {// bind
 			authorization = bindAuthorization;

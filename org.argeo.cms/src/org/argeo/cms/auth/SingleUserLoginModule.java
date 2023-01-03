@@ -7,6 +7,7 @@ import javax.naming.ldap.LdapName;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.kerberos.KerberosPrincipal;
+import javax.security.auth.login.CredentialException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.security.auth.x500.X500Principal;
@@ -35,8 +36,12 @@ public class SingleUserLoginModule implements LoginModule {
 	@Override
 	public boolean login() throws LoginException {
 		String username = System.getProperty("user.name");
-		if (!sharedState.containsKey(CmsAuthUtils.SHARED_STATE_NAME))
-			sharedState.put(CmsAuthUtils.SHARED_STATE_NAME, username);
+		if (sharedState.containsKey(CmsAuthUtils.SHARED_STATE_OS_USERNAME)
+				&& !username.equals(sharedState.get(CmsAuthUtils.SHARED_STATE_OS_USERNAME)))
+			throw new CredentialException(
+					"OS username already set with " + sharedState.get(CmsAuthUtils.SHARED_STATE_OS_USERNAME));
+		if (!sharedState.containsKey(CmsAuthUtils.SHARED_STATE_OS_USERNAME))
+			sharedState.put(CmsAuthUtils.SHARED_STATE_OS_USERNAME, username);
 		return true;
 	}
 
@@ -49,7 +54,7 @@ public class SingleUserLoginModule implements LoginModule {
 			X500Principal principal = new X500Principal(userDn.toString());
 			authorizationName = principal.getName();
 		} else {
-			Object username = sharedState.get(CmsAuthUtils.SHARED_STATE_NAME);
+			Object username = sharedState.get(CmsAuthUtils.SHARED_STATE_OS_USERNAME);
 			if (username == null)
 				throw new LoginException("No username available");
 			String hostname = CmsContextImpl.getCmsContext().getCmsState().getHostname();
