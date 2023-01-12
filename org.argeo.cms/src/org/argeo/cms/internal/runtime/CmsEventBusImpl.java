@@ -10,7 +10,7 @@ import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsEventSubscriber;
 import org.argeo.api.cms.CmsLog;
 
-/** {@link CmsEventBus} implementation based on {@link Flow}. */
+/** An asynchronous {@link CmsEventBus} implementation based on {@link Flow}. */
 public class CmsEventBusImpl implements CmsEventBus {
 	private final static CmsLog log = CmsLog.getLog(CmsEventBus.class);
 
