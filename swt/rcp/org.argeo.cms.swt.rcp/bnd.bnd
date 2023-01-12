@@ -5,9 +5,11 @@ org.argeo.cms.auth,\
 org.eclipse.swt,\
 org.eclipse.swt.graphics,\
 org.w3c.css.sac,\
+org.freedesktop.dbus.connections,\
 *
 
 Service-Component:\
 OSGI-INF/cmsRcpDisplayFactory.xml,\
-OSGI-INF/cmsRcpHttpLauncher.xml
+OSGI-INF/cmsRcpDBusLauncher.xml
+#OSGI-INF/cmsRcpHttpLauncher.xml
 

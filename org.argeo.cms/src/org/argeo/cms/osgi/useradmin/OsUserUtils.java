@@ -22,7 +22,7 @@ public class OsUserUtils {
 	public static LoginContext loginAsSystemUser(Subject subject) {
 		try {
 			URL jaasConfigurationUrl = OsUserUtils.class.getClassLoader()
-					.getResource("org/argeo/osgi/useradmin/jaas-os.cfg");
+					.getResource("org/argeo/cms/osgi/useradmin/jaas-os.cfg");
 			URIParameter uriParameter = new URIParameter(jaasConfigurationUrl.toURI());
 			Configuration jaasConfiguration = Configuration.getInstance("JavaLoginConfig", uriParameter);
 			LoginContext lc = new LoginContext(isWindows() ? LOGIN_CONTEXT_USER_NT : LOGIN_CONTEXT_USER_NIX, subject,

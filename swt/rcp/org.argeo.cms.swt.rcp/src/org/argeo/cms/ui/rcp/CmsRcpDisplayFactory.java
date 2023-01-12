@@ -67,7 +67,8 @@ public class CmsRcpDisplayFactory {
 				display = null;
 			} catch (UnsatisfiedLinkError e) {
 				logger.log(Level.ERROR,
-						"Cannot load SWT, probably because the OSGi framework has been refresh. Restart the application.",
+						"Cannot load SWT, either because the SWT DLLs are no in the java.library.path,"
+								+ " or because the OSGi framework has been refreshed." + " Restart the application.",
 						e);
 			}
 		}

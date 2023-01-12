@@ -9,9 +9,10 @@ import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.cms.acr.CmsContentRepository;
 import org.argeo.cms.acr.directory.DirectoryContentProvider;
 import org.argeo.cms.acr.fs.FsContentProvider;
+import org.argeo.cms.util.OS;
 
 public class DeployedContentRepository extends CmsContentRepository {
-	private final static String ROOT_XML = "cr:root.xml";
+	private final static String ROOT_XML = OS.LOCAL.isMSWindows() ? "cr%3Aroot.xml" : "cr:root.xml";
 
 	private final static CmsLog log = CmsLog.getLog(DeployedContentRepository.class);
 
@@ -22,7 +23,8 @@ public class DeployedContentRepository extends CmsContentRepository {
 		long begin = System.currentTimeMillis();
 		try {
 			super.start();
-			Path rootXml = KernelUtils.getOsgiInstancePath(ROOT_XML);
+			// FIXME does not work on Windows
+			//Path rootXml = KernelUtils.getOsgiInstancePath(ROOT_XML);
 			initRootContentProvider(null);
 
 //		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);

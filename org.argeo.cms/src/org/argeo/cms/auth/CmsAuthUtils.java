@@ -45,6 +45,7 @@ class CmsAuthUtils {
 	final static String SHARED_STATE_CERTIFICATE_CHAIN = "org.argeo.cms.auth.certificateChain";
 	final static String SHARED_STATE_REMOTE_ADDR = "org.argeo.cms.auth.remote.addr";
 	final static String SHARED_STATE_REMOTE_PORT = "org.argeo.cms.auth.remote.port";
+	final static String SHARED_STATE_OS_USERNAME = "org.argeo.cms.os.username";
 
 	final static String SINGLE_USER_LOCAL_ID = "single-user";
 
