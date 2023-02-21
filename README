@@ -13,9 +13,9 @@ Then, run:
 
 git clone http://git.argeo.org/lgpl/argeo-commons.git --recursive
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
-./argeo-tp/configure
+./argeo-commons/configure
 
-cd argeo-tp
+cd argeo-commons
 make clean all
 
 In order to use it within an Eclipse PDE environment:
