@@ -11,7 +11,7 @@ Prerequisites to build this layer:
 
 Then, run:
 
-git clone http://git.argeo.org/gpl/argeo-commons.git --recursive
+git clone http://git.argeo.org/lgpl/argeo-commons.git --recursive
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
 ./argeo-tp/configure
 
