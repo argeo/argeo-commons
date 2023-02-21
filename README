@@ -1,0 +1,29 @@
+Argeo Commons is a lightweight integration framework in pure Java 17, and the foundation for all other Argeo layers.
+
+It provides APIs (org.argeo.api.* components), a simple CMS with LDAP and Kerberos integration for authentication/authorisation, and an UI framework based on Eclipse RAP/RCP.
+
+The central component is org.argeo.cms, which implements a "node" that can be used either as a server (typically with an Eclipse RAP web interface) or a client (typically with an Eclipse RCP desktop interface).
+
+## Build
+Prerequisites to build this layer:
+- build Argeo TP
+(cf. http://git.argeo.org)
+
+Then, run:
+
+git clone http://git.argeo.org/gpl/argeo-commons.git --recursive
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
+./argeo-tp/configure
+
+cd argeo-tp
+make clean all
+
+In order to use it within an Eclipse PDE environment:
+
+make clean all manifests
+
+which will copy the generated OSGi MANIFESTs back to the source tree. The *.target files in argeo-tp/sdk can then be used to configure the target platforms.
+
+In order to develop with the Eclipse RCP components (Eclipse RAP being the default), additionally run:
+
+make -f Makefile-rcp.mk manifests
