@@ -4,7 +4,13 @@ org.apache.sshd.common.forward,\
 org.apache.sshd.common.channel,\
 org.apache.sshd.common.helpers,\
 org.apache.sshd.common.file.util,\
+org.bouncycastle.jcajce.provider;resolution:="optional",\
+org.bouncycastle.jce.provider;resolution:="optional",\
+org.bouncycastle.*;resolution:="optional",\
+!java.*,\
 *
+
+# NOTE: making the provider packages optional leaves open to switch back to BC non-fips provider.
 
 Service-Component: \
 OSGI-INF/cmsSshServer.xml

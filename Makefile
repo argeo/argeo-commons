@@ -29,8 +29,8 @@ swt/rap/org.argeo.cms.swt.rap \
 swt/rap/org.argeo.cms.e4.rap \
 
 DEP_CATEGORIES = \
+crypto/fips/org.argeo.tp.crypto \
 org.argeo.tp \
-org.argeo.tp.crypto \
 org.argeo.tp.jetty \
 osgi/api/org.argeo.tp.osgi \
 osgi/equinox/org.argeo.tp.eclipse \

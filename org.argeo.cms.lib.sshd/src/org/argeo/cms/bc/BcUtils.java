@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.Certificate;
@@ -29,7 +31,6 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
@@ -44,10 +45,38 @@ import org.bouncycastle.pkcs.PKCSException;
 public class BcUtils {
 	private final static CmsLog log = CmsLog.getLog(BcUtils.class);
 
-	private final static String BC_SECURITY_PROVIDER;
+	private final static String BC_SECURITY_PROVIDER_FIPS = "BCFIPS";
+//	private final static String BC_SECURITY_PROVIDER_NON_FIPS = "BC";
+	public final static String BC_SECURITY_PROVIDER;
 	static {
-		Security.addProvider(new BouncyCastleProvider());
-		BC_SECURITY_PROVIDER = "BC";
+		Class<?> clss = null;
+		try {
+			clss = Class.forName("org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider");
+		} catch (ClassNotFoundException e) {
+			log.warn("Bouncy Castle FIPS provider could not be initialised,"
+					+ " we assume the non-FIPS provider is configured externally. (" + e + ")");
+			try {
+				clss = Class.forName("org.bouncycastle.jce.provider.BouncyCastleProvider");
+			} catch (ClassNotFoundException e1) {
+				// silent
+			}
+		}
+		if (clss != null) {
+			try {
+				Provider provider = (Provider) clss.getDeclaredConstructor().newInstance();
+				Security.addProvider(provider);
+				BC_SECURITY_PROVIDER = provider.getName();
+			} catch (IllegalAccessException | InstantiationException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				throw new IllegalStateException("Cannot load Bouncy Castle provider " + clss, e);
+			}
+		} else {
+			throw new IllegalStateException("Cannot load any Bouncy Castle provider");
+		}
+	}
+
+	public static boolean isFipsProvider() {
+		return BC_SECURITY_PROVIDER.equals(BC_SECURITY_PROVIDER_FIPS);
 	}
 
 	public static void createSelfSignedKeyStore(Path keyStorePath, char[] keyStorePassword, String keyStoreType) {
@@ -165,4 +194,8 @@ public class BcUtils {
 	/** singleton */
 	private BcUtils() {
 	}
+
+//	public static void main(String args[]) {
+//		createSelfSignedKeyStore(Paths.get("./selfsigned.p12"), "demo".toCharArray(), "PKCS12");
+//	}
 }

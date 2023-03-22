@@ -1,0 +1,39 @@
+dn: uid=coworker,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+givenName: John
+sn: Coworker
+userPassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+mail: coworker@localhost
+uid: coworker
+cn: John Coworker
+description: A regular coworker
+
+dn: uid=manager,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+givenName: Mary
+sn: Manager
+userPassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+mail: manager@localhost
+uid: manager
+cn: Mary Manager
+description: A manager
+
+dn: uid=root,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: person
+objectClass: organizationalPerson
+objectClass: top
+givenName: Super
+sn: User
+userPassword:: e1NIQX1pZVNWNTVRYytlUU9hWURSU2hhL0Fqek5USkU9
+mail: root@localhost
+uid: root
+cn: Super User
+description: Superuser
+

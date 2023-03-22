@@ -19,18 +19,19 @@ import java.security.spec.RSAPublicKeySpec;
 
 import org.apache.sshd.common.config.keys.KeyUtils;
 import org.apache.sshd.common.config.keys.PublicKeyEntry;
+import org.argeo.cms.bc.BcUtils;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
 import org.bouncycastle.openssl.PEMEncryptedKeyPair;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.PKCS8Generator;
-import org.bouncycastle.openssl.bc.BcPEMDecryptorProvider;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
 import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
 import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8EncryptorBuilder;
+import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.operator.OutputEncryptor;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
@@ -150,7 +151,9 @@ public class SshKeyPair {
 			KeyPair kp;
 			if (object instanceof PEMEncryptedKeyPair) {
 				PEMEncryptedKeyPair ekp = (PEMEncryptedKeyPair) object;
-				PEMDecryptorProvider decryptorProvider = new BcPEMDecryptorProvider(password);
+				JcePEMDecryptorProviderBuilder decryptorProviderBuilder = new JcePEMDecryptorProviderBuilder();
+				decryptorProviderBuilder.setProvider(BcUtils.BC_SECURITY_PROVIDER);
+				PEMDecryptorProvider decryptorProvider = decryptorProviderBuilder.build(password);
 				PEMKeyPair pemKp = ekp.decryptKeyPair(decryptorProvider);
 				kp = converter.getKeyPair(pemKp);
 			} else if (object instanceof PKCS8EncryptedPrivateKeyInfo) {
