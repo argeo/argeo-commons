@@ -23,10 +23,8 @@ org.argeo.cms.cli \
 osgi/equinox/org.argeo.cms.lib.equinox \
 swt/org.argeo.swt.minidesktop \
 swt/org.argeo.cms.swt \
-swt/org.argeo.cms.e4 \
 swt/rap/org.argeo.swt.specific.rap \
 swt/rap/org.argeo.cms.swt.rap \
-swt/rap/org.argeo.cms.e4.rap \
 
 DEP_CATEGORIES = \
 crypto/fips/org.argeo.tp.crypto \
@@ -35,7 +33,6 @@ org.argeo.tp.jetty \
 osgi/api/org.argeo.tp.osgi \
 osgi/equinox/org.argeo.tp.eclipse \
 swt/rap/org.argeo.tp.swt \
-swt/rap/org.argeo.tp.swt.workbench \
 $(A2_CATEGORY) \
 swt/$(A2_CATEGORY) \
 swt/rap/$(A2_CATEGORY) \
