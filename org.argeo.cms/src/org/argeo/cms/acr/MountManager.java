@@ -47,6 +47,7 @@ class MountManager {
 		return partitions.get(mountPath);
 	}
 
+	/** The content provider for this path. */
 	synchronized ContentProvider findContentProvider(String path) {
 //		if (ContentUtils.EMPTY.equals(path))
 //			return partitions.firstEntry().getValue();
@@ -65,4 +66,17 @@ class MountManager {
 		assert mountPath.equals(contentProvider.getMountPath());
 		return contentProvider;
 	}
+
+	/** All content provider under this path. */
+	synchronized NavigableMap<String, ContentProvider> findContentProviders(String path) {
+		NavigableMap<String, ContentProvider> res = new TreeMap<>();
+		tail: for (Map.Entry<String, ContentProvider> provider : partitions.tailMap(path).entrySet()) {
+			if (!provider.getKey().startsWith(path))
+				break tail;
+			res.put(provider.getKey(), provider.getValue());
+		}
+		return res;
+
+	}
+
 }
