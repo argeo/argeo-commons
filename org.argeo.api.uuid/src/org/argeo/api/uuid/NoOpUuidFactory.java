@@ -3,11 +3,11 @@ package org.argeo.api.uuid;
 import java.util.UUID;
 
 /**
- * An {@link UuidFactory} which does not implement any algorith and returns
+ * An {@link UuidFactory} which does not implement any algorithm and returns
  * {@link UnsupportedOperationException} for methods requiring them. Only
  * {@link UuidFactory#get()} and {@link UuidFactory#randomUUID()} are
  * implemented, trivially based on {@link UUID#randomUUID()}. It can be useful
- * as a base class for partial implementations, or whren only random
+ * as a base class for partial implementations, or when only random
  * {@link UUID}s are needed, but one wants to integrate with this UUID API via
  * {@link UuidFactory}.
  */
