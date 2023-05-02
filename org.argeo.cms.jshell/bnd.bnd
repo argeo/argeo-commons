@@ -1,0 +1,6 @@
+Import-Package: \
+org.osgi.framework.namespace, \
+*
+
+Service-Component:\
+OSGI-INF/cmsJShell.xml

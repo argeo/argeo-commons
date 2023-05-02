@@ -374,6 +374,11 @@ public class CmsStateImpl implements CmsState {
 	}
 
 	@Override
+	public Path getStatePath(String relativePath) {
+		return KernelUtils.getOsgiConfigurationPath(relativePath);
+	}
+
+	@Override
 	public Long getAvailableSince() {
 		return availableSince;
 	}

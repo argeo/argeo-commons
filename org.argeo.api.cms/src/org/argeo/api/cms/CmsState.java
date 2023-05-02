@@ -21,4 +21,6 @@ public interface CmsState {
 	List<String> getDeployProperties(String property);
 
 	Path getDataPath(String relativePath);
+
+	Path getStatePath(String relativePath);
 }
