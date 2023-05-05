@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -42,8 +43,11 @@ public class CmsContentRepository extends AbstractContentRepository {
 
 	@Override
 	public ContentSession get(Locale locale) {
-		if (!CmsSession.hasCmsSession(CurrentSubject.current())) {
-			if (DataAdminPrincipal.isDataAdmin(CurrentSubject.current())) {
+		Subject subject = CurrentSubject.current();
+		if (subject == null)
+			throw new IllegalStateException("Caller must be authenticated");
+		if (!CmsSession.hasCmsSession(subject)) {
+			if (DataAdminPrincipal.isDataAdmin(subject)) {
 				// TODO open multiple data admin sessions?
 				return getSystemSession();
 			}
