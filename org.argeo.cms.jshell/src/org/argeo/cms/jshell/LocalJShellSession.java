@@ -13,8 +13,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.concurrent.Executors;
 
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.util.CurrentSubject;
 import org.argeo.internal.cms.jshell.osgi.OsgiExecutionControlProvider;
 
 import jdk.jshell.tool.JavaShellToolBuilder;
@@ -25,7 +31,7 @@ class LocalJShellSession implements Runnable {
 	private UUID uuid;
 	private Path sessionDir;
 
-	private String fromBundle = "org.argeo.cms.jshell";
+	private String fromBundle = "eu.netiket.on.apaf.project.togo2023";
 
 	private Path stdioPath;
 	private Path stderrPath;
@@ -33,17 +39,30 @@ class LocalJShellSession implements Runnable {
 
 	private Thread replThread;
 
+	private LoginContext loginContext;
+
 	LocalJShellSession(Path sessionDir) {
 		this.sessionDir = sessionDir;
 		this.uuid = UUID.fromString(sessionDir.getFileName().toString());
 
 		stdioPath = sessionDir.resolve(JShellClient.STDIO);
 
-		replThread = new Thread(this, "JShell " + sessionDir);
+		// TODO proper login
+		try {
+			loginContext = new LoginContext(CmsAuth.DATA_ADMIN.getLoginContextName());
+			loginContext.login();
+		} catch (LoginException e1) {
+			throw new RuntimeException("Could not login as data admin", e1);
+		} finally {
+		}
+
+		replThread = new Thread(() -> CurrentSubject.callAs(loginContext.getSubject(), Executors.callable(this)),
+				"JShell " + sessionDir);
 		replThread.start();
 	}
 
 	public void run() {
+
 		log.debug(() -> "Started JShell session " + sessionDir);
 		try (SocketPipeMirror std = new SocketPipeMirror()) {
 			// prepare jshell tool builder
@@ -98,6 +117,12 @@ class LocalJShellSession implements Runnable {
 				Files.delete(sessionDir);
 		} catch (IOException e) {
 			log.error("Cannot clean up JShell " + sessionDir, e);
+		}
+
+		try {
+			loginContext.logout();
+		} catch (LoginException e) {
+			log.error("Cannot log out JShell " + sessionDir, e);
 		}
 	}
 
