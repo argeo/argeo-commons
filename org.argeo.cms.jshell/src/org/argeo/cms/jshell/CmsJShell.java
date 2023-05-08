@@ -1,6 +1,7 @@
 package org.argeo.cms.jshell;
 
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +17,8 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.api.uuid.UuidFactory;
 import org.argeo.cms.util.OS;
+import org.argeo.internal.cms.jshell.osgi.OsgiExecutionControlProvider;
+import org.osgi.framework.Bundle;
 
 public class CmsJShell {
 	private final static CmsLog log = CmsLog.getLog(CmsJShell.class);
@@ -26,17 +29,24 @@ public class CmsJShell {
 	private CmsState cmsState;
 
 	private Map<Path, LocalJShellSession> localSessions = new HashMap<>();
+	private Map<Path, Path> bundleDirs = new HashMap<>();
 
+	private Path stateRunDir;
 	private Path localBase;
 	private Path linkedDir;
+
+//	private String defaultBundle = "org.argeo.cms.cli";
 
 	public void start() throws Exception {
 
 		// Path localBase = cmsState.getStatePath("org.argeo.cms.jshell/local");
-		UUID stateUuid = cmsState.getUuid();
+//		UUID stateUuid = cmsState.getUuid();
+
+		// TODO better define application id, make it configurable
+		String applicationID = cmsState.getStatePath("").getFileName().toString();
 
 		// TODO centralise state run dir
-		Path stateRunDir = OS.getRunDir().resolve(stateUuid.toString());
+		stateRunDir = OS.getRunDir().resolve(applicationID);
 		localBase = stateRunDir.resolve("jsh");
 		Files.createDirectories(localBase);
 
@@ -50,14 +60,34 @@ public class CmsJShell {
 
 				localBase.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
 						StandardWatchEventKinds.ENTRY_DELETE);
+				try (DirectoryStream<Path> bundleSns = Files.newDirectoryStream(localBase)) {
+					for (Path bundleSnDir : bundleSns) {
+						addBundleSnDir(bundleSnDir);
+						if (bundleDirs.containsKey(bundleSnDir)) {
+							bundleSnDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
+									StandardWatchEventKinds.ENTRY_DELETE);
+						}
+					}
+				}
 
 				WatchKey key;
 				while ((key = watchService.take()) != null) {
 					events: for (WatchEvent<?> event : key.pollEvents()) {
 //						System.out.println("Event kind:" + event.kind() + ". File affected: " + event.context() + ".");
-						Path path = localBase.resolve((Path) event.context());
+						Path parent = (Path) key.watchable();
 						// sessions
-						if (Files.isSameFile(localBase, path.getParent())) {
+						if (Files.isSameFile(localBase, parent)) {
+							Path bundleSnDir = localBase.resolve((Path) event.context());
+							if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
+								addBundleSnDir(bundleSnDir);
+								if (bundleDirs.containsKey(bundleSnDir)) {
+									bundleSnDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
+											StandardWatchEventKinds.ENTRY_DELETE);
+								}
+							} else if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind())) {
+							}
+						} else {
+							Path path = parent.resolve((Path) event.context());
 							if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
 								if (!Files.isDirectory(path)) {
 									log.warn("Ignoring " + path + " as it is not a directory");
@@ -70,32 +100,14 @@ public class CmsJShell {
 									continue events;
 								}
 
-								LocalJShellSession localSession = new LocalJShellSession(path);
+								Path bundleIdDir = bundleDirs.get(parent);
+								LocalJShellSession localSession = new LocalJShellSession(path, bundleIdDir);
 								localSessions.put(path, localSession);
 							} else if (StandardWatchEventKinds.ENTRY_DELETE.equals(event.kind())) {
 								// TODO clean up session
 								LocalJShellSession localSession = localSessions.remove(path);
 								localSession.cleanUp();
 							}
-						} else {
-//							if (StandardWatchEventKinds.ENTRY_CREATE.equals(event.kind())) {
-//								Path sessionDir = path.getParent();
-//								LocalSession session = localSessions.get(sessionDir);
-//								if (session == null) {
-//									sessions: for (Path p : localSessions.keySet()) {
-//										if (Files.isSameFile(sessionDir, p)) {
-//											session = localSessions.get(p);
-//											break sessions;
-//										}
-//									}
-//								}
-//								if (session == null) {
-//									log.warn("Ignoring " + path + " as its parent is not a registered session");
-//									continue events;
-//								}
-//								session.addChild(path);
-//							}
-
 						}
 					}
 					key.reset();
@@ -103,7 +115,7 @@ public class CmsJShell {
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
-		}, "JSChell local sessions watcher").start();
+		}, "JShell local sessions watcher").start();
 
 		// thread context class loader should be where the service is defined
 //		Thread.currentThread().setContextClassLoader(loader);
@@ -111,6 +123,19 @@ public class CmsJShell {
 //
 //		builder.start("--execution", "osgi:bundle(org.argeo.cms.jshell)");
 
+	}
+
+	private void addBundleSnDir(Path bundleSnDir) throws IOException {
+		String symbolicName = bundleSnDir.getFileName().toString();
+		Bundle fromBundle = OsgiExecutionControlProvider.getBundleFromSn(symbolicName);
+		if (fromBundle == null) {
+			log.error("Ignoring bundle " + symbolicName + " because it was not found");
+			return;
+		}
+		Long bundleId = fromBundle.getBundleId();
+		Path bundleIdDir = stateRunDir.resolve(bundleId.toString());
+		Files.createDirectories(bundleIdDir);
+		bundleDirs.put(bundleSnDir, bundleIdDir);
 	}
 
 //	public void startX(BundleContext bc) {

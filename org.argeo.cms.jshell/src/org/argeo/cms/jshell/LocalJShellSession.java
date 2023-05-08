@@ -1,17 +1,13 @@
 package org.argeo.cms.jshell;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.StandardProtocolFamily;
-import java.net.URI;
 import java.net.UnixDomainSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -21,6 +17,7 @@ import javax.security.auth.login.LoginException;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.util.CurrentSubject;
+import org.argeo.cms.util.FsUtils;
 import org.argeo.internal.cms.jshell.osgi.OsgiExecutionControlProvider;
 
 import jdk.jshell.tool.JavaShellToolBuilder;
@@ -30,8 +27,7 @@ class LocalJShellSession implements Runnable {
 
 	private UUID uuid;
 	private Path sessionDir;
-
-	private String fromBundle = "eu.netiket.on.apaf.project.togo2023";
+	private Path socketsDir;
 
 	private Path stdioPath;
 	private Path stderrPath;
@@ -41,21 +37,32 @@ class LocalJShellSession implements Runnable {
 
 	private LoginContext loginContext;
 
-	LocalJShellSession(Path sessionDir) {
-		this.sessionDir = sessionDir;
-		this.uuid = UUID.fromString(sessionDir.getFileName().toString());
+	private Long bundleId;
 
-		stdioPath = sessionDir.resolve(JShellClient.STDIO);
-
-		// TODO proper login
+	LocalJShellSession(Path sessionDir, Path bundleIdDir) {
 		try {
-			loginContext = new LoginContext(CmsAuth.DATA_ADMIN.getLoginContextName());
-			loginContext.login();
-		} catch (LoginException e1) {
-			throw new RuntimeException("Could not login as data admin", e1);
-		} finally {
-		}
+			this.sessionDir = sessionDir;
+			this.uuid = UUID.fromString(sessionDir.getFileName().toString());
+			bundleId = Long.parseLong(bundleIdDir.getFileName().toString());
+			socketsDir = bundleIdDir.resolve(uuid.toString());
+			Files.createDirectories(socketsDir);
 
+			stdioPath = socketsDir.resolve(JShellClient.STDIO);
+			Files.createSymbolicLink(sessionDir.resolve(JShellClient.STDIO), stdioPath);
+
+			// TODO proper login
+			try {
+				loginContext = new LoginContext(CmsAuth.DATA_ADMIN.getLoginContextName());
+				loginContext.login();
+			} catch (LoginException e1) {
+				throw new RuntimeException("Could not login as data admin", e1);
+			} finally {
+			}
+
+		} catch (IOException e) {
+			log.error("Cannot initiate local session " + uuid, e);
+			cleanUp();
+		}
 		replThread = new Thread(() -> CurrentSubject.callAs(loginContext.getSubject(), Executors.callable(this)),
 				"JShell " + sessionDir);
 		replThread.start();
@@ -80,9 +87,9 @@ class LocalJShellSession implements Runnable {
 				try (SocketChannel channel = stdServerChannel.accept()) {
 					std.open(channel);
 
-					String frameworkLocation = System.getProperty("osgi.framework");
-					StringJoiner classpath = new StringJoiner(File.pathSeparator);
-					classpath.add(Paths.get(URI.create(frameworkLocation)).toAbsolutePath().toString());
+//					StringJoiner classpath = new StringJoiner(File.pathSeparator);
+//					String frameworkLocation = System.getProperty("osgi.framework");
+//					classpath.add(Paths.get(URI.create(frameworkLocation)).toAbsolutePath().toString());
 
 					ClassLoader cmsJShellBundleCL = OsgiExecutionControlProvider.class.getClassLoader();
 					ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
@@ -93,8 +100,9 @@ class LocalJShellSession implements Runnable {
 						//
 						// START JSHELL
 						//
-						int exitCode = builder.start("--execution", "osgi:bundle(" + fromBundle + ")", "--class-path",
-								classpath.toString());
+						int exitCode = builder.start("--execution", "osgi:bundle(" + bundleId + ")", "--class-path",
+								OsgiExecutionControlProvider.getBundleClasspath(bundleId), "--startup",
+								OsgiExecutionControlProvider.getBundleStartupScript(bundleId).toString());
 						//
 						log.debug("JShell " + sessionDir + " completed with exit code " + exitCode);
 					} finally {
@@ -111,10 +119,10 @@ class LocalJShellSession implements Runnable {
 
 	void cleanUp() {
 		try {
-			if (Files.exists(stdioPath))
-				Files.delete(stdioPath);
+			if (Files.exists(socketsDir))
+				FsUtils.delete(socketsDir);
 			if (Files.exists(sessionDir))
-				Files.delete(sessionDir);
+				FsUtils.delete(sessionDir);
 		} catch (IOException e) {
 			log.error("Cannot clean up JShell " + sessionDir, e);
 		}
