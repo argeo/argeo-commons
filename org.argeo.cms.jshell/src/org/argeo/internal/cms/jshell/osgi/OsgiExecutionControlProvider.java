@@ -67,9 +67,9 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 
 		// use the bundle classloade as context classloader
 		Thread.currentThread().setContextClassLoader(fromBundleClassLoader);
-		
+
 		ExecutionControl executionControl = new DirectExecutionControl(
-				new WrappingLoaderDelegate(fromBundleClassLoader));
+				new WrappingLoaderDelegate(env, fromBundleClassLoader));
 		log.debug("JShell from " + fromBundle.getSymbolicName() + "_" + fromBundle.getVersion() + " ["
 				+ fromBundle.getBundleId() + "]");
 		return executionControl;
@@ -119,6 +119,36 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 			for (String p : packagesToImport) {
 				writer.write("import " + p + ".*;\n");
 			}
+
+			String std = """
+					import jdk.jshell.spi.ExecutionEnv;
+
+					InputStream STDIN = new Supplier<InputStream>() {
+
+							@Override
+							public InputStream get() {
+								return ((ExecutionEnv) getClass().getClassLoader()).userIn();
+							}
+
+						}.get();
+					PrintStream STDOUT = new Supplier<PrintStream>() {
+
+							@Override
+							public PrintStream get() {
+								return ((ExecutionEnv) getClass().getClassLoader()).userOut();
+							}
+
+						}.get();
+					PrintStream STDERR = new Supplier<PrintStream>() {
+
+							@Override
+							public PrintStream get() {
+								return ((ExecutionEnv) getClass().getClassLoader()).userErr();
+							}
+
+						}.get();
+										""";
+			writer.write(std);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot writer bundle startup script to " + bundleStartupScript, e);
 		}

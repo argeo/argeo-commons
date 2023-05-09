@@ -1,8 +1,10 @@
 package org.argeo.cms.jshell;
 
+import static java.net.StandardProtocolFamily.UNIX;
+
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.StandardProtocolFamily;
 import java.net.UnixDomainSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -22,6 +24,7 @@ import org.argeo.internal.cms.jshell.osgi.OsgiExecutionControlProvider;
 
 import jdk.jshell.tool.JavaShellToolBuilder;
 
+/** A JShell session based on local UNIX sockets. */
 class LocalJShellSession implements Runnable {
 	private final static CmsLog log = CmsLog.getLog(LocalJShellSession.class);
 
@@ -29,9 +32,8 @@ class LocalJShellSession implements Runnable {
 	private Path sessionDir;
 	private Path socketsDir;
 
-	private Path stdioPath;
-	private Path stderrPath;
-	private Path cmdioPath;
+	private Path stdPath;
+	private Path ctlPath;
 
 	private Thread replThread;
 
@@ -39,7 +41,10 @@ class LocalJShellSession implements Runnable {
 
 	private Long bundleId;
 
-	LocalJShellSession(Path sessionDir, Path bundleIdDir) {
+	private final boolean interactive;
+
+	LocalJShellSession(Path sessionDir, Path bundleIdDir, boolean interactive) {
+		this.interactive = interactive;
 		try {
 			this.sessionDir = sessionDir;
 			this.uuid = UUID.fromString(sessionDir.getFileName().toString());
@@ -47,8 +52,11 @@ class LocalJShellSession implements Runnable {
 			socketsDir = bundleIdDir.resolve(uuid.toString());
 			Files.createDirectories(socketsDir);
 
-			stdioPath = socketsDir.resolve(JShellClient.STDIO);
-			Files.createSymbolicLink(sessionDir.resolve(JShellClient.STDIO), stdioPath);
+			stdPath = socketsDir.resolve(JShellClient.STD);
+			Files.createSymbolicLink(sessionDir.resolve(JShellClient.STD), stdPath);
+
+			ctlPath = socketsDir.resolve(JShellClient.CTL);
+			Files.createSymbolicLink(sessionDir.resolve(JShellClient.CTL), ctlPath);
 
 			// TODO proper login
 			try {
@@ -62,6 +70,7 @@ class LocalJShellSession implements Runnable {
 		} catch (IOException e) {
 			log.error("Cannot initiate local session " + uuid, e);
 			cleanUp();
+			return;
 		}
 		replThread = new Thread(() -> CurrentSubject.callAs(loginContext.getSubject(), Executors.callable(this)),
 				"JShell " + sessionDir);
@@ -71,29 +80,44 @@ class LocalJShellSession implements Runnable {
 	public void run() {
 
 		log.debug(() -> "Started JShell session " + sessionDir);
-		try (SocketPipeMirror std = new SocketPipeMirror()) {
+		try (SocketPipeMirror std = new SocketPipeMirror(JShellClient.STD + " " + uuid); //
+				SocketPipeMirror ctl = new SocketPipeMirror(JShellClient.CTL + " " + uuid);) {
 			// prepare jshell tool builder
+			String feedbackMode;
 			JavaShellToolBuilder builder = JavaShellToolBuilder.builder();
-			builder.in(std.getInputStream(), null);
-			builder.interactiveTerminal(true);
-			builder.out(new PrintStream(std.getOutputStream()));
+			if (interactive) {
+				builder.in(std.getInputStream(), null);
+				builder.out(new PrintStream(std.getOutputStream()));
+				builder.err(new PrintStream(ctl.getOutputStream()));
+				builder.interactiveTerminal(true);
+				feedbackMode = "concise";
+			} else {
+				builder.in(ctl.getInputStream(), std.getInputStream());
+				PrintStream cmdOut = new PrintStream(ctl.getOutputStream());
+				PrintStream discard = new PrintStream(OutputStream.nullOutputStream());
+				builder.out(cmdOut, discard, new PrintStream(std.getOutputStream()));
+				builder.err(cmdOut);
+				builder.promptCapture(true);
+				feedbackMode = "silent";
+			}
 
-			// UnixDomainSocketAddress ioSocketAddress = JSchellClient.ioSocketAddress();
-			// Files.deleteIfExists(ioSocketAddress.getPath());
-			UnixDomainSocketAddress stdSocketAddress = UnixDomainSocketAddress.of(stdioPath);
+			UnixDomainSocketAddress stdSocketAddress = UnixDomainSocketAddress.of(stdPath);
+			UnixDomainSocketAddress ctlSocketAddress = UnixDomainSocketAddress.of(ctlPath);
 
-			try (ServerSocketChannel stdServerChannel = ServerSocketChannel.open(StandardProtocolFamily.UNIX)) {
+			try (ServerSocketChannel stdServerChannel = ServerSocketChannel.open(UNIX);
+					ServerSocketChannel ctlServerChannel = ServerSocketChannel.open(UNIX);) {
 				stdServerChannel.bind(stdSocketAddress);
-				try (SocketChannel channel = stdServerChannel.accept()) {
-					std.open(channel);
-
-//					StringJoiner classpath = new StringJoiner(File.pathSeparator);
-//					String frameworkLocation = System.getProperty("osgi.framework");
-//					classpath.add(Paths.get(URI.create(frameworkLocation)).toAbsolutePath().toString());
+				ctlServerChannel.bind(ctlSocketAddress);
+				try (SocketChannel stdChannel = stdServerChannel.accept();
+						SocketChannel ctlChannel = ctlServerChannel.accept();) {
+					std.open(stdChannel);
+					ctl.open(ctlChannel);
 
 					ClassLoader cmsJShellBundleCL = OsgiExecutionControlProvider.class.getClassLoader();
 					ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
 					try {
+						String classpath = OsgiExecutionControlProvider.getBundleClasspath(bundleId);
+						Path bundleStartupScript = OsgiExecutionControlProvider.getBundleStartupScript(bundleId);
 						// we need our own class loader so that Java service loader
 						// finds our ExecutionControlProvider implementation
 						Thread.currentThread().setContextClassLoader(cmsJShellBundleCL);
@@ -101,13 +125,13 @@ class LocalJShellSession implements Runnable {
 						// START JSHELL
 						//
 						int exitCode = builder.start("--execution", "osgi:bundle(" + bundleId + ")", "--class-path",
-								OsgiExecutionControlProvider.getBundleClasspath(bundleId), "--startup",
-								OsgiExecutionControlProvider.getBundleStartupScript(bundleId).toString());
+								classpath, "--startup", bundleStartupScript.toString(), "--feedback", feedbackMode);
 						//
 						log.debug("JShell " + sessionDir + " completed with exit code " + exitCode);
 					} finally {
 						Thread.currentThread().setContextClassLoader(currentContextClassLoader);
 					}
+				} finally {
 				}
 			}
 		} catch (Exception e) {
@@ -117,7 +141,7 @@ class LocalJShellSession implements Runnable {
 		}
 	}
 
-	void cleanUp() {
+	private void cleanUp() {
 		try {
 			if (Files.exists(socketsDir))
 				FsUtils.delete(socketsDir);
@@ -127,33 +151,11 @@ class LocalJShellSession implements Runnable {
 			log.error("Cannot clean up JShell " + sessionDir, e);
 		}
 
-		try {
-			loginContext.logout();
-		} catch (LoginException e) {
-			log.error("Cannot log out JShell " + sessionDir, e);
-		}
+		if (loginContext != null)
+			try {
+				loginContext.logout();
+			} catch (LoginException e) {
+				log.error("Cannot log out JShell " + sessionDir, e);
+			}
 	}
-
-//		void addChild(Path p) throws IOException {
-//			if (replThread != null)
-//				throw new IllegalStateException("JShell " + sessionDir + " is already started");
-//
-//			if (STDIO.equals(p.getFileName().toString())) {
-//				stdioPath = p;
-//			} else if (STDERR.equals(p.getFileName().toString())) {
-//				stderrPath = p;
-//			} else if (CMDIO.equals(p.getFileName().toString())) {
-//				cmdioPath = p;
-//			} else {
-//				log.warn("Unkown file name " + p.getFileName() + " in " + sessionDir);
-//			}
-//
-//			// check that all paths are available
-//			// if (stdioPath != null && stderrPath != null && cmdioPath != null) {
-//			if (stdioPath != null) {
-//				replThread = new Thread(this, "JShell " + sessionDir);
-//				replThread.start();
-//			}
-//		}
-
 }

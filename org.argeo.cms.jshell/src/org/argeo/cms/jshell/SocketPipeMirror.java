@@ -20,7 +20,10 @@ class SocketPipeMirror implements Closeable {
 	private Thread readInThread;
 	private Thread writeOutThread;
 
-	public SocketPipeMirror() throws IOException {
+	private final String id;
+
+	public SocketPipeMirror(String id) throws IOException {
+		this.id = id;
 		inPipe = Pipe.open();
 		outPipe = Pipe.open();
 		in = Channels.newInputStream(inPipe.source());
@@ -45,7 +48,7 @@ class SocketPipeMirror implements Closeable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}, "Read in");
+		}, "JShell read " + id);
 		readInThread.start();
 
 		writeOutThread = new Thread(() -> {
@@ -62,7 +65,7 @@ class SocketPipeMirror implements Closeable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}, "Write out");
+		}, "JShell write " + id);
 		writeOutThread.start();
 
 	}
@@ -70,10 +73,20 @@ class SocketPipeMirror implements Closeable {
 	@Override
 	public void close() throws IOException {
 		// TODO make it more robust
-		readInThread.interrupt();
-		writeOutThread.interrupt();
+//		readInThread.interrupt();
+//		writeOutThread.interrupt();
 		in.close();
 		out.close();
+		try {
+			readInThread.join();
+		} catch (InterruptedException e) {
+			// silent
+		}
+		try {
+			writeOutThread.join();
+		} catch (InterruptedException e) {
+			// silent
+		}
 	}
 
 	public InputStream getInputStream() {

@@ -3,6 +3,7 @@ package org.argeo.internal.cms.jshell.osgi;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,13 +29,65 @@ import jdk.jshell.execution.LoaderDelegate;
 import jdk.jshell.spi.ExecutionControl.ClassBytecodes;
 import jdk.jshell.spi.ExecutionControl.ClassInstallException;
 import jdk.jshell.spi.ExecutionControl.EngineTerminationException;
+import jdk.jshell.spi.ExecutionEnv;
 
 /** A {@link LoaderDelegate} using a parent {@link ClassLoader}. */
 class WrappingLoaderDelegate implements LoaderDelegate {
 	private final WrappingClassloader loader;
 	private final Map<String, Class<?>> klasses = new HashMap<>();
 
-	private static class WrappingClassloader extends SecureClassLoader {
+	private final ExecutionEnv env;
+
+	public WrappingLoaderDelegate(ExecutionEnv env, ClassLoader parentClassLoader) {
+		this.env = env;
+		this.loader = new WrappingClassloader(parentClassLoader);
+
+		Thread.currentThread().setContextClassLoader(loader);
+	}
+
+	@Override
+	public void load(ClassBytecodes[] cbcs) throws ClassInstallException, EngineTerminationException {
+		boolean[] loaded = new boolean[cbcs.length];
+		try {
+			for (ClassBytecodes cbc : cbcs) {
+				loader.declare(cbc.name(), cbc.bytecodes());
+			}
+			for (int i = 0; i < cbcs.length; ++i) {
+				ClassBytecodes cbc = cbcs[i];
+				Class<?> klass = loader.loadClass(cbc.name());
+				klasses.put(cbc.name(), klass);
+				loaded[i] = true;
+				// Get class loaded to the point of, at least, preparation
+				klass.getDeclaredMethods();
+			}
+		} catch (Throwable ex) {
+			throw new ClassInstallException("load: " + ex.getMessage(), loaded);
+		}
+	}
+
+	@Override
+	public void classesRedefined(ClassBytecodes[] cbcs) {
+		for (ClassBytecodes cbc : cbcs) {
+			loader.declare(cbc.name(), cbc.bytecodes());
+		}
+	}
+
+	@Override
+	public void addToClasspath(String cp) {
+		// ignore
+	}
+
+	@Override
+	public Class<?> findClass(String name) throws ClassNotFoundException {
+		Class<?> klass = klasses.get(name);
+		if (klass == null) {
+			throw new ClassNotFoundException(name + " not found");
+		} else {
+			return klass;
+		}
+	}
+
+	private class WrappingClassloader extends SecureClassLoader implements ExecutionEnv {
 
 		private final Map<String, ClassFile> classFiles = new HashMap<>();
 
@@ -175,54 +228,32 @@ class WrappingLoaderDelegate implements LoaderDelegate {
 			}
 
 		}
-	}
 
-	public WrappingLoaderDelegate(ClassLoader parentClassLoader) {
-		this.loader = new WrappingClassloader(parentClassLoader);
-
-		Thread.currentThread().setContextClassLoader(loader);
-	}
-
-	@Override
-	public void load(ClassBytecodes[] cbcs) throws ClassInstallException, EngineTerminationException {
-		boolean[] loaded = new boolean[cbcs.length];
-		try {
-			for (ClassBytecodes cbc : cbcs) {
-				loader.declare(cbc.name(), cbc.bytecodes());
-			}
-			for (int i = 0; i < cbcs.length; ++i) {
-				ClassBytecodes cbc = cbcs[i];
-				Class<?> klass = loader.loadClass(cbc.name());
-				klasses.put(cbc.name(), klass);
-				loaded[i] = true;
-				// Get class loaded to the point of, at least, preparation
-				klass.getDeclaredMethods();
-			}
-		} catch (Throwable ex) {
-			throw new ClassInstallException("load: " + ex.getMessage(), loaded);
+		@Override
+		public InputStream userIn() {
+			return env.userIn();
 		}
-	}
 
-	@Override
-	public void classesRedefined(ClassBytecodes[] cbcs) {
-		for (ClassBytecodes cbc : cbcs) {
-			loader.declare(cbc.name(), cbc.bytecodes());
+		@Override
+		public PrintStream userOut() {
+			return env.userOut();
 		}
-	}
 
-	@Override
-	public void addToClasspath(String cp) {
-		// ignore
-	}
-
-	@Override
-	public Class<?> findClass(String name) throws ClassNotFoundException {
-		Class<?> klass = klasses.get(name);
-		if (klass == null) {
-			throw new ClassNotFoundException(name + " not found");
-		} else {
-			return klass;
+		@Override
+		public PrintStream userErr() {
+			return env.userErr();
 		}
+
+		@Override
+		public List<String> extraRemoteVMOptions() {
+			return env.extraRemoteVMOptions();
+		}
+
+		@Override
+		public void closeDown() {
+			// env.closeDown();
+		}
+
 	}
 
 }
