@@ -36,15 +36,16 @@ class SocketPipeMirror implements Closeable {
 			try {
 				ByteBuffer buffer = ByteBuffer.allocate(1024);
 				while (!readInThread.isInterrupted() && channel.isConnected()) {
-					if (channel.read(buffer) < 0)
+					if (channel.read(buffer) < 0) {
+						in.close();
 						break;
+					}
 					buffer.flip();
 					inPipe.sink().write(buffer);
 					buffer.rewind();
 				}
 			} catch (AsynchronousCloseException e) {
 				// ignore
-				// TODO make it cleaner
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -56,8 +57,10 @@ class SocketPipeMirror implements Closeable {
 			try {
 				ByteBuffer buffer = ByteBuffer.allocate(1024);
 				while (!writeOutThread.isInterrupted() && channel.isConnected()) {
-					if (outPipe.source().read(buffer) < 0)
+					if (outPipe.source().read(buffer) < 0) {
+						out.close();
 						break;
+					}
 					buffer.flip();
 					channel.write(buffer);
 					buffer.rewind();

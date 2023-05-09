@@ -1,3 +1,5 @@
+Main-Class: org.argeo.cms.jshell.JShellClient
+
 Import-Package: \
 org.osgi.framework.namespace, \
 *

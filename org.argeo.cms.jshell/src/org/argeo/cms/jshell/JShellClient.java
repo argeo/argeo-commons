@@ -16,6 +16,7 @@ import java.lang.management.ManagementFactory;
 import java.net.StandardSocketOptions;
 import java.net.UnixDomainSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.Channels;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ReadableByteChannel;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/** A JShell client to a local CMS node. */
 public class JShellClient {
 	private final static Logger logger = System.getLogger(JShellClient.class.getName());
 
@@ -97,7 +99,7 @@ public class JShellClient {
 			ctl.setOutputStream(System.err);
 
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				System.out.println("\nShutting down...");
+//				System.out.println("\nShutting down...");
 				toOriginalTerminal();
 				std.shutdown();
 				ctl.shutdown();
@@ -258,7 +260,6 @@ public class JShellClient {
 				if (benchmark)
 					System.err.println(ManagementFactory.getRuntimeMXBean().getUptime());
 				StringBuilder sb = new StringBuilder();
-//				sb.append("/set feedback silent\n");
 				if (!scriptArgs.isEmpty()) {
 					// additional arguments as $1, $2, etc.
 					for (String arg : scriptArgs)
@@ -267,29 +268,14 @@ public class JShellClient {
 				if (sb.length() > 0)
 					writeLine(sb);
 
-				ByteBuffer buffer = ByteBuffer.allocate(1024);
 				try (BufferedReader reader = Files.newBufferedReader(script)) {
 					String line;
 					lines: while ((line = reader.readLine()) != null) {
 						if (line.startsWith("#"))
 							continue lines;
-						buffer.put((line + "\n").getBytes(UTF_8));
-						buffer.flip();
-						channel.write(buffer);
-						buffer.rewind();
+						writeLine(line);
 					}
 				}
-
-//				ByteBuffer buffer = ByteBuffer.allocate(1024);
-//				try (SeekableByteChannel scriptChannel = Files.newByteChannel(script, StandardOpenOption.READ)) {
-//					while (channel.isConnected()) {
-//						if (scriptChannel.read(buffer) < 0)
-//							break;
-//						buffer.flip();
-//						channel.write(buffer);
-//						buffer.rewind();
-//					}
-//				}
 
 				// exit
 				if (channel.isConnected())
@@ -299,6 +285,7 @@ public class JShellClient {
 			}
 		}
 
+		/** Not optimal, but performance is not critical here. */
 		private void writeLine(Object obj) throws IOException {
 			channel.write(ByteBuffer.wrap((obj + "\n").getBytes(UTF_8)));
 		}
@@ -346,6 +333,8 @@ class SocketPipeSource {
 				}
 			} catch (ClosedByInterruptException e) {
 				// silent
+			} catch (AsynchronousCloseException e) {
+				// silent
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -366,8 +355,11 @@ class SocketPipeSource {
 				try {
 					ByteBuffer buffer = ByteBuffer.allocate(inBufferSize);
 					while (channel.isConnected()) {
-						if (inChannel.read(buffer) < 0)
+						if (inChannel.read(buffer) < 0) {
+							System.err.println("in EOF");
+							channel.shutdownOutput();
 							break;
+						}
 //			int b = (int) buffer.get(0);
 //			if (b == 0x1B) {
 //				System.out.println("Ctrl+C");
@@ -423,9 +415,9 @@ class SocketPipeSource {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (inChannel != null)
-			forwardThread.interrupt();
-		readThread.interrupt();
+//		if (inChannel != null)
+//			forwardThread.interrupt();
+//		readThread.interrupt();
 	}
 
 	public void setInputStream(InputStream in) {

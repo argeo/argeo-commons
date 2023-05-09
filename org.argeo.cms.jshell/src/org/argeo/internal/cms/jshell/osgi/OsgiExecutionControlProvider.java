@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.jshell.CmsExecutionControl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -28,7 +29,6 @@ import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
-import jdk.jshell.execution.DirectExecutionControl;
 import jdk.jshell.spi.ExecutionControl;
 import jdk.jshell.spi.ExecutionControlProvider;
 import jdk.jshell.spi.ExecutionEnv;
@@ -53,24 +53,15 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 
 	@Override
 	public ExecutionControl generate(ExecutionEnv env, Map<String, String> parameters) throws Throwable {
-		// TODO find a better way to get a default bundle context
-		// NOTE: the related default bundle has to be started
-
-//		String symbolicName = parameters.get(BUNDLE_PARAMETER);
-//		Bundle fromBundle = getBundleFromSn(symbolicName);
-
 		Long bundleId = Long.parseLong(parameters.get(BUNDLE_PARAMETER));
 		Bundle fromBundle = getBundleFromId(bundleId);
 
 		BundleWiring fromBundleWiring = fromBundle.adapt(BundleWiring.class);
 		ClassLoader fromBundleClassLoader = fromBundleWiring.getClassLoader();
 
-		// use the bundle classloade as context classloader
-		Thread.currentThread().setContextClassLoader(fromBundleClassLoader);
-
-		ExecutionControl executionControl = new DirectExecutionControl(
+		ExecutionControl executionControl = new CmsExecutionControl(env,
 				new WrappingLoaderDelegate(env, fromBundleClassLoader));
-		log.debug("JShell from " + fromBundle.getSymbolicName() + "_" + fromBundle.getVersion() + " ["
+		log.trace(() -> "JShell from " + fromBundle.getSymbolicName() + "_" + fromBundle.getVersion() + " ["
 				+ fromBundle.getBundleId() + "]");
 		return executionControl;
 	}
@@ -123,7 +114,9 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 			String std = """
 					import jdk.jshell.spi.ExecutionEnv;
 
-					InputStream STDIN = new Supplier<InputStream>() {
+					/** Redirected standard IO. */
+					public class Std {
+						final static InputStream in = new Supplier<InputStream>() {
 
 							@Override
 							public InputStream get() {
@@ -131,7 +124,7 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 							}
 
 						}.get();
-					PrintStream STDOUT = new Supplier<PrintStream>() {
+						final static PrintStream out = new Supplier<PrintStream>() {
 
 							@Override
 							public PrintStream get() {
@@ -139,7 +132,7 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 							}
 
 						}.get();
-					PrintStream STDERR = new Supplier<PrintStream>() {
+						final static PrintStream err = new Supplier<PrintStream>() {
 
 							@Override
 							public PrintStream get() {
@@ -147,7 +140,9 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 							}
 
 						}.get();
-										""";
+
+					}
+					""";
 			writer.write(std);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot writer bundle startup script to " + bundleStartupScript, e);
