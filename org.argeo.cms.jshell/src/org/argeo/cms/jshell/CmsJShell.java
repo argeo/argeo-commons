@@ -54,7 +54,7 @@ public class CmsJShell {
 		jtermLinkedDir = Files.createSymbolicLink(cmsState.getStatePath(JShellClient.JTERM), jtermBase);
 
 		log.info("Local JShell on " + jshBase + ", linked to " + jshLinkedDir);
-		log.info("Local JTerml on " + jtermBase + ", linked to " + jtermLinkedDir);
+		log.info("Local JTerm on " + jtermBase + ", linked to " + jtermLinkedDir);
 
 		new Thread(() -> {
 			try {

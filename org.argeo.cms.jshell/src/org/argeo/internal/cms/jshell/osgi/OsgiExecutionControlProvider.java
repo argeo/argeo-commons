@@ -112,7 +112,9 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 			}
 
 			String std = """
+					/open DEFAULT
 					import jdk.jshell.spi.ExecutionEnv;
+					import java.util.function.*;
 
 					/** Redirected standard IO. */
 					public class Std {
