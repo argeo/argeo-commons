@@ -6,12 +6,15 @@ import java.util.UUID;
 
 /** A running node process. */
 public interface CmsState {
+	/** Local host on which this state is running. */
 	String getHostname();
 
+	/** Since when this state has been available. */
 	Long getAvailableSince();
 
 	UUID getUuid();
 
+	/** A deploy property, or <code>null</code> if it is not set. */
 	String getDeployProperty(String property);
 
 	/**
@@ -20,7 +23,9 @@ public interface CmsState {
 	 */
 	List<String> getDeployProperties(String property);
 
+	/** A local path in the data area. */
 	Path getDataPath(String relativePath);
 
+	/** A local path in the state area. */
 	Path getStatePath(String relativePath);
 }
