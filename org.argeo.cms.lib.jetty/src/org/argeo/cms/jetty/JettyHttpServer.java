@@ -37,7 +37,8 @@ import com.sun.net.httpserver.HttpsServer;
 public class JettyHttpServer extends HttpsServer {
 	private final static CmsLog log = CmsLog.getLog(JettyHttpServer.class);
 
-	private static final int DEFAULT_IDLE_TIMEOUT = 30000;
+	/** Long timeout since our users may have poor connections. */
+	private static final int DEFAULT_IDLE_TIMEOUT = 120 * 1000;
 
 	private Server server;
 
@@ -198,6 +199,7 @@ public class JettyHttpServer extends HttpsServer {
 				int httpsPort = Integer.parseInt(httpsPortStr);
 				httpsConnector.setPort(httpsPort);
 				httpsConnector.setHost(httpHost);
+				httpsConnector.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
 			}
 		}
 	}
