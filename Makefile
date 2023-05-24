@@ -3,6 +3,10 @@ include sdk.mk
 
 all: osgi
 	$(MAKE) -f Makefile-rcp.mk all
+	
+install: osgi-install
+
+uninstall: osgi-uninstall
 
 A2_CATEGORY = org.argeo.cms
 
