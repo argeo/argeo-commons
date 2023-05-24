@@ -85,6 +85,17 @@ public class ProvisioningManager {
 						source.load();
 						addSource(source);
 						OsgiBootUtils.info("Registered " + uri + " as source");
+
+						// OS specific / native
+						String localRelPath = A2Contribution.localOsArchRelativePath();
+						Path localLibBase = base.resolve(A2Contribution.LIB).resolve(localRelPath);
+						if (Files.exists(localLibBase)) {
+							FsA2Source libSource = new FsA2Source(localLibBase, xOr,
+									SCHEME_A2_REFERENCE.equals(u.getScheme()));
+							libSource.load();
+							addSource(libSource);
+							OsgiBootUtils.info("Registered OS-specific " + uri + " as source (" + localRelPath + ")");
+						}
 					} else {
 						OsgiBootUtils.debug("Source " + base + " does not exist, ignoring.");
 					}

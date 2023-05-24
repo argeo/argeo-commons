@@ -14,6 +14,7 @@ public class A2Contribution implements Comparable<A2Contribution> {
 	final static String CLASSPATH = "classpath";
 
 	final static String DEFAULT = "default";
+	final static String LIB = "lib";
 
 	private final ProvisioningSource source;
 	private final String id;
@@ -84,6 +85,66 @@ public class A2Contribution implements Comparable<A2Contribution> {
 			A2Component component = components.get(componentId);
 			component.asTree(prefix, buf);
 			buf.append('\n');
+		}
+	}
+
+	static String localOsArchRelativePath() {
+		return Os.local().toString() + "/" + Arch.local().toString();
+	}
+
+	static enum Os {
+		LINUX, WIN32, MACOSX, UNKOWN;
+
+		@Override
+		public String toString() {
+			return name().toLowerCase();
+		}
+
+		public static Os local() {
+			String osStr = System.getProperty("os.name").toLowerCase();
+			if (osStr.startsWith("linux"))
+				return LINUX;
+			if (osStr.startsWith("win"))
+				return WIN32;
+			if (osStr.startsWith("mac"))
+				return MACOSX;
+			return UNKOWN;
+		}
+
+	}
+
+	static enum Arch {
+		X86_64, AARCH64, X86, POWERPC, UNKOWN;
+
+		@Override
+		public String toString() {
+			return name().toLowerCase();
+		}
+
+		public static Arch local() {
+			String archStr = System.getProperty("os.arch").toLowerCase();
+			return switch (archStr) {
+			case "x86_64":
+			case "amd64":
+			case "x86-64": {
+				yield X86_64;
+			}
+			case "aarch64":
+			case "arm64": {
+				yield AARCH64;
+			}
+			case "x86":
+			case "i386":
+			case "i686": {
+				yield X86;
+			}
+			case "powerpc":
+			case "ppc": {
+				yield POWERPC;
+			}
+			default:
+				yield UNKOWN;
+			};
 		}
 	}
 
