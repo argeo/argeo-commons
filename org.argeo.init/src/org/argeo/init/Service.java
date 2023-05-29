@@ -106,6 +106,7 @@ public class Service {
 		logger.log(Logger.Level.DEBUG, "Argeo Init stopped with PID " + pid);
 	}
 
+	/** The root runtime context in this JVM. */
 	public static RuntimeContext getRuntimeContext() {
 		return runtimeContext;
 	}
