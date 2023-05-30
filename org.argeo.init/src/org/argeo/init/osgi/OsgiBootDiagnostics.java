@@ -21,6 +21,7 @@ class OsgiBootDiagnostics {
 	public OsgiBootDiagnostics(BundleContext bundleContext) {
 		this.bundleContext = bundleContext;
 	}
+
 	/*
 	 * DIAGNOSTICS
 	 */
@@ -41,6 +42,17 @@ class OsgiBootDiagnostics {
 
 		if (unresolvedBundles.size() != 0) {
 			OsgiBootUtils.warn("Unresolved bundles " + unresolvedBundles);
+		}
+
+		// try to start unresolved bundles in order to trigger diagnostics
+		// (this should not have side-effects since unresolved bundles won't be able to
+		// start)
+		for (Bundle b : unresolvedBundles) {
+			try {
+				b.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
