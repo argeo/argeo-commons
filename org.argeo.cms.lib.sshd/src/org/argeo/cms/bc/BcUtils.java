@@ -79,6 +79,9 @@ public class BcUtils {
 		return BC_SECURITY_PROVIDER.equals(BC_SECURITY_PROVIDER_FIPS);
 	}
 
+	/*
+	 * openssl req -x509 -newkey rsa:3072 -keyout node.key -out node.crt -sha256 -days 365 -nodes -subj "/O=UNSECURE/OU=UNSECURE/CN=$(hostname)"
+	 */
 	public static void createSelfSignedKeyStore(Path keyStorePath, char[] keyStorePassword, String keyStoreType) {
 		// for (Provider provider : Security.getProviders())
 		// System.out.println(provider.getName());
@@ -90,7 +93,7 @@ public class BcUtils {
 				KeyStore keyStore = getKeyStore(keyStorePath, keyStorePassword, keyStoreType);
 				generateSelfSignedCertificate(keyStore,
 						new X500Principal("CN=" + InetAddress.getLocalHost().getHostName() + ",OU=UNSECURE,O=UNSECURE"),
-						1024, keyPwd);
+						3072, keyPwd);
 				saveKeyStore(keyStorePath, keyStorePassword, keyStore);
 				if (log.isDebugEnabled())
 					log.debug("Created self-signed unsecure keystore " + keyStorePath);
