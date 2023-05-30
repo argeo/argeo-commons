@@ -40,7 +40,12 @@ public class CmsJShell {
 
 	public void start() throws Exception {
 		// TODO better define application id, make it configurable
-		String applicationID = cmsState.getStatePath("").getFileName().toString();
+		String applicationID;
+		if (Files.exists(cmsState.getStatePath("dev.properties"))) { // in Eclipse
+			applicationID = cmsState.getStatePath("").getFileName().toString();
+		} else {
+			applicationID = cmsState.getStatePath("").getParent().getFileName().toString();
+		}
 
 		// TODO centralise state run dir
 		stateRunDir = OS.getRunDir().resolve(applicationID);
@@ -153,6 +158,11 @@ public class CmsJShell {
 			Files.delete(jshLinkedDir);
 		} catch (IOException e) {
 			log.error("Cannot remove " + jshLinkedDir);
+		}
+		try {
+			Files.delete(jtermLinkedDir);
+		} catch (IOException e) {
+			log.error("Cannot remove " + jtermLinkedDir);
 		}
 	}
 
