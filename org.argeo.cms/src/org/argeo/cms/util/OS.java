@@ -4,7 +4,10 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/** When OS specific informations are needed. */
+/**
+ * Wrapper around system properties and portable Java APIS, for when OS specific
+ * informations are needed.
+ */
 public class OS {
 	public final static OS LOCAL = new OS();
 
@@ -41,15 +44,16 @@ public class OS {
 			return new String[] { "cmd.exe", "/C" };
 	}
 
-	public static long getJvmPid() {
-		return ProcessHandle.current().pid();
-//		String pidAndHost = ManagementFactory.getRuntimeMXBean().getName();
-//		return Integer.parseInt(pidAndHost.substring(0, pidAndHost.indexOf('@')));
-	}
+//	public static long getJvmPid() {
+//		return ProcessHandle.current().pid();
+////		String pidAndHost = ManagementFactory.getRuntimeMXBean().getName();
+////		return Integer.parseInt(pidAndHost.substring(0, pidAndHost.indexOf('@')));
+//	}
 
 	/**
 	 * Get the runtime directory. It will be the environment variable
-	 * XDG_RUNTIME_DIR if it is set, or ~/.cache/argeo if not.
+	 * XDG_RUNTIME_DIR if it is set, or /run if the user is 'root', or
+	 * ~/.cache/argeo if not.
 	 */
 	public static Path getRunDir() {
 		Path runDir;
@@ -58,7 +62,11 @@ public class OS {
 			// TODO support multiple names
 			runDir = Paths.get(xdgRunDir);
 		} else {
-			runDir = Paths.get(System.getProperty("user.home"), ".cache/argeo");
+			if (System.getProperty("user.name").equals("root")) {
+				runDir = Paths.get("/run");
+			} else {
+				runDir = Paths.get(System.getProperty("user.home"), ".cache/argeo");
+			}
 		}
 		return runDir;
 	}
