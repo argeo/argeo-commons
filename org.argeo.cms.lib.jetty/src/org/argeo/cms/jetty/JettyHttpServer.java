@@ -30,6 +30,7 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 
@@ -37,7 +38,8 @@ import com.sun.net.httpserver.HttpsServer;
 public class JettyHttpServer extends HttpsServer {
 	private final static CmsLog log = CmsLog.getLog(JettyHttpServer.class);
 
-	private static final int DEFAULT_IDLE_TIMEOUT = 30000;
+	/** Long timeout since our users may have poor connections. */
+	private static final int DEFAULT_IDLE_TIMEOUT = 120 * 1000;
 
 	private Server server;
 
@@ -67,6 +69,17 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public void start() {
+		String httpPortStr = getDeployProperty(CmsDeployProperty.HTTP_PORT);
+		String httpsPortStr = getDeployProperty(CmsDeployProperty.HTTPS_PORT);
+		if (httpPortStr != null && httpsPortStr != null)
+			throw new IllegalArgumentException("Either an HTTP or an HTTPS port should be configured, not both");
+		if (httpPortStr == null && httpsPortStr == null) {
+			log.warn("Neither an HTTP or an HTTPS port was configured, not starting Jetty");
+		}
+
+		/// TODO make it more generic
+		String httpHost = getDeployProperty(CmsDeployProperty.HOST);
+
 		try {
 
 			ThreadPool threadPool = null;
@@ -79,7 +92,7 @@ public class JettyHttpServer extends HttpsServer {
 
 			server = new Server(threadPool);
 
-			configureConnectors();
+			configureConnectors(httpPortStr, httpsPortStr, httpHost);
 
 			if (httpConnector != null) {
 				httpConnector.open();
@@ -110,7 +123,6 @@ public class JettyHttpServer extends HttpsServer {
 			//
 
 			// Addresses
-			String httpHost = getDeployProperty(CmsDeployProperty.HOST);
 			String fallBackHostname = cmsState != null ? cmsState.getHostname() : "::1";
 			if (httpConnector != null) {
 				httpAddress = new InetSocketAddress(httpHost != null ? httpHost : fallBackHostname,
@@ -130,16 +142,7 @@ public class JettyHttpServer extends HttpsServer {
 		}
 	}
 
-	protected void configureConnectors() {
-		String httpPortStr = getDeployProperty(CmsDeployProperty.HTTP_PORT);
-		String httpsPortStr = getDeployProperty(CmsDeployProperty.HTTPS_PORT);
-		if (httpPortStr != null && httpsPortStr != null)
-			throw new IllegalArgumentException("Either an HTTP or an HTTPS port should be configured, not both");
-		if (httpPortStr == null && httpsPortStr == null)
-			throw new IllegalArgumentException("Neither an HTTP or HTTPS port was configured");
-
-		/// TODO make it more generic
-		String httpHost = getDeployProperty(CmsDeployProperty.HOST);
+	protected void configureConnectors(String httpPortStr, String httpsPortStr, String httpHost) {
 
 		// try {
 		if (httpPortStr != null || httpsPortStr != null) {
@@ -198,6 +201,7 @@ public class JettyHttpServer extends HttpsServer {
 				int httpsPort = Integer.parseInt(httpsPortStr);
 				httpsConnector.setPort(httpsPort);
 				httpsConnector.setHost(httpHost);
+				httpsConnector.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
 			}
 		}
 	}

@@ -3,6 +3,10 @@ include sdk.mk
 
 all: osgi
 	$(MAKE) -f Makefile-rcp.mk all
+	
+install: osgi-install
+
+uninstall: osgi-uninstall
 
 A2_CATEGORY = org.argeo.cms
 
@@ -19,23 +23,21 @@ org.argeo.cms.ee \
 org.argeo.cms.lib.jetty \
 org.argeo.cms.lib.dbus \
 org.argeo.cms.lib.sshd \
+org.argeo.cms.jshell \
 org.argeo.cms.cli \
 osgi/equinox/org.argeo.cms.lib.equinox \
 swt/org.argeo.swt.minidesktop \
 swt/org.argeo.cms.swt \
-swt/org.argeo.cms.e4 \
 swt/rap/org.argeo.swt.specific.rap \
 swt/rap/org.argeo.cms.swt.rap \
-swt/rap/org.argeo.cms.e4.rap \
 
 DEP_CATEGORIES = \
+crypto/fips/org.argeo.tp.crypto \
 org.argeo.tp \
-org.argeo.tp.crypto \
-org.argeo.tp.jetty \
+org.argeo.tp.httpd \
 osgi/api/org.argeo.tp.osgi \
 osgi/equinox/org.argeo.tp.eclipse \
 swt/rap/org.argeo.tp.swt \
-swt/rap/org.argeo.tp.swt.workbench \
 $(A2_CATEGORY) \
 swt/$(A2_CATEGORY) \
 swt/rap/$(A2_CATEGORY) \

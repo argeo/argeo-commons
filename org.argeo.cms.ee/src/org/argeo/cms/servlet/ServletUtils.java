@@ -18,6 +18,19 @@ public class ServletUtils {
 	 * '/'), taking into account reverse proxies.
 	 */
 	public static StringBuilder getRequestUrlBase(HttpServletRequest req) {
+		return getRequestUrlBase(req, false);
+	}
+
+	/**
+	 * The base URL for this query (without any path component (not even an ending
+	 * '/'), taking into account reverse proxies.
+	 * 
+	 * @param forceReverseProxyHttps if a reverse proxy is detected and this is set
+	 *                               to true, the https scheme will be used. This is
+	 *                               to work around issued when the an https reverse
+	 *                               proxy is talking to an http application.
+	 */
+	public static StringBuilder getRequestUrlBase(HttpServletRequest req, boolean forceReverseProxyHttps) {
 		List<String> viaHosts = new ArrayList<>();
 		for (Enumeration<String> it = req.getHeaders(VIA.getHeaderName()); it.hasMoreElements();) {
 			String[] arr = it.nextElement().split(" ");
@@ -38,7 +51,11 @@ public class ServletUtils {
 
 		boolean isReverseProxy = outerHost != null && !outerHost.equals(requestUrl.getHost());
 		if (isReverseProxy) {
-			String protocol = req.isSecure() ? "https" : "http";
+			String protocol;
+			if (forceReverseProxyHttps)
+				protocol = "https";
+			else
+				protocol = req.isSecure() ? "https" : "http";
 			return new StringBuilder(protocol + "://" + outerHost);
 		} else {
 			return new StringBuilder(requestUrl.getScheme() + "://" + requestUrl.getHost()

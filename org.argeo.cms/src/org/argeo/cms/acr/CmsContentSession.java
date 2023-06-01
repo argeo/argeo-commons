@@ -2,17 +2,25 @@ package org.argeo.cms.acr;
 
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.security.auth.Subject;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.DName;
+import org.argeo.api.acr.search.BasicSearch;
+import org.argeo.api.acr.search.BasicSearch.Scope;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
@@ -169,5 +177,114 @@ class CmsContentSession implements ProvidedSession {
 			}
 		}
 		return sessionRunDir;
+	}
+
+	/*
+	 * SEARCH
+	 */
+	@Override
+	public Stream<Content> search(Consumer<BasicSearch> search) {
+		BasicSearch s = new BasicSearch();
+		search.accept(s);
+		NavigableMap<String, SearchPartition> searchPartitions = new TreeMap<>();
+		for (Scope scope : s.getFrom()) {
+			String scopePath = scope.getUri().getPath();
+			NavigableMap<String, ContentProvider> contentProviders = contentRepository.getMountManager()
+					.findContentProviders(scopePath);
+			for (Map.Entry<String, ContentProvider> contentProvider : contentProviders.entrySet()) {
+				// TODO deal with depth
+				String relPath;
+				if (scopePath.startsWith(contentProvider.getKey())) {
+					relPath = scopePath.substring(contentProvider.getKey().length());
+				} else {
+					relPath = null;
+				}
+				SearchPartition searchPartition = new SearchPartition(s, relPath, contentProvider.getValue());
+				searchPartitions.put(contentProvider.getKey(), searchPartition);
+			}
+		}
+		return StreamSupport.stream(new SearchPartitionsSpliterator(searchPartitions), true);
+	}
+
+	class SearchPartition {
+		BasicSearch search;
+		String relPath;
+		ContentProvider contentProvider;
+
+		public SearchPartition(BasicSearch search, String relPath, ContentProvider contentProvider) {
+			super();
+			this.search = search;
+			this.relPath = relPath;
+			this.contentProvider = contentProvider;
+		}
+
+		public BasicSearch getSearch() {
+			return search;
+		}
+
+		public String getRelPath() {
+			return relPath;
+		}
+
+		public ContentProvider getContentProvider() {
+			return contentProvider;
+		}
+
+	}
+
+	class SearchPartitionsSpliterator implements Spliterator<Content> {
+		NavigableMap<String, SearchPartition> searchPartitions;
+
+		Spliterator<Content> currentSpliterator;
+
+		public SearchPartitionsSpliterator(NavigableMap<String, SearchPartition> searchPartitions) {
+			super();
+			this.searchPartitions = searchPartitions;
+			SearchPartition searchPartition = searchPartitions.pollFirstEntry().getValue();
+			currentSpliterator = searchPartition.getContentProvider().search(CmsContentSession.this,
+					searchPartition.getSearch(), searchPartition.getRelPath());
+		}
+
+		@Override
+		public boolean tryAdvance(Consumer<? super Content> action) {
+			boolean remaining = currentSpliterator.tryAdvance(action);
+			if (remaining)
+				return true;
+			if (searchPartitions.isEmpty())
+				return false;
+			SearchPartition searchPartition = searchPartitions.pollFirstEntry().getValue();
+			currentSpliterator = searchPartition.getContentProvider().search(CmsContentSession.this,
+					searchPartition.getSearch(), searchPartition.getRelPath());
+			return true;
+		}
+
+		@Override
+		public Spliterator<Content> trySplit() {
+			if (searchPartitions.isEmpty()) {
+				return null;
+			} else if (searchPartitions.size() == 1) {
+				NavigableMap<String, SearchPartition> newSearchPartitions = new TreeMap<>(searchPartitions);
+				searchPartitions.clear();
+				return new SearchPartitionsSpliterator(newSearchPartitions);
+			} else {
+				NavigableMap<String, SearchPartition> newSearchPartitions = new TreeMap<>();
+				for (int i = 0; i < searchPartitions.size() / 2; i++) {
+					Map.Entry<String, SearchPartition> searchPartition = searchPartitions.pollLastEntry();
+					newSearchPartitions.put(searchPartition.getKey(), searchPartition.getValue());
+				}
+				return new SearchPartitionsSpliterator(newSearchPartitions);
+			}
+		}
+
+		@Override
+		public long estimateSize() {
+			return Long.MAX_VALUE;
+		}
+
+		@Override
+		public int characteristics() {
+			return NONNULL;
+		}
+
 	}
 }

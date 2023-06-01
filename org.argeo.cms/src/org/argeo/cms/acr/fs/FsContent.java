@@ -315,7 +315,11 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 
 	@Override
 	public void remove() {
-		FsUtils.delete(path);
+		try {
+			FsUtils.delete(path);
+		} catch (IOException e) {
+			throw new RuntimeException("Cannot delete " + path, e);
+		}
 	}
 
 	@Override

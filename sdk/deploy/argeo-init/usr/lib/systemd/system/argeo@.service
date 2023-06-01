@@ -22,6 +22,7 @@ ExecStart=java \
 -Dosgi.configuration.area=${STATE_DIRECTORY}/state/ \
 -Dosgi.instance.area=${STATE_DIRECTORY}/data/ \
 -Dargeo.node.repo.indexesBase=${CACHE_DIRECTORY}/indexes \
+-Dorg.osgi.framework.system.packages.extra=sun.security.internal.spec,sun.security.provider,com.sun.net.httpserver,com.sun.jndi.ldap,com.sun.jndi.ldap.sasl,com.sun.jndi.dns,com.sun.security.jgss,com.sun.nio.file,com.sun.nio.sctp \
 -Declipse.ignoreApp=true \
 -Dosgi.noShutdown=true \
 -Dorg.eclipse.equinox.http.jetty.autostart=false \

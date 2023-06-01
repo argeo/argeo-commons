@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.argeo.init.logging.ThinLoggerFinder;
 import org.argeo.init.osgi.OsgiBoot;
@@ -18,6 +19,8 @@ import org.argeo.init.osgi.OsgiRuntimeContext;
 /** Configure and launch an Argeo service. */
 public class Service {
 	private final static Logger logger = System.getLogger(Service.class.getName());
+
+	final static String FILE_SYSTEM_PROPERTIES = "system.properties";
 
 	public final static String PROP_ARGEO_INIT_MAIN = "argeo.init.main";
 
@@ -51,7 +54,7 @@ public class Service {
 
 		if (configArea != null) {
 			Path configAreaPath = Paths.get(configArea);
-			Path additionalSystemPropertiesPath = configAreaPath.resolve("system.properties");
+			Path additionalSystemPropertiesPath = configAreaPath.resolve(FILE_SYSTEM_PROPERTIES);
 			if (Files.exists(additionalSystemPropertiesPath)) {
 				Properties properties = new Properties();
 				try (InputStream in = Files.newInputStream(additionalSystemPropertiesPath)) {
@@ -70,6 +73,8 @@ public class Service {
 									+ currentValue + " instead of " + value + ". Ignoring new value.");
 					} else {
 						System.setProperty(key.toString(), value);
+						logger.log(Logger.Level.TRACE, () -> "Added " + key + "=" + value
+								+ " to system properties, from " + additionalSystemPropertiesPath.getFileName());
 					}
 				}
 				ThinLoggerFinder.reloadConfiguration();
@@ -78,6 +83,27 @@ public class Service {
 
 		Map<String, String> config = new HashMap<>();
 		config.put(PROP_ARGEO_INIT_MAIN, "true");
+
+		// add OSGi system properties to the configuration
+		sysprops: for (Object key : new TreeMap<>(System.getProperties()).keySet()) {
+			String keyStr = key.toString();
+			switch (keyStr) {
+			case OsgiBoot.PROP_OSGI_CONFIGURATION_AREA:
+			case OsgiBoot.PROP_OSGI_SHARED_CONFIGURATION_AREA:
+			case OsgiBoot.PROP_OSGI_INSTANCE_AREA:
+				// we should already have dealt with those
+				continue sysprops;
+			default:
+			}
+
+			if (keyStr.startsWith("osgi.") || keyStr.startsWith("org.osgi.") || keyStr.startsWith("eclipse.")
+					|| keyStr.startsWith("org.eclipse.equinox.") || keyStr.startsWith("felix.")) {
+				String value = System.getProperty(keyStr);
+				config.put(keyStr, value);
+				logger.log(Logger.Level.TRACE,
+						() -> "Added " + key + "=" + value + " to configuration, from system properties");
+			}
+		}
 
 		try {
 			try {
@@ -106,6 +132,7 @@ public class Service {
 		logger.log(Logger.Level.DEBUG, "Argeo Init stopped with PID " + pid);
 	}
 
+	/** The root runtime context in this JVM. */
 	public static RuntimeContext getRuntimeContext() {
 		return runtimeContext;
 	}

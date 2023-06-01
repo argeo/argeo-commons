@@ -65,8 +65,25 @@ class KernelUtils implements KernelConstants {
 		return Paths.get(uri);
 	}
 
+	public static Path getOsgiConfigurationPath(String relativePath) {
+		URI uri = getOsgiConfigurationUri(relativePath);
+		if (uri == null) // no data area available
+			return null;
+		return Paths.get(uri);
+	}
+
 	public static URI getOsgiInstanceUri(String relativePath) {
 		String osgiInstanceBaseUri = getFrameworkProp(OSGI_INSTANCE_AREA);
+		if (osgiInstanceBaseUri == null) // no data area available
+			return null;
+
+		if (!osgiInstanceBaseUri.endsWith("/"))
+			osgiInstanceBaseUri = osgiInstanceBaseUri + "/";
+		return safeUri(osgiInstanceBaseUri + (relativePath != null ? relativePath : ""));
+	}
+
+	public static URI getOsgiConfigurationUri(String relativePath) {
+		String osgiInstanceBaseUri = getFrameworkProp(OSGI_CONFIGURATION_AREA);
 		if (osgiInstanceBaseUri == null) // no data area available
 			return null;
 

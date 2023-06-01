@@ -1,4 +1,13 @@
 major=2
 minor=3
-micro=14
-qualifier=.next
+micro=17
+qualifier=
+
+Bundle-Copyright= \
+Copyright 2007-2023 Mathieu Baudier, \
+Copyright 2012-2023 Argeo GmbH
+
+SPDX-License-Identifier= \
+LGPL-2.1-or-later \
+OR EPL-2.0 \
+OR LicenseRef-argeo2-GPL-2.0-or-later-with-EPL-and-JCR-permissions

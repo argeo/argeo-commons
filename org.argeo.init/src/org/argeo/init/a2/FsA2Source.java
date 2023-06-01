@@ -61,20 +61,22 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 					if (variantPath == null)
 						continue contributions;
 
-					// a variant was found, let's collect its contributions (also common ones in its
-					// parent)
-					for (Path variantContributionPath : Files.newDirectoryStream(variantPath.getParent())) {
-						String variantContributionId = variantContributionPath.getFileName().toString();
-						if (variantContributionId.contains(".")) {
-							A2Contribution contribution = getOrAddContribution(variantContributionId);
-							contributions.put(variantContributionPath, contribution);
+					if (Files.exists(variantPath)) {
+						// a variant was found, let's collect its contributions (also common ones in its
+						// parent)
+						for (Path variantContributionPath : Files.newDirectoryStream(variantPath.getParent())) {
+							String variantContributionId = variantContributionPath.getFileName().toString();
+							if (variantContributionId.contains(".")) {
+								A2Contribution contribution = getOrAddContribution(variantContributionId);
+								contributions.put(variantContributionPath, contribution);
+							}
 						}
-					}
-					for (Path variantContributionPath : Files.newDirectoryStream(variantPath)) {
-						String variantContributionId = variantContributionPath.getFileName().toString();
-						if (variantContributionId.contains(".")) {
-							A2Contribution contribution = getOrAddContribution(variantContributionId);
-							contributions.put(variantContributionPath, contribution);
+						for (Path variantContributionPath : Files.newDirectoryStream(variantPath)) {
+							String variantContributionId = variantContributionPath.getFileName().toString();
+							if (variantContributionId.contains(".")) {
+								A2Contribution contribution = getOrAddContribution(variantContributionId);
+								contributions.put(variantContributionPath, contribution);
+							}
 						}
 					}
 				}

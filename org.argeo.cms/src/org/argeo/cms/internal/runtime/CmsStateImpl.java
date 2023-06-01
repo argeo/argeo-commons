@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -152,6 +153,16 @@ public class CmsStateImpl implements CmsState {
 				log.debug("## CMS starting... (" + uuid + ")\n" + sb + "\n");
 			}
 
+			if (log.isTraceEnabled()) {
+				// print system properties
+				StringJoiner sb = new StringJoiner("\n");
+				for (Object key : new TreeMap<>(System.getProperties()).keySet()) {
+					sb.add(key + "=" + System.getProperty(key.toString()));
+				}
+				log.trace("System properties:\n" + sb + "\n");
+
+			}
+
 		} catch (RuntimeException | IOException e) {
 			log.error("## FATAL: CMS state failed", e);
 		}
@@ -186,8 +197,9 @@ public class CmsStateImpl implements CmsState {
 		// explicitly load JAAS configuration
 		Configuration.getConfiguration();
 
-		boolean initSsl = getDeployProperty(CmsDeployProperty.HTTPS_PORT) != null;
-		if (initSsl) {
+		boolean initCertificates = (getDeployProperty(CmsDeployProperty.HTTPS_PORT) != null)
+				|| (getDeployProperty(CmsDeployProperty.SSHD_PORT) != null);
+		if (initCertificates) {
 			initCertificates();
 		}
 	}
@@ -236,9 +248,6 @@ public class CmsStateImpl implements CmsState {
 				log.error("Cannot trust CA certificate", e);
 			}
 		}
-
-//		if (!Files.exists(keyStorePath))
-//			PkiUtils.createSelfSignedKeyStore(keyStorePath, keyStorePassword, PkiUtils.PKCS12);
 	}
 
 	public void stop() {
@@ -371,6 +380,11 @@ public class CmsStateImpl implements CmsState {
 	@Override
 	public Path getDataPath(String relativePath) {
 		return KernelUtils.getOsgiInstancePath(relativePath);
+	}
+
+	@Override
+	public Path getStatePath(String relativePath) {
+		return KernelUtils.getOsgiConfigurationPath(relativePath);
 	}
 
 	@Override
