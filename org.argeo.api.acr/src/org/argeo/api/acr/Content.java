@@ -242,6 +242,14 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	/*
 	 * ATTR AS STRING
 	 */
+	/**
+	 * Convenience method returning an attribute as a {@link String}.
+	 * 
+	 * @param key the attribute name
+	 * @return the attribute value as a {@link String} or <code>null</code>.
+	 * 
+	 * @see Object#toString()
+	 */
 	default String attr(QName key) {
 		// TODO check String type?
 		Object obj = get(key);
@@ -250,21 +258,29 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		return obj.toString();
 	}
 
+	/**
+	 * Convenience method returning an attribute as a {@link String}.
+	 * 
+	 * @param key the attribute name
+	 * @return the attribute value as a {@link String} or <code>null</code>.
+	 * 
+	 * @see Object#toString()
+	 */
 	default String attr(QNamed key) {
 		return attr(key.qName());
 	}
 
+	/**
+	 * Convenience method returning an attribute as a {@link String}.
+	 * 
+	 * @param key the attribute name
+	 * @return the attribute value as a {@link String} or <code>null</code>.
+	 * 
+	 * @see Object#toString()
+	 */
 	default String attr(String key) {
 		return attr(unqualified(key));
 	}
-//
-//	default String attr(Object key) {
-//		return key != null ? attr(key.toString()) : attr(null);
-//	}
-//
-//	default <A> A get(Object key, Class<A> clss) {
-//		return key != null ? get(key.toString(), clss) : get(null, clss);
-//	}
 
 	/*
 	 * EXPERIMENTAL UNSUPPORTED
