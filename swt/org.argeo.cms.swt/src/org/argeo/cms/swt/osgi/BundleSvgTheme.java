@@ -10,6 +10,7 @@ import java.lang.System.Logger.Level;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
@@ -25,9 +26,11 @@ import org.osgi.framework.BundleContext;
 public class BundleSvgTheme extends BundleCmsSwtTheme {
 	private final static Logger logger = System.getLogger(BundleSvgTheme.class.getName());
 
-	private Map<String, Map<Integer, Image>> imageCache = Collections.synchronizedMap(new HashMap<>());
+//	private Map<String, Map<Integer, Image>> imageCache = Collections.synchronizedMap(new HashMap<>());
 
 	private Map<Integer, ImageTranscoder> transcoders = Collections.synchronizedMap(new HashMap<>());
+
+	private final static String IMAGE_CACHE_KEY = BundleSvgTheme.class.getName() + ".imageCache";
 
 	@Override
 	public Image getIcon(String name, Integer preferredSize) {
@@ -35,7 +38,17 @@ public class BundleSvgTheme extends BundleCmsSwtTheme {
 		return createImageFromSvg(path, preferredSize);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected Image createImageFromSvg(String path, Integer preferredSize) {
+		Display display = Display.getCurrent();
+		Objects.requireNonNull(display, "Not a user interface thread");
+
+		Map<String, Map<Integer, Image>> imageCache = (Map<String, Map<Integer, Image>>) display
+				.getData(IMAGE_CACHE_KEY);
+		if (imageCache == null)
+			display.setData(IMAGE_CACHE_KEY, new HashMap<String, Map<Integer, Image>>());
+		imageCache = (Map<String, Map<Integer, Image>>) display.getData(IMAGE_CACHE_KEY);
+
 		Image image = null;
 		if (imageCache.containsKey(path)) {
 			image = imageCache.get(path).get(preferredSize);
@@ -43,7 +56,7 @@ public class BundleSvgTheme extends BundleCmsSwtTheme {
 		if (image != null)
 			return image;
 		ImageData imageData = loadFromSvg(path, preferredSize);
-		image = new Image(Display.getDefault(), imageData);
+		image = new Image(display, imageData);
 		if (!imageCache.containsKey(path))
 			imageCache.put(path, Collections.synchronizedMap(new HashMap<>()));
 		imageCache.get(path).put(preferredSize, image);
@@ -92,16 +105,16 @@ public class BundleSvgTheme extends BundleCmsSwtTheme {
 //		}
 	}
 
-	@Override
-	public void destroy(BundleContext bundleContext, Map<String, String> properties) {
-		Display display = Display.getDefault();
-		if (display != null)
-			for (String path : imageCache.keySet()) {
-				for (Image image : imageCache.get(path).values()) {
-					display.syncExec(() -> image.dispose());
-				}
-			}
-		super.destroy(bundleContext, properties);
-	}
+//	@Override
+//	public void destroy(BundleContext bundleContext, Map<String, String> properties) {
+//		Display display = Display.getDefault();
+//		if (display != null)
+//			for (String path : imageCache.keySet()) {
+//				for (Image image : imageCache.get(path).values()) {
+//					display.syncExec(() -> image.dispose());
+//				}
+//			}
+//		super.destroy(bundleContext, properties);
+//	}
 
 }
