@@ -24,7 +24,7 @@ public class DeployedContentRepository extends CmsContentRepository {
 		try {
 			super.start();
 			// FIXME does not work on Windows
-			//Path rootXml = KernelUtils.getOsgiInstancePath(ROOT_XML);
+			// Path rootXml = KernelUtils.getOsgiInstancePath(ROOT_XML);
 			initRootContentProvider(null);
 
 //		Path srvPath = KernelUtils.getOsgiInstancePath(CmsConstants.SRV_WORKSPACE);
@@ -40,8 +40,8 @@ public class DeployedContentRepository extends CmsContentRepository {
 			}
 
 			// users
-			DirectoryContentProvider directoryContentProvider = new DirectoryContentProvider(
-					CmsContentRepository.DIRECTORY_BASE, userManager);
+			DirectoryContentProvider directoryContentProvider = new DirectoryContentProvider(userManager,
+					CmsContentRepository.DIRECTORY_BASE);
 			addProvider(directoryContentProvider);
 
 			// remote
