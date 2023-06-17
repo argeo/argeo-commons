@@ -22,6 +22,7 @@ import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.CmsContentRepository;
+import org.argeo.cms.acr.ContentUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -57,16 +58,6 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		};
 	}
 
-//	@Override
-//	public Content get() {
-//		return new DomContent(this, document.getDocumentElement());
-//	}
-
-//	public Element createElement(String name) {
-//		return document.createElementNS(null, name);
-//
-//	}
-
 	@Override
 	public ProvidedContent get(ProvidedSession session, String relativePath) {
 		if ("".equals(relativePath))
@@ -86,7 +77,7 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		if (relativePath.startsWith("/"))
 			throw new IllegalArgumentException("Relative path cannot start with /");
 		String xPathExpression = '/' + relativePath;
-		if ("/".equals(mountPath))
+		if (ContentUtils.SLASH_STRING.equals(mountPath)) // repository root
 			xPathExpression = "/" + CrName.root.qName() + xPathExpression;
 		try {
 			NodeList nodes = (NodeList) xPath.get().evaluate(xPathExpression, document, XPathConstants.NODESET);

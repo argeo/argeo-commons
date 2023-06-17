@@ -1,7 +1,5 @@
 package org.argeo.cms.acr.xml;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +23,6 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -389,7 +386,9 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		List<QName> res = new ArrayList<>();
 		if (isLocalRoot()) {
 			String mountPath = provider.getMountPath();
-			if (mountPath != null) {
+			if (ContentUtils.SLASH_STRING.equals(mountPath)) {// repository root
+				res.add(CrName.root.qName());
+			} else {
 				Content mountPoint = getSession().getMountPoint(mountPath);
 				res.addAll(mountPoint.getContentClasses());
 			}
@@ -403,7 +402,9 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	public void addContentClasses(QName... contentClass) {
 		if (isLocalRoot()) {
 			String mountPath = provider.getMountPath();
-			if (mountPath != null) {
+			if (ContentUtils.SLASH_STRING.equals(mountPath)) {// repository root
+				throw new IllegalArgumentException("Cannot add content classes to repository root");
+			} else {
 				Content mountPoint = getSession().getMountPoint(mountPath);
 				mountPoint.addContentClasses(contentClass);
 			}
