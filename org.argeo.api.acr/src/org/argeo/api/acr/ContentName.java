@@ -83,7 +83,7 @@ public class ContentName extends QName {
 	 */
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return toQNameString();
 	}
 

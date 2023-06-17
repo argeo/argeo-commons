@@ -41,14 +41,13 @@ import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
-import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.acr.AbstractContent;
 import org.argeo.cms.acr.ContentUtils;
 import org.argeo.cms.util.FsUtils;
 
 /** Content persisted as a filesystem {@link Path}. */
 public class FsContent extends AbstractContent implements ProvidedContent {
-	private CmsLog log = CmsLog.getLog(FsContent.class);
+//	private CmsLog log = CmsLog.getLog(FsContent.class);
 
 	final static String USER_ = "user:";
 
@@ -160,11 +159,15 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			String[] arr = str.split("\n");
 
 			if (arr.length == 1) {
-				if (clss.isAssignableFrom(String.class)) {
-					res = (A) arr[0];
-				} else {
-					res = (A) CrAttributeType.parse(arr[0]);
-				}
+//				if (clss.isAssignableFrom(String.class)) {
+//					res = (A) arr[0];
+//				} else {
+//					res = (A) CrAttributeType.parse(arr[0]);
+//				}
+//				if (isDefaultAttrTypeRequested(clss))
+//					return Optional.of((A) CrAttributeType.parse(str));
+				return CrAttributeType.cast(clss, str);
+
 			} else {
 				List<Object> lst = new ArrayList<>();
 				for (String s : arr) {
@@ -174,14 +177,15 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			}
 		}
 		if (res == null) {
-			if (isDefaultAttrTypeRequested(clss))
-				return Optional.of((A) CrAttributeType.parse(value.toString()));
-			if (clss.isAssignableFrom(value.getClass()))
-				return Optional.of((A) value);
-			if (clss.isAssignableFrom(String.class))
-				return Optional.of((A) value.toString());
-			log.warn("Cannot interpret " + key + " in " + this);
-			return Optional.empty();
+//			if (isDefaultAttrTypeRequested(clss))
+//				return Optional.of((A) CrAttributeType.parse(value.toString()));
+			return CrAttributeType.cast(clss, value);
+//			if (clss.isAssignableFrom(value.getClass()))
+//				return Optional.of((A) value);
+//			if (clss.isAssignableFrom(String.class))
+//				return Optional.of((A) value.toString());
+//			log.warn("Cannot interpret " + key + " in " + this);
+//			return Optional.empty();
 //			try {
 //				res = (A) value;
 //			} catch (ClassCastException e) {
@@ -365,12 +369,13 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 
 	@Override
 	public List<QName> getContentClasses() {
-		List<QName> res = new ArrayList<>();
-		List<String> value = getMultiple(DName.resourcetype.qName(), String.class);
-		for (String s : value) {
-			QName name = NamespaceUtils.parsePrefixedName(provider, s);
-			res.add(name);
-		}
+//		List<QName> res = new ArrayList<>();
+//		List<String> value = getMultiple(DName.resourcetype.qName(), String.class);
+//		for (String s : value) {
+//			QName name = NamespaceUtils.parsePrefixedName(provider, s);
+//			res.add(name);
+//		}
+		List<QName> res = getMultiple(DName.resourcetype.qName(), QName.class);
 		if (Files.isDirectory(path))
 			res.add(DName.collection.qName());
 		return res;

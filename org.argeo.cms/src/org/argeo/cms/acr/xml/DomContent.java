@@ -29,6 +29,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
+import org.argeo.api.acr.CrAttributeType;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
@@ -137,17 +138,16 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	@Override
 	public <A> Optional<A> get(QName key, Class<A> clss) {
 		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(key.getNamespaceURI()) ? null
 				: key.getNamespaceURI();
 		if (element.hasAttributeNS(namespaceUriOrNull, key.getLocalPart())) {
 			String value = element.getAttributeNS(namespaceUriOrNull, key.getLocalPart());
-			if (clss.isAssignableFrom(String.class))
-				return Optional.of((A) value);
-			else
-				return Optional.empty();
+//			if (isDefaultAttrTypeRequested(clss))
+//				return Optional.of((A) CrAttributeType.parse(value));
+			return CrAttributeType.cast(clss, value);
 		} else
 			return Optional.empty();
 	}

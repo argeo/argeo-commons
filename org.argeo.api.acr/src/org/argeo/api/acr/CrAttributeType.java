@@ -9,10 +9,10 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 /**
@@ -29,6 +29,7 @@ public enum CrAttributeType {
 	// (e.g. optional primitives)
 	DATE_TIME(Instant.class, W3C_XML_SCHEMA_NS_URI, "dateTime", new InstantFormatter()), //
 	UUID(UUID.class, ArgeoNamespace.CR_NAMESPACE_URI, "uuid", new UuidFormatter()), //
+	QNAME(QName.class, W3C_XML_SCHEMA_NS_URI, "QName", new QNameFormatter()), //
 	ANY_URI(URI.class, W3C_XML_SCHEMA_NS_URI, "anyUri", new UriFormatter()), //
 	STRING(String.class, W3C_XML_SCHEMA_NS_URI, "string", new StringFormatter()), //
 	;
@@ -45,7 +46,7 @@ public enum CrAttributeType {
 		qName = new ContentName(namespaceUri, localName, RuntimeNamespaceContext.getNamespaceContext());
 	}
 
-	public QName getqName() {
+	public QName getQName() {
 		return qName;
 	}
 
@@ -75,43 +76,71 @@ public enum CrAttributeType {
 
 	/** Default parsing procedure from a String to an object. */
 	public static Object parse(String str) {
+		return parse(RuntimeNamespaceContext.getNamespaceContext(), str);
+	}
+
+	/** Default parsing procedure from a String to an object. */
+	public static Object parse(NamespaceContext namespaceContext, String str) {
 		if (str == null)
 			throw new IllegalArgumentException("String cannot be null");
 		// order IS important
 		try {
 			if (str.length() == 4 || str.length() == 5)
-				return BOOLEAN.getFormatter().parse(str);
+				return BOOLEAN.getFormatter().parse(namespaceContext, str);
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
 		try {
-			return INTEGER.getFormatter().parse(str);
+			return INTEGER.getFormatter().parse(namespaceContext, str);
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
 		try {
-			return LONG.getFormatter().parse(str);
+			return LONG.getFormatter().parse(namespaceContext, str);
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
 		try {
-			return DOUBLE.getFormatter().parse(str);
+			return DOUBLE.getFormatter().parse(namespaceContext, str);
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
 		try {
-			return DATE_TIME.getFormatter().parse(str);
+			return DATE_TIME.getFormatter().parse(namespaceContext, str);
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
 		try {
 			if (str.length() == 36)
-				return UUID.getFormatter().parse(str);
+				return UUID.getFormatter().parse(namespaceContext, str);
+		} catch (IllegalArgumentException e) {
+			// silent
+		}
+
+		// CURIE
+		if (str.startsWith("[") && str.endsWith("]")) {
+			try {
+				if (str.indexOf(":") >= 0) {
+					QName qName = (QName) QNAME.getFormatter().parse(namespaceContext, str);
+					return (java.net.URI) ANY_URI.getFormatter().parse(qName.getNamespaceURI() + qName.getLocalPart());
+				}
+			} catch (IllegalArgumentException e) {
+				// silent
+			}
+		}
+
+		try {
+			if (str.indexOf(":") >= 0) {
+				QName qName = (QName) QNAME.getFormatter().parse(namespaceContext, str);
+				// note: this QName may not be valid
+				// note: CURIE should be explicitly defined with surrounding brackets
+				return qName;
+			}
 		} catch (IllegalArgumentException e) {
 			// silent
 		}
 		try {
-			java.net.URI uri = (java.net.URI) ANY_URI.getFormatter().parse(str);
+			java.net.URI uri = (java.net.URI) ANY_URI.getFormatter().parse(namespaceContext, str);
 			if (uri.getScheme() != null)
 				return uri;
 			String path = uri.getPath();
@@ -129,7 +158,16 @@ public enum CrAttributeType {
 		// see https://www.oreilly.com/library/view/xml-schema/0596002521/re91.html
 
 		// default
-		return STRING.getFormatter().parse(str);
+		return STRING.getFormatter().parse(namespaceContext, str);
+	}
+
+	/**
+	 * Cast well know java types based on {@link Object#toString()} of the provided
+	 * object.
+	 * 
+	 */
+	public static <T> Optional<T> cast(Class<T> clss, Object value) {
+		return cast(RuntimeNamespaceContext.getNamespaceContext(), clss, value);
 	}
 
 	/**
@@ -138,33 +176,62 @@ public enum CrAttributeType {
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Optional<T> cast(Class<T> clss, Object value) {
-		// TODO Or should we?
-		Objects.requireNonNull(value, "Cannot cast a null value");
+	public static <T> Optional<T> cast(NamespaceContext namespaceContext, Class<T> clss, Object value) {
+		// if value is null, optional is empty
+		if (value == null)
+			return Optional.empty();
+
+		// if a default has been explicitly requested by passing Object.class
+		// we parse the related String
+		if (clss.isAssignableFrom(Object.class)) {
+			return Optional.of((T) parse(value.toString()));
+		}
+
+		// if value can be cast directly, let's do it
+		if (value.getClass().isAssignableFrom(clss)) {
+			return Optional.of(((T) value));
+		}
+
+		// let's cast between various numbers (possibly losing precision)
+		if (value instanceof Number number) {
+			if (Long.class.isAssignableFrom(clss))
+				return Optional.of((T) (Long) number.longValue());
+			else if (Integer.class.isAssignableFrom(clss))
+				return Optional.of((T) (Integer) number.intValue());
+			else if (Double.class.isAssignableFrom(clss))
+				return Optional.of((T) (Double) number.doubleValue());
+		}
+
+		// let's now try with the string representation
+		String strValue = value instanceof String ? (String) value : value.toString();
+
 		if (String.class.isAssignableFrom(clss)) {
-			return Optional.of((T) value.toString());
+			return Optional.of((T) strValue);
+		}
+		if (QName.class.isAssignableFrom(clss)) {
+			return Optional.of((T) NamespaceUtils.parsePrefixedName(namespaceContext, strValue));
 		}
 		// Numbers
 		else if (Long.class.isAssignableFrom(clss)) {
 			if (value instanceof Long)
 				return Optional.of((T) value);
-			return Optional.of((T) Long.valueOf(value.toString()));
+			return Optional.of((T) Long.valueOf(strValue));
 		} else if (Integer.class.isAssignableFrom(clss)) {
 			if (value instanceof Integer)
 				return Optional.of((T) value);
-			return Optional.of((T) Integer.valueOf(value.toString()));
+			return Optional.of((T) Integer.valueOf(strValue));
 		} else if (Double.class.isAssignableFrom(clss)) {
 			if (value instanceof Double)
 				return Optional.of((T) value);
-			return Optional.of((T) Double.valueOf(value.toString()));
+			return Optional.of((T) Double.valueOf(strValue));
 		}
-		// Numbers
-//		else if (Number.class.isAssignableFrom(clss)) {
-//			if (value instanceof Number)
-//				return Optional.of((T) value);
-//			return Optional.of((T) Number.valueOf(value.toString()));
-//		}
-		return Optional.empty();
+
+		// let's now try to parse the string representation to a well-known type
+		Object parsedValue = parse(strValue);
+		if (parsedValue.getClass().isAssignableFrom(clss)) {
+			return Optional.of(((T) value));
+		}
+		throw new ClassCastException("Cannot convert " + value.getClass() + " to " + clss);
 	}
 
 	/** Utility to convert a data: URI to bytes. */
@@ -202,7 +269,7 @@ public enum CrAttributeType {
 		 *            contract than {@link Boolean#parseBoolean(String)}.
 		 */
 		@Override
-		public Boolean parse(String str) throws IllegalArgumentException {
+		public Boolean parse(NamespaceContext namespaceContext, String str) throws IllegalArgumentException {
 			if ("true".equals(str))
 				return Boolean.TRUE;
 			if ("false".equals(str))
@@ -213,14 +280,14 @@ public enum CrAttributeType {
 
 	static class IntegerFormatter implements AttributeFormatter<Integer> {
 		@Override
-		public Integer parse(String str) throws NumberFormatException {
+		public Integer parse(NamespaceContext namespaceContext, String str) throws NumberFormatException {
 			return Integer.parseInt(str);
 		}
 	}
 
 	static class LongFormatter implements AttributeFormatter<Long> {
 		@Override
-		public Long parse(String str) throws NumberFormatException {
+		public Long parse(NamespaceContext namespaceContext, String str) throws NumberFormatException {
 			return Long.parseLong(str);
 		}
 	}
@@ -228,7 +295,7 @@ public enum CrAttributeType {
 	static class DoubleFormatter implements AttributeFormatter<Double> {
 
 		@Override
-		public Double parse(String str) throws NumberFormatException {
+		public Double parse(NamespaceContext namespaceContext, String str) throws NumberFormatException {
 			return Double.parseDouble(str);
 		}
 	}
@@ -236,7 +303,7 @@ public enum CrAttributeType {
 	static class InstantFormatter implements AttributeFormatter<Instant> {
 
 		@Override
-		public Instant parse(String str) throws IllegalArgumentException {
+		public Instant parse(NamespaceContext namespaceContext, String str) throws IllegalArgumentException {
 			try {
 				return Instant.parse(str);
 			} catch (DateTimeParseException e) {
@@ -248,7 +315,7 @@ public enum CrAttributeType {
 	static class UuidFormatter implements AttributeFormatter<UUID> {
 
 		@Override
-		public UUID parse(String str) throws IllegalArgumentException {
+		public UUID parse(NamespaceContext namespaceContext, String str) throws IllegalArgumentException {
 			return java.util.UUID.fromString(str);
 		}
 	}
@@ -256,7 +323,7 @@ public enum CrAttributeType {
 	static class UriFormatter implements AttributeFormatter<URI> {
 
 		@Override
-		public URI parse(String str) throws IllegalArgumentException {
+		public URI parse(NamespaceContext namespaceContext, String str) throws IllegalArgumentException {
 			try {
 				return new URI(str);
 			} catch (URISyntaxException e) {
@@ -266,10 +333,19 @@ public enum CrAttributeType {
 
 	}
 
+	static class QNameFormatter implements AttributeFormatter<QName> {
+
+		@Override
+		public QName parse(NamespaceContext namespaceContext, String str) throws IllegalArgumentException {
+			return NamespaceUtils.parsePrefixedName(namespaceContext, str);
+		}
+
+	}
+
 	static class StringFormatter implements AttributeFormatter<String> {
 
 		@Override
-		public String parse(String str) {
+		public String parse(NamespaceContext namespaceContext, String str) {
 			return str;
 		}
 

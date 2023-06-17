@@ -3,7 +3,6 @@ package org.argeo.api.acr;
 import java.util.Locale;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.security.auth.Subject;

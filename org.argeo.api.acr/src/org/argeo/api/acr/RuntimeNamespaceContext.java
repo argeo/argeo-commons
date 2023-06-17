@@ -10,8 +10,10 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 
 /**
- * Programmatically defined {@link NamespaceContext}, code contributing
- * namespaces MUST register here with a single default prefix.
+ * Programmatically defined {@link NamespaceContext}, which is valid at runtime
+ * (when the software is running). Code contributing namespaces MUST register
+ * here with a single default prefix, nad MUST make sure that stored data
+ * contains the fully qualified namespace URI.
  */
 public class RuntimeNamespaceContext implements NamespaceContext {
 	public final static String XSD_DEFAULT_PREFIX = "xs";
@@ -20,35 +22,38 @@ public class RuntimeNamespaceContext implements NamespaceContext {
 	private NavigableMap<String, String> prefixes = new TreeMap<>();
 	private NavigableMap<String, String> namespaces = new TreeMap<>();
 
+	/*
+	 * NAMESPACE CONTEXT IMPLEMENTATION
+	 */
+
 	@Override
-	public String getPrefix(String namespaceURI) {
+	public String getPrefix(String namespaceURI) throws IllegalArgumentException {
 		return NamespaceUtils.getPrefix((ns) -> {
 			String prefix = namespaces.get(ns);
 			if (prefix == null)
-				throw new IllegalStateException("Namespace " + ns + " is not registered.");
+				throw new IllegalArgumentException("Namespace " + ns + " is not registered.");
 			return prefix;
 		}, namespaceURI);
 	}
 
 	@Override
-	public String getNamespaceURI(String prefix) {
+	public String getNamespaceURI(String prefix) throws IllegalArgumentException {
 		return NamespaceUtils.getNamespaceURI((p) -> {
 			String ns = prefixes.get(p);
 			if (ns == null)
-				throw new IllegalStateException("Prefix " + p + " is not registered.");
+				throw new IllegalArgumentException("Prefix " + p + " is not registered.");
 			return ns;
 		}, prefix);
 	}
 
 	@Override
-	public Iterator<String> getPrefixes(String namespaceURI) {
+	public Iterator<String> getPrefixes(String namespaceURI) throws IllegalArgumentException {
 		return Collections.singleton(getPrefix(namespaceURI)).iterator();
 	}
 
 	/*
 	 * STATIC
 	 */
-
 	private final static RuntimeNamespaceContext INSTANCE = new RuntimeNamespaceContext();
 
 	static {
@@ -66,30 +71,34 @@ public class RuntimeNamespaceContext implements NamespaceContext {
 		register(ArgeoNamespace.ROLE_NAMESPACE_URI, ArgeoNamespace.ROLE_DEFAULT_PREFIX);
 	}
 
+	/** The runtime namespace context instance. */
 	public static NamespaceContext getNamespaceContext() {
 		return INSTANCE;
 	}
 
+	/** The registered prefixes. */
 	public static Map<String, String> getPrefixes() {
 		return Collections.unmodifiableNavigableMap(INSTANCE.prefixes);
 	}
 
-	public synchronized static void register(String namespaceURI, String prefix) {
+	/** Registers a namespace URI / default prefix mapping. */
+	public synchronized static void register(String namespaceURI, String defaultPrefix) {
 		NavigableMap<String, String> prefixes = INSTANCE.prefixes;
 		NavigableMap<String, String> namespaces = INSTANCE.namespaces;
-		if (prefixes.containsKey(prefix)) {
-			String ns = prefixes.get(prefix);
+		if (prefixes.containsKey(defaultPrefix)) {
+			String ns = prefixes.get(defaultPrefix);
 			if (ns.equals(namespaceURI))
 				return; // ignore silently
-			throw new IllegalStateException("Prefix " + prefix + " is already registered with namespace URI " + ns);
+			throw new IllegalStateException(
+					"Prefix " + defaultPrefix + " is already registered with namespace URI " + ns);
 		}
 		if (namespaces.containsKey(namespaceURI)) {
 			String p = namespaces.get(namespaceURI);
-			if (p.equals(prefix))
+			if (p.equals(defaultPrefix))
 				return; // ignore silently
 			throw new IllegalStateException("Namespace " + namespaceURI + " is already registered with prefix " + p);
 		}
-		prefixes.put(prefix, namespaceURI);
-		namespaces.put(namespaceURI, prefix);
+		prefixes.put(defaultPrefix, namespaceURI);
+		namespaces.put(namespaceURI, defaultPrefix);
 	}
 }
