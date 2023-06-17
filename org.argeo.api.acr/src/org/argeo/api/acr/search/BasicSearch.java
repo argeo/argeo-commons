@@ -9,9 +9,13 @@ import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
 
-import org.argeo.api.acr.DName;
 import org.argeo.api.acr.QNamed;
 
+/**
+ * A basic search mechanism modelled on WebDav basicsearch.
+ * 
+ * @see http://www.webdav.org/specs/rfc5323.html
+ */
 public class BasicSearch {
 
 	private List<QName> select = new ArrayList<>();
@@ -87,10 +91,10 @@ public class BasicSearch {
 
 	}
 
-	static void main(String[] args) {
-		BasicSearch search = new BasicSearch();
-		search.select(DName.creationdate.qName()) //
-				.from(URI.create("/test")) //
-				.where((f) -> f.eq(DName.creationdate.qName(), ""));
-	}
+//	static void main(String[] args) {
+//		BasicSearch search = new BasicSearch();
+//		search.select(DName.creationdate.qName()) //
+//				.from(URI.create("/test")) //
+//				.where((f) -> f.eq(DName.creationdate.qName(), ""));
+//	}
 }

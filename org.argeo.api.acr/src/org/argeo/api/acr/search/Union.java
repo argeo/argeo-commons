@@ -1,5 +1,6 @@
 package org.argeo.api.acr.search;
 
+/** A composition which is the union of sets (OR). */
 class Union implements Composition {
 	ContentFilter<Union> filter;
 
