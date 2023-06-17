@@ -121,6 +121,11 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	}
 
 	@Override
+	public boolean isRoot() {
+		return CrName.root.qName().equals(getName());
+	}
+
+	@Override
 	public String getSessionLocalId() {
 		return getPath();
 	}

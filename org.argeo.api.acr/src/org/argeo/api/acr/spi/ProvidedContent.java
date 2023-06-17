@@ -13,6 +13,15 @@ public interface ProvidedContent extends Content {
 	int getDepth();
 
 	/**
+	 * Whether this is the root node of the related repository. Default checks
+	 * whether <code>{@link #getDepth()} == 0</code>, but it can be optimised by
+	 * implementations.
+	 */
+	default boolean isRoot() {
+		return getDepth() == 0;
+	}
+
+	/**
 	 * An opaque ID which is guaranteed to uniquely identify this content within the
 	 * session return by {@link #getSession()}. Typically used for UI.
 	 */
@@ -32,4 +41,13 @@ public interface ProvidedContent extends Content {
 		}
 		return (ProvidedContent) fileNode;
 	}
+
+	/*
+	 * ACCESS
+	 */
+	/** Whether the session has the right to access the parent. */
+	default boolean isParentAccessible() {
+		return true;
+	}
+
 }
