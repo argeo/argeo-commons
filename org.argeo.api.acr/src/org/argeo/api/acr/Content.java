@@ -82,25 +82,11 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		}
 		List<A> res = getMultiple(key, type);
 		return res;
-//		if (res == null)
-//			return null;
-//		else {
-//			if (res.isEmpty())
-//				throw new IllegalStateException("Metadata " + key + " is not availabel as list of type " + type);
-//			return res.get();
-//		}
 	}
 
 	/*
 	 * CONTENT OPERATIONS
 	 */
-//	default CompletionStage<Content> edit(Consumer<Content> work) {
-//		return CompletableFuture.supplyAsync(() -> {
-//			work.accept(this);
-//			return this;
-//		}).minimalCompletionStage();
-//	}
-
 	Content add(QName name, QName... classes);
 
 	default Content add(String name, QName... classes) {
@@ -281,6 +267,16 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	default String attr(String key) {
 		return attr(unqualified(key));
 	}
+
+	/*
+	 * CONTEXT
+	 */
+	/**
+	 * A content within this repository
+	 * 
+	 * @param path either an abolute path or a path relative to this content
+	 */
+	Content getContent(String path);
 
 	/*
 	 * EXPERIMENTAL UNSUPPORTED
