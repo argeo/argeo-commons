@@ -21,6 +21,14 @@ public class EditableText extends StyledControl {
 
 	private boolean useTextAsLabel = false;
 
+	/**
+	 * Message to display if there is not value. Only used with SWT.FLAT (label
+	 * displayed with a {@link Text})
+	 * 
+	 * @see Text#setMessage(String)
+	 */
+	private String message;
+
 	public EditableText(Composite parent, int style) {
 		super(parent, style);
 		editable = !(SWT.READ_ONLY == (style & SWT.READ_ONLY));
@@ -54,9 +62,11 @@ public class EditableText extends StyledControl {
 	}
 
 	protected Text createTextLabel(Composite box, String style) {
-		Text lbl = new Text(box, getStyle() | (multiLine ? SWT.MULTI : SWT.SINGLE));
+		Text lbl = new Text(box, getStyle() | (multiLine ? SWT.MULTI | SWT.WRAP : SWT.SINGLE));
 		lbl.setEditable(false);
-		lbl.setLayoutData(CmsSwtUtils.fillWidth());
+		if (message != null)
+			lbl.setMessage(message);
+		lbl.setLayoutData(multiLine ? CmsSwtUtils.fillAll() : CmsSwtUtils.fillWidth());
 		if (style != null)
 			CmsSwtUtils.style(lbl, style);
 		CmsSwtUtils.markup(lbl);
@@ -68,14 +78,15 @@ public class EditableText extends StyledControl {
 	protected Text createText(Composite box, String style, boolean editable) {
 		highlight = new Composite(box, SWT.NONE);
 		highlight.setBackground(highlightColor);
-		GridData highlightGd = new GridData(SWT.FILL, SWT.FILL, false, false);
+		GridData highlightGd = new GridData(SWT.FILL, SWT.FILL, false, multiLine);
 		highlightGd.widthHint = 5;
-		highlightGd.heightHint = 3;
+		if (!multiLine)
+			highlightGd.heightHint = 3;
 		highlight.setLayoutData(highlightGd);
 
 		final Text text = new Text(box, getStyle() | (multiLine ? SWT.MULTI : SWT.SINGLE) | SWT.WRAP);
 		text.setEditable(editable);
-		GridData textLayoutData = CmsSwtUtils.fillWidth();
+		GridData textLayoutData = multiLine ? CmsSwtUtils.fillAll() : CmsSwtUtils.fillWidth();
 		// textLayoutData.heightHint = preferredHeight;
 		text.setLayoutData(textLayoutData);
 		if (style != null)
@@ -130,6 +141,33 @@ public class EditableText extends StyledControl {
 
 	public void setUseTextAsLabel(boolean useTextAsLabel) {
 		this.useTextAsLabel = useTextAsLabel;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+		Control control = getControl();
+		if (control != null && control instanceof Text txt)
+			txt.setMessage(this.message);
+	}
+
+	@Override
+	protected void setContainerLayoutData(Composite composite) {
+		if (multiLine)
+			composite.setLayoutData(CmsSwtUtils.fillAll());
+		else
+			super.setContainerLayoutData(composite);
+	}
+
+	@Override
+	protected void setControlLayoutData(Control control) {
+//		if (multiLine)
+//			control.setLayoutData(CmsSwtUtils.fillAll());
+//		else
+		super.setControlLayoutData(control);
 	}
 
 }
