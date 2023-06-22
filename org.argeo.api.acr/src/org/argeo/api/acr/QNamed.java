@@ -23,6 +23,7 @@ public interface QNamed extends Supplier<String> {
 		return namespaceContext.getPrefix(getNamespace()) + ":" + localName();
 	}
 
+	/** This qualified named with its default prefix. If it is unqualified this method should be overridden, or QNamed.Unqualified be used. */
 	default String get() {
 		return getDefaultPrefix() + ":" + localName();
 	}
@@ -41,6 +42,11 @@ public interface QNamed extends Supplier<String> {
 		@Override
 		default String getDefaultPrefix() {
 			return XMLConstants.DEFAULT_NS_PREFIX;
+		}
+
+		@Override
+		default String get() {
+			return localName();
 		}
 
 	}

@@ -34,10 +34,20 @@ public class BasicSearch {
 		return this;
 	}
 
+	/**
+	 * Convenience method, to search below this absolute path, with depth
+	 * {@link Depth#INFINITTY}.
+	 */
+	public BasicSearch from(String path) {
+		return from(URI.create(path), Depth.INFINITTY);
+	}
+
+	/** Search below this URI, with depth {@link Depth#INFINITTY}. */
 	public BasicSearch from(URI uri) {
 		return from(uri, Depth.INFINITTY);
 	}
 
+	/** Search below this URI, with this {@link Depth}. */
 	public BasicSearch from(URI uri, Depth depth) {
 		Objects.requireNonNull(uri);
 		Objects.requireNonNull(depth);

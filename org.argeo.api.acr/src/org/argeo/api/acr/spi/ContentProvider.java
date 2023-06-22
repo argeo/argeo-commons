@@ -7,6 +7,7 @@ import javax.xml.namespace.NamespaceContext;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentNotFoundException;
+import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.search.BasicSearch;
 
 /**
@@ -48,6 +49,17 @@ public interface ContentProvider extends NamespaceContext {
 	 */
 	default Spliterator<Content> search(ProvidedSession session, BasicSearch search, String relPath) {
 		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * EDITION
+	 */
+	/**
+	 * Called when an edition cycle is completed. Does nothing by default.
+	 * 
+	 * @see ContentSession#edit(java.util.function.Consumer)
+	 */
+	default void persist(ProvidedSession session) {
 	}
 
 	/*

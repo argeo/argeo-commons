@@ -26,7 +26,7 @@ import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.uuid.UuidFactory;
-import org.argeo.cms.acr.xml.DomContentProvider;
+import org.argeo.cms.CurrentUser;
 
 /** Implements {@link ProvidedSession}. */
 class CmsContentSession implements ProvidedSession {
@@ -137,9 +137,10 @@ class CmsContentSession implements ProvidedSession {
 			synchronized (CmsContentSession.this) {
 				// TODO optimise
 				for (ContentProvider provider : modifiedProviders) {
-					if (provider instanceof DomContentProvider) {
-						((DomContentProvider) provider).persist(s);
-					}
+					provider.persist(s);
+//					if (provider instanceof DomContentProvider) {
+//						((DomContentProvider) provider).persist(s);
+//					}
 				}
 				modifiedProviders.clear();
 				return s;
@@ -177,6 +178,18 @@ class CmsContentSession implements ProvidedSession {
 			}
 		}
 		return sessionRunDir;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof CmsContentSession session)
+			return uuid.equals(session.uuid);
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "Content Session " + uuid + " (" + CurrentUser.getUsername(subject) + ")";
 	}
 
 	/*

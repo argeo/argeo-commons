@@ -96,6 +96,7 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		return nodes.getLength() != 0;
 	}
 
+	@Override
 	public void persist(ProvidedSession session) {
 		if (mountPath != null) {
 			Content mountPoint = session.getMountPoint(mountPath);
