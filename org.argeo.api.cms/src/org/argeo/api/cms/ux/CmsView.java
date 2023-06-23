@@ -31,7 +31,7 @@ public interface CmsView {
 	// SERVICES
 	void exception(Throwable e);
 
-	CmsImageManager<?, ?> getImageManager();
+	<V,M> CmsImageManager<V, M> getImageManager();
 
 	boolean isAnonymous();
 

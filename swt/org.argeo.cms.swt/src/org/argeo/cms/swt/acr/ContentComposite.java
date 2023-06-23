@@ -2,10 +2,11 @@ package org.argeo.cms.swt.acr;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.spi.ProvidedContent;
+import org.argeo.cms.ux.acr.ContentPart;
 import org.eclipse.swt.widgets.Composite;
 
 /** A composite which can (optionally) manage a content. */
-public class ContentComposite extends Composite {
+public class ContentComposite extends Composite implements ContentPart {
 	private static final long serialVersionUID = -1447009015451153367L;
 
 	public ContentComposite(Composite parent, int style, Content item) {
@@ -20,6 +21,7 @@ public class ContentComposite extends Composite {
 		return getData() instanceof Content;
 	}
 
+	@Override
 	public Content getContent() {
 		return (Content) getData();
 	}

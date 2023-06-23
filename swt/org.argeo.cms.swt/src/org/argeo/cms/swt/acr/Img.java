@@ -44,8 +44,7 @@ public class Img extends EditableImage implements SwtSectionPart, ContentPart {
 			CmsImageManager<Control, Content> imageManager) {
 		super(parent, swtStyle, preferredImageSize);
 		this.section = section;
-		this.imageManager = imageManager != null ? imageManager
-				: (CmsImageManager<Control, Content>) CmsSwtUtils.getCmsView(section).getImageManager();
+		this.imageManager = imageManager != null ? imageManager : CmsSwtUtils.getCmsView(section).getImageManager();
 //		CmsSwtUtils.style(this, TextStyles.TEXT_IMG);
 		setData(imgNode);
 	}
