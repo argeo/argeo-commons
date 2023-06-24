@@ -57,7 +57,7 @@ public class CmsContentRepository extends AbstractContentRepository {
 		CmsSession cmsSession = CurrentUser.getCmsSession();
 		CmsContentSession contentSession = userSessions.get(cmsSession);
 		if (contentSession == null) {
-			final CmsContentSession newContentSession = new CmsContentSession(this, cmsSession.getUuid(),
+			final CmsContentSession newContentSession = new CmsContentSession(this, cmsSession.uuid(),
 					cmsSession.getSubject(), locale, uuidFactory);
 			cmsSession.addOnCloseCallback((c) -> {
 				newContentSession.close();

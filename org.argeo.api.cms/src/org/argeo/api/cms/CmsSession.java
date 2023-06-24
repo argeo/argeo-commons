@@ -13,7 +13,7 @@ public interface CmsSession {
 	final static String SESSION_UUID = "entryUUID";
 	final static String SESSION_LOCAL_ID = "uniqueIdentifier";
 
-	UUID getUuid();
+	UUID uuid();
 
 	String getUserRole();
 

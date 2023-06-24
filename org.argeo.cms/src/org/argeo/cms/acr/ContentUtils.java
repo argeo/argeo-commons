@@ -3,6 +3,7 @@ package org.argeo.cms.acr;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
@@ -193,6 +194,23 @@ public class ContentUtils {
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentCl);
 		}
+	}
+
+	/**
+	 * Constructs a relative path between a base path and a given path.
+	 * 
+	 * @throws IllegalArgumentException if the base path is not an ancestor of the
+	 *                                  path
+	 */
+	public static String relativize(String basePath, String path) throws IllegalArgumentException {
+		Objects.requireNonNull(basePath);
+		Objects.requireNonNull(path);
+		if (!path.startsWith(basePath))
+			throw new IllegalArgumentException(basePath + " is not an ancestor of " + path);
+		String relativePath = path.substring(basePath.length());
+		if (relativePath.length() > 0 && relativePath.charAt(0) == '/')
+			relativePath = relativePath.substring(1);
+		return relativePath;
 	}
 
 	/** Singleton. */

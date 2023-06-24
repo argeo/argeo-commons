@@ -20,7 +20,7 @@ public interface ProvidedSession extends ContentSession {
 
 	void notifyModification(ProvidedContent content);
 
-	UUID getUuid();
+	UUID uuid();
 
 //	Content getSessionRunDir();
 

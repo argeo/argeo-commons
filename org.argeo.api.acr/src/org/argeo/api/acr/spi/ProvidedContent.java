@@ -6,10 +6,13 @@ import org.argeo.api.acr.Content;
 public interface ProvidedContent extends Content {
 	final static String ROOT_PATH = "/";
 
+	/** The related {@link ProvidedSession}. */
 	ProvidedSession getSession();
 
+	/** The {@link ContentProvider} this {@link Content} belongs to. */
 	ContentProvider getProvider();
 
+	/** Depth relative to the root of the repository. */
 	int getDepth();
 
 	/**
@@ -27,10 +30,15 @@ public interface ProvidedContent extends Content {
 	 */
 	String getSessionLocalId();
 
+	/**
+	 * The {@link Content} within the same {@link ContentProvider} which can be used
+	 * to mount another {@link ContentProvider}.
+	 */
 	default ProvidedContent getMountPoint(String relativePath) {
 		throw new UnsupportedOperationException("This content doe not support mount");
 	}
 
+	@Override
 	default ProvidedContent getContent(String path) {
 		Content fileNode;
 		if (path.startsWith(ROOT_PATH)) {// absolute
@@ -50,4 +58,8 @@ public interface ProvidedContent extends Content {
 		return true;
 	}
 
+	/** Whether the related session can open this content for edit. */
+	default boolean canEdit() {
+		return false;
+	}
 }

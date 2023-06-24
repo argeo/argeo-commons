@@ -54,6 +54,21 @@ public interface ContentProvider extends NamespaceContext {
 	/*
 	 * EDITION
 	 */
+	/** Switch this content (and its subtree) to editing mode. */
+	default void openForEdit(ProvidedSession session, String relativePath) {
+		throw new UnsupportedOperationException();
+	}
+
+	/** Switch this content (and its subtree) to frozen mode. */
+	default void freeze(ProvidedSession session, String relativePath) {
+		throw new UnsupportedOperationException();
+	}
+
+	/** Whether this content (and its subtree) are in editing mode. */
+	default boolean isOpenForEdit(ProvidedSession session, String relativePath) {
+		throw new UnsupportedOperationException();
+	}
+
 	/**
 	 * Called when an edition cycle is completed. Does nothing by default.
 	 * 

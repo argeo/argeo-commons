@@ -21,11 +21,12 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
+import org.argeo.api.uuid.UuidIdentified;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.osgi.service.useradmin.Authorization;
 
 /** Default CMS session implementation. */
-public class CmsSessionImpl implements CmsSession, Serializable {
+public class CmsSessionImpl implements CmsSession, Serializable, UuidIdentified {
 	private static final long serialVersionUID = 1867719354246307225L;
 	private final static CmsLog log = CmsLog.getLog(CmsSessionImpl.class);
 
@@ -128,7 +129,7 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 	}
 
 	@Override
-	public UUID getUuid() {
+	public UUID uuid() {
 		return uuid;
 	}
 
@@ -175,6 +176,21 @@ public class CmsSessionImpl implements CmsSession, Serializable {
 		views.put(uid, view);
 	}
 
+	/*
+	 * OBJECT METHODS
+	 */
+
+	@Override
+	public boolean equals(Object o) {
+		return UuidIdentified.equals(this, o);
+	}
+
+	@Override
+	public int hashCode() {
+		return UuidIdentified.hashCode(this);
+	}
+
+	@Override
 	public String toString() {
 		return "CMS Session " + userDn + " localId=" + localSessionId + ", uuid=" + uuid;
 	}
