@@ -16,6 +16,7 @@ import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.DName;
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.directory.CmsDirectory;
 import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
@@ -176,7 +177,7 @@ public class ContentUtils {
 		}
 	}
 
-	public static ContentSession openDataAdminSession(ContentRepository repository) {
+	public static ContentSession openDataAdminSession(ContentRepository contentRepository) {
 		LoginContext loginContext;
 		try {
 			loginContext = CmsAuth.DATA_ADMIN.newLoginContext();
@@ -189,10 +190,14 @@ public class ContentUtils {
 		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(ContentUtils.class.getClassLoader());
-			return CurrentSubject.callAs(loginContext.getSubject(), () -> repository.get());
+			return CurrentSubject.callAs(loginContext.getSubject(), () -> contentRepository.get());
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentCl);
 		}
+	}
+
+	public static ContentSession openSession(ContentRepository contentRepository, CmsSession cmsSession) {
+		return CurrentSubject.callAs(cmsSession.getSubject(), () -> contentRepository.get());
 	}
 
 	/**
