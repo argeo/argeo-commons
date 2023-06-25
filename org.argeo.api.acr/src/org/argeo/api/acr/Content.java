@@ -237,11 +237,7 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	 * @see Object#toString()
 	 */
 	default String attr(QName key) {
-		// TODO check String type?
-		Object obj = get(key);
-		if (obj == null)
-			return null;
-		return obj.toString();
+		return get(key, String.class).orElse(null);
 	}
 
 	/**
