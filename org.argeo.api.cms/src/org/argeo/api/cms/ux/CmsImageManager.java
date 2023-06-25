@@ -1,11 +1,12 @@
 package org.argeo.api.cms.ux;
 
 import java.io.InputStream;
+import java.net.URI;
 
 /** Read and write access to images. */
 public interface CmsImageManager<V, M> {
 	/** Load image in control */
-	public Boolean load(M node, V control, Cms2DSize size);
+	public Boolean load(M node, V control, Cms2DSize size, URI link);
 
 	/** @return (0,0) if not available */
 	public Cms2DSize getImageSize(M node);

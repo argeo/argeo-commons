@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 /** A stylable and editable image. */
+@Deprecated
 public abstract class EditableImage extends StyledControl {
 	private static final long serialVersionUID = -5689145523114022890L;
 	private final static CmsLog log = CmsLog.getLog(EditableImage.class);
@@ -73,9 +74,9 @@ public abstract class EditableImage extends StyledControl {
 			loaded = true;
 		if (control != null) {
 			((Label) control).setText(imgTag);
-			control.setSize(preferredImageSize != null
-					? new Point(preferredImageSize.getWidth(), preferredImageSize.getHeight())
-					: getSize());
+			control.setSize(
+					preferredImageSize != null ? new Point(preferredImageSize.width(), preferredImageSize.height())
+							: getSize());
 		} else {
 			loaded = false;
 		}

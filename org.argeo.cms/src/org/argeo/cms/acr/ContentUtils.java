@@ -67,7 +67,6 @@ public class ContentUtils {
 
 	public static final char SLASH = '/';
 	public static final String SLASH_STRING = Character.toString(SLASH);
-	public static final String ROOT_SLASH = "" + SLASH;
 	public static final String EMPTY = "";
 
 	/**
@@ -103,7 +102,7 @@ public class ContentUtils {
 
 	public static List<String> toPathSegments(String path) {
 		List<String> res = new ArrayList<>();
-		if (EMPTY.equals(path) || ROOT_SLASH.equals(path))
+		if (EMPTY.equals(path) || Content.ROOT_PATH.equals(path))
 			return res;
 		collectPathSegments(path, res);
 		return res;

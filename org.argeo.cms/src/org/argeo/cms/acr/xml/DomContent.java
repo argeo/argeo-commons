@@ -69,7 +69,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		if (isLocalRoot()) {// root
 			String mountPath = provider.getMountPath();
 			if (mountPath != null) {
-				if (ContentUtils.ROOT_SLASH.equals(mountPath)) {
+				if (Content.ROOT_PATH.equals(mountPath)) {
 					return CrName.root.qName();
 				}
 				Content mountPoint = getSession().getMountPoint(mountPath);
@@ -236,7 +236,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			String mountPath = provider.getMountPath();
 			if (mountPath == null)
 				return null;
-			if (ContentUtils.ROOT_SLASH.equals(mountPath)) {
+			if (Content.ROOT_PATH.equals(mountPath)) {
 				return null;
 			}
 			String[] parent = ContentUtils.getParentPath(mountPath);
@@ -386,7 +386,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		List<QName> res = new ArrayList<>();
 		if (isLocalRoot()) {
 			String mountPath = provider.getMountPath();
-			if (ContentUtils.SLASH_STRING.equals(mountPath)) {// repository root
+			if (Content.ROOT_PATH.equals(mountPath)) {// repository root
 				res.add(CrName.root.qName());
 			} else {
 				Content mountPoint = getSession().getMountPoint(mountPath);
@@ -402,7 +402,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	public void addContentClasses(QName... contentClass) {
 		if (isLocalRoot()) {
 			String mountPath = provider.getMountPath();
-			if (ContentUtils.SLASH_STRING.equals(mountPath)) {// repository root
+			if (Content.ROOT_PATH.equals(mountPath)) {// repository root
 				throw new IllegalArgumentException("Cannot add content classes to repository root");
 			} else {
 				Content mountPoint = getSession().getMountPoint(mountPath);

@@ -70,7 +70,7 @@ class CmsContentSession implements ProvidedSession, UuidIdentified {
 
 	@Override
 	public Content get(String path) {
-		if (!path.startsWith(ContentUtils.ROOT_SLASH))
+		if (!path.startsWith(Content.ROOT_PATH))
 			throw new IllegalArgumentException(path + " is not an absolute path");
 		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
 		String mountPath = contentProvider.getMountPath();
@@ -81,7 +81,7 @@ class CmsContentSession implements ProvidedSession, UuidIdentified {
 
 	@Override
 	public boolean exists(String path) {
-		if (!path.startsWith(ContentUtils.ROOT_SLASH))
+		if (!path.startsWith(Content.ROOT_PATH))
 			throw new IllegalArgumentException(path + " is not an absolute path");
 		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
 		String mountPath = contentProvider.getMountPath();

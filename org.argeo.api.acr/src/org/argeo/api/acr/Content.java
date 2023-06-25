@@ -16,6 +16,8 @@ import javax.xml.namespace.QName;
  * A semi-structured content, with attributes, within a hierarchical structure.
  */
 public interface Content extends Iterable<Content>, Map<QName, Object> {
+	/** The base of a repository path. */
+	String ROOT_PATH = "/";
 
 	QName getName();
 
@@ -208,6 +210,14 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		return res;
 	}
 
+	default List<Content> children(QNamed name) {
+		return children(name.qName());
+	}
+
+	default Optional<Content> soleChild(QNamed name) {
+		return soleChild(name.qName());
+	}
+
 	default Optional<Content> soleChild(QName name) {
 		List<Content> res = children(name);
 		if (res.isEmpty())
@@ -270,9 +280,9 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	/**
 	 * A content within this repository
 	 * 
-	 * @param path either an abolute path or a path relative to this content
+	 * @param path either an absolute path or a path relative to this content
 	 */
-	Content getContent(String path);
+	Optional<Content> getContent(String path);
 
 	/*
 	 * EXPERIMENTAL UNSUPPORTED

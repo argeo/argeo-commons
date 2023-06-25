@@ -31,6 +31,6 @@ public class CmsUxUtils {
 	}
 
 	public static String img(String src, Cms2DSize size) {
-		return img(src, Integer.toString(size.getWidth()), Integer.toString(size.getHeight()));
+		return img(src, Integer.toString(size.width()), Integer.toString(size.height()));
 	}
 }

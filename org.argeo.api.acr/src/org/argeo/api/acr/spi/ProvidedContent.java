@@ -1,11 +1,11 @@
 package org.argeo.api.acr.spi;
 
+import java.util.Optional;
+
 import org.argeo.api.acr.Content;
 
 /** A {@link Content} implementation. */
 public interface ProvidedContent extends Content {
-	final static String ROOT_PATH = "/";
-
 	/** The related {@link ProvidedSession}. */
 	ProvidedSession getSession();
 
@@ -39,15 +39,14 @@ public interface ProvidedContent extends Content {
 	}
 
 	@Override
-	default ProvidedContent getContent(String path) {
-		Content fileNode;
-		if (path.startsWith(ROOT_PATH)) {// absolute
-			fileNode = getSession().get(path);
+	default Optional<Content> getContent(String path) {
+		String absolutePath;
+		if (path.startsWith(Content.ROOT_PATH)) {// absolute
+			absolutePath = path;
 		} else {// relative
-			String absolutePath = getPath() + '/' + path;
-			fileNode = getSession().get(absolutePath);
+			absolutePath = getPath() + '/' + path;
 		}
-		return (ProvidedContent) fileNode;
+		return getSession().exists(absolutePath) ? Optional.of(getSession().get(absolutePath)) : Optional.empty();
 	}
 
 	/*

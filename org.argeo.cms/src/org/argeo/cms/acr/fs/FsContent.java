@@ -80,7 +80,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 		// TODO check file names with ':' ?
 		if (isMountBase) {
 			String mountPath = provider.getMountPath();
-			if (mountPath != null && !mountPath.equals(ContentUtils.ROOT_SLASH)) {
+			if (mountPath != null && !mountPath.equals(Content.ROOT_PATH)) {
 				Content mountPoint = session.getMountPoint(mountPath);
 				this.name = mountPoint.getName();
 			} else {
