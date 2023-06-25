@@ -32,18 +32,22 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	}
 
 	/*
-	 * ATTRIBUTES OPERATIONS
+	 * ATTRIBUTES MAP IMPLEMENTATION
 	 */
-//	protected abstract Iterable<QName> keys();
-//
-//	protected abstract void removeAttr(QName key);
-
 	@Override
 	public Set<Entry<QName, Object>> entrySet() {
 		Set<Entry<QName, Object>> result = new AttrSet();
 		return result;
 	}
 
+	@Override
+	public Object get(Object key) {
+		return get((QName) key, Object.class).orElse(null);
+	}
+
+	/*
+	 * ATTRIBUTES OPERATIONS
+	 */
 	@Override
 	public Class<?> getType(QName key) {
 		return String.class;
