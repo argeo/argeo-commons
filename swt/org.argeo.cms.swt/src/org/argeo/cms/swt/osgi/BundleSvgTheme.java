@@ -26,7 +26,7 @@ import org.osgi.framework.BundleContext;
 public class BundleSvgTheme extends BundleCmsSwtTheme {
 	private final static Logger logger = System.getLogger(BundleSvgTheme.class.getName());
 
-//	private Map<String, Map<Integer, Image>> imageCache = Collections.synchronizedMap(new HashMap<>());
+	private Map<String, Map<Integer, ImageData>> imageDataCache = Collections.synchronizedMap(new HashMap<>());
 
 	private Map<Integer, ImageTranscoder> transcoders = Collections.synchronizedMap(new HashMap<>());
 
@@ -64,6 +64,12 @@ public class BundleSvgTheme extends BundleCmsSwtTheme {
 	}
 
 	protected ImageData loadFromSvg(String path, int size) {
+		ImageData imageData = null;
+		if (imageDataCache.containsKey(path))
+			imageData = imageDataCache.get(path).get(size);
+		if (imageData != null)
+			return imageData;
+
 		ImageTranscoder transcoder = null;
 		synchronized (this) {
 			transcoder = transcoders.get(size);
@@ -75,7 +81,6 @@ public class BundleSvgTheme extends BundleCmsSwtTheme {
 				transcoders.put(size, transcoder);
 			}
 		}
-		ImageData imageData;
 		try (InputStream in = getResourceAsStream(path); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
 			if (in == null)
 				throw new IllegalArgumentException(path + " not found");
@@ -89,6 +94,11 @@ public class BundleSvgTheme extends BundleCmsSwtTheme {
 		} catch (IOException | TranscoderException e) {
 			throw new RuntimeException("Cannot transcode SVG " + path, e);
 		}
+
+		// cache it
+		if (!imageDataCache.containsKey(path))
+			imageDataCache.put(path, Collections.synchronizedMap(new HashMap<>()));
+		imageDataCache.get(path).put(size, imageData);
 
 		return imageData;
 	}
