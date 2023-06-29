@@ -8,15 +8,16 @@ import org.argeo.api.acr.Content;
 import org.argeo.cms.ux.widgets.AbstractHierarchicalPart;
 import org.argeo.cms.ux.widgets.HierarchicalPart;
 
+/** A {@link HierarchicalPart} based on {@link Content}. */
 public class ContentHierarchicalPart extends AbstractHierarchicalPart<Content> implements HierarchicalPart<Content> {
 	@Override
-	public List<Content> getChildren(Content content) {
+	public List<Content> getChildren(Content parent) {
 		List<Content> res = new ArrayList<>();
-		if (isLeaf(content))
+		if (isLeaf(parent))
 			return res;
-		if (content == null)
+		if (parent == null)
 			return res;
-		for (Iterator<Content> it = content.iterator(); it.hasNext();) {
+		for (Iterator<Content> it = parent.iterator(); it.hasNext();) {
 			res.add(it.next());
 		}
 

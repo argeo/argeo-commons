@@ -16,6 +16,8 @@ import javax.xml.namespace.QName;
  * A semi-structured content, with attributes, within a hierarchical structure.
  */
 public interface Content extends Iterable<Content>, Map<QName, Object> {
+	/** The base of a repository path. */
+	String ROOT_PATH = "/";
 
 	QName getName();
 
@@ -82,25 +84,11 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		}
 		List<A> res = getMultiple(key, type);
 		return res;
-//		if (res == null)
-//			return null;
-//		else {
-//			if (res.isEmpty())
-//				throw new IllegalStateException("Metadata " + key + " is not availabel as list of type " + type);
-//			return res.get();
-//		}
 	}
 
 	/*
 	 * CONTENT OPERATIONS
 	 */
-//	default CompletionStage<Content> edit(Consumer<Content> work) {
-//		return CompletableFuture.supplyAsync(() -> {
-//			work.accept(this);
-//			return this;
-//		}).minimalCompletionStage();
-//	}
-
 	Content add(QName name, QName... classes);
 
 	default Content add(String name, QName... classes) {
@@ -222,6 +210,14 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		return res;
 	}
 
+	default List<Content> children(QNamed name) {
+		return children(name.qName());
+	}
+
+	default Optional<Content> soleChild(QNamed name) {
+		return soleChild(name.qName());
+	}
+
 	default Optional<Content> soleChild(QName name) {
 		List<Content> res = children(name);
 		if (res.isEmpty())
@@ -242,29 +238,51 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	/*
 	 * ATTR AS STRING
 	 */
+	/**
+	 * Convenience method returning an attribute as a {@link String}.
+	 * 
+	 * @param key the attribute name
+	 * @return the attribute value as a {@link String} or <code>null</code>.
+	 * 
+	 * @see Object#toString()
+	 */
 	default String attr(QName key) {
-		// TODO check String type?
-		Object obj = get(key);
-		if (obj == null)
-			return null;
-		return obj.toString();
+		return get(key, String.class).orElse(null);
 	}
 
+	/**
+	 * Convenience method returning an attribute as a {@link String}.
+	 * 
+	 * @param key the attribute name
+	 * @return the attribute value as a {@link String} or <code>null</code>.
+	 * 
+	 * @see Object#toString()
+	 */
 	default String attr(QNamed key) {
 		return attr(key.qName());
 	}
 
+	/**
+	 * Convenience method returning an attribute as a {@link String}.
+	 * 
+	 * @param key the attribute name
+	 * @return the attribute value as a {@link String} or <code>null</code>.
+	 * 
+	 * @see Object#toString()
+	 */
 	default String attr(String key) {
 		return attr(unqualified(key));
 	}
-//
-//	default String attr(Object key) {
-//		return key != null ? attr(key.toString()) : attr(null);
-//	}
-//
-//	default <A> A get(Object key, Class<A> clss) {
-//		return key != null ? get(key.toString(), clss) : get(null, clss);
-//	}
+
+	/*
+	 * CONTEXT
+	 */
+	/**
+	 * A content within this repository
+	 * 
+	 * @param path either an absolute path or a path relative to this content
+	 */
+	Optional<Content> getContent(String path);
 
 	/*
 	 * EXPERIMENTAL UNSUPPORTED

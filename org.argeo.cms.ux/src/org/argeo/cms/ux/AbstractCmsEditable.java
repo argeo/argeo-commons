@@ -6,9 +6,14 @@ import org.argeo.api.cms.ux.CmsEditable;
 import org.argeo.api.cms.ux.CmsEditionEvent;
 import org.argeo.api.cms.ux.CmsEditionListener;
 
+/**
+ * Base class for implementing {@link CmsEditable}, mostly managing
+ * {@link CmsEditionListener}s.
+ */
 public abstract class AbstractCmsEditable implements CmsEditable {
 	private IdentityHashMap<CmsEditionListener, Object> listeners = new IdentityHashMap<>();
 
+	/** Notifies listeners of a {@link CmsEditionEvent}. */
 	protected void notifyListeners(CmsEditionEvent e) {
 		if (CmsEditionEvent.START_EDITING == e.getType()) {
 			for (CmsEditionListener listener : listeners.keySet())

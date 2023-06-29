@@ -26,10 +26,11 @@ import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedRepository;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.uuid.UuidFactory;
-import org.argeo.cms.acr.xml.DomContentProvider;
+import org.argeo.api.uuid.UuidIdentified;
+import org.argeo.cms.CurrentUser;
 
 /** Implements {@link ProvidedSession}. */
-class CmsContentSession implements ProvidedSession {
+class CmsContentSession implements ProvidedSession, UuidIdentified {
 	final private AbstractContentRepository contentRepository;
 
 	private final UUID uuid;
@@ -69,30 +70,23 @@ class CmsContentSession implements ProvidedSession {
 
 	@Override
 	public Content get(String path) {
-		if (!path.startsWith(ContentUtils.ROOT_SLASH))
+		if (!path.startsWith(Content.ROOT_PATH))
 			throw new IllegalArgumentException(path + " is not an absolute path");
 		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
 		String mountPath = contentProvider.getMountPath();
-		String relativePath = extractRelativePath(mountPath, path);
+		String relativePath = ContentUtils.relativize(mountPath, path);
 		ProvidedContent content = contentProvider.get(CmsContentSession.this, relativePath);
 		return content;
 	}
 
 	@Override
 	public boolean exists(String path) {
-		if (!path.startsWith(ContentUtils.ROOT_SLASH))
+		if (!path.startsWith(Content.ROOT_PATH))
 			throw new IllegalArgumentException(path + " is not an absolute path");
 		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
 		String mountPath = contentProvider.getMountPath();
-		String relativePath = extractRelativePath(mountPath, path);
+		String relativePath = ContentUtils.relativize(mountPath, path);
 		return contentProvider.exists(this, relativePath);
-	}
-
-	private String extractRelativePath(String mountPath, String path) {
-		String relativePath = path.substring(mountPath.length());
-		if (relativePath.length() > 0 && relativePath.charAt(0) == '/')
-			relativePath = relativePath.substring(1);
-		return relativePath;
 	}
 
 	@Override
@@ -137,9 +131,10 @@ class CmsContentSession implements ProvidedSession {
 			synchronized (CmsContentSession.this) {
 				// TODO optimise
 				for (ContentProvider provider : modifiedProviders) {
-					if (provider instanceof DomContentProvider) {
-						((DomContentProvider) provider).persist(s);
-					}
+					provider.persist(s);
+//					if (provider instanceof DomContentProvider) {
+//						((DomContentProvider) provider).persist(s);
+//					}
 				}
 				modifiedProviders.clear();
 				return s;
@@ -160,7 +155,7 @@ class CmsContentSession implements ProvidedSession {
 	}
 
 	@Override
-	public UUID getUuid() {
+	public UUID uuid() {
 		return uuid;
 	}
 
@@ -177,6 +172,25 @@ class CmsContentSession implements ProvidedSession {
 			}
 		}
 		return sessionRunDir;
+	}
+
+	/*
+	 * OBJECT METHODS
+	 */
+
+	@Override
+	public boolean equals(Object o) {
+		return UuidIdentified.equals(this, o);
+	}
+
+	@Override
+	public int hashCode() {
+		return UuidIdentified.hashCode(this);
+	}
+
+	@Override
+	public String toString() {
+		return "Content Session " + uuid + " (" + CurrentUser.getUsername(subject) + ")";
 	}
 
 	/*

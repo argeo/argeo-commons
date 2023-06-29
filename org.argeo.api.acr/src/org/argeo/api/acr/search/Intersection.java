@@ -1,5 +1,7 @@
 package org.argeo.api.acr.search;
-class Intersection implements Composition {
+
+/** A composition which is the intersection of sets (AND). */
+public class Intersection implements Composition {
 	ContentFilter<Intersection> filter;
 
 	@SuppressWarnings("unchecked")
@@ -12,4 +14,3 @@ class Intersection implements Composition {
 	}
 
 }
-

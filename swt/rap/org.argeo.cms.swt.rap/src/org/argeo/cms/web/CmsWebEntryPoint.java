@@ -271,25 +271,24 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 							return null;
 						}
 					});
-				} catch (Throwable e) {
-					if (e instanceof SWTError) {
-						SWTError swtError = (SWTError) e;
-						if (swtError.code == SWT.ERROR_FUNCTION_DISPOSED) {
-							log.error("Unexpected SWT error in event loop, ignoring it. " + e.getMessage());
-							continue eventLoop;
-						} else {
-							log.error("Unexpected SWT error in event loop, shutting down...", e);
-							break eventLoop;
-						}
-					} else if (e instanceof ThreadDeath) {
-						throw (ThreadDeath) e;
-					} else if (e instanceof Error) {
-						log.error("Unexpected error in event loop, shutting down...", e);
-						break eventLoop;
-					} else {
-						log.error("Unexpected exception in event loop, ignoring it. " + e.getMessage());
+				} catch (SWTError e) {
+					SWTError swtError = (SWTError) e;
+					if (swtError.code == SWT.ERROR_FUNCTION_DISPOSED) {
+						log.error("Unexpected SWT error in event loop, ignoring it. " + e.getMessage());
 						continue eventLoop;
+					} else {
+						log.error("Unexpected SWT error in event loop, shutting down...", e);
+						break eventLoop;
 					}
+				} catch (ThreadDeath e) {
+					// ThreadDeath is expected when the UI thread terminates
+					throw (ThreadDeath) e;
+				} catch (Error e) {
+					log.error("Unexpected error in event loop, shutting down...", e);
+					break eventLoop;
+				} catch (Throwable e) {
+					log.error("Unexpected exception in event loop, ignoring it. " + e.getMessage());
+					continue eventLoop;
 				}
 			}
 			if (!display.isDisposed())

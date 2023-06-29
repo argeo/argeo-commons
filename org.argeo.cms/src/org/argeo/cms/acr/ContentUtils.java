@@ -3,6 +3,7 @@ package org.argeo.cms.acr;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 
@@ -15,6 +16,7 @@ import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.DName;
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.directory.CmsDirectory;
 import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
@@ -66,7 +68,6 @@ public class ContentUtils {
 
 	public static final char SLASH = '/';
 	public static final String SLASH_STRING = Character.toString(SLASH);
-	public static final String ROOT_SLASH = "" + SLASH;
 	public static final String EMPTY = "";
 
 	/**
@@ -102,7 +103,7 @@ public class ContentUtils {
 
 	public static List<String> toPathSegments(String path) {
 		List<String> res = new ArrayList<>();
-		if (EMPTY.equals(path) || ROOT_SLASH.equals(path))
+		if (EMPTY.equals(path) || Content.ROOT_PATH.equals(path))
 			return res;
 		collectPathSegments(path, res);
 		return res;
@@ -176,7 +177,7 @@ public class ContentUtils {
 		}
 	}
 
-	public static ContentSession openDataAdminSession(ContentRepository repository) {
+	public static ContentSession openDataAdminSession(ContentRepository contentRepository) {
 		LoginContext loginContext;
 		try {
 			loginContext = CmsAuth.DATA_ADMIN.newLoginContext();
@@ -189,10 +190,31 @@ public class ContentUtils {
 		ClassLoader currentCl = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(ContentUtils.class.getClassLoader());
-			return CurrentSubject.callAs(loginContext.getSubject(), () -> repository.get());
+			return CurrentSubject.callAs(loginContext.getSubject(), () -> contentRepository.get());
 		} finally {
 			Thread.currentThread().setContextClassLoader(currentCl);
 		}
+	}
+
+	public static ContentSession openSession(ContentRepository contentRepository, CmsSession cmsSession) {
+		return CurrentSubject.callAs(cmsSession.getSubject(), () -> contentRepository.get());
+	}
+
+	/**
+	 * Constructs a relative path between a base path and a given path.
+	 * 
+	 * @throws IllegalArgumentException if the base path is not an ancestor of the
+	 *                                  path
+	 */
+	public static String relativize(String basePath, String path) throws IllegalArgumentException {
+		Objects.requireNonNull(basePath);
+		Objects.requireNonNull(path);
+		if (!path.startsWith(basePath))
+			throw new IllegalArgumentException(basePath + " is not an ancestor of " + path);
+		String relativePath = path.substring(basePath.length());
+		if (relativePath.length() > 0 && relativePath.charAt(0) == '/')
+			relativePath = relativePath.substring(1);
+		return relativePath;
 	}
 
 	/** Singleton. */

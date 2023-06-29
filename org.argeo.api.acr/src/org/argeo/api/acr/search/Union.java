@@ -1,6 +1,7 @@
 package org.argeo.api.acr.search;
 
-class Union implements Composition {
+/** A composition which is the union of sets (OR). */
+public class Union implements Composition {
 	ContentFilter<Union> filter;
 
 	@SuppressWarnings("unchecked")

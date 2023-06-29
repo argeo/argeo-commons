@@ -57,16 +57,6 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		};
 	}
 
-//	@Override
-//	public Content get() {
-//		return new DomContent(this, document.getDocumentElement());
-//	}
-
-//	public Element createElement(String name) {
-//		return document.createElementNS(null, name);
-//
-//	}
-
 	@Override
 	public ProvidedContent get(ProvidedSession session, String relativePath) {
 		if ("".equals(relativePath))
@@ -86,7 +76,7 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		if (relativePath.startsWith("/"))
 			throw new IllegalArgumentException("Relative path cannot start with /");
 		String xPathExpression = '/' + relativePath;
-		if ("/".equals(mountPath))
+		if (Content.ROOT_PATH.equals(mountPath)) // repository root
 			xPathExpression = "/" + CrName.root.qName() + xPathExpression;
 		try {
 			NodeList nodes = (NodeList) xPath.get().evaluate(xPathExpression, document, XPathConstants.NODESET);
@@ -105,6 +95,7 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 		return nodes.getLength() != 0;
 	}
 
+	@Override
 	public void persist(ProvidedSession session) {
 		if (mountPath != null) {
 			Content mountPoint = session.getMountPoint(mountPath);

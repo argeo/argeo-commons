@@ -10,16 +10,16 @@ public abstract class AbstractImageManager<V, M> implements CmsImageManager<V, M
 	public final static Float NO_IMAGE_RATIO = 1f;
 
 	protected Cms2DSize resizeTo(Cms2DSize orig, Cms2DSize constraints) {
-		if (constraints.getWidth() != 0 && constraints.getHeight() != 0) {
+		if (constraints.width() != 0 && constraints.height() != 0) {
 			return constraints;
-		} else if (constraints.getWidth() == 0 && constraints.getHeight() == 0) {
+		} else if (constraints.width() == 0 && constraints.height() == 0) {
 			return orig;
-		} else if (constraints.getHeight() == 0) {// force width
-			return new Cms2DSize(constraints.getWidth(),
-					scale(orig.getHeight(), orig.getWidth(), constraints.getWidth()));
-		} else if (constraints.getWidth() == 0) {// force height
-			return new Cms2DSize(scale(orig.getWidth(), orig.getHeight(), constraints.getHeight()),
-					constraints.getHeight());
+		} else if (constraints.height() == 0) {// force width
+			return new Cms2DSize(constraints.width(),
+					scale(orig.height(), orig.width(), constraints.width()));
+		} else if (constraints.width() == 0) {// force height
+			return new Cms2DSize(scale(orig.width(), orig.height(), constraints.height()),
+					constraints.height());
 		}
 		throw new IllegalArgumentException("Cannot resize " + orig + " to " + constraints);
 	}
@@ -48,7 +48,7 @@ public abstract class AbstractImageManager<V, M> implements CmsImageManager<V, M
 	/** @return null if not available */
 	@Override
 	public StringBuilder getImageTagBuilder(M node, Cms2DSize size) {
-		return getImageTagBuilder(node, Integer.toString(size.getWidth()), Integer.toString(size.getHeight()));
+		return getImageTagBuilder(node, Integer.toString(size.width()), Integer.toString(size.height()));
 	}
 
 	/** @return null if not available */

@@ -4,9 +4,6 @@ import java.security.PrivilegedAction;
 
 import javax.security.auth.Subject;
 
-import org.argeo.api.acr.Content;
-import org.argeo.api.acr.ContentSession;
-import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsEditable;
 import org.argeo.cms.CurrentUser;
@@ -274,17 +271,17 @@ public abstract class AbstractPageViewer {
 			throw new IllegalStateException("Edited should not be null or disposed at this stage");
 	}
 
-	/** Persist all changes. */
-	protected void persistChanges(ContentSession session) {
-//		session.save();
-//		session.refresh(false);
-		// TODO notify that changes have been persisted
-	}
-
-	/** Convenience method using a Node in order to save the underlying session. */
-	protected void persistChanges(Content anyNode) {
-		persistChanges(((ProvidedContent) anyNode).getSession());
-	}
+//	/** Persist all changes. */
+//	protected void persistChanges(ContentSession session) {
+////		session.save();
+////		session.refresh(false);
+//		// TODO notify that changes have been persisted
+//	}
+//
+//	/** Convenience method using a Node in order to save the underlying session. */
+//	protected void persistChanges(Content anyNode) {
+//		persistChanges(((ProvidedContent) anyNode).getSession());
+//	}
 
 	/** Notify edition exception */
 	protected void notifyEditionException(Throwable e) {

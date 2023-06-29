@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import javax.xml.namespace.NamespaceContext;
 
 import org.argeo.api.acr.ContentNotFoundException;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.http.HttpHeader;
 import org.argeo.cms.http.HttpMethod;
 import org.argeo.cms.http.HttpStatus;
@@ -24,6 +25,7 @@ import com.sun.net.httpserver.HttpHandler;
  * ACR-specific code more readable and maintainable.
  */
 public abstract class DavHttpHandler implements HttpHandler {
+	private final static CmsLog log = CmsLog.getLog(DavHttpHandler.class);
 
 	@Override
 	public void handle(HttpExchange exchange) throws IOException {
@@ -60,10 +62,12 @@ public abstract class DavHttpHandler implements HttpHandler {
 			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.getCode(), -1);
 		}
 		// TODO return a structured error message
+		// TODO better filter application errors and failed login etc.
 		catch (UnsupportedOperationException e) {
 			e.printStackTrace();
 			exchange.sendResponseHeaders(HttpStatus.NOT_IMPLEMENTED.getCode(), -1);
 		} catch (Exception e) {
+			log.error("Failed HTTP exchange " + exchange.getRequestURI(), e);
 			exchange.sendResponseHeaders(HttpStatus.INTERNAL_SERVER_ERROR.getCode(), -1);
 		}
 

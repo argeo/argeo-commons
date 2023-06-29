@@ -6,7 +6,6 @@ import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.cms.ux.Cms2DSize;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.widgets.EditableImage;
 import org.argeo.cms.ux.acr.ContentPart;
 import org.argeo.eclipse.ui.specific.CmsFileUpload;
 import org.eclipse.swt.SWT;
@@ -14,39 +13,36 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 
 /** An image within the Argeo Text framework */
-public class Img extends EditableImage implements SwtSectionPart, ContentPart {
+public class Img extends LinkedControl implements SwtSectionPart, ContentPart {
 	private static final long serialVersionUID = 6233572783968188476L;
 
 	private final SwtSection section;
 
 	private final CmsImageManager<Control, Content> imageManager;
-//	private FileUploadHandler currentUploadHandler = null;
-//	private FileUploadListener fileUploadListener;
+
+	private Cms2DSize preferredImageSize;
 
 	public Img(Composite parent, int swtStyle, Content imgNode, Cms2DSize preferredImageSize) {
 		this(SwtSection.findSection(parent), parent, swtStyle, imgNode, preferredImageSize, null);
-//		setStyle(TextStyles.TEXT_IMAGE);
 	}
 
 	public Img(Composite parent, int swtStyle, Content imgNode) {
 		this(SwtSection.findSection(parent), parent, swtStyle, imgNode, null, null);
-//		setStyle(TextStyles.TEXT_IMAGE);
 	}
 
 	public Img(Composite parent, int swtStyle, Content imgNode, CmsImageManager<Control, Content> imageManager) {
 		this(SwtSection.findSection(parent), parent, swtStyle, imgNode, null, imageManager);
-//		setStyle(TextStyles.TEXT_IMAGE);
 	}
 
 	Img(SwtSection section, Composite parent, int swtStyle, Content imgNode, Cms2DSize preferredImageSize,
 			CmsImageManager<Control, Content> imageManager) {
-		super(parent, swtStyle, preferredImageSize);
+		super(parent, swtStyle);
+		this.preferredImageSize = preferredImageSize;
 		this.section = section;
-		this.imageManager = imageManager != null ? imageManager
-				: (CmsImageManager<Control, Content>) CmsSwtUtils.getCmsView(section).getImageManager();
-//		CmsSwtUtils.style(this, TextStyles.TEXT_IMG);
+		this.imageManager = imageManager != null ? imageManager : CmsSwtUtils.getCmsView(section).getImageManager();
 		setData(imgNode);
 	}
 
@@ -59,18 +55,21 @@ public class Img extends EditableImage implements SwtSectionPart, ContentPart {
 		}
 	}
 
-	@Override
-	public synchronized void stopEditing() {
-		super.stopEditing();
-//		fileUploadListener = null;
-	}
-
-	@Override
 	protected synchronized Boolean load(Control lbl) {
 		Content imgNode = getContent();
-		boolean loaded = imageManager.load(imgNode, lbl, getPreferredImageSize());
-		// getParent().layout();
+		boolean loaded = imageManager.load(imgNode, lbl, preferredImageSize, toUri());
 		return loaded;
+	}
+
+	protected Label createLabel(Composite box, String style) {
+		Label lbl = new Label(box, getStyle());
+		// lbl.setLayoutData(CmsUiUtils.fillWidth());
+		CmsSwtUtils.markup(lbl);
+		CmsSwtUtils.style(lbl, style);
+		if (mouseListener != null)
+			lbl.addMouseListener(mouseListener);
+		load(lbl);
+		return lbl;
 	}
 
 	protected Content getUploadFolder() {
@@ -141,4 +140,15 @@ public class Img extends EditableImage implements SwtSectionPart, ContentPart {
 		return "Img #" + getPartId();
 	}
 
+	public void setPreferredSize(Cms2DSize size) {
+		this.preferredImageSize = size;
+	}
+
+	public Cms2DSize getPreferredImageSize() {
+		return preferredImageSize;
+	}
+
+	public void setPreferredImageSize(Cms2DSize preferredImageSize) {
+		this.preferredImageSize = preferredImageSize;
+	}
 }

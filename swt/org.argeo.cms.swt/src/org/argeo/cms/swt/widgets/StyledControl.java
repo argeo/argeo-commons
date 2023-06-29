@@ -91,6 +91,10 @@ public abstract class StyledControl extends Composite implements SwtEditablePart
 		setStyle(style.style());
 	}
 
+	/**
+	 * Set the style, creating all related controls and composites. It should be
+	 * called <b>after</b> all properties have been set.
+	 */
 	public void setStyle(String style) {
 		Object currentStyle = null;
 		if (control != null)
@@ -105,6 +109,18 @@ public abstract class StyledControl extends Composite implements SwtEditablePart
 			CmsSwtUtils.style(box, style + "_box");
 			CmsSwtUtils.style(container, style + "_container");
 		}
+	}
+
+	/**
+	 * Convenience method when no style is explicitly set, so that the control can
+	 * effectively be created. Does nothing if a control already exists, otherwise
+	 * it is equivalent to {@link #setStyle(String)} with a <code>null<code>
+	 * argument.
+	 */
+	public void initControl() {
+		if (control != null)
+			return;
+		setStyle((String) null);
 	}
 
 	/** To be overridden */

@@ -1,7 +1,5 @@
 package org.argeo.cms.acr.xml;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,13 +23,13 @@ import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
+import org.argeo.api.acr.CrAttributeType;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
@@ -71,7 +69,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		if (isLocalRoot()) {// root
 			String mountPath = provider.getMountPath();
 			if (mountPath != null) {
-				if (ContentUtils.ROOT_SLASH.equals(mountPath)) {
+				if (Content.ROOT_PATH.equals(mountPath)) {
 					return CrName.root.qName();
 				}
 				Content mountPoint = getSession().getMountPoint(mountPath);
@@ -140,17 +138,16 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	@Override
 	public <A> Optional<A> get(QName key, Class<A> clss) {
 		String namespaceUriOrNull = XMLConstants.NULL_NS_URI.equals(key.getNamespaceURI()) ? null
 				: key.getNamespaceURI();
 		if (element.hasAttributeNS(namespaceUriOrNull, key.getLocalPart())) {
 			String value = element.getAttributeNS(namespaceUriOrNull, key.getLocalPart());
-			if (clss.isAssignableFrom(String.class))
-				return Optional.of((A) value);
-			else
-				return Optional.empty();
+//			if (isDefaultAttrTypeRequested(clss))
+//				return Optional.of((A) CrAttributeType.parse(value));
+			return CrAttributeType.cast(clss, value);
 		} else
 			return Optional.empty();
 	}
@@ -239,7 +236,7 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			String mountPath = provider.getMountPath();
 			if (mountPath == null)
 				return null;
-			if (ContentUtils.ROOT_SLASH.equals(mountPath)) {
+			if (Content.ROOT_PATH.equals(mountPath)) {
 				return null;
 			}
 			String[] parent = ContentUtils.getParentPath(mountPath);
@@ -389,7 +386,9 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 		List<QName> res = new ArrayList<>();
 		if (isLocalRoot()) {
 			String mountPath = provider.getMountPath();
-			if (mountPath != null) {
+			if (Content.ROOT_PATH.equals(mountPath)) {// repository root
+				res.add(CrName.root.qName());
+			} else {
 				Content mountPoint = getSession().getMountPoint(mountPath);
 				res.addAll(mountPoint.getContentClasses());
 			}
@@ -403,7 +402,9 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 	public void addContentClasses(QName... contentClass) {
 		if (isLocalRoot()) {
 			String mountPath = provider.getMountPath();
-			if (mountPath != null) {
+			if (Content.ROOT_PATH.equals(mountPath)) {// repository root
+				throw new IllegalArgumentException("Cannot add content classes to repository root");
+			} else {
 				Content mountPoint = getSession().getMountPoint(mountPath);
 				mountPoint.addContentClasses(contentClass);
 			}

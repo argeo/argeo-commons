@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
+import org.argeo.api.acr.CrAttributeType;
 import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ProvidedContent;
@@ -31,18 +32,22 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	}
 
 	/*
-	 * ATTRIBUTES OPERATIONS
+	 * ATTRIBUTES MAP IMPLEMENTATION
 	 */
-//	protected abstract Iterable<QName> keys();
-//
-//	protected abstract void removeAttr(QName key);
-
 	@Override
 	public Set<Entry<QName, Object>> entrySet() {
 		Set<Entry<QName, Object>> result = new AttrSet();
 		return result;
 	}
 
+	@Override
+	public Object get(Object key) {
+		return get((QName) key, Object.class).orElse(null);
+	}
+
+	/*
+	 * ATTRIBUTES OPERATIONS
+	 */
 	@Override
 	public Class<?> getType(QName key) {
 		return String.class;
@@ -60,22 +65,18 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 		if (value == null)
 			return new ArrayList<>();
 		if (value instanceof List) {
-			if (isDefaultAttrTypeRequested(clss))
+			if (clss.isAssignableFrom(Object.class))
 				return (List<A>) value;
 			List<A> res = new ArrayList<>();
 			List<?> lst = (List<?>) value;
 			for (Object o : lst) {
-				A item = clss.isAssignableFrom(String.class) ? (A) o.toString() : (A) o;
+				A item = CrAttributeType.cast(clss, o).get();
 				res.add(item);
 			}
 			return res;
 		} else {// singleton
-//			try {
-			A res = (A) value;
+			A res = CrAttributeType.cast(clss, value).get();
 			return Collections.singletonList(res);
-//			} catch (ClassCastException e) {
-//				return Optional.empty();
-//			}
 		}
 	}
 
@@ -121,6 +122,11 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	}
 
 	@Override
+	public boolean isRoot() {
+		return CrName.root.qName().equals(getName());
+	}
+
+	@Override
 	public String getSessionLocalId() {
 		return getPath();
 	}
@@ -146,10 +152,10 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 	/*
 	 * UTILITIES
 	 */
-	protected boolean isDefaultAttrTypeRequested(Class<?> clss) {
-		// check whether clss is Object.class
-		return clss.isAssignableFrom(Object.class);
-	}
+//	protected boolean isDefaultAttrTypeRequested(Class<?> clss) {
+//		// check whether clss is Object.class
+//		return clss.isAssignableFrom(Object.class);
+//	}
 
 //	@Override
 //	public String toString() {
@@ -183,7 +189,7 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 
 	@Override
 	public <A> Optional<A> get(QName key, Class<A> clss) {
-		return null;
+		return Optional.empty();
 	}
 
 	protected void removeAttr(QName key) {

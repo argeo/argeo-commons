@@ -2,3 +2,12 @@ major=2
 minor=1
 micro=112
 qualifier=.next
+
+Bundle-Copyright= \
+Copyright 2007-2023 Mathieu Baudier, \
+Copyright 2012-2023 Argeo GmbH
+
+SPDX-License-Identifier= \
+LGPL-2.1-or-later \
+OR EPL-2.0 \
+OR LicenseRef-argeo2-GPL-2.0-or-later-with-EPL-and-JCR-permissions

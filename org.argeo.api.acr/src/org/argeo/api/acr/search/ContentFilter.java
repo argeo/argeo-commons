@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
 
-import org.argeo.api.acr.DName;
 import org.argeo.api.acr.QNamed;
 
+/** A constraint filtering based ona given composition (and/or). */
 public abstract class ContentFilter<COMPOSITION extends Composition> implements Constraint {
 	private Set<Constraint> constraintss = new HashSet<>();
 
@@ -167,17 +167,17 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 
 	}
 
-	public static void main(String[] args) {
-		AndFilter filter = new AndFilter();
-		filter.eq(new QName("test"), "test").and().not().eq(new QName("type"), "integer");
-
-		OrFilter unionFilter = new OrFilter();
-		unionFilter.all((f) -> {
-			f.eq(DName.displayname, "").and().eq(DName.creationdate, "");
-		}).or().not().any((f) -> {
-			f.eq(DName.creationdate, "").or().eq(DName.displayname, "");
-		});
-
-	}
+//	public static void main(String[] args) {
+//		AndFilter filter = new AndFilter();
+//		filter.eq(new QName("test"), "test").and().not().eq(new QName("type"), "integer");
+//
+//		OrFilter unionFilter = new OrFilter();
+//		unionFilter.all((f) -> {
+//			f.eq(DName.displayname, "").and().eq(DName.creationdate, "");
+//		}).or().not().any((f) -> {
+//			f.eq(DName.creationdate, "").or().eq(DName.displayname, "");
+//		});
+//
+//	}
 
 }
