@@ -74,12 +74,13 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	private final boolean synchronous;
 
 	ThinLogging() {
-		publisher = new LogEntryPublisher();
 		synchronous = Boolean.parseBoolean(System.getProperty(PROP_ARGEO_LOGGING_SYNCHRONOUS, "false"));
 		if (synchronous) {
 			synchronousSubscriber = new PrintStreamSubscriber();
+			publisher = null;
 		} else {
 			PrintStreamSubscriber subscriber = new PrintStreamSubscriber();
+			publisher = new LogEntryPublisher();
 			publisher.subscribe(subscriber);
 		}
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> close(), "Log shutdown"));
@@ -220,6 +221,42 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		return Collections.unmodifiableNavigableMap(levels);
 	}
 
+	private void dispatchLogEntry(ThinLogger logger, Level level, ResourceBundle bundle, String msg, Instant instant,
+			Thread thread, Throwable thrown, StackTraceElement callLocation) {
+		assert level != null;
+		assert logger != null;
+		assert msg != null;
+		assert instant != null;
+		assert thread != null;
+
+		final long sequence = nextEntry.incrementAndGet();
+
+		Map<String, Serializable> logEntry = new LogEntryMap(sequence);
+
+		// same object as key class name
+		logEntry.put(KEY_LEVEL, level);
+		logEntry.put(KEY_MSG, msg);
+		logEntry.put(KEY_INSTANT, instant);
+		if (thrown != null)
+			logEntry.put(KEY_THROWABLE, thrown);
+		if (callLocation != null)
+			logEntry.put(KEY_CALL_LOCATION, callLocation);
+
+		// object is a string
+		logEntry.put(KEY_LOGGER, logger.getName());
+		logEntry.put(KEY_THREAD, thread.getName());
+
+		// should be unmodifiable for security reasons
+		if (synchronous) {
+			assert synchronousSubscriber != null;
+			synchronousSubscriber.onNext(logEntry);
+		} else {
+			if (!publisher.isClosed())
+				publisher.submit(Collections.unmodifiableMap(logEntry));
+		}
+
+	}
+
 	/*
 	 * INTERNAL CLASSES
 	 */
@@ -268,7 +305,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			// measure timestamp first
 			Instant now = Instant.now();
 			Thread thread = Thread.currentThread();
-			publisher.log(this, level, bundle, msg, now, thread, thrown, findCallLocation(level, thread));
+			dispatchLogEntry(ThinLogger.this, level, bundle, msg, now, thread, thrown, findCallLocation(level, thread));
 		}
 
 		@Override
@@ -295,7 +332,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 				format = sb.toString();
 			}
 			String msg = params == null ? format : MessageFormat.format(format, params);
-			publisher.log(this, level, bundle, msg, now, thread, (Throwable) null, findCallLocation(level, thread));
+			dispatchLogEntry(ThinLogger.this, level, bundle, msg, now, thread, (Throwable) null,
+					findCallLocation(level, thread));
 		}
 
 		private void setLevel(Level level) {
@@ -353,40 +391,10 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			super();
 		}
 
-		private void log(ThinLogger logger, Level level, ResourceBundle bundle, String msg, Instant instant,
-				Thread thread, Throwable thrown, StackTraceElement callLocation) {
-			assert level != null;
-			assert logger != null;
-			assert msg != null;
-			assert instant != null;
-			assert thread != null;
-
-			final long sequence = nextEntry.incrementAndGet();
-
-			Map<String, Serializable> logEntry = new LogEntryMap(sequence);
-
-			// same object as key class name
-			logEntry.put(KEY_LEVEL, level);
-			logEntry.put(KEY_MSG, msg);
-			logEntry.put(KEY_INSTANT, instant);
-			if (thrown != null)
-				logEntry.put(KEY_THROWABLE, thrown);
-			if (callLocation != null)
-				logEntry.put(KEY_CALL_LOCATION, callLocation);
-
-			// object is a string
-			logEntry.put(KEY_LOGGER, logger.getName());
-			logEntry.put(KEY_THREAD, thread.getName());
-
-			// should be unmodifiable for security reasons
-			if (synchronous) {
-				assert synchronousSubscriber != null;
-				synchronousSubscriber.onNext(logEntry);
-			} else {
-				if (!isClosed())
-					submit(Collections.unmodifiableMap(logEntry));
-			}
-		}
+//		private void log(ThinLogger logger, Level level, ResourceBundle bundle, String msg, Instant instant,
+//				Thread thread, Throwable thrown, StackTraceElement callLocation) {
+//
+//		}
 
 	}
 
