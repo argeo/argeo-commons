@@ -217,6 +217,8 @@ class CmsContentSession implements ProvidedSession, UuidIdentified {
 				searchPartitions.put(contentProvider.getKey(), searchPartition);
 			}
 		}
+		if(searchPartitions.isEmpty())
+			return Stream.empty();
 		return StreamSupport.stream(new SearchPartitionsSpliterator(searchPartitions), true);
 	}
 
