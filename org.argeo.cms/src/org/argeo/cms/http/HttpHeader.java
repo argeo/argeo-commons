@@ -6,6 +6,7 @@ public enum HttpHeader {
 	WWW_AUTHENTICATE("WWW-Authenticate"), //
 	ALLOW("Allow"), //
 	VIA("Via"), //
+	CONTENT_TYPE("Content-Type"), //
 
 	// WebDav
 	DAV("DAV"), //
