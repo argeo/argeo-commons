@@ -1,10 +1,13 @@
 package org.argeo.cms.acr;
 
 import java.io.PrintStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.StringTokenizer;
 import java.util.function.BiConsumer;
 
 import javax.security.auth.login.LoginContext;
@@ -16,6 +19,7 @@ import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.api.acr.DName;
 import org.argeo.api.cms.CmsAuth;
+import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.directory.CmsDirectory;
 import org.argeo.api.cms.directory.CmsUserManager;
@@ -215,6 +219,33 @@ public class ContentUtils {
 		if (relativePath.length() > 0 && relativePath.charAt(0) == '/')
 			relativePath = relativePath.substring(1);
 		return relativePath;
+	}
+
+	/** A path in the node repository */
+	public static String getDataPath(Content node) {
+		// TODO make it more configurable?
+		StringBuilder buf = new StringBuilder(CmsConstants.PATH_API_ACR);
+		buf.append(node.getPath());
+		return buf.toString();
+	}
+
+	/** A path in the node repository */
+	public static String getDataPathForUrl(Content node) {
+		return cleanPathForUrl(getDataPath(node));
+	}
+
+	/** Clean reserved URL characters for use in HTTP links. */
+	public static String cleanPathForUrl(String path) {
+		StringTokenizer st = new StringTokenizer(path, "/");
+		StringBuilder sb = new StringBuilder();
+		while (st.hasMoreElements()) {
+			sb.append('/');
+			String encoded = URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8);
+			encoded = encoded.replace("+", "%20");
+			sb.append(encoded);
+
+		}
+		return sb.toString();
 	}
 
 	/** Singleton. */

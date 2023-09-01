@@ -3,7 +3,7 @@ package org.argeo.cms.swt.acr;
 import java.net.URI;
 
 import org.argeo.api.acr.Content;
-import org.argeo.cms.swt.CmsSwtUtils;
+import org.argeo.cms.acr.ContentUtils;
 import org.argeo.cms.swt.widgets.StyledControl;
 import org.eclipse.swt.widgets.Composite;
 
@@ -56,7 +56,7 @@ public abstract class LinkedControl extends StyledControl {
 		if (plainUri != null)
 			return plainUri;
 		if (linkedContent != null)
-			return URI.create("#" + CmsSwtUtils.cleanPathForUrl(linkedContent.getPath()));
+			return URI.create("#" + ContentUtils.cleanPathForUrl(linkedContent.getPath()));
 		return null;
 
 	}

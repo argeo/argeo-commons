@@ -1,10 +1,7 @@
 package org.argeo.cms.swt;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import org.argeo.api.cms.ux.CmsIcon;
 import org.argeo.api.cms.ux.CmsStyle;
@@ -292,20 +289,6 @@ public class CmsSwtUtils {
 			return;
 		for (Control child : composite.getChildren())
 			child.dispose();
-	}
-
-	/** Clean reserved URL characters for use in HTTP links. */
-	public static String cleanPathForUrl(String path) {
-		StringTokenizer st = new StringTokenizer(path, "/");
-		StringBuilder sb = new StringBuilder();
-		while (st.hasMoreElements()) {
-			sb.append('/');
-			String encoded = URLEncoder.encode(st.nextToken(), StandardCharsets.UTF_8);
-			encoded = encoded.replace("+", "%20");
-			sb.append(encoded);
-
-		}
-		return sb.toString();
 	}
 
 	/** Singleton. */
