@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.StringJoiner;
 
 /** Stream utilities to be used when Apache Commons IO is not available. */
@@ -86,6 +89,22 @@ public class StreamUtils {
 			} catch (Exception e) {
 				//
 			}
+	}
+
+	public static String toString(Class<?> clss, String resource) {
+		return toString(clss.getResourceAsStream(resource), StandardCharsets.UTF_8);
+	}
+
+	public static String toString(InputStream in) {
+		return toString(in, StandardCharsets.UTF_8);
+	}
+
+	public static String toString(InputStream in, Charset encoding) {
+		try {
+			return new String(in.readAllBytes(), encoding);
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
 	}
 
 	public static String toString(BufferedReader reader) throws IOException {
