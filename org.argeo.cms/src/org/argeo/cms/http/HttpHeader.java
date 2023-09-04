@@ -7,6 +7,7 @@ public enum HttpHeader {
 	ALLOW("Allow"), //
 	VIA("Via"), //
 	CONTENT_TYPE("Content-Type"), //
+	CONTENT_LENGTH("Content-Length"), //
 
 	// WebDav
 	DAV("DAV"), //
