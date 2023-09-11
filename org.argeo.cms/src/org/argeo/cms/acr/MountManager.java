@@ -51,10 +51,10 @@ class MountManager {
 	synchronized ContentProvider findContentProvider(String path) {
 //		if (ContentUtils.EMPTY.equals(path))
 //			return partitions.firstEntry().getValue();
-		Map.Entry<String, ContentProvider> entry = partitions.floorEntry(path);
-		if (entry == null)
-			throw new IllegalArgumentException("No entry provider found for path '" + path + "'");
-		String mountPath = entry.getKey();
+		Map.Entry<String, ContentProvider> floorEntry = partitions.floorEntry(path);
+		if (floorEntry == null)
+			throw new IllegalArgumentException("No floor entry provider found for path '" + path + "'");
+		String mountPath = floorEntry.getKey();
 		if (!path.startsWith(mountPath)) {
 			// FIXME make it more robust and find when there is no content provider
 			String[] parent = ContentUtils.getParentPath(path);
@@ -62,15 +62,22 @@ class MountManager {
 			// throw new IllegalArgumentException("Path " + path + " doesn't have a content
 			// provider");
 		}
-		ContentProvider contentProvider = entry.getValue();
+		ContentProvider contentProvider = floorEntry.getValue();
 		assert mountPath.equals(contentProvider.getMountPath());
 		return contentProvider;
 	}
 
-	/** All content provider under this path. */
+	/** All content providers under this path. */
 	synchronized NavigableMap<String, ContentProvider> findContentProviders(String path) {
+		Map.Entry<String, ContentProvider> floorEntry = partitions.floorEntry(path);
+		if (floorEntry == null)
+			throw new IllegalArgumentException("No floor entry provider found for path '" + path + "'");
+		// we first find the parent provider
+		String parentProviderPath = floorEntry.getKey();
+		// then gather all sub-providers
 		NavigableMap<String, ContentProvider> res = new TreeMap<>();
-		tail: for (Map.Entry<String, ContentProvider> provider : partitions.tailMap(path).entrySet()) {
+		res.put(floorEntry.getKey(), floorEntry.getValue());
+		tail: for (Map.Entry<String, ContentProvider> provider : partitions.tailMap(parentProviderPath).entrySet()) {
 			if (!provider.getKey().startsWith(path))
 				break tail;
 			res.put(provider.getKey(), provider.getValue());

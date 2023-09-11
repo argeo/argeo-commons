@@ -206,18 +206,21 @@ class CmsContentSession implements ProvidedSession, UuidIdentified {
 			NavigableMap<String, ContentProvider> contentProviders = contentRepository.getMountManager()
 					.findContentProviders(scopePath);
 			for (Map.Entry<String, ContentProvider> contentProvider : contentProviders.entrySet()) {
+				assert scopePath.startsWith(contentProvider.getKey())
+						: "scopePath=" + scopePath + ", contentProvider path=" + contentProvider.getKey();
 				// TODO deal with depth
 				String relPath;
-				if (scopePath.startsWith(contentProvider.getKey())) {
-					relPath = scopePath.substring(contentProvider.getKey().length());
-				} else {
-					relPath = null;
-				}
+//				if (scopePath.startsWith(contentProvider.getKey())) {
+				relPath = scopePath.substring(contentProvider.getKey().length() + 1, scopePath.length());
+//				}
+//				else {
+//					relPath = null;
+//				}
 				SearchPartition searchPartition = new SearchPartition(s, relPath, contentProvider.getValue());
 				searchPartitions.put(contentProvider.getKey(), searchPartition);
 			}
 		}
-		if(searchPartitions.isEmpty())
+		if (searchPartitions.isEmpty())
 			return Stream.empty();
 		return StreamSupport.stream(new SearchPartitionsSpliterator(searchPartitions), true);
 	}
