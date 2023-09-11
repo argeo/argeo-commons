@@ -210,12 +210,11 @@ class CmsContentSession implements ProvidedSession, UuidIdentified {
 						: "scopePath=" + scopePath + ", contentProvider path=" + contentProvider.getKey();
 				// TODO deal with depth
 				String relPath;
-//				if (scopePath.startsWith(contentProvider.getKey())) {
-				relPath = scopePath.substring(contentProvider.getKey().length() + 1, scopePath.length());
-//				}
-//				else {
-//					relPath = null;
-//				}
+				if (!scopePath.equals(contentProvider.getKey())) {
+					relPath = scopePath.substring(contentProvider.getKey().length() + 1, scopePath.length());
+				} else {
+					relPath = null;
+				}
 				SearchPartition searchPartition = new SearchPartition(s, relPath, contentProvider.getValue());
 				searchPartitions.put(contentProvider.getKey(), searchPartition);
 			}
