@@ -259,6 +259,8 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public synchronized void removeContext(String path) throws IllegalArgumentException {
+		if (!path.endsWith("/"))
+			path = path + "/";
 		if (!contexts.containsKey(path))
 			throw new IllegalArgumentException("Context " + path + " does not exist");
 		JettyHttpContext httpContext = contexts.remove(path);
