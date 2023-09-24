@@ -3,6 +3,7 @@ package org.argeo.cms.acr.json;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
+import org.argeo.api.acr.DName;
 import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.QNamed;
 
@@ -40,4 +41,21 @@ public class AcrJsonUtils {
 	/** singleton */
 	private AcrJsonUtils() {
 	}
+
+//	private final QName JCR_CREATED = NamespaceUtils.parsePrefixedName("jcr:created");
+//
+//	private final QName JCR_LAST_MODIFIED = NamespaceUtils.parsePrefixedName("jcr:lastModified");
+
+	public static void writeTimeProperties(JsonGenerator g, Content content) {
+			String creationDate = content.attr(DName.creationdate);
+	//		if (creationDate == null)
+	//			creationDate = content.attr(JCR_CREATED);
+			if (creationDate != null)
+				g.write(DName.creationdate.get(), creationDate);
+			String lastModified = content.attr(DName.getlastmodified);
+	//		if (lastModified == null)
+	//			lastModified = content.attr(JCR_LAST_MODIFIED);
+			if (lastModified != null)
+				g.write(DName.getlastmodified.get(), lastModified);
+		}
 }
