@@ -1,7 +1,8 @@
 package org.argeo.api.acr.search;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
@@ -10,7 +11,8 @@ import org.argeo.api.acr.QNamed;
 
 /** A constraint filtering based ona given composition (and/or). */
 public abstract class ContentFilter<COMPOSITION extends Composition> implements Constraint {
-	private Set<Constraint> constraintss = new HashSet<>();
+	// even though not necessary, we use a list in order to have a predictable order
+	private List<Constraint> constraints = new ArrayList<>();
 
 	private COMPOSITION composition;
 
@@ -98,21 +100,21 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 		} else {
 			operatorToAdd = operator;
 		}
-		constraintss.add(operatorToAdd);
+		constraints.add(operatorToAdd);
 	}
 
 	/** Checks that the root operator is not set. */
 	private void checkAddConstraint() {
-		if (composition == null && !constraintss.isEmpty())
-			throw new IllegalStateException("An operator is already registered (" + constraintss.iterator().next()
+		if (composition == null && !constraints.isEmpty())
+			throw new IllegalStateException("An operator is already registered (" + constraints.iterator().next()
 					+ ") and no composition is defined");
 	}
 
 	/*
 	 * ACCESSORs
 	 */
-	public Set<Constraint> getConstraints() {
-		return constraintss;
+	public Collection<Constraint> getConstraints() {
+		return constraints;
 	}
 
 	public boolean isUnion() {
