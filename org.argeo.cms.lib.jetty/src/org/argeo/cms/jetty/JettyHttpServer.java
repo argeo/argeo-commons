@@ -267,6 +267,9 @@ public class JettyHttpServer extends HttpsServer {
 		if (httpContext instanceof ContextHandlerHttpContext contextHandlerHttpContext) {
 			// TODO stop handler first?
 			contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
+		} else {
+			// FIXME apparently servlets cannot be removed in Jetty, we should replace the
+			// handler
 		}
 	}
 
