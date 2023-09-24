@@ -15,22 +15,51 @@ public interface QNamed extends Supplier<String> {
 		return name();
 	}
 
+	/**
+	 * A {@link QName} corresponding to this definition. Calls
+	 * {@link #createQName()} by default, but it could return a cached value.
+	 */
 	default QName qName() {
-		return new ContentName(getNamespace(), localName(), getDefaultPrefix());
+		return createQName();
 	}
 
+	/**
+	 * A prefixed representation of this qualified name within the provided
+	 * {@link NamespaceContext}.
+	 */
 	default String get(NamespaceContext namespaceContext) {
 		return namespaceContext.getPrefix(getNamespace()) + ":" + localName();
 	}
 
-	/** This qualified named with its default prefix. If it is unqualified this method should be overridden, or QNamed.Unqualified be used. */
+	/**
+	 * Create a {@link QName} corresponding on this definition. Can typically be
+	 * used to cache the {@link QName} in enums.
+	 */
+	default QName createQName() {
+		return new ContentName(getNamespace(), localName(), getDefaultPrefix());
+	}
+
+	/**
+	 * This qualified named with its default prefix. If it is unqualified this
+	 * method should be overridden, or QNamed.Unqualified be used.
+	 */
 	default String get() {
 		return getDefaultPrefix() + ":" + localName();
 	}
 
+	/** The namespace URI of this qualified name. */
 	String getNamespace();
 
+	/**
+	 * The default prefix of this qualified name, as expected to be found in
+	 * {@link RuntimeNamespaceContext}.
+	 */
 	String getDefaultPrefix();
+
+	/** Compares to a plain {@link QName}. */
+	default boolean equals(QName qName) {
+		return qName().equals(qName);
+	}
 
 	/** To be used by enums without namespace (typically XML attributes). */
 	static interface Unqualified extends QNamed {

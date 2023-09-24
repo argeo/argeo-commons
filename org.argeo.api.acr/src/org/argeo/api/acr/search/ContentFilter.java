@@ -74,8 +74,16 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 	}
 
 	public COMPOSITION eq(QNamed attr, Object value) {
-		addConstraint(new Eq(attr.qName(), value));
+		return eq(attr.qName(), value);
+	}
+
+	public COMPOSITION isDefined(QName attr) {
+		addConstraint(new IsDefined(attr));
 		return composition;
+	}
+
+	public COMPOSITION isDefined(QNamed attr) {
+		return isDefined(attr.qName());
 	}
 
 	/*
@@ -146,6 +154,19 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 			return value;
 		}
 
+	}
+
+	public static class IsDefined implements Constraint {
+		final QName prop;
+
+		public IsDefined(QName prop) {
+			super();
+			this.prop = prop;
+		}
+
+		public QName getProp() {
+			return prop;
+		}
 	}
 
 	public static class IsContentClass implements Constraint {
