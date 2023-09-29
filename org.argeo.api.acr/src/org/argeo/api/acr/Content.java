@@ -89,10 +89,27 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	/*
 	 * CONTENT OPERATIONS
 	 */
+	/** Adds a new empty {@link Content} to this {@link Content}. */
 	Content add(QName name, QName... classes);
+
+	/**
+	 * Adds a new {@link Content} to this {@link Content}, setting the provided
+	 * attributes. The provided attributes can be used as hints by the
+	 * implementation. In particular, setting {@link DName#getcontenttype} will
+	 * imply that this content has a file semantic.
+	 */
+	default Content add(QName name, Map<QName, Object> attrs, QName... classes) {
+		Content child = add(name, classes);
+		putAll(attrs);
+		return child;
+	}
 
 	default Content add(String name, QName... classes) {
 		return add(unqualified(name), classes);
+	}
+
+	default Content add(String name, Map<QName, Object> attrs, QName... classes) {
+		return add(unqualified(name), attrs, classes);
 	}
 
 	void remove();

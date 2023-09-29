@@ -22,6 +22,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jshell.CmsExecutionControl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -89,6 +90,25 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 	public static Path getBundleStartupScript(Long bundleId) {
 		BundleContext bc = FrameworkUtil.getBundle(OsgiExecutionControlProvider.class).getBundleContext();
 		Bundle fromBundle = bc.getBundle(bundleId);
+
+		int bundleState = fromBundle.getState();
+		if (Bundle.INSTALLED == bundleState)
+			throw new IllegalStateException("Bundle " + fromBundle.getSymbolicName() + " is not resolved");
+		if (Bundle.RESOLVED == bundleState) {
+			try {
+				fromBundle.start();
+			} catch (BundleException e) {
+				throw new IllegalStateException("Cannot start bundle " + fromBundle.getSymbolicName(), e);
+			}
+			while (Bundle.ACTIVE != fromBundle.getState())
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// we assume the session has been closed
+					throw new RuntimeException("Bundle " + fromBundle.getSymbolicName() + " is not active", e);
+				}
+		}
+
 		Path bundleStartupScript = fromBundle.getDataFile("BUNDLE.jsh").toPath();
 
 		BundleWiring fromBundleWiring = fromBundle.adapt(BundleWiring.class);
@@ -101,8 +121,13 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 			packagesToImport.add(pkg.getName());
 		}
 
-		List<BundleWire> bundleWires = fromBundleWiring.getRequiredWires(BundleRevision.PACKAGE_NAMESPACE);
-		for (BundleWire bw : bundleWires) {
+//		List<BundleWire> exportedWires = fromBundleWiring.getProvidedWires(BundleRevision.PACKAGE_NAMESPACE);
+//		for (BundleWire bw : exportedWires) {
+//			packagesToImport.add(bw.getCapability().getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE).toString());
+//		}
+
+		List<BundleWire> importedWires = fromBundleWiring.getRequiredWires(BundleRevision.PACKAGE_NAMESPACE);
+		for (BundleWire bw : importedWires) {
 			packagesToImport.add(bw.getCapability().getAttributes().get(PackageNamespace.PACKAGE_NAMESPACE).toString());
 		}
 
