@@ -244,6 +244,10 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		return Optional.of(res.get(0));
 	}
 
+	default Content soleOrAddChild(QName name, QName... classes) {
+		return soleChild(name).orElseGet(() -> this.add(name, classes));
+	}
+
 	default Content child(QName name) {
 		return soleChild(name).orElseThrow();
 	}
