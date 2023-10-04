@@ -225,9 +225,12 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			Thread thread, Throwable thrown, StackTraceElement callLocation) {
 		assert level != null;
 		assert logger != null;
-		assert msg != null;
+//		assert msg != null;
 		assert instant != null;
 		assert thread != null;
+
+		if (msg == null)
+			msg = "null";
 
 		final long sequence = nextEntry.incrementAndGet();
 

@@ -79,6 +79,55 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 		return eq(attr.qName(), value);
 	}
 
+	public COMPOSITION lt(QName attr, Object value) {
+		addConstraint(new Lt(attr, value));
+		return composition;
+	}
+
+	public COMPOSITION lt(QNamed attr, Object value) {
+		return lt(attr.qName(), value);
+	}
+
+	public COMPOSITION lte(QName attr, Object value) {
+		addConstraint(new Lte(attr, value));
+		return composition;
+	}
+
+	public COMPOSITION lte(QNamed attr, Object value) {
+		return lte(attr.qName(), value);
+	}
+
+	public COMPOSITION gt(QName attr, Object value) {
+		addConstraint(new Gt(attr, value));
+		return composition;
+	}
+
+	public COMPOSITION gt(QNamed attr, Object value) {
+		return gt(attr.qName(), value);
+	}
+
+	public COMPOSITION gte(QName attr, Object value) {
+		addConstraint(new Gte(attr, value));
+		return composition;
+	}
+
+	public COMPOSITION gte(QNamed attr, Object value) {
+		return gte(attr.qName(), value);
+	}
+
+	public COMPOSITION like(QName attr, String pattern) {
+		addConstraint(new Like(attr, pattern));
+		return composition;
+	}
+
+	public COMPOSITION like(QNamed attr, String pattern) {
+		return like(attr.qName(), pattern);
+	}
+
+	/*
+	 * PROPERTIES CONSTRAINTS
+	 */
+
 	public COMPOSITION isDefined(QName attr) {
 		addConstraint(new IsDefined(attr));
 		return composition;
@@ -124,71 +173,6 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 	/*
 	 * CLASSES
 	 */
-
-	public static class Not implements Constraint {
-		final Constraint negated;
-
-		public Not(Constraint negated) {
-			this.negated = negated;
-		}
-
-		public Constraint getNegated() {
-			return negated;
-		}
-
-	}
-
-	public static class Eq implements Constraint {
-		final QName prop;
-		final Object value;
-
-		public Eq(QName prop, Object value) {
-			super();
-			this.prop = prop;
-			this.value = value;
-		}
-
-		public QName getProp() {
-			return prop;
-		}
-
-		public Object getValue() {
-			return value;
-		}
-
-	}
-
-	public static class IsDefined implements Constraint {
-		final QName prop;
-
-		public IsDefined(QName prop) {
-			super();
-			this.prop = prop;
-		}
-
-		public QName getProp() {
-			return prop;
-		}
-	}
-
-	public static class IsContentClass implements Constraint {
-		final QName[] contentClasses;
-
-		public IsContentClass(QName[] contentClasses) {
-			this.contentClasses = contentClasses;
-		}
-
-		public IsContentClass(QNamed[] contentClasses) {
-			this.contentClasses = new QName[contentClasses.length];
-			for (int i = 0; i < contentClasses.length; i++)
-				this.contentClasses[i] = contentClasses[i].qName();
-		}
-
-		public QName[] getContentClasses() {
-			return contentClasses;
-		}
-
-	}
 
 //	public static void main(String[] args) {
 //		AndFilter filter = new AndFilter();
