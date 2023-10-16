@@ -47,17 +47,19 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 				Bundle bundle = bc.installBundle(referenceUrl);
 				return bundle;
 			} else {
-
-				Path tempJar = null;
-				if (locator instanceof Path && Files.isDirectory((Path) locator))
-					tempJar = toTempJar((Path) locator);
+				Path locatorPath = (Path) locator;
+				Path pathToUse;
+				if (locator instanceof Path && Files.isDirectory(locatorPath))
+					pathToUse = toTempJar(locatorPath);
+				else
+					pathToUse = locatorPath;
 				Bundle bundle;
-				try (InputStream in = newInputStream(tempJar != null ? tempJar : locator)) {
-					bundle = bc.installBundle(module.getBranch().getCoordinates(), in);
+				try (InputStream in = newInputStream(pathToUse)) {
+					bundle = bc.installBundle(locatorPath.toAbsolutePath().toString(), in);
 				}
 
-				if (tempJar != null)
-					Files.deleteIfExists(tempJar);
+				if (pathToUse != null)
+					Files.deleteIfExists(pathToUse);
 				return bundle;
 			}
 		} catch (BundleException | IOException e) {
