@@ -8,6 +8,8 @@ public enum HttpHeader {
 	VIA("Via"), //
 	CONTENT_TYPE("Content-Type"), //
 	CONTENT_LENGTH("Content-Length"), //
+	CONTENT_DISPOSITION("Content-Disposition"), //
+	DATE("Date"), //
 
 	// WebDav
 	DAV("DAV"), //
@@ -17,9 +19,14 @@ public enum HttpHeader {
 	X_FORWARDED_HOST("X-Forwarded-Host"), //
 	;
 
+	// WWW-Authenticate related constants
 	public final static String BASIC = "Basic";
 	public final static String REALM = "realm";
 	public final static String NEGOTIATE = "Negotiate";
+
+	// Content-Disposition related constants
+	public final static String ATTACHMENT = "attachment";
+	public final static String FILENAME = "filename";
 
 	private final String name;
 
