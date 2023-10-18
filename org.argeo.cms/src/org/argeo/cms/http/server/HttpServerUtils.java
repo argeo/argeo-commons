@@ -18,7 +18,7 @@ import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.http.HttpMethod;
-import org.argeo.cms.internal.http.RemoteAuthHttpExchange;
+import org.argeo.cms.http.RemoteAuthHttpExchange;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;

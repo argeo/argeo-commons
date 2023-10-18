@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.http;
+package org.argeo.cms.http;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +12,10 @@ import org.argeo.cms.auth.RemoteAuthSession;
 
 import com.sun.net.httpserver.HttpExchange;
 
+/**
+ * Implementation of {@link RemoteAuthRequest} and {@link RemoteAuthResponse}
+ * based on {@link HttpExchange}.
+ */
 public class RemoteAuthHttpExchange implements RemoteAuthRequest, RemoteAuthResponse {
 	private final HttpExchange httpExchange;
 	private RemoteAuthSession remoteAuthSession;
