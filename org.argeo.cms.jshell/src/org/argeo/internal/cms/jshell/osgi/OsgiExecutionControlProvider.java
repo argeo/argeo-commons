@@ -179,9 +179,9 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 	}
 
 	public static String getBundleClasspath(Long bundleId) throws IOException {
-		String framework = System.getProperty("osgi.framework");
-		Path frameworkLocation = Paths.get(URI.create(framework)).toAbsolutePath();
 		BundleContext bc = FrameworkUtil.getBundle(OsgiExecutionControlProvider.class).getBundleContext();
+		String framework = bc.getProperty("osgi.framework");
+		Path frameworkLocation = Paths.get(URI.create(framework)).toAbsolutePath();
 		Bundle fromBundle = bc.getBundle(bundleId);
 
 		BundleWiring fromBundleWiring = fromBundle.adapt(BundleWiring.class);
