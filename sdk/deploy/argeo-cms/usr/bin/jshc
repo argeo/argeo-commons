@@ -1,0 +1,2 @@
+#!/usr/bin/sh
+java -Xms32m -Xmx64m -jar /usr/share/a2/org.argeo.cms/org.argeo.cms.jshell.2.3.jar "$@"
