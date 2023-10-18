@@ -12,6 +12,7 @@ public enum CrName implements QNamed {
 	 * ATTRIBUTES
 	 */
 	uuid, // the UUID of a content
+	path, // the path to a content
 	mount, // a mount point
 //	cc, // content class
 
