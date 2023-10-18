@@ -49,16 +49,19 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 			} else {
 				Path locatorPath = (Path) locator;
 				Path pathToUse;
-				if (locator instanceof Path && Files.isDirectory(locatorPath))
+				boolean isTemp = false;
+				if (locator instanceof Path && Files.isDirectory(locatorPath)) {
 					pathToUse = toTempJar(locatorPath);
-				else
+					isTemp = true;
+				} else {
 					pathToUse = locatorPath;
+				}
 				Bundle bundle;
 				try (InputStream in = newInputStream(pathToUse)) {
 					bundle = bc.installBundle(locatorPath.toAbsolutePath().toString(), in);
 				}
 
-				if (pathToUse != null)
+				if (isTemp && pathToUse != null)
 					Files.deleteIfExists(pathToUse);
 				return bundle;
 			}
@@ -76,14 +79,20 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 					bundle.update(in);
 				}
 			} else {
-				Path tempJar = null;
-				if (locator instanceof Path && Files.isDirectory((Path) locator))
-					tempJar = toTempJar((Path) locator);
-				try (InputStream in = newInputStream(tempJar != null ? tempJar : locator)) {
+				Path locatorPath = (Path) locator;
+				Path pathToUse;
+				boolean isTemp = false;
+				if (locator instanceof Path && Files.isDirectory(locatorPath)) {
+					pathToUse = toTempJar(locatorPath);
+					isTemp = true;
+				} else {
+					pathToUse = locatorPath;
+				}
+				try (InputStream in = newInputStream(pathToUse)) {
 					bundle.update(in);
 				}
-				if (tempJar != null)
-					Files.deleteIfExists(tempJar);
+				if (isTemp && pathToUse != null)
+					Files.deleteIfExists(pathToUse);
 			}
 		} catch (BundleException | IOException e) {
 			throw new A2Exception("Cannot update module " + module, e);
