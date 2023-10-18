@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.System.Logger;
 import java.lang.management.ManagementFactory;
 import java.net.StandardSocketOptions;
@@ -155,34 +156,101 @@ public class JShellClient {
 
 	}
 
-	public static void main(String[] args) throws IOException, InterruptedException {
-		if (benchmark)
-			System.err.println(ManagementFactory.getRuntimeMXBean().getUptime());
-		List<String> plainArgs = new ArrayList<>();
-		Map<String, List<String>> options = new HashMap<>();
-		String currentOption = null;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].startsWith("-")) {
-				currentOption = args[i];
-				if (!options.containsKey(currentOption))
-					options.put(currentOption, new ArrayList<>());
-				i++;
-				options.get(currentOption).add(args[i]);
+	public static void main(String[] args) {
+		try {
+			if (benchmark)
+				System.err.println(ManagementFactory.getRuntimeMXBean().getUptime());
+			List<String> plainArgs = new ArrayList<>();
+			Map<String, List<String>> options = new HashMap<>();
+			String currentOption = null;
+			for (int i = 0; i < args.length; i++) {
+				if (args[i].startsWith("-")) {
+					currentOption = args[i];
+					if ("-h".equals(currentOption) || "--help".equals(currentOption)) {
+						printHelp(System.out);
+						return;
+					}
+					if (!options.containsKey(currentOption))
+						options.put(currentOption, new ArrayList<>());
+					i++;
+					options.get(currentOption).add(args[i]);
+				} else {
+					plainArgs.add(args[i]);
+				}
+			}
+
+			List<String> dir = opt(options, "-d", "--sockets-dir");
+			if (dir.size() > 1)
+				throw new IllegalArgumentException("Only one run directory can be specified");
+			Path targetStateDirectory;
+			if (dir.isEmpty())
+				targetStateDirectory = Paths.get(System.getProperty("user.dir"));
+			else {
+				targetStateDirectory = Paths.get(dir.get(0));
+				if (!Files.exists(targetStateDirectory)) {
+					// we assume argument is the application id
+					targetStateDirectory = getRunDir().resolve(dir.get(0));
+				}
+			}
+
+			List<String> bundle = opt(options, "-b", "--bundle");
+			if (bundle.size() > 1)
+				throw new IllegalArgumentException("Only one bundle can be specified");
+			String symbolicName = bundle.isEmpty() ? "org.argeo.cms.cli" : bundle.get(0);
+
+			Path script = plainArgs.isEmpty() ? null : Paths.get(plainArgs.get(0));
+			List<String> scriptArgs = new ArrayList<>();
+			for (int i = 1; i < plainArgs.size(); i++)
+				scriptArgs.add(plainArgs.get(i));
+
+			JShellClient client = new JShellClient(targetStateDirectory, symbolicName, script, scriptArgs);
+			client.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+			printHelp(System.err);
+		}
+	}
+
+	/** Guaranteed to return a non-null list (which may be empty). */
+	private static List<String> opt(Map<String, List<String>> options, String shortOpt, String longOpt) {
+		List<String> res = new ArrayList<>();
+		if (options.get(shortOpt) != null)
+			res.addAll(options.get(shortOpt));
+		if (options.get(longOpt) != null)
+			res.addAll(options.get(longOpt));
+		return res;
+	}
+
+	public static void printHelp(PrintStream out) {
+		out.println("Start a JShell terminal or execute a JShell script in a local Argeo CMS instance");
+		out.println("Usage: jshc -d <sockets directory> -b <bundle> [JShell script] [script arguments...]");
+		out.println("  -d, --sockets-dir  app directory with UNIX sockets (default to current dir)");
+		out.println("  -b, --bundle       bundle to activate and use as context (default to org.argeo.cms.cli)");
+		out.println("  -h, --help         this help message");
+	}
+
+	// Copied from org.argeo.cms.util.OS
+	private static Path getRunDir() {
+		Path runDir;
+		String xdgRunDir = System.getenv("XDG_RUNTIME_DIR");
+		if (xdgRunDir != null) {
+			// TODO support multiple names
+			runDir = Paths.get(xdgRunDir);
+		} else {
+			String username = System.getProperty("user.name");
+			if (username.equals("root")) {
+				runDir = Paths.get("/run");
 			} else {
-				plainArgs.add(args[i]);
+				Path homeDir = Paths.get(System.getProperty("user.home"));
+				if (!Files.isWritable(homeDir)) {
+					// typically, dameon's home (/usr/sbin) is not writable
+					runDir = Paths.get("/tmp/" + username + "/run");
+				} else {
+					runDir = homeDir.resolve(".cache/argeo");
+				}
 			}
 		}
-
-		Path targetStateDirectory = Paths.get(options.get("-d").get(0));
-		String symbolicName = options.get("-b").get(0);
-
-		Path script = plainArgs.isEmpty() ? null : Paths.get(plainArgs.get(0));
-		List<String> scriptArgs = new ArrayList<>();
-		for (int i = 1; i < plainArgs.size(); i++)
-			scriptArgs.add(plainArgs.get(i));
-
-		JShellClient client = new JShellClient(targetStateDirectory, symbolicName, script, scriptArgs);
-		client.run();
+		return runDir;
 	}
 
 	/*

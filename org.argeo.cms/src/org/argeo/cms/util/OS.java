@@ -67,10 +67,12 @@ public class OS {
 			if (username.equals("root")) {
 				runDir = Paths.get("/run");
 			} else {
-				runDir = Paths.get(System.getProperty("user.home"), ".cache/argeo");
-				if (!Files.isWritable(runDir)) {
+				Path homeDir = Paths.get(System.getProperty("user.home"));
+				if (!Files.isWritable(homeDir)) {
 					// typically, dameon's home (/usr/sbin) is not writable
 					runDir = Paths.get("/tmp/" + username + "/run");
+				} else {
+					runDir = homeDir.resolve(".cache/argeo");
 				}
 			}
 		}
