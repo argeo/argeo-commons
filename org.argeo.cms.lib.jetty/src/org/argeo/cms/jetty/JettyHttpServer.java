@@ -2,11 +2,13 @@ package org.argeo.cms.jetty;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.net.ssl.SSLContext;
 import javax.servlet.ServletException;
 import javax.websocket.server.ServerContainer;
 
@@ -170,6 +172,16 @@ public class JettyHttpServer extends HttpsServer {
 			}
 
 			if (httpsEnabled) {
+				if (httpsConfigurator == null) {
+					// we make sure that an HttpSConfigurator is set, so that clients can detect
+					// whether this server is HTTP or HTTPS
+					try {
+						httpsConfigurator = new HttpsConfigurator(SSLContext.getDefault());
+					} catch (NoSuchAlgorithmException e) {
+						throw new IllegalStateException("Cannot initalise SSL Context", e);
+					}
+				}
+
 				SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
 				// sslContextFactory.setKeyStore(KeyS)
 

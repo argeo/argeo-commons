@@ -1,2 +1,2 @@
 Service-Component: \
-OSGI-INF/jettyServiceFactory.xml,\
+OSGI-INF/equinoxJettyServer.xml,\

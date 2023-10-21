@@ -3,4 +3,5 @@
    <implementation class="org.argeo.cms.ui.rcp.dbus.CmsRcpDBusLauncher"/>
    <reference bind="setCmsDBus" cardinality="1..1" interface="org.argeo.cms.dbus.CmsDBus" name="CmsDBus" policy="static"/>
    <reference bind="addCmsApp" cardinality="0..n" interface="org.argeo.api.cms.CmsApp" name="CmsApp" policy="dynamic" unbind="removeCmsApp"/>
+   <reference bind="setCmsRcpDisplayFactory" cardinality="1..1" interface="org.argeo.cms.ui.rcp.CmsRcpDisplayFactory" name="CmsRcpDisplayFactory" policy="static"/>
 </scr:component>

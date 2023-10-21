@@ -25,6 +25,8 @@ public class CmsRcpHttpLauncher {
 	private final static Logger logger = System.getLogger(CmsRcpHttpLauncher.class.getName());
 	private CompletableFuture<HttpServer> httpServer = new CompletableFuture<>();
 
+	private CmsRcpDisplayFactory cmsRcpDisplayFactory;
+	
 	public void init() {
 
 	}
@@ -50,7 +52,7 @@ public class CmsRcpHttpLauncher {
 					public void handle(HttpExchange exchange) throws IOException {
 						String path = exchange.getRequestURI().getPath();
 						String uiName = path != null ? path.substring(path.lastIndexOf('/') + 1) : "";
-						CmsRcpDisplayFactory.openCmsApp(cmsApp, uiName, null);
+						cmsRcpDisplayFactory.openCmsApp(cmsApp, uiName, null);
 						exchange.sendResponseHeaders(200, -1);
 						logger.log(Level.DEBUG, "Opened RCP UI  " + uiName + " of  CMS App /" + contextName);
 					}

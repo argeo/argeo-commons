@@ -3,6 +3,7 @@ package org.argeo.cms.ssh;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,9 +40,9 @@ import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsSshd;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
-import org.argeo.cms.CmsSshd;
 
 public class CmsSshServer implements CmsSshd {
 	private final static CmsLog log = CmsLog.getLog(CmsSshServer.class);
@@ -213,6 +214,11 @@ public class CmsSshServer implements CmsSshd {
 
 	public void setCmsState(CmsState cmsState) {
 		this.cmsState = cmsState;
+	}
+
+	@Override
+	public InetSocketAddress getAddress() {
+		return new InetSocketAddress(host, port);
 	}
 
 }

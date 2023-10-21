@@ -20,7 +20,11 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 
 	private DBusConnection dBusConnection;
 
-	public CmsRcpFreeDesktopApplication(CmsDBus cmsDBus, String contextName, CmsApp cmsApp) {
+	private CmsRcpDisplayFactory cmsRcpDisplayFactory;
+
+	public CmsRcpFreeDesktopApplication(CmsRcpDisplayFactory cmsRcpDisplayFactory, CmsDBus cmsDBus, String contextName,
+			CmsApp cmsApp) {
+		this.cmsRcpDisplayFactory = cmsRcpDisplayFactory;
 		// TODO find a better prefix and/or make it customisable
 		this.path = "/org/argeo/cms/" + contextName;
 		this.cmsApp = cmsApp;
@@ -50,7 +54,7 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 		// String uiName = path != null ? path.substring(path.lastIndexOf('/') + 1) :
 		// "";
 		String uiName = "app";
-		CmsRcpDisplayFactory.openCmsApp(cmsApp, uiName, null);
+		cmsRcpDisplayFactory.openCmsApp(cmsApp, uiName, null);
 	}
 
 	@Override

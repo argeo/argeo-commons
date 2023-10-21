@@ -1,5 +1,6 @@
 package org.argeo.api.cms.ux;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -9,7 +10,7 @@ import javax.security.auth.login.LoginContext;
 
 import org.argeo.api.cms.CmsSession;
 
-/** Provides interaction with the CMS system. */
+/** Provides UX interactions with the CMS system. */
 public interface CmsView {
 	final static String CMS_VIEW_UID_PROPERTY = "argeo.cms.view.uid";
 	// String KEY = "org.argeo.cms.ui.view";
@@ -31,9 +32,17 @@ public interface CmsView {
 	// SERVICES
 	void exception(Throwable e);
 
-	<V,M> CmsImageManager<V, M> getImageManager();
+	<V, M> CmsImageManager<V, M> getImageManager();
 
 	boolean isAnonymous();
+
+	/**
+	 * Translates to an URL that can be reached by a client, depending on its type.
+	 * Typically, if a web interface asks for /path/on/the/web/server it will be
+	 * returned without modifications; but a thin client will probably need to add a
+	 * server and a port.
+	 */
+	URI toBackendUri(String url);
 
 	/**
 	 * Send an event to this topic. Does nothing by default., but if implemented it
