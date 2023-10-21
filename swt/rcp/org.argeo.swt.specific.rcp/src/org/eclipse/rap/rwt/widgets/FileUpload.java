@@ -34,4 +34,7 @@ public class FileUpload extends Composite {
 		return null;
 	}
 
+	public void setFilterExtensions(String[] exts) {
+
+	}
 }
