@@ -1,22 +1,27 @@
 package org.argeo.cms.swt.app;
 
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.spi.FileSystemProvider;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentRepository;
-import org.argeo.api.cms.CmsContext;
 import org.argeo.api.cms.ux.CmsUi;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.AbstractCmsApp;
 import org.argeo.cms.swt.CmsSwtUi;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.auth.CmsLogin;
+import org.argeo.eclipse.ui.fs.SimpleFsBrowser;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 public class CmsUserApp extends AbstractCmsApp {
 	private ContentRepository contentRepository;
+
+	private FileSystemProvider cmsFileSystemProvider;
 
 	@Override
 	public Set<String> getUiNames() {
@@ -41,6 +46,12 @@ public class CmsUserApp extends AbstractCmsApp {
 			AcrContentTreeView view = new AcrContentTreeView(cmsUi, 0, rootContent);
 			view.setLayoutData(CmsSwtUtils.fillAll());
 
+		} else if ("app".equals(uiName)) {
+			Path rootPath = cmsFileSystemProvider.getPath(URI.create("cms:///"));
+			SimpleFsBrowser view = new SimpleFsBrowser(parent, 0);
+			view.setInput(rootPath);
+			view.setLayoutData(CmsSwtUtils.fillAll());
+
 		}
 		return cmsUi;
 	}
@@ -57,6 +68,10 @@ public class CmsUserApp extends AbstractCmsApp {
 
 	public void setContentRepository(ContentRepository contentRepository) {
 		this.contentRepository = contentRepository;
+	}
+
+	public void setCmsFileSystemProvider(FileSystemProvider cmsFileSystemProvider) {
+		this.cmsFileSystemProvider = cmsFileSystemProvider;
 	}
 
 }

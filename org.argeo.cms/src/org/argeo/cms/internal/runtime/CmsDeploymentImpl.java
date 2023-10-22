@@ -90,6 +90,11 @@ public class CmsDeploymentImpl implements CmsDeployment {
 	}
 
 	public void createHttpContext(String contextPath, HttpHandler httpHandler, CmsAuthenticator authenticator) {
+		if (!httpExpected) {
+			if (log.isTraceEnabled())
+				log.warn("Ignore HTTP context " + contextPath + " as we don't provide an HTTP server");
+			return;
+		}
 		HttpContext httpContext = httpServer.join().createContext(contextPath);
 		// we want to set the authenticator BEFORE the handler actually becomes active
 		httpContext.setAuthenticator(authenticator);

@@ -5,24 +5,30 @@ import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.attribute.FileStoreAttributeView;
 
 import org.argeo.api.acr.fs.AbstractFsStore;
+import org.argeo.api.acr.spi.ContentProvider;
 
 public class CmsFileStore extends AbstractFsStore {
+	private final ContentProvider contentProvider;
+
+	public CmsFileStore(ContentProvider contentProvider) {
+		this.contentProvider = contentProvider;
+	}
 
 	@Override
 	public String name() {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO return an URI
+		String name = contentProvider.getMountPath();
+		return name;
 	}
 
 	@Override
 	public String type() {
-		// TODO Auto-generated method stub
-		return null;
+		String type = contentProvider.getClass().getName();
+		return type;
 	}
 
 	@Override
 	public boolean isReadOnly() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -46,13 +52,15 @@ public class CmsFileStore extends AbstractFsStore {
 
 	@Override
 	public boolean supportsFileAttributeView(Class<? extends FileAttributeView> type) {
-		// TODO Auto-generated method stub
+		if (ContentAttributeView.class.isAssignableFrom(type))
+			return true;
 		return false;
 	}
 
 	@Override
 	public boolean supportsFileAttributeView(String name) {
-		// TODO Auto-generated method stub
+		if (ContentAttributeView.NAME.equals(name))
+			return true;
 		return false;
 	}
 

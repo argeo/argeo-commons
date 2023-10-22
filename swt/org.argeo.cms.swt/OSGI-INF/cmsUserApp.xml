@@ -7,4 +7,5 @@
    </service>
    <reference bind="setCmsContext" cardinality="1..1" interface="org.argeo.api.cms.CmsContext" name="CmsContext" policy="static"/>
    <reference bind="setContentRepository" cardinality="1..1" interface="org.argeo.api.acr.ContentRepository" name="ContentRepository" policy="static"/>
+   <reference bind="setCmsFileSystemProvider" cardinality="1..1" interface="java.nio.file.spi.FileSystemProvider" name="CmsFileSystemProvider" policy="static"/>
 </scr:component>

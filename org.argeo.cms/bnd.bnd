@@ -16,4 +16,5 @@ OSGI-INF/cmsContentRepository.xml,\
 OSGI-INF/cmsAcrHttpHandler.xml,\
 OSGI-INF/cmsDeployment.xml,\
 OSGI-INF/cmsContext.xml,\
+OSGI-INF/cmsFileSystemProvider.xml,\
 
