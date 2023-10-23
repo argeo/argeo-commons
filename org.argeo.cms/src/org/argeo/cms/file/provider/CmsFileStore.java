@@ -52,14 +52,14 @@ public class CmsFileStore extends AbstractFsStore {
 
 	@Override
 	public boolean supportsFileAttributeView(Class<? extends FileAttributeView> type) {
-		if (ContentAttributeView.class.isAssignableFrom(type))
+		if (ContentFileAttributeView.class.isAssignableFrom(type))
 			return true;
 		return false;
 	}
 
 	@Override
 	public boolean supportsFileAttributeView(String name) {
-		if (ContentAttributeView.NAME.equals(name))
+		if (ContentFileAttributeView.NAME.equals(name))
 			return true;
 		return false;
 	}

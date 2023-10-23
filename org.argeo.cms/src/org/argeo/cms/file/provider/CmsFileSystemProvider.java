@@ -39,15 +39,14 @@ public class CmsFileSystemProvider extends FileSystemProvider {
 
 	private ProvidedRepository contentRepository;
 
-	
 	public void start() {
-		
+
 	}
-	
+
 	public void stop() {
-		
+
 	}
-	
+
 	@Override
 	public String getScheme() {
 		return "cms";
@@ -171,17 +170,23 @@ public class CmsFileSystemProvider extends FileSystemProvider {
 	public void checkAccess(Path path, AccessMode... modes) throws IOException {
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <V extends FileAttributeView> V getFileAttributeView(Path path, Class<V> type, LinkOption... options) {
-		// TODO Auto-generated method stub
+		CmsPath cmsPath = (CmsPath) path;
+		if (BasicFileAttributes.class.isAssignableFrom(type))
+			return (V) new ContentFileAttributeView(cmsPath.getContent());
+		else if (ContentFileAttributeView.class.isAssignableFrom(type))
+			return (V) new ContentFileAttributeView(cmsPath.getContent());
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <A extends BasicFileAttributes> A readAttributes(Path path, Class<A> type, LinkOption... options)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		CmsPath cmsPath = (CmsPath) path;
+		return (A) new ContentAttributes(cmsPath.getContent());
 	}
 
 	@Override

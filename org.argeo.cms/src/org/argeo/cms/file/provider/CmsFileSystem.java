@@ -87,7 +87,7 @@ public class CmsFileSystem extends AbstractFsSystem<CmsFileStore> {
 
 	@Override
 	public Set<String> supportedFileAttributeViews() {
-		return Collections.singleton(ContentAttributeView.NAME);
+		return Collections.singleton(ContentFileAttributeView.NAME);
 	}
 
 	@Override

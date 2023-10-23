@@ -48,7 +48,7 @@ public class CmsUserApp extends AbstractCmsApp {
 
 		} else if ("app".equals(uiName)) {
 			Path rootPath = cmsFileSystemProvider.getPath(URI.create("cms:///"));
-			SimpleFsBrowser view = new SimpleFsBrowser(parent, 0);
+			SimpleFsBrowser view = new SimpleFsBrowser(cmsUi, 0);
 			view.setInput(rootPath);
 			view.setLayoutData(CmsSwtUtils.fillAll());
 

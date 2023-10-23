@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.Iterator;
 
 import org.argeo.api.acr.Content;
-import org.argeo.api.acr.DName;
 
 public class ContentDirectoryStream implements DirectoryStream<Path> {
 	private final CmsPath dir;
@@ -31,21 +30,13 @@ public class ContentDirectoryStream implements DirectoryStream<Path> {
 		return iterator;
 	}
 
-	static boolean isFile(Content c) {
-		return !c.get(DName.getcontenttype, String.class).isEmpty();
-	}
-
-	static boolean isDirectory(Content c) {
-		return c.isContentClass(DName.collection);
-	}
-
 	class FilesAndCollectionsIterator implements Iterator<Path> {
 		private Content next;
 		private final Iterator<Content> it;
 
 		public FilesAndCollectionsIterator() {
 			Content content = dir.getContent();
-			if (!content.isContentClass(DName.collection))
+			if (!ContentAttributes.isDirectory(content))
 				throw new IllegalStateException("Content " + content + " is not a collection");
 			it = content.iterator();
 			findNext();
@@ -53,9 +44,9 @@ public class ContentDirectoryStream implements DirectoryStream<Path> {
 
 		private void findNext() {
 			next = null;
-			while (it.hasNext() && next != null) {
+			while (it.hasNext() && next == null) {
 				Content n = it.next();
-				if (isFile(n) || isDirectory(n)) {
+				if (ContentAttributes.isRegularFile(n) || ContentAttributes.isDirectory(n)) {
 					if (filter != null) {
 						try {
 							if (filter.accept(new CmsPath(dir.getFileSystem(), n)))
