@@ -69,8 +69,14 @@ public class SingleUserLoginModule implements LoginModule {
 			locale = request.getLocale();
 		if (locale == null)
 			locale = Locale.getDefault();
-		Authorization authorization = new SingleUserAuthorization(authorizationName);
-		CmsAuthUtils.addAuthorization(subject, authorization);
+
+		Authorization authorization = null;
+		if (kerberosPrincipal != null) {
+			authorization = new SingleUserAuthorization(authorizationName);
+			CmsAuthUtils.addAuthorization(subject, authorization);
+		} else {
+			// next step with user admin will properly populate
+		}
 
 		// Add standard Java OS login
 		OsUserUtils.loginAsSystemUser(subject);
@@ -81,7 +87,8 @@ public class SingleUserLoginModule implements LoginModule {
 //		principals.add(new ImpliedByPrincipal(NodeConstants.ROLE_ADMIN, principal));
 //		principals.add(new DataAdminPrincipal());
 
-		CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
+		if (authorization != null)
+			CmsAuthUtils.registerSessionAuthorization(request, subject, authorization, locale);
 
 		return true;
 	}
