@@ -128,6 +128,16 @@ public class ContentUtils {
 			throw new IllegalArgumentException("Path " + path + " contains //");
 	}
 
+	/** The last element of a path. */
+	public static String lastPathElement(String path) {
+		if (path.charAt(path.length() - 1) == '/')
+			throw new IllegalArgumentException("Path " + path + " cannot end with '/'");
+		int index = path.lastIndexOf('/');
+		if (index < 0)
+			return path;
+		return path.substring(index + 1);
+	}
+
 	/*
 	 * DIRECTORY
 	 */
