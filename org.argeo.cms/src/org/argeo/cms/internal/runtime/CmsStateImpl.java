@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -93,6 +94,9 @@ public class CmsStateImpl implements CmsState {
 	}
 
 	public void start() {
+		Charset defaultCharset = Charset.defaultCharset();
+		if (!StandardCharsets.UTF_8.equals(defaultCharset))
+			log.error("Default JVM charset is " + defaultCharset + " and not " + StandardCharsets.UTF_8);
 		try {
 			// First init check
 			Path privateBase = getDataPath(KernelConstants.DIR_PRIVATE);
