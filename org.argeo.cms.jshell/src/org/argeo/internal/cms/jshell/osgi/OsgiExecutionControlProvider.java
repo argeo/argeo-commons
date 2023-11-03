@@ -203,7 +203,8 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 				continue bundles;
 			}
 			Path p = bundleToPath(frameworkLocation, b);
-			classpath.add(p.toString());
+			if (p != null)
+				classpath.add(p.toString());
 		}
 
 		return classpath.toString();
@@ -213,11 +214,17 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 		String location = bundle.getLocation();
 		if (location.startsWith("initial@reference:file:")) {
 			location = location.substring("initial@reference:file:".length());
-			Path p = frameworkLocation.getParent().resolve(location).toRealPath();
-			// TODO load dev.properties from OSGi configuration directory
-			if (Files.isDirectory(p))
-				p = p.resolve("bin");
-			return p;
+			Path p = frameworkLocation.getParent().resolve(location).toAbsolutePath();
+			if (Files.exists(p)) {
+				p = p.toRealPath();
+				// TODO load dev.properties from OSGi configuration directory
+				if (Files.isDirectory(p))
+					p = p.resolve("bin");
+				return p;
+			} else {
+				log.warn("Ignore bundle " + p + " as it does not exist");
+				return null;
+			}
 		}
 		Path p = Paths.get(location);
 		return p;
