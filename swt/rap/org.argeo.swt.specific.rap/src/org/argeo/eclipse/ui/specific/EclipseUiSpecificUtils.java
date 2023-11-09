@@ -11,7 +11,8 @@ import org.eclipse.swt.widgets.Widget;
 public class EclipseUiSpecificUtils {
 
 	public static void setStyleData(Widget widget, Object data) {
-		widget.setData(RWT.CUSTOM_VARIANT, data);
+		if (!widget.isDisposed())
+			widget.setData(RWT.CUSTOM_VARIANT, data);
 	}
 
 	public static Object getStyleData(Widget widget) {

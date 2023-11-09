@@ -1,6 +1,7 @@
 package org.argeo.cms.util;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -62,10 +63,17 @@ public class OS {
 			// TODO support multiple names
 			runDir = Paths.get(xdgRunDir);
 		} else {
-			if (System.getProperty("user.name").equals("root")) {
+			String username = System.getProperty("user.name");
+			if (username.equals("root")) {
 				runDir = Paths.get("/run");
 			} else {
-				runDir = Paths.get(System.getProperty("user.home"), ".cache/argeo");
+				Path homeDir = Paths.get(System.getProperty("user.home"));
+				if (!Files.isWritable(homeDir)) {
+					// typically, dameon's home (/usr/sbin) is not writable
+					runDir = Paths.get("/tmp/" + username + "/run");
+				} else {
+					runDir = homeDir.resolve(".cache/argeo");
+				}
 			}
 		}
 		return runDir;

@@ -47,17 +47,22 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 				Bundle bundle = bc.installBundle(referenceUrl);
 				return bundle;
 			} else {
-
-				Path tempJar = null;
-				if (locator instanceof Path && Files.isDirectory((Path) locator))
-					tempJar = toTempJar((Path) locator);
+				Path locatorPath = (Path) locator;
+				Path pathToUse;
+				boolean isTemp = false;
+				if (locator instanceof Path && Files.isDirectory(locatorPath)) {
+					pathToUse = toTempJar(locatorPath);
+					isTemp = true;
+				} else {
+					pathToUse = locatorPath;
+				}
 				Bundle bundle;
-				try (InputStream in = newInputStream(tempJar != null ? tempJar : locator)) {
-					bundle = bc.installBundle(module.getBranch().getCoordinates(), in);
+				try (InputStream in = newInputStream(pathToUse)) {
+					bundle = bc.installBundle(locatorPath.toAbsolutePath().toString(), in);
 				}
 
-				if (tempJar != null)
-					Files.deleteIfExists(tempJar);
+				if (isTemp && pathToUse != null)
+					Files.deleteIfExists(pathToUse);
 				return bundle;
 			}
 		} catch (BundleException | IOException e) {
@@ -74,14 +79,20 @@ public abstract class AbstractProvisioningSource implements ProvisioningSource {
 					bundle.update(in);
 				}
 			} else {
-				Path tempJar = null;
-				if (locator instanceof Path && Files.isDirectory((Path) locator))
-					tempJar = toTempJar((Path) locator);
-				try (InputStream in = newInputStream(tempJar != null ? tempJar : locator)) {
+				Path locatorPath = (Path) locator;
+				Path pathToUse;
+				boolean isTemp = false;
+				if (locator instanceof Path && Files.isDirectory(locatorPath)) {
+					pathToUse = toTempJar(locatorPath);
+					isTemp = true;
+				} else {
+					pathToUse = locatorPath;
+				}
+				try (InputStream in = newInputStream(pathToUse)) {
 					bundle.update(in);
 				}
-				if (tempJar != null)
-					Files.deleteIfExists(tempJar);
+				if (isTemp && pathToUse != null)
+					Files.deleteIfExists(pathToUse);
 			}
 		} catch (BundleException | IOException e) {
 			throw new A2Exception("Cannot update module " + module, e);

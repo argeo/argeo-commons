@@ -16,6 +16,7 @@ import java.util.UUID;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.api.uuid.UuidFactory;
+import org.argeo.cms.util.FsUtils;
 import org.argeo.cms.util.OS;
 import org.argeo.internal.cms.jshell.osgi.OsgiExecutionControlProvider;
 import org.osgi.framework.Bundle;
@@ -142,7 +143,8 @@ public class CmsJShell {
 		String symbolicName = bundleSnDir.getFileName().toString();
 		Bundle fromBundle = OsgiExecutionControlProvider.getBundleFromSn(symbolicName);
 		if (fromBundle == null) {
-			log.error("Ignoring bundle " + symbolicName + " because it was not found");
+			log.error("Removing directory for bundle " + symbolicName + " because it was not found in runtime...");
+			FsUtils.delete(bundleSnDir);
 			return;
 		}
 		Long bundleId = fromBundle.getBundleId();

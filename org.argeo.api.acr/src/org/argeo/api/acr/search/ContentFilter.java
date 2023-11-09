@@ -1,7 +1,8 @@
 package org.argeo.api.acr.search;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
@@ -10,7 +11,8 @@ import org.argeo.api.acr.QNamed;
 
 /** A constraint filtering based ona given composition (and/or). */
 public abstract class ContentFilter<COMPOSITION extends Composition> implements Constraint {
-	private Set<Constraint> constraintss = new HashSet<>();
+	// even though not necessary, we use a list in order to have a predictable order
+	private List<Constraint> constraints = new ArrayList<>();
 
 	private COMPOSITION composition;
 
@@ -74,8 +76,65 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 	}
 
 	public COMPOSITION eq(QNamed attr, Object value) {
-		addConstraint(new Eq(attr.qName(), value));
+		return eq(attr.qName(), value);
+	}
+
+	public COMPOSITION lt(QName attr, Object value) {
+		addConstraint(new Lt(attr, value));
 		return composition;
+	}
+
+	public COMPOSITION lt(QNamed attr, Object value) {
+		return lt(attr.qName(), value);
+	}
+
+	public COMPOSITION lte(QName attr, Object value) {
+		addConstraint(new Lte(attr, value));
+		return composition;
+	}
+
+	public COMPOSITION lte(QNamed attr, Object value) {
+		return lte(attr.qName(), value);
+	}
+
+	public COMPOSITION gt(QName attr, Object value) {
+		addConstraint(new Gt(attr, value));
+		return composition;
+	}
+
+	public COMPOSITION gt(QNamed attr, Object value) {
+		return gt(attr.qName(), value);
+	}
+
+	public COMPOSITION gte(QName attr, Object value) {
+		addConstraint(new Gte(attr, value));
+		return composition;
+	}
+
+	public COMPOSITION gte(QNamed attr, Object value) {
+		return gte(attr.qName(), value);
+	}
+
+	public COMPOSITION like(QName attr, String pattern) {
+		addConstraint(new Like(attr, pattern));
+		return composition;
+	}
+
+	public COMPOSITION like(QNamed attr, String pattern) {
+		return like(attr.qName(), pattern);
+	}
+
+	/*
+	 * PROPERTIES CONSTRAINTS
+	 */
+
+	public COMPOSITION isDefined(QName attr) {
+		addConstraint(new IsDefined(attr));
+		return composition;
+	}
+
+	public COMPOSITION isDefined(QNamed attr) {
+		return isDefined(attr.qName());
 	}
 
 	/*
@@ -90,21 +149,21 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 		} else {
 			operatorToAdd = operator;
 		}
-		constraintss.add(operatorToAdd);
+		constraints.add(operatorToAdd);
 	}
 
 	/** Checks that the root operator is not set. */
 	private void checkAddConstraint() {
-		if (composition == null && !constraintss.isEmpty())
-			throw new IllegalStateException("An operator is already registered (" + constraintss.iterator().next()
+		if (composition == null && !constraints.isEmpty())
+			throw new IllegalStateException("An operator is already registered (" + constraints.iterator().next()
 					+ ") and no composition is defined");
 	}
 
 	/*
 	 * ACCESSORs
 	 */
-	public Set<Constraint> getConstraints() {
-		return constraintss;
+	public Collection<Constraint> getConstraints() {
+		return constraints;
 	}
 
 	public boolean isUnion() {
@@ -114,58 +173,6 @@ public abstract class ContentFilter<COMPOSITION extends Composition> implements 
 	/*
 	 * CLASSES
 	 */
-
-	public static class Not implements Constraint {
-		final Constraint negated;
-
-		public Not(Constraint negated) {
-			this.negated = negated;
-		}
-
-		public Constraint getNegated() {
-			return negated;
-		}
-
-	}
-
-	public static class Eq implements Constraint {
-		final QName prop;
-		final Object value;
-
-		public Eq(QName prop, Object value) {
-			super();
-			this.prop = prop;
-			this.value = value;
-		}
-
-		public QName getProp() {
-			return prop;
-		}
-
-		public Object getValue() {
-			return value;
-		}
-
-	}
-
-	public static class IsContentClass implements Constraint {
-		final QName[] contentClasses;
-
-		public IsContentClass(QName[] contentClasses) {
-			this.contentClasses = contentClasses;
-		}
-
-		public IsContentClass(QNamed[] contentClasses) {
-			this.contentClasses = new QName[contentClasses.length];
-			for (int i = 0; i < contentClasses.length; i++)
-				this.contentClasses[i] = contentClasses[i].qName();
-		}
-
-		public QName[] getContentClasses() {
-			return contentClasses;
-		}
-
-	}
 
 //	public static void main(String[] args) {
 //		AndFilter filter = new AndFilter();

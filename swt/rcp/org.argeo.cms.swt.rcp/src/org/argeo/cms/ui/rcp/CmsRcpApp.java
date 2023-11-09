@@ -2,6 +2,8 @@ package org.argeo.cms.ui.rcp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.PrivilegedAction;
 import java.util.Map;
 import java.util.UUID;
@@ -15,10 +17,12 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
+import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsTheme;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.swt.AbstractSwtCmsView;
 import org.argeo.cms.swt.CmsSwtUtils;
+import org.argeo.cms.swt.acr.AcrSwtImageManager;
 import org.eclipse.e4.ui.css.core.engine.CSSEngine;
 import org.eclipse.e4.ui.css.core.engine.CSSErrorHandler;
 import org.eclipse.e4.ui.css.swt.engine.CSSSWTEngineImpl;
@@ -36,12 +40,17 @@ public class CmsRcpApp extends AbstractSwtCmsView implements CmsView {
 
 	private CSSEngine cssEngine;
 
+	private String httpServerBase;
+
 	public CmsRcpApp(String uiName) {
 		super(uiName);
 		uid = UUID.randomUUID().toString();
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void initRcpApp() {
+		imageManager = (CmsImageManager) new AcrSwtImageManager();
+
 		display = Display.getCurrent();
 		shell = new Shell(display);
 		shell.setText("Argeo CMS");
@@ -151,6 +160,24 @@ public class CmsRcpApp extends AbstractSwtCmsView implements CmsView {
 	@Override
 	public CmsApp getCmsApp() {
 		return cmsApp;
+	}
+
+	@Override
+	public URI toBackendUri(String url) {
+		try {
+			URI u = new URI(url);
+			if (u.getHost() == null) {
+				// TODO make it more robust
+				u = new URI(httpServerBase + url);
+			}
+			return u;
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Cannot convert " + url, e);
+		}
+	}
+
+	public void setHttpServerBase(String httpServerBase) {
+		this.httpServerBase = httpServerBase;
 	}
 
 	/*

@@ -7,11 +7,14 @@ import java.util.concurrent.CompletableFuture;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.cms.dbus.CmsDBus;
+import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
 
 public class CmsRcpDBusLauncher {
 	private CompletableFuture<CmsDBus> cmsDBus = new CompletableFuture<>();
 
 	private Map<String, CmsRcpFreeDesktopApplication> apps = new HashMap<>();
+
+	private CmsRcpDisplayFactory cmsRcpDisplayFactory;
 
 	public void start() {
 
@@ -24,7 +27,8 @@ public class CmsRcpDBusLauncher {
 	public void addCmsApp(CmsApp cmsApp, Map<String, String> properties) {
 		final String contextName = properties.get(CmsApp.CONTEXT_NAME_PROPERTY);
 		cmsDBus.thenAcceptAsync((cmsDBus) -> {
-			CmsRcpFreeDesktopApplication application = new CmsRcpFreeDesktopApplication(cmsDBus, contextName, cmsApp);
+			CmsRcpFreeDesktopApplication application = new CmsRcpFreeDesktopApplication(cmsRcpDisplayFactory, cmsDBus,
+					contextName, cmsApp);
 			apps.put(contextName, application);
 		});
 	}
@@ -43,6 +47,10 @@ public class CmsRcpDBusLauncher {
 
 	public void setCmsDBus(CmsDBus cmsDBus) {
 		this.cmsDBus.complete(cmsDBus);
+	}
+
+	public void setCmsRcpDisplayFactory(CmsRcpDisplayFactory cmsRcpDisplayFactory) {
+		this.cmsRcpDisplayFactory = cmsRcpDisplayFactory;
 	}
 
 }

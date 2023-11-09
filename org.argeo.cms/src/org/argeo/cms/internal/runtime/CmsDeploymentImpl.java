@@ -3,14 +3,17 @@ package org.argeo.cms.internal.runtime;
 import static org.argeo.api.cms.CmsConstants.CONTEXT_PATH;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsDeployment;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsSshd;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
-import org.argeo.cms.CmsSshd;
 import org.argeo.cms.internal.http.CmsAuthenticator;
 import org.argeo.cms.internal.http.PublicCmsAuthenticator;
 
@@ -29,12 +32,12 @@ public class CmsDeploymentImpl implements CmsDeployment {
 	private boolean sshdExpected = false;
 
 	// HTTP
-	private HttpServer httpServer;
+	private CompletableFuture<HttpServer> httpServer = new CompletableFuture<>();
 	private Map<String, HttpHandler> httpHandlers = new TreeMap<>();
 	private Map<String, CmsAuthenticator> httpAuthenticators = new TreeMap<>();
 
 	// SSHD
-	private CmsSshd cmsSshd;
+	private CompletableFuture<CmsSshd> cmsSshd = new CompletableFuture<>();
 
 	public void start() {
 		log.debug(() -> "CMS deployment available");
@@ -49,13 +52,18 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		String httpPort = this.cmsState.getDeployProperty(CmsDeployProperty.HTTP_PORT.getProperty());
 		String httpsPort = this.cmsState.getDeployProperty(CmsDeployProperty.HTTPS_PORT.getProperty());
 		httpExpected = httpPort != null || httpsPort != null;
+		if (!httpExpected)
+			httpServer.complete(null);
 
 		String sshdPort = this.cmsState.getDeployProperty(CmsDeployProperty.SSHD_PORT.getProperty());
 		sshdExpected = sshdPort != null;
+		if (!sshdExpected)
+			cmsSshd.complete(null);
 	}
 
 	public void setHttpServer(HttpServer httpServer) {
-		this.httpServer = httpServer;
+		Objects.requireNonNull(httpServer);
+		this.httpServer.complete(httpServer);
 		// create contexts whose handles had already been published
 		for (String contextPath : httpHandlers.keySet()) {
 			HttpHandler httpHandler = httpHandlers.get(contextPath);
@@ -82,7 +90,12 @@ public class CmsDeploymentImpl implements CmsDeployment {
 	}
 
 	public void createHttpContext(String contextPath, HttpHandler httpHandler, CmsAuthenticator authenticator) {
-		HttpContext httpContext = httpServer.createContext(contextPath);
+		if (!httpExpected) {
+			if (log.isTraceEnabled())
+				log.warn("Ignore HTTP context " + contextPath + " as we don't provide an HTTP server");
+			return;
+		}
+		HttpContext httpContext = httpServer.join().createContext(contextPath);
 		// we want to set the authenticator BEFORE the handler actually becomes active
 		httpContext.setAuthenticator(authenticator);
 		httpContext.setHandler(httpHandler);
@@ -96,7 +109,7 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		httpHandlers.remove(contextPath);
 		if (httpServer == null)
 			return;
-		httpServer.removeContext(contextPath);
+		httpServer.join().removeContext(contextPath);
 		log.debug(() -> "Removed handler " + contextPath + " : " + httpHandler.getClass().getName());
 	}
 
@@ -109,7 +122,18 @@ public class CmsDeploymentImpl implements CmsDeployment {
 	}
 
 	public void setCmsSshd(CmsSshd cmsSshd) {
-		this.cmsSshd = cmsSshd;
+		Objects.requireNonNull(cmsSshd);
+		this.cmsSshd.complete(cmsSshd);
+	}
+
+	@Override
+	public CompletionStage<HttpServer> getHttpServer() {
+		return httpServer.minimalCompletionStage();
+	}
+
+	@Override
+	public CompletionStage<CmsSshd> getCmsSshd() {
+		return cmsSshd.minimalCompletionStage();
 	}
 
 }

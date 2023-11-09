@@ -2,6 +2,8 @@ package org.argeo.cms.web;
 
 import static org.eclipse.rap.rwt.internal.service.ContextProvider.getApplicationContext;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.PrivilegedAction;
 import java.util.Locale;
 import java.util.UUID;
@@ -239,6 +241,15 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 		if (cmsSession == null)
 			throw new IllegalStateException("No CMS session available for " + getSubject());
 		return cmsSession;
+	}
+
+	@Override
+	public URI toBackendUri(String url) {
+		try {
+			return new URI(url);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException("Cannot convert " + url, e);
+		}
 	}
 
 	/*

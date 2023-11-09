@@ -2,7 +2,9 @@ package org.argeo.cms.servlet.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.FileNameMap;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -26,8 +28,14 @@ import org.osgi.framework.wiring.BundleWiring;
 import org.osgi.framework.wiring.FrameworkWiring;
 import org.osgi.resource.Requirement;
 
+/**
+ * Publishes client-side web resources (JavaScript, HTML, CSS, images, etc.)
+ * from the OSGi runtime.
+ */
 public class PkgServlet extends HttpServlet {
 	private static final long serialVersionUID = 7660824185145214324L;
+
+	private static FileNameMap fileNameMap = URLConnection.getFileNameMap();
 
 	private BundleContext bundleContext = FrameworkUtil.getBundle(PkgServlet.class).getBundleContext();
 
@@ -49,6 +57,10 @@ public class PkgServlet extends HttpServlet {
 		} else {
 			throw new IllegalArgumentException("Unsupported path length " + pathInfo);
 		}
+
+		// content type
+		String contentType = fileNameMap.getContentTypeFor(file);
+		resp.setContentType(contentType);
 
 		FrameworkWiring frameworkWiring = bundleContext.getBundle(0).adapt(FrameworkWiring.class);
 		String filter;

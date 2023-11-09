@@ -2,6 +2,7 @@ Bundle-SymbolicName: org.argeo.cms.swt.rcp;singleton=true
 
 Import-Package:\
 org.argeo.cms.auth,\
+org.argeo.api.acr,\
 org.eclipse.swt,\
 org.eclipse.swt.widgets,\
 org.eclipse.swt.graphics,\

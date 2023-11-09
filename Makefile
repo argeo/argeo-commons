@@ -19,11 +19,12 @@ org.argeo.api.cli \
 org.argeo.api.cms \
 org.argeo.cms \
 org.argeo.cms.ux \
-org.argeo.cms.ee \
+org.argeo.cms.jshell \
+org.argeo.cms.lib.json \
 org.argeo.cms.lib.jetty \
 org.argeo.cms.lib.dbus \
 org.argeo.cms.lib.sshd \
-org.argeo.cms.jshell \
+org.argeo.cms.ee \
 org.argeo.cms.cli \
 osgi/equinox/org.argeo.cms.lib.equinox \
 swt/org.argeo.swt.minidesktop \

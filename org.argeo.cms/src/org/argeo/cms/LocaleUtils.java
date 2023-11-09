@@ -77,6 +77,8 @@ public class LocaleUtils {
 
 	/** Lead transformation on the translated string. */
 	public static String toLead(String raw, Locale locale) {
+		if ("".equals(raw))
+			return "";
 		return raw.substring(0, 1).toUpperCase(locale) + raw.substring(1);
 	}
 

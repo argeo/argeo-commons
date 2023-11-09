@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.websocket.DeploymentException;
 import javax.websocket.server.ServerContainer;
-import javax.websocket.server.ServerEndpointConfig;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.servlet.httpserver.HttpContextServlet;

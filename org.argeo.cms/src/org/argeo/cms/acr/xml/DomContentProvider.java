@@ -77,7 +77,7 @@ public class DomContentProvider implements ContentProvider, NamespaceContext {
 			throw new IllegalArgumentException("Relative path cannot start with /");
 		String xPathExpression = '/' + relativePath;
 		if (Content.ROOT_PATH.equals(mountPath)) // repository root
-			xPathExpression = "/" + CrName.root.qName() + xPathExpression;
+			xPathExpression = "/" + CrName.root.get() + xPathExpression;
 		try {
 			NodeList nodes = (NodeList) xPath.get().evaluate(xPathExpression, document, XPathConstants.NODESET);
 			return nodes;

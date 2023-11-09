@@ -5,9 +5,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 import javax.net.ssl.SSLSession;
 import javax.servlet.http.HttpServletRequest;
@@ -72,7 +77,17 @@ class ServletHttpExchange extends HttpsExchange {
 
 	@Override
 	public URI getRequestURI() {
-		return URI.create(httpServletRequest.getRequestURI());
+		// TODO properly deal with charset?
+		Charset encoding = StandardCharsets.UTF_8;
+		Map<String, String[]> parameters = httpServletRequest.getParameterMap();
+		StringJoiner sb = new StringJoiner("&");
+		for (String key : parameters.keySet()) {
+			for (String value : parameters.get(key)) {
+				String pair = URLEncoder.encode(key, encoding) + '=' + URLEncoder.encode(value, encoding);
+				sb.add(pair);
+			}
+		}
+		return URI.create(httpServletRequest.getRequestURI() + (sb.length() != 0 ? '?' + sb.toString() : ""));
 	}
 
 	@Override

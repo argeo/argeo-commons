@@ -2,12 +2,15 @@ package org.argeo.cms.ui.rcp;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 
 import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsDeployment;
 import org.argeo.cms.util.OS;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
+import com.sun.net.httpserver.HttpsServer;
 
 /** Creates the SWT {@link Display} in a dedicated thread. */
 public class CmsRcpDisplayFactory {
@@ -17,11 +20,13 @@ public class CmsRcpDisplayFactory {
 	private final static String ARGEO_RCP_URL = "argeo.rcp.url";
 
 	/** There is only one display in RCP mode */
-	private static Display display;
+	private Display display;
 
 	private CmsUiThread uiThread;
 
 	private boolean shutdown = false;
+
+	private CmsDeployment cmsDeployment;
 
 	public void init() {
 		uiThread = new CmsUiThread();
@@ -74,21 +79,38 @@ public class CmsRcpDisplayFactory {
 		}
 	}
 
-	public static Display getDisplay() {
+	public Display getDisplay() {
 		return display;
 	}
 
-	public static void openCmsApp(CmsApp cmsApp, String uiName, DisposeListener disposeListener) {
-		CmsRcpDisplayFactory.getDisplay().syncExec(() -> {
-			CmsRcpApp cmsRcpApp = new CmsRcpApp(uiName);
-			cmsRcpApp.setCmsApp(cmsApp, null);
-			cmsRcpApp.initRcpApp();
-			if (disposeListener != null)
-				cmsRcpApp.getShell().addDisposeListener(disposeListener);
+	public void openCmsApp(CmsApp cmsApp, String uiName, DisposeListener disposeListener) {
+		cmsDeployment.getHttpServer().thenAccept((httpServer) -> {
+			getDisplay().syncExec(() -> {
+				CmsRcpApp cmsRcpApp = new CmsRcpApp(uiName);
+				cmsRcpApp.setCmsApp(cmsApp, null);
+				if (httpServer != null) {
+					InetSocketAddress addr = httpServer.getAddress();
+					String scheme = "http";
+					if (httpServer instanceof HttpsServer httpsServer) {
+						if (httpsServer.getHttpsConfigurator() != null)
+							scheme = "https";
+					}
+					String httpServerBase = scheme + "://" + addr.getHostString() + ":" + addr.getPort();
+					cmsRcpApp.setHttpServerBase(httpServerBase);
+				}
+				cmsRcpApp.initRcpApp();
+				if (disposeListener != null)
+					cmsRcpApp.getShell().addDisposeListener(disposeListener);
+			});
 		});
 	}
 
 	public static Path getUrlRunFile() {
 		return OS.getRunDir().resolve(CmsRcpDisplayFactory.ARGEO_RCP_URL);
 	}
+
+	public void setCmsDeployment(CmsDeployment cmsDeployment) {
+		this.cmsDeployment = cmsDeployment;
+	}
+
 }

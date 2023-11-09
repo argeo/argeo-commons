@@ -57,11 +57,11 @@ public class BasicSearch {
 	}
 
 	public BasicSearch where(Consumer<AndFilter> and) {
-		if (where != null)
-			throw new IllegalStateException("A where clause is already set");
-		AndFilter subFilter = new AndFilter();
-		and.accept(subFilter);
-		where = subFilter;
+//		if (where != null)
+//			throw new IllegalStateException("A where clause is already set");
+//		AndFilter subFilter = new AndFilter();
+		and.accept((AndFilter) getWhere());
+//		where = subFilter;
 		return this;
 	}
 
@@ -74,6 +74,8 @@ public class BasicSearch {
 	}
 
 	public ContentFilter<? extends Composition> getWhere() {
+		if (where == null)
+			where = new AndFilter();
 		return where;
 	}
 

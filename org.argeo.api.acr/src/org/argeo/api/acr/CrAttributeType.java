@@ -208,6 +208,9 @@ public enum CrAttributeType {
 		if (String.class.isAssignableFrom(clss)) {
 			return Optional.of((T) strValue);
 		}
+		if (java.util.UUID.class.isAssignableFrom(clss)) {
+			return Optional.of((T) java.util.UUID.fromString(strValue));
+		}
 		if (QName.class.isAssignableFrom(clss)) {
 			return Optional.of((T) NamespaceUtils.parsePrefixedName(namespaceContext, strValue));
 		}

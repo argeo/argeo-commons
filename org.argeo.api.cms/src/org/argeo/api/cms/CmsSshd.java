@@ -1,9 +1,11 @@
-package org.argeo.cms;
+package org.argeo.api.cms;
 
-import org.argeo.api.cms.CmsConstants;
+import java.net.InetSocketAddress;
 
-/** Just a marker interface for the time being. */
+/** A local SSH server. */
 public interface CmsSshd {
 	final static String NODE_USERNAME_ALIAS = "user.name";
 	final static String DEFAULT_SSH_HOST_KEY_PATH = "private/" + CmsConstants.NODE + ".ser";
+
+	InetSocketAddress getAddress();
 }

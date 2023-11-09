@@ -89,10 +89,31 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 	/*
 	 * CONTENT OPERATIONS
 	 */
-	Content add(QName name, QName... classes);
+	/** Adds a new empty {@link Content} to this {@link Content}. */
+	Content add(QName name, QName... contentClass);
+
+	default Content add(QName name, QNamed... contentClass) {
+		return add(name, toQNames(contentClass));
+	}
+
+	/**
+	 * Adds a new {@link Content} to this {@link Content}, setting the provided
+	 * attributes. The provided attributes can be used as hints by the
+	 * implementation. In particular, setting {@link DName#getcontenttype} will
+	 * imply that this content has a file semantic.
+	 */
+	default Content add(QName name, Map<QName, Object> attrs, QName... classes) {
+		Content child = add(name, classes);
+		putAll(attrs);
+		return child;
+	}
 
 	default Content add(String name, QName... classes) {
 		return add(unqualified(name), classes);
+	}
+
+	default Content add(String name, Map<QName, Object> attrs, QName... classes) {
+		return add(unqualified(name), attrs, classes);
 	}
 
 	void remove();
@@ -118,10 +139,7 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 
 	/** AND */
 	default boolean isContentClass(QNamed... contentClass) {
-		List<QName> lst = new ArrayList<>();
-		for (QNamed qNamed : contentClass)
-			lst.add(qNamed.qName());
-		return isContentClass(lst.toArray(new QName[lst.size()]));
+		return isContentClass(toQNames(contentClass));
 	}
 
 	/** OR */
@@ -136,10 +154,14 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 
 	/** OR */
 	default boolean hasContentClass(QNamed... contentClass) {
-		List<QName> lst = new ArrayList<>();
-		for (QNamed qNamed : contentClass)
-			lst.add(qNamed.qName());
-		return hasContentClass(lst.toArray(new QName[lst.size()]));
+		return hasContentClass(toQNames(contentClass));
+	}
+
+	static QName[] toQNames(QNamed... names) {
+		QName[] res = new QName[names.length];
+		for (int i = 0; i < names.length; i++)
+			res[i] = names[i].qName();
+		return res;
 	}
 
 	/*
@@ -225,6 +247,10 @@ public interface Content extends Iterable<Content>, Map<QName, Object> {
 		if (res.size() > 1)
 			throw new IllegalStateException(this + " has multiple children with name " + name);
 		return Optional.of(res.get(0));
+	}
+
+	default Content soleOrAddChild(QName name, QName... classes) {
+		return soleChild(name).orElseGet(() -> this.add(name, classes));
 	}
 
 	default Content child(QName name) {

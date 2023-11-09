@@ -5,11 +5,10 @@ import java.io.InputStream;
 import java.util.Optional;
 
 import org.argeo.api.acr.Content;
-import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.ux.Cms2DSize;
+import org.argeo.cms.acr.ContentUtils;
 import org.argeo.cms.acr.SvgAttrs;
 import org.argeo.cms.swt.AbstractSwtImageManager;
-import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.ux.CmsUxUtils;
 import org.eclipse.swt.graphics.ImageData;
 
@@ -44,15 +43,7 @@ public class AcrSwtImageManager extends AbstractSwtImageManager<Content> {
 	}
 
 	protected String getDataPathForUrl(Content content) {
-		return CmsSwtUtils.cleanPathForUrl(getDataPath(content));
-	}
-
-	/** A path in the node repository */
-	protected String getDataPath(Content node) {
-		// TODO make it more configurable?
-		StringBuilder buf = new StringBuilder(CmsConstants.PATH_API_ACR);
-		buf.append(node.getPath());
-		return buf.toString();
+		return ContentUtils.getDataPathForUrl(content);
 	}
 
 	@Override
