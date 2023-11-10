@@ -1,7 +1,7 @@
 major=2
 minor=1
 micro=114
-qualifier=
+qualifier=.next
 
 Bundle-Copyright= \
 Copyright 2007-2023 Mathieu Baudier, \
