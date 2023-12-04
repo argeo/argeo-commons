@@ -11,10 +11,12 @@ import org.eclipse.swt.widgets.Display;
 /** Singleton class providing single sources infos about the UI context. */
 public class UiContext {
 	/** Can be null, thus indicating that we are not in a web context. */
+	@Deprecated
 	public static HttpServletRequest getHttpRequest() {
 		return RWT.getRequest();
 	}
 
+	@Deprecated
 	public static HttpServletResponse getHttpResponse() {
 		return RWT.getResponse();
 	}

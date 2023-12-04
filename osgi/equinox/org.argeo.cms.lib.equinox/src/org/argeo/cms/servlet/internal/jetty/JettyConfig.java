@@ -6,8 +6,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 
-import javax.websocket.DeploymentException;
-import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 
 import org.argeo.api.cms.CmsConstants;
@@ -16,13 +14,10 @@ import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.util.LangUtils;
 import org.argeo.cms.websocket.server.CmsWebSocketConfigurator;
-import org.argeo.cms.websocket.server.TestEndpoint;
 import org.eclipse.equinox.http.jetty.JettyConfigurator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
 
 public class JettyConfig {
 	private final static CmsLog log = CmsLog.getLog(JettyConfig.class);
@@ -44,29 +39,29 @@ public class JettyConfig {
 			startServer(properties);
 		});
 
-		ServiceTracker<ServerContainer, ServerContainer> serverSt = new ServiceTracker<ServerContainer, ServerContainer>(
-				bc, ServerContainer.class, null) {
-
-			@Override
-			public ServerContainer addingService(ServiceReference<ServerContainer> reference) {
-				ServerContainer serverContainer = super.addingService(reference);
-
-				BundleContext bc = reference.getBundle().getBundleContext();
-				ServiceReference<ServerEndpointConfig.Configurator> srConfigurator = bc
-						.getServiceReference(ServerEndpointConfig.Configurator.class);
-				ServerEndpointConfig.Configurator endpointConfigurator = bc.getService(srConfigurator);
-				ServerEndpointConfig config = ServerEndpointConfig.Builder
-						.create(TestEndpoint.class, "/ws/test/events/").configurator(endpointConfigurator).build();
-				try {
-					serverContainer.addEndpoint(config);
-				} catch (DeploymentException e) {
-					throw new IllegalStateException("Cannot initalise the WebSocket server runtime.", e);
-				}
-				return serverContainer;
-			}
-
-		};
-		serverSt.open();
+//		ServiceTracker<ServerContainer, ServerContainer> serverSt = new ServiceTracker<ServerContainer, ServerContainer>(
+//				bc, ServerContainer.class, null) {
+//
+//			@Override
+//			public ServerContainer addingService(ServiceReference<ServerContainer> reference) {
+//				ServerContainer serverContainer = super.addingService(reference);
+//
+//				BundleContext bc = reference.getBundle().getBundleContext();
+//				ServiceReference<ServerEndpointConfig.Configurator> srConfigurator = bc
+//						.getServiceReference(ServerEndpointConfig.Configurator.class);
+//				ServerEndpointConfig.Configurator endpointConfigurator = bc.getService(srConfigurator);
+//				ServerEndpointConfig config = ServerEndpointConfig.Builder
+//						.create(TestEndpoint.class, "/ws/test/events/").configurator(endpointConfigurator).build();
+//				try {
+//					serverContainer.addEndpoint(config);
+//				} catch (DeploymentException e) {
+//					throw new IllegalStateException("Cannot initalise the WebSocket server runtime.", e);
+//				}
+//				return serverContainer;
+//			}
+//
+//		};
+//		serverSt.open();
 
 		// check initialisation
 //		ServiceTracker<?, ?> httpSt = new ServiceTracker<HttpService, HttpService>(bc, HttpService.class, null) {
