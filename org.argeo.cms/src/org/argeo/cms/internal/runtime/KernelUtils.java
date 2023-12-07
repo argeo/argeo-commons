@@ -138,6 +138,7 @@ class KernelUtils implements KernelConstants {
 		if (uri == null)
 			throw new IllegalArgumentException("URI cannot be null");
 		try {
+			// FIXME does not work if URI contains illegal characters (such as spaces, etc.)
 			return new URI(uri);
 		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException("Badly formatted URI " + uri, e);
