@@ -1,2 +1,6 @@
 Service-Component: \
 OSGI-INF/equinoxJettyServer.xml,\
+
+Import-Package:\
+org.eclipse.jetty.session,\
+*

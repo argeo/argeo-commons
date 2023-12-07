@@ -16,9 +16,9 @@ import javax.servlet.http.HttpSessionListener;
 
 import org.argeo.cms.jetty.CmsJettyServer;
 import org.eclipse.equinox.http.servlet.HttpServiceServlet;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.nested.SessionHandler;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
 import org.osgi.framework.Constants;
 
 /** A {@link CmsJettyServer} integrating with Equinox HTTP framework. */

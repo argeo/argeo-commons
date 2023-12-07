@@ -1,10 +1,6 @@
 package org.argeo.cms.jetty;
 
-import java.util.AbstractMap;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.websocket.DeploymentException;
@@ -12,12 +8,11 @@ import javax.websocket.server.ServerContainer;
 
 import org.argeo.cms.servlet.httpserver.HttpContextServlet;
 import org.argeo.cms.websocket.server.WebsocketEndpoints;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
-import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
+import org.eclipse.jetty.ee8.nested.SessionHandler;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
+import org.eclipse.jetty.ee8.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
 
 import com.sun.net.httpserver.HttpHandler;
 

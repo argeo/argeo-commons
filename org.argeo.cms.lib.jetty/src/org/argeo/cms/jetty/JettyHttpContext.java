@@ -4,14 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.servlet.ServletContext;
-import javax.websocket.DeploymentException;
-import javax.websocket.server.ServerContainer;
-
 import org.argeo.cms.websocket.server.WebsocketEndpoints;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
-import org.eclipse.jetty.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.Filter;
