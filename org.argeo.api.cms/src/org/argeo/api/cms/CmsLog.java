@@ -235,7 +235,12 @@ public interface CmsLog {
 
 	static CmsLog getLog(String name) {
 		if (isSystemLoggerAvailable) {
-			return new SystemCmsLog(name);
+			SystemCmsLog systemCmsLog = new SystemCmsLog(name);
+			if (systemCmsLog.logger == null) {
+				System.err.println("System logger unexpectedly null for " + name + ", switching to fall back");
+				return new FallBackCmsLog();
+			}
+			return systemCmsLog;
 		} else { // typically Android
 			return new FallBackCmsLog();
 		}
@@ -259,10 +264,11 @@ public interface CmsLog {
  * Java platform.
  */
 class SystemCmsLog implements CmsLog {
-	private final Logger logger;
+	final Logger logger;
 
 	SystemCmsLog(String name) {
 		logger = System.getLogger(name);
+		assert logger != null : "System logger should not be null";
 	}
 
 	@Override
