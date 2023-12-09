@@ -44,6 +44,9 @@ public class CmsContextImpl implements CmsContext {
 
 	private Long availableSince;
 
+	// time in ms to wait for CMS to be ready
+	private final long readynessTimeout = 30 * 1000;
+
 	// CMS sessions
 	private Map<UUID, CmsSessionImpl> cmsSessionsByUuid = new HashMap<>();
 	private Map<String, CmsSessionImpl> cmsSessionsByLocalId = new HashMap<>();
@@ -56,9 +59,16 @@ public class CmsContextImpl implements CmsContext {
 		defaultLocale = locales.get(0);
 
 		new Thread(() -> {
-			while (!checkReadiness()) {
+			long begin = System.currentTimeMillis();
+			long duration = 0;
+			readyness: while (!checkReadiness()) {
+				duration = System.currentTimeMillis() - begin;
+				if (duration > readynessTimeout) {
+					log.error("## CMS not ready after " + duration + " ms. Giving up checking.");
+					break readyness;
+				}
 				try {
-					Thread.sleep(500);
+					Thread.sleep(100);
 				} catch (InterruptedException e) {
 				}
 			}

@@ -51,13 +51,32 @@ public class CmsJShell {
 		// TODO centralise state run dir
 		stateRunDir = OS.getRunDir().resolve(applicationID);
 
+		// TODO factorise create/delete pattern
 		jshBase = stateRunDir.resolve(JShellClient.JSH);
+		if (Files.exists(jshBase)) {
+			log.warn(jshBase + " already exists, deleting it...");
+			FsUtils.delete(jshBase);
+		}
 		Files.createDirectories(jshBase);
-		jshLinkedDir = Files.createSymbolicLink(cmsState.getStatePath(JShellClient.JSH), jshBase);
+		jshLinkedDir = cmsState.getStatePath(JShellClient.JSH);
+		if (Files.exists(jshLinkedDir)) {
+			log.warn(jshLinkedDir + " already exists, deleting it...");
+			FsUtils.delete(jshLinkedDir);
+		}
+		Files.createSymbolicLink(jshLinkedDir, jshBase);
 
 		jtermBase = stateRunDir.resolve(JShellClient.JTERM);
+		if (Files.exists(jtermBase)) {
+			log.warn(jtermBase + " already exists, deleting it...");
+			FsUtils.delete(jtermBase);
+		}
 		Files.createDirectories(jtermBase);
-		jtermLinkedDir = Files.createSymbolicLink(cmsState.getStatePath(JShellClient.JTERM), jtermBase);
+		jtermLinkedDir = cmsState.getStatePath(JShellClient.JTERM);
+		if (Files.exists(jtermLinkedDir)) {
+			log.warn(jtermLinkedDir + " already exists, deleting it...");
+			FsUtils.delete(jtermLinkedDir);
+		}
+		Files.createSymbolicLink(jtermLinkedDir, jtermBase);
 
 		log.info("Local JShell on " + jshBase + ", linked to " + jshLinkedDir);
 		log.info("Local JTerm on " + jtermBase + ", linked to " + jtermLinkedDir);

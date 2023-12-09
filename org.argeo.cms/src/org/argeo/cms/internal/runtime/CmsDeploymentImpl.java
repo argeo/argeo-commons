@@ -82,7 +82,7 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		CmsAuthenticator authenticator = isPublic ? new PublicCmsAuthenticator() : new CmsAuthenticator();
 		httpHandlers.put(contextPath, httpHandler);
 		httpAuthenticators.put(contextPath, authenticator);
-		if (httpServer == null) {
+		if (httpServer.join() == null) {
 			return;
 		} else {
 			createHttpContext(contextPath, httpHandler, authenticator);
@@ -107,16 +107,16 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		if (contextPath == null)
 			return; // ignore silently
 		httpHandlers.remove(contextPath);
-		if (httpServer == null)
+		if (httpServer.join() == null)
 			return;
 		httpServer.join().removeContext(contextPath);
 		log.debug(() -> "Removed handler " + contextPath + " : " + httpHandler.getClass().getName());
 	}
 
 	public boolean allExpectedServicesAvailable() {
-		if (httpExpected && httpServer == null)
+		if (httpExpected && !httpServer.isDone())
 			return false;
-		if (sshdExpected && cmsSshd == null)
+		if (sshdExpected && !cmsSshd.isDone())
 			return false;
 		return true;
 	}
