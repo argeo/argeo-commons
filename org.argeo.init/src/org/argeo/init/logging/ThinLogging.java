@@ -1,9 +1,14 @@
 package org.argeo.init.logging;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Collections;
@@ -43,10 +48,12 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	 */
 	final static String PROP_ARGEO_LOGGING_SYNCHRONOUS = "argeo.logging.synchronous";
 	/**
-	 * Whether to enable jounrald compatible output, either: auto (default), true,
+	 * Whether to enable journald compatible output, either: auto (default), true,
 	 * or false.
 	 */
 	final static String PROP_ARGEO_LOGGING_JOURNALD = "argeo.logging.journald";
+	/** A file to which additionally write log entries. */
+	final static String PROP_ARGEO_LOGGING_FILE = "argeo.logging.file";
 	/**
 	 * The level from which call location (that is, line number in Java code) will
 	 * be searched (default is WARNING)
@@ -67,6 +74,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 
 	private final LogEntryPublisher publisher;
 	private PrintStreamSubscriber synchronousSubscriber;
+	private PrintStream fileOut;
 
 	private final boolean journald;
 	private final Level callLocationLevel;
@@ -82,6 +90,21 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			PrintStreamSubscriber subscriber = new PrintStreamSubscriber();
 			publisher = new LogEntryPublisher();
 			publisher.subscribe(subscriber);
+			String logFileStr = System.getProperty(PROP_ARGEO_LOGGING_FILE);
+			if (logFileStr != null) {
+				Path logFilePath = Paths.get(logFileStr);
+				if (!Files.exists(logFilePath.getParent())) {
+					System.err.println("Parent directory of " + logFilePath + " does not exist");
+				} else {
+					try {
+						fileOut = new PrintStream(Files.newOutputStream(logFilePath), true, StandardCharsets.UTF_8);
+						publisher.subscribe(new PrintStreamSubscriber(fileOut, fileOut));
+					} catch (IOException e) {
+						System.err.println("Cannot write log to " + logFilePath);
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> close(), "Log shutdown"));
 
@@ -144,6 +167,14 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 				// executor.awaitTermination(300, TimeUnit.MILLISECONDS);
 				ForkJoinPool.commonPool().awaitTermination(300, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
+				// silent
+			}
+		}
+
+		if (fileOut != null) {
+			try {
+				fileOut.close();
+			} catch (Exception e) {
 				// silent
 			}
 		}
