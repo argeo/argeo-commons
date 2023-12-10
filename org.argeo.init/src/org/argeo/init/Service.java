@@ -3,10 +3,14 @@ package org.argeo.init;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -25,6 +29,8 @@ public class Service {
 	public final static String PROP_ARGEO_INIT_MAIN = "argeo.init.main";
 
 	private static RuntimeContext runtimeContext = null;
+
+	private static List<Runnable> postStart = Collections.synchronizedList(new ArrayList<>());
 
 	protected Service(String[] args) {
 	}
@@ -118,11 +124,25 @@ public class Service {
 				OsgiRuntimeContext osgiRuntimeContext = new OsgiRuntimeContext(config);
 				osgiRuntimeContext.run();
 				Service.runtimeContext = osgiRuntimeContext;
+				for (Runnable run : postStart) {
+					try {
+						run.run();
+					} catch (Exception e) {
+						logger.log(Level.ERROR, "Cannot run post start callback " + run, e);
+					}
+				}
 				Service.runtimeContext.waitForStop(0);
-			} catch (NoClassDefFoundError e) {
+			} catch (NoClassDefFoundError noClassDefFoundE) {
 				StaticRuntimeContext staticRuntimeContext = new StaticRuntimeContext((Map<String, String>) config);
 				staticRuntimeContext.run();
 				Service.runtimeContext = staticRuntimeContext;
+				for (Runnable run : postStart) {
+					try {
+						run.run();
+					} catch (Exception e) {
+						logger.log(Level.ERROR, "Cannot run post start callback " + run, e);
+					}
+				}
 				Service.runtimeContext.waitForStop(0);
 			}
 		} catch (Exception e) {
@@ -135,5 +155,10 @@ public class Service {
 	/** The root runtime context in this JVM. */
 	public static RuntimeContext getRuntimeContext() {
 		return runtimeContext;
+	}
+
+	/** Add a post-start call back to be run after the runtime has been started. */
+	public static void addPostStart(Runnable runnable) {
+		postStart.add(runnable);
 	}
 }
