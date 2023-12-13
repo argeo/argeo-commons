@@ -178,12 +178,22 @@ public class CmsJShell {
 		try {
 			Files.delete(jshLinkedDir);
 		} catch (IOException e) {
-			log.error("Cannot remove " + jshLinkedDir);
+			log.error("Cannot remove " + jshLinkedDir, e);
+		}
+		try {
+			FsUtils.delete(jshBase);
+		} catch (IOException e) {
+			log.error("Cannot remove " + jshBase, e);
 		}
 		try {
 			Files.delete(jtermLinkedDir);
 		} catch (IOException e) {
-			log.error("Cannot remove " + jtermLinkedDir);
+			log.error("Cannot remove " + jtermLinkedDir, e);
+		}
+		try {
+			FsUtils.delete(jtermBase);
+		} catch (IOException e) {
+			log.error("Cannot remove " + jtermBase, e);
 		}
 	}
 
