@@ -3,6 +3,7 @@ package org.argeo.api.cms.ux;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 
@@ -99,5 +100,11 @@ public interface CmsView {
 	default void setData(String key, Object value) {
 		throw new UnsupportedOperationException();
 	}
+
+	/** Schedule a one-shot UX task to be executed within the UX context/thread. */
+	TimerTask schedule(Runnable task, long delay);
+
+	/** Schedule a recurring UX task to be executed within the UX context/thread. */
+	TimerTask schedule(Runnable task, long delay, long period);
 
 }
