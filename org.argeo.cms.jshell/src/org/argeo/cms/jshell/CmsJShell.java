@@ -1,6 +1,7 @@
 package org.argeo.cms.jshell;
 
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -38,6 +39,8 @@ public class CmsJShell {
 	private Path jshLinkedDir;
 	private Path jtermBase;
 	private Path jtermLinkedDir;
+
+	private WatchService watchService;
 
 	public void start() throws Exception {
 		// TODO better define application id, make it configurable
@@ -83,7 +86,7 @@ public class CmsJShell {
 
 		new Thread(() -> {
 			try {
-				WatchService watchService = FileSystems.getDefault().newWatchService();
+				watchService = FileSystems.getDefault().newWatchService();
 
 				jshBase.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
 						StandardWatchEventKinds.ENTRY_DELETE);
@@ -152,8 +155,11 @@ public class CmsJShell {
 					}
 					key.reset();
 				}
+			} catch (ClosedWatchServiceException e) {
+				if (log.isTraceEnabled())
+					log.trace("JShell file watch service was closed");
 			} catch (IOException | InterruptedException e) {
-				e.printStackTrace();
+				log.error("Unexpected exception in JShell file watch service", e);
 			}
 		}, "JShell local sessions watcher").start();
 	}
@@ -175,6 +181,12 @@ public class CmsJShell {
 	}
 
 	public void stop() {
+		if (watchService != null)
+			try {
+				watchService.close();
+			} catch (IOException e) {
+				log.error("Cannot close JShell watch service", e);
+			}
 		try {
 			Files.delete(jshLinkedDir);
 		} catch (IOException e) {
