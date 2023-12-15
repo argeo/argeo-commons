@@ -15,14 +15,13 @@ public class CmsSwtUi extends Composite implements CmsUi {
 	/** Last time the UI was accessed. */
 	private long lastAccess = System.currentTimeMillis();
 	private TimerTask timeoutTask;
+	private long uiTimeout = 0;
 
 	private CmsView cmsView;
 
 	public CmsSwtUi(Composite parent, int style) {
 		super(parent, style);
 		cmsView = CmsSwtUtils.getCmsView(parent);
-		// TODO make timeout configurable
-		setUiTimeout(12 * 60 * 60 * 1000);// 12 hours
 		setLayout(new GridLayout());
 	}
 
@@ -44,10 +43,27 @@ public class CmsSwtUi extends Composite implements CmsUi {
 	public void setUiTimeout(long uiTimeout) {
 		if (timeoutTask != null)
 			timeoutTask.cancel();
+		this.uiTimeout = uiTimeout;
+		if (this.uiTimeout <= 0)
+			return;
 		timeoutTask = cmsView.schedule(() -> {
-			if (System.currentTimeMillis() - getLastAccess() >= uiTimeout)
-				dispose();
-		}, 0, 1000);
+			disposeIfTimedout();
+		}, 0, 60 * 1000);
+	}
+
+	public void disposeIfTimedout() {
+		if (timeoutTask == null)
+			return;
+		if (isDisposed()) {
+			timeoutTask.cancel();
+			timeoutTask = null;
+			return;
+		}
+		if (System.currentTimeMillis() - getLastAccess() >= uiTimeout) {
+			timeoutTask.cancel();
+			timeoutTask = null;
+			dispose();
+		}
 	}
 
 }
