@@ -302,6 +302,8 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 					continue eventLoop;
 				}
 			}
+			if (serverPushSession != null)
+				serverPushSession.stop();
 			if (!display.isDisposed())
 				display.dispose();
 		}
