@@ -149,21 +149,28 @@ public class ProvisioningManager {
 			Version moduleVersion = module.getVersion();
 			A2Branch osgiBranch = osgiContext.findBranch(module.getBranch().getComponent().getId(), moduleVersion);
 			if (osgiBranch == null) {
-//				Bundle bundle = bc.installBundle(module.getBranch().getCoordinates(),
-//						moduleSource.newInputStream(module.getLocator()));
 				Bundle bundle = moduleSource.install(bc, module);
-				if (OsgiBootUtils.isDebug())
-					OsgiBootUtils.debug("Installed bundle " + bundle.getLocation() + " with version " + moduleVersion);
+				// TODO make it more dynamic, based on OSGi APIs
+				osgiContext.registerBundle(bundle);
+//				if (OsgiBootUtils.isDebug())
+//					OsgiBootUtils.debug("Installed bundle " + bundle.getLocation() + " with version " + moduleVersion);
 				return bundle;
 			} else {
 				A2Module lastOsgiModule = osgiBranch.last();
 				int compare = moduleVersion.compareTo(lastOsgiModule.getVersion());
 				if (compare > 0) {// update
 					Bundle bundle = (Bundle) lastOsgiModule.getLocator();
-//					bundle.update(moduleSource.newInputStream(module.getLocator()));
 					moduleSource.update(bundle, module);
+					// TODO make it more dynamic, based on OSGi APIs
+					// TODO remove old module? Or keep update history?
+					osgiContext.registerBundle(bundle);
 					OsgiBootUtils.info("Updated bundle " + bundle.getLocation() + " to version " + moduleVersion);
 					return bundle;
+				} else {
+					if (OsgiBootUtils.isDebug())
+						OsgiBootUtils.debug("Did not install as bundle module " + module
+								+ " since a module with higher version " + lastOsgiModule.getVersion()
+								+ " is already installed for branch " + osgiBranch);
 				}
 			}
 		} catch (Exception e) {
