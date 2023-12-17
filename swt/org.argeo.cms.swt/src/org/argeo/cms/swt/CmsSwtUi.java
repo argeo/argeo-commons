@@ -41,28 +41,32 @@ public class CmsSwtUi extends Composite implements CmsUi {
 	}
 
 	public void setUiTimeout(long uiTimeout) {
-		if (timeoutTask != null)
-			timeoutTask.cancel();
+		clearTimeoutTask();
 		this.uiTimeout = uiTimeout;
 		if (this.uiTimeout <= 0)
 			return;
+		final long timeoutTaskPeriod = 60 * 60 * 1000;// 1h
 		timeoutTask = cmsView.schedule(() -> {
 			disposeIfTimedout();
-		}, 0, 60 * 1000);
+		}, timeoutTaskPeriod, timeoutTaskPeriod);
 	}
 
+	/** Must be run in UI thread. */
 	public void disposeIfTimedout() {
-		if (timeoutTask == null)
-			return;
 		if (isDisposed()) {
-			timeoutTask.cancel();
-			timeoutTask = null;
+			clearTimeoutTask();
 			return;
 		}
 		if (System.currentTimeMillis() - getLastAccess() >= uiTimeout) {
+			dispose();
+			clearTimeoutTask();
+		}
+	}
+
+	private void clearTimeoutTask() {
+		if (timeoutTask != null) {
 			timeoutTask.cancel();
 			timeoutTask = null;
-			dispose();
 		}
 	}
 
