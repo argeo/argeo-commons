@@ -61,9 +61,9 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 					if (variantPath == null)
 						continue contributions;
 
-					if (Files.exists(variantPath)) {
-						// a variant was found, let's collect its contributions (also common ones in its
-						// parent)
+					// a variant was found, let's collect its contributions (also common ones in its
+					// parent)
+					if (Files.exists(variantPath.getParent())) {
 						for (Path variantContributionPath : Files.newDirectoryStream(variantPath.getParent())) {
 							String variantContributionId = variantContributionPath.getFileName().toString();
 							if (variantContributionId.contains(".")) {
@@ -71,6 +71,8 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 								contributions.put(variantContributionPath, contribution);
 							}
 						}
+					}
+					if (Files.exists(variantPath)) {
 						for (Path variantContributionPath : Files.newDirectoryStream(variantPath)) {
 							String variantContributionId = variantContributionPath.getFileName().toString();
 							if (variantContributionId.contains(".")) {

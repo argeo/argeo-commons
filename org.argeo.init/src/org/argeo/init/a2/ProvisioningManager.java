@@ -158,8 +158,10 @@ public class ProvisioningManager {
 			} else {
 				A2Module lastOsgiModule = osgiBranch.last();
 				int compare = moduleVersion.compareTo(lastOsgiModule.getVersion());
-				if (compare > 0) {// update
+				if (compare >= 0) {// update (also if same version)
 					Bundle bundle = (Bundle) lastOsgiModule.getLocator();
+					if (bundle.getBundleId() == 0)// ignore framework bundle
+						return null;
 					moduleSource.update(bundle, module);
 					// TODO make it more dynamic, based on OSGi APIs
 					// TODO remove old module? Or keep update history?
