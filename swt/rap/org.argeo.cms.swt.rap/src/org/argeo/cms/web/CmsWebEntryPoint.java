@@ -276,7 +276,9 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 					Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
 						@Override
 						public Void run() {
+							// TODO rather loop here, until there is an auth change
 							if (!display.readAndDispatch()) {
+								// TODO update UI last access here
 								display.sleep();
 							}
 							return null;
