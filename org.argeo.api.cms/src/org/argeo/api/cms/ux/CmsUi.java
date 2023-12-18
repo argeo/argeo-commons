@@ -8,8 +8,10 @@ public interface CmsUi {
 
 	CmsView getCmsView();
 
-	long getLastAccess();
-
 	void updateLastAccess();
+
+	default boolean isTimedOut() {
+		return false;
+	};
 
 }

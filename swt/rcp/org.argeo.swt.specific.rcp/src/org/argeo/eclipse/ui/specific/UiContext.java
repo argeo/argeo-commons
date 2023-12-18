@@ -44,6 +44,10 @@ public class UiContext {
 		display.setData(key, value);
 	}
 
+	public static void killDisplay(Display display) {
+		display.dispose();
+	}
+
 	private static Display getDisplay() {
 		return Display.getCurrent();
 	}

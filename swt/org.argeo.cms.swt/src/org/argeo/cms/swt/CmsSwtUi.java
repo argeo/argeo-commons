@@ -1,7 +1,5 @@
 package org.argeo.cms.swt;
 
-import java.util.TimerTask;
-
 import org.argeo.api.cms.ux.CmsUi;
 import org.argeo.api.cms.ux.CmsView;
 import org.eclipse.swt.layout.GridLayout;
@@ -14,7 +12,7 @@ public class CmsSwtUi extends Composite implements CmsUi {
 
 	/** Last time the UI was accessed. */
 	private long lastAccess = System.currentTimeMillis();
-	private TimerTask timeoutTask;
+//	private TimerTask timeoutTask;
 	private long uiTimeout = 0;
 
 	private CmsView cmsView;
@@ -31,43 +29,58 @@ public class CmsSwtUi extends Composite implements CmsUi {
 	}
 
 	@Override
-	public long getLastAccess() {
-		return lastAccess;
-	}
-
-	@Override
 	public void updateLastAccess() {
 		this.lastAccess = System.currentTimeMillis();
 	}
 
 	public void setUiTimeout(long uiTimeout) {
-		clearTimeoutTask();
+//		clearTimeoutTask();
 		this.uiTimeout = uiTimeout;
 		if (this.uiTimeout <= 0)
 			return;
-		final long timeoutTaskPeriod = 60 * 60 * 1000;// 1h
-		timeoutTask = cmsView.schedule(() -> {
-			disposeIfTimedout();
-		}, timeoutTaskPeriod, timeoutTaskPeriod);
+		// TODO introduce mechanism to check whether the UI is "zombie"
+		// (that is the UI thread still exists, but cannot execute anything)
+//		final long timeoutTaskPeriod = 60 * 60 * 1000;// 1h
+//		timeoutTask = cmsView.schedule(() -> {
+//			disposeIfTimedout();
+//		}, timeoutTaskPeriod, timeoutTaskPeriod);
+//		addDisposeListener((e) -> {
+//			clearTimeoutTask();
+//		});
 	}
 
-	/** Must be run in UI thread. */
-	public void disposeIfTimedout() {
-		if (isDisposed()) {
-			clearTimeoutTask();
-			return;
-		}
-		if (System.currentTimeMillis() - getLastAccess() >= uiTimeout) {
-			dispose();
-			clearTimeoutTask();
-		}
+//	/** Must be run in UI thread. */
+//	public void disposeIfTimedout() {
+//		System.out.println("Enter disposeIfTimedout");
+//		if (isDisposed()) {
+//			clearTimeoutTask();
+//			return;
+//		}
+//		if (isTimedOut()) {
+//			dispose();
+//			clearTimeoutTask();
+//			System.out.println("Disposed after timeout");
+//		}
+//	}
+
+//	private void clearTimeoutTask() {
+//		if (timeoutTask != null) {
+//			timeoutTask.cancel();
+//			timeoutTask = null;
+//		}
+//	}
+
+	@Override
+	public boolean isTimedOut() {
+		return uiTimeout > 0 && (System.currentTimeMillis() - lastAccess >= uiTimeout);
 	}
 
-	private void clearTimeoutTask() {
-		if (timeoutTask != null) {
-			timeoutTask.cancel();
-			timeoutTask = null;
-		}
-	}
+//	class DisposeIfTimedOutTask implements Runnable {
+//		public void run() {
+//			disposeIfTimedout();
+//			getDisplay().timerExec(1000, new DisposeIfTimedOutTask());
+//		}
+//
+//	}
 
 }
