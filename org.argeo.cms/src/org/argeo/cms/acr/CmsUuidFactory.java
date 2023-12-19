@@ -11,6 +11,7 @@ import java.util.Enumeration;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.uuid.ConcurrentUuidFactory;
+import org.argeo.api.uuid.NodeIdSupplier;
 import org.argeo.api.uuid.UuidBinaryUtils;
 
 public class CmsUuidFactory extends ConcurrentUuidFactory {
@@ -73,8 +74,10 @@ public class CmsUuidFactory extends ConcurrentUuidFactory {
 			}
 		}
 		InetAddress selectedIp = selectedIpv6 != null ? selectedIpv6 : selectedIpv4;
-		if (selectedIp == null)
-			throw new IllegalStateException("No IP address found");
+		if (selectedIp == null) {
+			log.warn("No IP address found, using a random node id for UUID generation");
+			return NodeIdSupplier.randomNodeId();
+		}
 		byte[] digest = sha1(selectedIp.getAddress());
 		log.info("Use IP " + selectedIp + " hashed as " + UuidBinaryUtils.toHexString(digest) + " as node id");
 		byte[] nodeId = toNodeIdBytes(digest, 0);

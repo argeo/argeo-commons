@@ -10,8 +10,8 @@ import javax.websocket.server.ServerContainer;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.servlet.httpserver.HttpContextServlet;
 import org.argeo.cms.websocket.server.WebsocketEndpoints;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee8.servlet.ServletHolder;
 
 import com.sun.net.httpserver.HttpHandler;
 

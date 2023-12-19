@@ -7,6 +7,7 @@ import org.argeo.api.cms.ux.Cms2DSize;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.util.CurrentSubject;
 
+/** Utilities around UX. */
 public class CmsUxUtils {
 	public static ContentSession getContentSession(ContentRepository contentRepository, CmsView cmsView) {
 		return CurrentSubject.callAs(cmsView.getCmsSession().getSubject(), () -> contentRepository.get());
@@ -14,11 +15,6 @@ public class CmsUxUtils {
 
 	public static String getTitle(Content content) {
 		return content.getName().getLocalPart();
-	}
-
-	/** singleton */
-	private CmsUxUtils() {
-
 	}
 
 	public static StringBuilder imgBuilder(String src, String width, String height) {
@@ -33,4 +29,10 @@ public class CmsUxUtils {
 	public static String img(String src, Cms2DSize size) {
 		return img(src, Integer.toString(size.width()), Integer.toString(size.height()));
 	}
+
+	/** singleton */
+	private CmsUxUtils() {
+
+	}
+
 }

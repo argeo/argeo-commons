@@ -28,10 +28,11 @@ public class A2Component implements Comparable<A2Component> {
 	}
 
 	A2Branch getOrAddBranch(String branchId) {
-		if (branches.containsKey(branchId))
-			return branches.get(branchId);
-		else
-			return new A2Branch(this, branchId);
+		if (!branches.containsKey(branchId)) {
+			A2Branch a2Branch = new A2Branch(this, branchId);
+			branches.put(branchId, a2Branch);
+		}
+		return branches.get(branchId);
 	}
 
 	A2Module getOrAddModule(Version version, Object locator) {

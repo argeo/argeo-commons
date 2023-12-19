@@ -10,10 +10,12 @@ import org.eclipse.swt.widgets.Display;
 /** Singleton class providing single sources infos about the UI context. */
 public class UiContext {
 
+	@Deprecated
 	public static HttpServletRequest getHttpRequest() {
 		return null;
 	}
 
+	@Deprecated
 	public static HttpServletResponse getHttpResponse() {
 		return null;
 	}
@@ -40,6 +42,10 @@ public class UiContext {
 		if (display == null)
 			throw new IllegalStateException("Not display available");
 		display.setData(key, value);
+	}
+
+	public static void killDisplay(Display display) {
+		display.dispose();
 	}
 
 	private static Display getDisplay() {

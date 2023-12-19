@@ -2,6 +2,8 @@ package org.argeo.cms.swt;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -23,6 +25,20 @@ import org.eclipse.swt.widgets.Display;
 
 public abstract class AbstractSwtCmsView implements CmsView {
 	private final static CmsLog log = CmsLog.getLog(AbstractSwtCmsView.class);
+
+	/** A timer to be used to perform background UX tasks. */
+	private final static Timer uxTimer = new Timer(true);
+
+	static {
+		// purge every day
+		uxTimer.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				uxTimer.purge();
+			}
+		}, 0, 24 * 60 * 60 * 1000);
+	}
 
 	protected final String uiName;
 
@@ -138,4 +154,37 @@ public abstract class AbstractSwtCmsView implements CmsView {
 		}
 	}
 
+	@Override
+	public TimerTask schedule(Runnable task, long delay) {
+		TimerTask timerTask = newSwtUxTimerTask(task);
+		uxTimer.schedule(timerTask, delay);
+		return timerTask;
+	}
+
+	@Override
+	public TimerTask schedule(Runnable task, long delay, long period) {
+		TimerTask timerTask = newSwtUxTimerTask(task);
+		uxTimer.schedule(timerTask, delay, period);
+		return timerTask;
+	}
+
+	protected TimerTask newSwtUxTimerTask(Runnable todo) {
+		return new TimerTask() {
+
+			@Override
+			public void run() {
+				synchronized (display) {
+					try {
+						if (!display.isDisposed()) {
+							display.syncExec(() -> {
+								todo.run();
+							});
+						}
+					} catch (Exception e) {
+						log.error("Cannot run UX timer task", e);
+					}
+				}
+			}
+		};
+	}
 }

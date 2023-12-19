@@ -13,7 +13,7 @@ DEP_CATEGORIES = \
 org.argeo.cms \
 swt/org.argeo.cms \
 org.argeo.tp \
-org.argeo.tp.jetty \
+org.argeo.tp.httpd \
 osgi/equinox/org.argeo.tp.eclipse \
 osgi/api/org.argeo.tp.osgi \
 swt/rcp/org.argeo.tp.swt \

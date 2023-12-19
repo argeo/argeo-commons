@@ -21,7 +21,7 @@ import org.osgi.framework.FrameworkUtil;
 @ServerEndpoint(value = "/cms/status/event/{topic}", configurator = CmsWebSocketConfigurator.class)
 public class EventEndpoint implements CmsEventSubscriber {
 	private final static CmsLog log = CmsLog.getLog(EventEndpoint.class);
-	private BundleContext bc = FrameworkUtil.getBundle(TestEndpoint.class).getBundleContext();
+	private BundleContext bc = FrameworkUtil.getBundle(EventEndpoint.class).getBundleContext();
 
 	private RemoteEndpoint.Basic remote;
 	private CmsEventBus cmsEventBus;

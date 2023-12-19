@@ -381,7 +381,23 @@ public class OsgiBoot implements OsgiBootConstants {
 			for (String bsn : startLevels.get(level))
 				bundleStartLevels.put(bsn, level);
 		}
-		for (Bundle bundle : bundleContext.getBundles()) {
+
+		// keep only bundles with the highest version
+		Map<String, Bundle> startableBundles = new HashMap<>();
+		bundles: for (Bundle bundle : bundleContext.getBundles()) {
+			if (bundle.getVersion() == null)
+				continue bundles;
+			String bsn = bundle.getSymbolicName();
+			if (!startableBundles.containsKey(bsn)) {
+				startableBundles.put(bsn, bundle);
+			} else {
+				if (bundle.getVersion().compareTo(startableBundles.get(bsn).getVersion()) > 0) {
+					startableBundles.put(bsn, bundle);
+				}
+			}
+		}
+
+		for (Bundle bundle : startableBundles.values()) {
 			String bsn = bundle.getSymbolicName();
 			if (bundleStartLevels.containsKey(bsn)) {
 				BundleStartLevel bundleStartLevel = bundle.adapt(BundleStartLevel.class);
@@ -394,7 +410,7 @@ public class OsgiBoot implements OsgiBootConstants {
 						OsgiBootUtils.error("Cannot mark " + bsn + " as started", e);
 					}
 					if (OsgiBootUtils.isDebug())
-						OsgiBootUtils.debug(bsn + " starts at level " + level);
+						OsgiBootUtils.debug(bsn + " v" + bundle.getVersion() + " starts at level " + level);
 				}
 			}
 		}

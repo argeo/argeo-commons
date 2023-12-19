@@ -1,6 +1,7 @@
 package org.argeo.cms.jshell;
 
 import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -39,6 +40,8 @@ public class CmsJShell {
 	private Path jtermBase;
 	private Path jtermLinkedDir;
 
+	private WatchService watchService;
+
 	public void start() throws Exception {
 		// TODO better define application id, make it configurable
 		String applicationID;
@@ -51,20 +54,39 @@ public class CmsJShell {
 		// TODO centralise state run dir
 		stateRunDir = OS.getRunDir().resolve(applicationID);
 
+		// TODO factorise create/delete pattern
 		jshBase = stateRunDir.resolve(JShellClient.JSH);
+		if (Files.exists(jshBase)) {
+			log.warn(jshBase + " already exists, deleting it...");
+			FsUtils.delete(jshBase);
+		}
 		Files.createDirectories(jshBase);
-		jshLinkedDir = Files.createSymbolicLink(cmsState.getStatePath(JShellClient.JSH), jshBase);
+		jshLinkedDir = cmsState.getStatePath(JShellClient.JSH);
+		if (Files.exists(jshLinkedDir)) {
+			log.warn(jshLinkedDir + " already exists, deleting it...");
+			FsUtils.delete(jshLinkedDir);
+		}
+		Files.createSymbolicLink(jshLinkedDir, jshBase);
 
 		jtermBase = stateRunDir.resolve(JShellClient.JTERM);
+		if (Files.exists(jtermBase)) {
+			log.warn(jtermBase + " already exists, deleting it...");
+			FsUtils.delete(jtermBase);
+		}
 		Files.createDirectories(jtermBase);
-		jtermLinkedDir = Files.createSymbolicLink(cmsState.getStatePath(JShellClient.JTERM), jtermBase);
+		jtermLinkedDir = cmsState.getStatePath(JShellClient.JTERM);
+		if (Files.exists(jtermLinkedDir)) {
+			log.warn(jtermLinkedDir + " already exists, deleting it...");
+			FsUtils.delete(jtermLinkedDir);
+		}
+		Files.createSymbolicLink(jtermLinkedDir, jtermBase);
 
 		log.info("Local JShell on " + jshBase + ", linked to " + jshLinkedDir);
 		log.info("Local JTerm on " + jtermBase + ", linked to " + jtermLinkedDir);
 
 		new Thread(() -> {
 			try {
-				WatchService watchService = FileSystems.getDefault().newWatchService();
+				watchService = FileSystems.getDefault().newWatchService();
 
 				jshBase.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
 						StandardWatchEventKinds.ENTRY_DELETE);
@@ -133,8 +155,11 @@ public class CmsJShell {
 					}
 					key.reset();
 				}
+			} catch (ClosedWatchServiceException e) {
+				if (log.isTraceEnabled())
+					log.trace("JShell file watch service was closed");
 			} catch (IOException | InterruptedException e) {
-				e.printStackTrace();
+				log.error("Unexpected exception in JShell file watch service", e);
 			}
 		}, "JShell local sessions watcher").start();
 	}
@@ -156,15 +181,31 @@ public class CmsJShell {
 	}
 
 	public void stop() {
+		if (watchService != null)
+			try {
+				watchService.close();
+			} catch (IOException e) {
+				log.error("Cannot close JShell watch service", e);
+			}
 		try {
 			Files.delete(jshLinkedDir);
 		} catch (IOException e) {
-			log.error("Cannot remove " + jshLinkedDir);
+			log.error("Cannot remove " + jshLinkedDir, e);
+		}
+		try {
+			FsUtils.delete(jshBase);
+		} catch (IOException e) {
+			log.error("Cannot remove " + jshBase, e);
 		}
 		try {
 			Files.delete(jtermLinkedDir);
 		} catch (IOException e) {
-			log.error("Cannot remove " + jtermLinkedDir);
+			log.error("Cannot remove " + jtermLinkedDir, e);
+		}
+		try {
+			FsUtils.delete(jtermBase);
+		} catch (IOException e) {
+			log.error("Cannot remove " + jtermBase, e);
 		}
 	}
 

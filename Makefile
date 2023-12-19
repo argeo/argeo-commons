@@ -36,6 +36,7 @@ DEP_CATEGORIES = \
 crypto/fips/org.argeo.tp.crypto \
 org.argeo.tp \
 org.argeo.tp.httpd \
+org.argeo.tp.sshd \
 osgi/equinox/org.argeo.tp.osgi \
 osgi/equinox/org.argeo.tp.eclipse \
 swt/rap/org.argeo.tp.swt \

@@ -16,13 +16,9 @@ import java.util.StringJoiner;
 public class StreamUtils {
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
-	/*
-	 * APACHE COMMONS IO (inspired)
-	 */
-
 	/** @return the number of bytes */
-	public static Long copy(InputStream in, OutputStream out) throws IOException {
-		Long count = 0l;
+	public static long copy(InputStream in, OutputStream out) throws IOException {
+		long count = 0l;
 		byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
 		while (true) {
 			int length = in.read(buf);
@@ -35,8 +31,8 @@ public class StreamUtils {
 	}
 
 	/** @return the number of chars */
-	public static Long copy(Reader in, Writer out) throws IOException {
-		Long count = 0l;
+	public static long copy(Reader in, Writer out) throws IOException {
+		long count = 0l;
 		char[] buf = new char[DEFAULT_BUFFER_SIZE];
 		while (true) {
 			int length = in.read(buf);

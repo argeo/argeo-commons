@@ -4,17 +4,21 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSessionBindingListener;
 
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.service.UISession;
 import org.eclipse.swt.widgets.Display;
 
 /** Singleton class providing single sources infos about the UI context. */
 public class UiContext {
 	/** Can be null, thus indicating that we are not in a web context. */
+	@Deprecated
 	public static HttpServletRequest getHttpRequest() {
 		return RWT.getRequest();
 	}
 
+	@Deprecated
 	public static HttpServletResponse getHttpResponse() {
 		return RWT.getResponse();
 	}
@@ -47,6 +51,11 @@ public class UiContext {
 		if (display == null)
 			throw new IllegalStateException("Not display available");
 		display.setData(key, value);
+	}
+
+	public static void killDisplay(Display display) {
+		UISession uiSession = RWT.getUISession(display);
+		((HttpSessionBindingListener) uiSession).valueUnbound(null);
 	}
 
 	private static Display getDisplay() {

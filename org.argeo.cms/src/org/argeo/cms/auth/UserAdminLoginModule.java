@@ -283,13 +283,15 @@ public class UserAdminLoginModule implements LoginModule {
 		if (log.isDebugEnabled()) {
 			StringBuilder msg = new StringBuilder();
 			msg.append("Logged in to CMS: '" + authorization + "' (" + authorization.getName() + ")\n");
-			for (Principal principal : subject.getPrincipals()) {
-				msg.append("  Principal: " + principal.getName()).append(" (")
-						.append(principal.getClass().getSimpleName()).append(")\n");
-			}
-			for (Object credential : subject.getPublicCredentials()) {
-				msg.append("  Public Credential: " + credential).append(" (")
-						.append(credential.getClass().getSimpleName()).append(")\n");
+			if (log.isTraceEnabled()) {
+				for (Principal principal : subject.getPrincipals()) {
+					msg.append("  Principal: " + principal.getName()).append(" (")
+							.append(principal.getClass().getSimpleName()).append(")\n");
+				}
+				for (Object credential : subject.getPublicCredentials()) {
+					msg.append("  Public Credential: " + credential).append(" (")
+							.append(credential.getClass().getSimpleName()).append(")\n");
+				}
 			}
 			log.debug(msg);
 		}

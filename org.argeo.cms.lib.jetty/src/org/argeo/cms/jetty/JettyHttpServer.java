@@ -16,6 +16,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.http.server.HttpServerUtils;
+import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -24,7 +25,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -278,7 +278,8 @@ public class JettyHttpServer extends HttpsServer {
 		JettyHttpContext httpContext = contexts.remove(path);
 		if (httpContext instanceof ContextHandlerHttpContext contextHandlerHttpContext) {
 			// TODO stop handler first?
-			contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
+			// FIXME understand compatibility with Jetty 12
+			//contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
 		} else {
 			// FIXME apparently servlets cannot be removed in Jetty, we should replace the
 			// handler

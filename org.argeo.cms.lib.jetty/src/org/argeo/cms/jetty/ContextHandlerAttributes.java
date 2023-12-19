@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.ee8.nested.ContextHandler;
 
 /**
  * A {@link Map} implementation wrapping the attributes of a Jetty

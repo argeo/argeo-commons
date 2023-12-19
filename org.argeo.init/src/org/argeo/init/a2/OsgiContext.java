@@ -6,13 +6,18 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
 
-/** A running OSGi bundle context seen as a {@link AbstractProvisioningSource}. */
+/**
+ * A running OSGi bundle context seen as a {@link AbstractProvisioningSource}.
+ */
 class OsgiContext extends AbstractProvisioningSource {
 	private final BundleContext bc;
+
+	private A2Contribution runtimeContribution;
 
 	public OsgiContext(BundleContext bc) {
 		super(false);
 		this.bc = bc;
+		runtimeContribution = getOrAddContribution(A2Contribution.RUNTIME);
 	}
 
 	public OsgiContext() {
@@ -25,16 +30,19 @@ class OsgiContext extends AbstractProvisioningSource {
 	}
 
 	void load() {
-		A2Contribution runtimeContribution = getOrAddContribution( A2Contribution.RUNTIME);
 		for (Bundle bundle : bc.getBundles()) {
-			// OsgiBootUtils.debug(bundle.getDataFile("/"));
-			String componentId = bundle.getSymbolicName();
-			Version version = bundle.getVersion();
-			A2Component component = runtimeContribution.getOrAddComponent(componentId);
-			A2Module module = component.getOrAddModule(version, bundle);
-			if (OsgiBootUtils.isDebug())
-				OsgiBootUtils.debug("Registered " + module + " (location id: " + bundle.getLocation() + ")");
+			registerBundle(bundle);
 		}
+
+	}
+
+	void registerBundle(Bundle bundle) {
+		String componentId = bundle.getSymbolicName();
+		Version version = bundle.getVersion();
+		A2Component component = runtimeContribution.getOrAddComponent(componentId);
+		A2Module module = component.getOrAddModule(version, bundle);
+		if (OsgiBootUtils.isDebug())
+			OsgiBootUtils.debug("Registered bundle module " + module + " (location id: " + bundle.getLocation() + ")");
 
 	}
 }

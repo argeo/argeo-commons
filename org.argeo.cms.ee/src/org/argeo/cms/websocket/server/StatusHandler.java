@@ -22,7 +22,6 @@ public class StatusHandler implements WebsocketEndpoints, HttpHandler {
 		Set<Class<?>> res = new HashSet<>();
 		res.add(PingEndpoint.class);
 		res.add(EventEndpoint.class);
-		res.add(TestEndpoint.class);
 		return res;
 	}
 

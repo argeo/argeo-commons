@@ -206,7 +206,10 @@ public class CmsSshServer implements CmsSshd {
 					(PrivateKey) store.getKey(CmsConstants.NODE, keyStorePassword));
 		} catch (IOException | KeyStoreException | NoSuchProviderException | NoSuchAlgorithmException
 				| CertificateException | IllegalArgumentException | UnrecoverableKeyException e) {
-			log.error("Cannot add node public key to SSH authorized keys", e);
+			if (log.isTraceEnabled())
+				log.error("Cannot add node public key to SSH authorized keys", e);
+			else
+				log.error("Cannot add node public key to SSH authorized keys: " + e.getMessage());
 			return null;
 		}
 
