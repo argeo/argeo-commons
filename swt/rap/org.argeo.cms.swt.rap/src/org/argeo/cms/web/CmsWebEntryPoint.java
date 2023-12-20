@@ -287,7 +287,8 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 				} catch (SWTError e) {
 					SWTError swtError = (SWTError) e;
 					if (swtError.code == SWT.ERROR_FUNCTION_DISPOSED) {
-						log.error("Unexpected SWT error in event loop, ignoring it. " + e.getMessage());
+						if (log.isTraceEnabled())
+							log.error("Unexpected SWT error in event loop, ignoring it. " + e.getMessage());
 						continue eventLoop;
 					} else {
 						log.error("Unexpected SWT error in event loop, shutting down...", e);

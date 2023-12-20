@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionIdListener;
 import javax.servlet.http.HttpSessionListener;
 
+import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jetty.CmsJettyServer;
 import org.eclipse.equinox.http.servlet.HttpServiceServlet;
 import org.eclipse.jetty.ee8.nested.SessionHandler;
@@ -23,6 +24,7 @@ import org.osgi.framework.Constants;
 
 /** A {@link CmsJettyServer} integrating with Equinox HTTP framework. */
 public class EquinoxJettyServer extends CmsJettyServer {
+	private final static CmsLog log = CmsLog.getLog(EquinoxJettyServer.class);
 	private static final String INTERNAL_CONTEXT_CLASSLOADER = "org.eclipse.equinox.http.jetty.internal.ContextClassLoader";
 
 	@Override
@@ -95,6 +97,10 @@ public class EquinoxJettyServer extends CmsJettyServer {
 			thread.setContextClassLoader(contextLoader);
 			try {
 				httpServiceServlet.service(req, res);
+			} catch (IllegalStateException e) {
+				// context is probably in shutdown
+				if (log.isTraceEnabled())
+					log.error("Cannot process request", e);
 			} finally {
 				thread.setContextClassLoader(current);
 			}

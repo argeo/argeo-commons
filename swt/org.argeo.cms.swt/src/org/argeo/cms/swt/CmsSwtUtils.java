@@ -61,6 +61,8 @@ public class CmsSwtUtils {
 	}
 
 	public static CmsView getCmsView(Control parent) {
+		if (parent.isDisposed())
+			return null;
 		// find parent shell
 		Shell topShell = parent.getShell();
 		while (topShell.getParent() != null)
@@ -219,7 +221,7 @@ public class CmsSwtUtils {
 
 	/** Style widget */
 	public static <T extends Widget> T style(T widget, String style) {
-		if (style == null)
+		if (style == null || widget.isDisposed())
 			return widget;// does nothing
 		EclipseUiSpecificUtils.setStyleData(widget, style);
 		if (widget instanceof Control) {
