@@ -231,7 +231,7 @@ public class SwtTabbedArea extends Composite {
 
 	public Content getCurrentContext() {
 		SwtSection section = getCurrentSection();
-		if (section != null) {
+		if (section != null && !section.isDisposed()) {
 			return section.getContent();
 		} else {
 			return null;

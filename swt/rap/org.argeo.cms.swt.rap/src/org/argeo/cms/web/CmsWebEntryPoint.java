@@ -276,7 +276,9 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 					Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
 						@Override
 						public Void run() {
+							// TODO rather loop here, until there is an auth change
 							if (!display.readAndDispatch()) {
+								// TODO update UI last access here
 								display.sleep();
 							}
 							return null;
@@ -285,7 +287,8 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 				} catch (SWTError e) {
 					SWTError swtError = (SWTError) e;
 					if (swtError.code == SWT.ERROR_FUNCTION_DISPOSED) {
-						log.error("Unexpected SWT error in event loop, ignoring it. " + e.getMessage());
+						if (log.isTraceEnabled())
+							log.error("Unexpected SWT error in event loop, ignoring it. " + e.getMessage());
 						continue eventLoop;
 					} else {
 						log.error("Unexpected SWT error in event loop, shutting down...", e);
