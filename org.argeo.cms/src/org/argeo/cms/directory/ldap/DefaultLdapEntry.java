@@ -125,9 +125,9 @@ public class DefaultLdapEntry implements LdapEntry {
 		// modifiedAttributes = (Attributes) publishedAttributes.clone();
 	}
 
-	public synchronized void publishAttributes(Attributes modifiedAttributes) {
-//		publishedAttributes = modifiedAttributes;
-	}
+//	public synchronized void publishAttributes(Attributes modifiedAttributes) {
+////		publishedAttributes = modifiedAttributes;
+//	}
 
 	/*
 	 * PROPERTIES
