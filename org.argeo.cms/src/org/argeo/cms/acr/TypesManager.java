@@ -64,11 +64,11 @@ class TypesManager {
 	// cached
 	private Schema schema;
 	private DocumentBuilderFactory documentBuilderFactory;
-	private XSModel xsModel;
+	// private XSModel xsModel;
 	private SortedMap<QName, Map<QName, CrAttributeType>> types;
 
 	private boolean validating = false;
-	private boolean creatingXsModel = false;
+	private boolean creatingXsModel = true;
 
 	private final static boolean limited = false;
 
@@ -154,7 +154,7 @@ class TypesManager {
 					systemIds.add(sourceUrl.toExternalForm());
 				}
 				StringList sl = new StringListImpl(systemIds.toArray(new String[systemIds.size()]), systemIds.size());
-				xsModel = xsLoader.loadURIList(sl);
+				XSModel xsModel = xsLoader.loadURIList(sl);
 
 				// types
 //			XSNamedMap map = xsModel.getComponents(XSConstants.ELEMENT_DECLARATION);
@@ -163,16 +163,17 @@ class TypesManager {
 //				QName type = new QName(eDec.getNamespace(), eDec.getName());
 //				types.add(type);
 //			}
-				collectTypes();
-				
+				collectTypes(xsModel);
+
 				log.debug("Created XS model");
+				// printTypes();
 			}
 		} catch (XSException | SAXException e) {
 			throw new IllegalStateException("Cannot reload types", e);
 		}
 	}
 
-	private void collectTypes() {
+	private void collectTypes(XSModel xsModel) {
 		types.clear();
 		// elements
 		XSNamedMap topLevelElements = xsModel.getComponents(XSConstants.ELEMENT_DECLARATION);
@@ -429,7 +430,17 @@ class TypesManager {
 		}
 	}
 
-	public void printTypes() {
+	void printTypes() {
+		for (QName type : types.keySet()) {
+			Map<QName, CrAttributeType> attrs = types.get(type);
+			System.out.println("## " + type);
+			for (QName attr : attrs.keySet()) {
+				System.out.println(" " + attr + " : " + attrs.get(attr));
+			}
+		}
+	}
+
+	void printTypes(XSModel xsModel) {
 		if (xsModel != null)
 			try {
 
