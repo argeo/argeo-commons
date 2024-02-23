@@ -55,14 +55,19 @@ public class ContentUtils {
 			sb.append("  ");
 		}
 		String prefix = sb.toString();
-		out.println(prefix + content.getName());
-		for (QName key : content.keySet()) {
-			out.println(prefix + " " + key + "=" + content.get(key));
-		}
+		String txt = "";
 		if (printText) {
 			if (content.hasText()) {
-				out.println("<![CDATA[" + content.getText().trim() + "]]>");
+				final int MAX_LENGTH = 64;
+				txt = content.getText().trim();
+				if (txt.length() > MAX_LENGTH)
+					txt = txt.substring(0, 64) + " ...";
+				txt = " : " + txt;
 			}
+		}
+		out.println(prefix + content.getName() + txt);
+		for (QName key : content.keySet()) {
+			out.println(prefix + " " + key + "=" + content.get(key));
 		}
 	}
 
