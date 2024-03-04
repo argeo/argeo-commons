@@ -14,5 +14,8 @@ public interface A2Source extends ProvisioningSource {
 	final static String DEFAULT_A2_URI = SCHEME_A2 + ":///";
 	final static String DEFAULT_A2_REFERENCE_URI = SCHEME_A2_REFERENCE + ":///";
 
+	final static String INCLUDE = "include";
+	final static String EXCLUDE = "exclude";
+
 	URI getUri();
 }

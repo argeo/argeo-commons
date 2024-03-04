@@ -7,6 +7,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.StringJoiner;
@@ -20,14 +21,16 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 	private final Path base;
 	private final Map<String, String> variantsXOr;
 
-//	public FsA2Source(Path base) {
-//		this(base, new HashMap<>());
-//	}
+	private final List<String> includes;
+	private final List<String> excludes;
 
-	public FsA2Source(Path base, Map<String, String> variantsXOr, boolean usingReference) {
+	public FsA2Source(Path base, Map<String, String> variantsXOr, boolean usingReference, List<String> includes,
+			List<String> excludes) {
 		super(usingReference);
 		this.base = base;
 		this.variantsXOr = new HashMap<>(variantsXOr);
+		this.includes = includes;
+		this.excludes = excludes;
 	}
 
 	void load() throws IOException {
@@ -85,8 +88,12 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 			}
 		}
 
-		for (Path contributionPath : contributions.keySet()) {
+		contributions: for (Path contributionPath : contributions.keySet()) {
 			String contributionId = contributionPath.getFileName().toString();
+			if (includes != null && !includes.contains(contributionId))
+				continue contributions;
+			if (excludes != null && excludes.contains(contributionId))
+				continue contributions;
 			A2Contribution contribution = getOrAddContribution(contributionId);
 			DirectoryStream<Path> modulePaths = Files.newDirectoryStream(contributionPath);
 			modules: for (Path modulePath : modulePaths) {

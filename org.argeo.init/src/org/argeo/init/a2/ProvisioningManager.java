@@ -66,11 +66,19 @@ public class ProvisioningManager {
 			// XOR
 			Map<String, List<String>> properties = queryToMap(u);
 			Map<String, String> xOr = new HashMap<>();
+			List<String> includes = null;
+			List<String> excludes = null;
 			for (String key : properties.keySet()) {
 				List<String> lst = properties.get(key);
-				if (lst.size() != 1)
-					throw new IllegalArgumentException("Invalid XOR definitions in " + uri);
-				xOr.put(key, lst.get(0));
+				if (A2Source.INCLUDE.equals(key)) {
+					includes = new ArrayList<>(lst);
+				} else if (A2Source.EXCLUDE.equals(key)) {
+					excludes = new ArrayList<>(lst);
+				} else {
+					if (lst.size() != 1)
+						throw new IllegalArgumentException("Invalid XOR definitions in " + uri);
+					xOr.put(key, lst.get(0));
+				}
 			}
 
 			if (SCHEME_A2.equals(u.getScheme()) || SCHEME_A2_REFERENCE.equals(u.getScheme())) {
@@ -81,7 +89,8 @@ public class ProvisioningManager {
 					}
 					Path base = Paths.get(baseStr);
 					if (Files.exists(base)) {
-						FsA2Source source = new FsA2Source(base, xOr, SCHEME_A2_REFERENCE.equals(u.getScheme()));
+						FsA2Source source = new FsA2Source(base, xOr, SCHEME_A2_REFERENCE.equals(u.getScheme()),
+								includes, excludes);
 						source.load();
 						addSource(source);
 						OsgiBootUtils.info("Registered " + uri + " as source");
@@ -91,7 +100,7 @@ public class ProvisioningManager {
 						Path localLibBase = base.resolve(A2Contribution.LIB).resolve(localRelPath);
 						if (Files.exists(localLibBase)) {
 							FsA2Source libSource = new FsA2Source(localLibBase, xOr,
-									SCHEME_A2_REFERENCE.equals(u.getScheme()));
+									SCHEME_A2_REFERENCE.equals(u.getScheme()), includes, excludes);
 							libSource.load();
 							addSource(libSource);
 							OsgiBootUtils.info("Registered OS-specific " + uri + " as source (" + localRelPath + ")");
@@ -166,7 +175,11 @@ public class ProvisioningManager {
 					// TODO make it more dynamic, based on OSGi APIs
 					// TODO remove old module? Or keep update history?
 					osgiContext.registerBundle(bundle);
-					OsgiBootUtils.info("Updated bundle " + bundle.getLocation() + " to version " + moduleVersion);
+					if (compare == 0)
+						OsgiBootUtils
+								.debug("Updated bundle " + bundle.getLocation() + " to same version " + moduleVersion);
+					else
+						OsgiBootUtils.info("Updated bundle " + bundle.getLocation() + " to version " + moduleVersion);
 					return bundle;
 				} else {
 					if (OsgiBootUtils.isDebug())
