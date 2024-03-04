@@ -1,5 +1,6 @@
 package org.argeo.init.osgi;
 
+import java.io.Serializable;
 import java.lang.System.LoggerFinder;
 import java.util.Collections;
 import java.util.Hashtable;
@@ -9,9 +10,9 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.argeo.init.RuntimeContext;
-import org.argeo.init.logging.ThinLoggerFinder;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -63,14 +64,22 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 //		bundleContext.registerService(AbstractPreferences.class, systemRootPreferences, new Hashtable<>());
 
 		// Make sure LoggerFinder has been searched for, since it is lazily loaded
-		LoggerFinder.getLoggerFinder();
+		LoggerFinder loggerFinder = LoggerFinder.getLoggerFinder();
 
-		// logging
-		bundleContext.registerService(Consumer.class, ThinLoggerFinder.getConfigurationConsumer(),
-				new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.configuration")));
-		bundleContext.registerService(Flow.Publisher.class, ThinLoggerFinder.getLogEntryPublisher(),
-				new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.publisher")));
+		if (loggerFinder instanceof Consumer<?> && loggerFinder instanceof Supplier<?>) {
+			@SuppressWarnings("unchecked")
+			Consumer<Map<String, Object>> consumer = (Consumer<Map<String, Object>>) loggerFinder;
+			// ThinLoggerFinder.getConfigurationConsumer()
+			// ThinLoggerFinder.getLogEntryPublisher()
 
+			@SuppressWarnings("unchecked")
+			Supplier<Flow.Publisher<Map<String, Serializable>>> supplier = (Supplier<Flow.Publisher<Map<String, Serializable>>>) loggerFinder;
+			// logging
+			bundleContext.registerService(Consumer.class, consumer,
+					new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.configuration")));
+			bundleContext.registerService(Flow.Publisher.class, supplier.get(),
+					new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.publisher")));
+		}
 		osgiBoot = new OsgiBoot(bundleContext);
 		osgiBoot.bootstrap(config);
 

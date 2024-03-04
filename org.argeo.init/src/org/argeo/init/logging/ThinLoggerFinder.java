@@ -7,14 +7,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Flow;
+import java.util.concurrent.Flow.Publisher;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Factory for Java system logging. As it has to be a public class in order to
  * be exposed as a service provider, it is also the main entry point for the
  * thin logging system, via static methos.
  */
-public class ThinLoggerFinder extends LoggerFinder {
+public class ThinLoggerFinder extends LoggerFinder
+		implements Consumer<Map<String, Object>>, Supplier<Flow.Publisher<Map<String, Serializable>>> {
 	private static ThinLogging logging;
 	private static ThinJavaUtilLogging javaUtilLogging;
 
@@ -64,14 +67,19 @@ public class ThinLoggerFinder extends LoggerFinder {
 		javaUtilLogging.readConfiguration(logging.getLevels());
 	}
 
-	public static Consumer<Map<String, Object>> getConfigurationConsumer() {
+	static Consumer<Map<String, Object>> getConfigurationConsumer() {
 		Objects.requireNonNull(logging);
 		return logging;
 	}
 
-	public static Flow.Publisher<Map<String, Serializable>> getLogEntryPublisher() {
+	static Flow.Publisher<Map<String, Serializable>> getLogEntryPublisher() {
 		Objects.requireNonNull(logging);
 		return logging.getLogEntryPublisher();
+	}
+
+	@Override
+	public Publisher<Map<String, Serializable>> get() {
+		return getLogEntryPublisher();
 	}
 
 	static void update(Map<String, Object> configuration) {
@@ -85,4 +93,17 @@ public class ThinLoggerFinder extends LoggerFinder {
 	static Logger getLogger(String name) {
 		return logging.getLogger(name, null);
 	}
+
+	@Override
+	public void accept(Map<String, Object> t) {
+		if (logging != null) {
+			// delegate to thin logging
+			logging.accept(t);
+		} else {
+			// ignore
+			// TODO try to congure Java logging ?
+		}
+
+	}
+
 }
