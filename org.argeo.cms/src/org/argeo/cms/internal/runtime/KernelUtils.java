@@ -22,6 +22,8 @@ class KernelUtils implements KernelConstants {
 	final static String OSGI_INSTANCE_AREA = "osgi.instance.area";
 	final static String OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
 
+	final static String OSGI_FRAMEWORK_UUID = "org.osgi.framework.uuid";
+
 	static void setJaasConfiguration(URL jaasConfigurationUrl) {
 		try {
 			URIParameter uriParameter = new URIParameter(jaasConfigurationUrl.toURI());
