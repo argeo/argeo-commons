@@ -63,12 +63,18 @@ public class CmsDeploymentImpl implements CmsDeployment {
 
 	public void setHttpServer(HttpServer httpServer) {
 		Objects.requireNonNull(httpServer);
-		this.httpServer.complete(httpServer);
-		// create contexts whose handles had already been published
-		for (String contextPath : httpHandlers.keySet()) {
-			HttpHandler httpHandler = httpHandlers.get(contextPath);
-			CmsAuthenticator authenticator = httpAuthenticators.get(contextPath);
-			createHttpContext(contextPath, httpHandler, authenticator);
+		if (this.httpServer.isDone())
+			throw new IllegalStateException("HTTP server is already set");
+		// create contexts whose handlers had already been published
+		synchronized (httpHandlers) {
+			synchronized (httpAuthenticators) {
+				this.httpServer.complete(httpServer);
+				for (String contextPath : httpHandlers.keySet()) {
+					HttpHandler httpHandler = httpHandlers.get(contextPath);
+					CmsAuthenticator authenticator = httpAuthenticators.get(contextPath);
+					createHttpContext(contextPath, httpHandler, authenticator);
+				}
+			}
 		}
 	}
 
@@ -80,9 +86,13 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		}
 		boolean isPublic = Boolean.parseBoolean(properties.get(CmsConstants.CONTEXT_PUBLIC));
 		CmsAuthenticator authenticator = isPublic ? new PublicCmsAuthenticator() : new CmsAuthenticator();
-		httpHandlers.put(contextPath, httpHandler);
-		httpAuthenticators.put(contextPath, authenticator);
-		if (httpServer.join() == null) {
+		synchronized (httpHandlers) {
+			synchronized (httpAuthenticators) {
+				httpHandlers.put(contextPath, httpHandler);
+				httpAuthenticators.put(contextPath, authenticator);
+			}
+		}
+		if (!httpServer.isDone()) {
 			return;
 		} else {
 			createHttpContext(contextPath, httpHandler, authenticator);
@@ -95,7 +105,9 @@ public class CmsDeploymentImpl implements CmsDeployment {
 				log.warn("Ignore HTTP context " + contextPath + " as we don't provide an HTTP server");
 			return;
 		}
-		HttpContext httpContext = httpServer.join().createContext(contextPath);
+		if (!this.httpServer.isDone())
+			throw new IllegalStateException("HTTP server is not set");
+		HttpContext httpContext = httpServer.resultNow().createContext(contextPath);
 		// we want to set the authenticator BEFORE the handler actually becomes active
 		httpContext.setAuthenticator(authenticator);
 		httpContext.setHandler(httpHandler);
@@ -107,9 +119,9 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		if (contextPath == null)
 			return; // ignore silently
 		httpHandlers.remove(contextPath);
-		if (httpServer.join() == null)
+		if (!httpServer.isDone())
 			return;
-		httpServer.join().removeContext(contextPath);
+		httpServer.resultNow().removeContext(contextPath);
 		log.debug(() -> "Removed handler " + contextPath + " : " + httpHandler.getClass().getName());
 	}
 
