@@ -1,4 +1,4 @@
-package org.argeo.init;
+package org.argeo.api.init;
 
 /** A runtime context with a life cycle. */
 public interface RuntimeContext extends Runnable {

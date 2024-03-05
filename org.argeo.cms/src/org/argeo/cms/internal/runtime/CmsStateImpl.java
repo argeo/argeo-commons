@@ -259,7 +259,8 @@ public class CmsStateImpl implements CmsState {
 			log.debug("CMS stopping...  (" + this.uuid + ")");
 
 		long duration = ((System.currentTimeMillis() - availableSince) / 1000) / 60;
-		log.info("## ARGEO CMS STOPPED after " + (duration / 60) + "h " + (duration % 60) + "min uptime ##");
+		log.info("## ARGEO CMS " + uuid + " STOPPED after " + (duration / 60) + "h " + (duration % 60)
+				+ "min uptime ##");
 	}
 
 	private void firstInit() throws IOException {

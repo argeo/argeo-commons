@@ -16,23 +16,24 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import org.argeo.api.init.InitConstants;
 import org.argeo.init.logging.ThinLoggerFinder;
-import org.argeo.init.osgi.OsgiBoot;
 import org.argeo.init.osgi.OsgiRuntimeContext;
+import org.argeo.internal.init.InternalState;
 
-/** Configure and launch an Argeo service. */
-public class Service {
-	private final static Logger logger = System.getLogger(Service.class.getName());
+/** Configures and launches a single runtime, typically as a systemd service. */
+public class ServiceMain {
+	private final static Logger logger = System.getLogger(ServiceMain.class.getName());
 
 	final static String FILE_SYSTEM_PROPERTIES = "system.properties";
 
 	public final static String PROP_ARGEO_INIT_MAIN = "argeo.init.main";
 
-	private static RuntimeContext runtimeContext = null;
+//	private static RuntimeContext runtimeContext = null;
 
 	private static List<Runnable> postStart = Collections.synchronizedList(new ArrayList<>());
 
-	protected Service(String[] args) {
+	protected ServiceMain(String[] args) {
 	}
 
 	public static void main(String[] args) {
@@ -42,10 +43,9 @@ public class Service {
 		// shutdown on exit
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try {
-				if (Service.runtimeContext != null) {
-//					System.out.println("Argeo Init stopping with PID " + pid);
-					Service.runtimeContext.close();
-					Service.runtimeContext.waitForStop(0);
+				if (InternalState.getMainRuntimeContext() != null) {
+					InternalState.getMainRuntimeContext().close();
+					InternalState.getMainRuntimeContext().waitForStop(0);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -54,9 +54,9 @@ public class Service {
 		}, "Runtime shutdown"));
 
 		// TODO use args as well
-		String dataArea = System.getProperty(OsgiBoot.PROP_OSGI_INSTANCE_AREA);
-		String stateArea = System.getProperty(OsgiBoot.PROP_OSGI_CONFIGURATION_AREA);
-		String configArea = System.getProperty(OsgiBoot.PROP_OSGI_SHARED_CONFIGURATION_AREA);
+		String dataArea = System.getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
+		String stateArea = System.getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
+		String configArea = System.getProperty(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA);
 
 		if (configArea != null) {
 			Path configAreaPath = Paths.get(configArea);
@@ -94,9 +94,9 @@ public class Service {
 		sysprops: for (Object key : new TreeMap<>(System.getProperties()).keySet()) {
 			String keyStr = key.toString();
 			switch (keyStr) {
-			case OsgiBoot.PROP_OSGI_CONFIGURATION_AREA:
-			case OsgiBoot.PROP_OSGI_SHARED_CONFIGURATION_AREA:
-			case OsgiBoot.PROP_OSGI_INSTANCE_AREA:
+			case InitConstants.PROP_OSGI_CONFIGURATION_AREA:
+			case InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA:
+			case InitConstants.PROP_OSGI_INSTANCE_AREA:
 				// we should already have dealt with those
 				continue sysprops;
 			default:
@@ -114,16 +114,16 @@ public class Service {
 		try {
 			try {
 				if (stateArea != null)
-					config.put(OsgiBoot.PROP_OSGI_CONFIGURATION_AREA, stateArea);
+					config.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, stateArea);
 				if (configArea != null)
-					config.put(OsgiBoot.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea);
+					config.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea);
 				if (dataArea != null)
-					config.put(OsgiBoot.PROP_OSGI_INSTANCE_AREA, dataArea);
+					config.put(InitConstants.PROP_OSGI_INSTANCE_AREA, dataArea);
 				// config.put(OsgiBoot.PROP_OSGI_USE_SYSTEM_PROPERTIES, "true");
 
 				OsgiRuntimeContext osgiRuntimeContext = new OsgiRuntimeContext(config);
 				osgiRuntimeContext.run();
-				Service.runtimeContext = osgiRuntimeContext;
+				InternalState.setMainRuntimeContext(osgiRuntimeContext);
 				for (Runnable run : postStart) {
 					try {
 						run.run();
@@ -131,11 +131,11 @@ public class Service {
 						logger.log(Level.ERROR, "Cannot run post start callback " + run, e);
 					}
 				}
-				Service.runtimeContext.waitForStop(0);
+				InternalState.getMainRuntimeContext().waitForStop(0);
 			} catch (NoClassDefFoundError noClassDefFoundE) {
 				StaticRuntimeContext staticRuntimeContext = new StaticRuntimeContext((Map<String, String>) config);
 				staticRuntimeContext.run();
-				Service.runtimeContext = staticRuntimeContext;
+				InternalState.setMainRuntimeContext(staticRuntimeContext);
 				for (Runnable run : postStart) {
 					try {
 						run.run();
@@ -143,18 +143,13 @@ public class Service {
 						logger.log(Level.ERROR, "Cannot run post start callback " + run, e);
 					}
 				}
-				Service.runtimeContext.waitForStop(0);
+				InternalState.getMainRuntimeContext().waitForStop(0);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 		logger.log(Logger.Level.DEBUG, "Argeo Init stopped with PID " + pid);
-	}
-
-	/** The root runtime context in this JVM. */
-	public static RuntimeContext getRuntimeContext() {
-		return runtimeContext;
 	}
 
 	/** Add a post-start call back to be run after the runtime has been started. */

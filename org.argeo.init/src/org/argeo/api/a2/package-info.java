@@ -1,2 +1,2 @@
 /** A2 OSGi repository format. */
-package org.argeo.init.a2;
+package org.argeo.api.a2;

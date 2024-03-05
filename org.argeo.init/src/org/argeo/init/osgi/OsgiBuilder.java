@@ -12,6 +12,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.argeo.api.init.InitConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -38,8 +39,8 @@ public class OsgiBuilder {
 
 	public OsgiBuilder() {
 		// configuration.put("osgi.clean", "true");
-		configuration.put(OsgiBoot.PROP_OSGI_CONFIGURATION_AREA, System.getProperty(OsgiBoot.PROP_OSGI_CONFIGURATION_AREA));
-		configuration.put(OsgiBoot.PROP_OSGI_INSTANCE_AREA, System.getProperty(OsgiBoot.PROP_OSGI_INSTANCE_AREA));
+		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, System.getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA));
+		configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA, System.getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA));
 		configuration.put(PROP_OSGI_CLEAN, System.getProperty(PROP_OSGI_CLEAN));
 	}
 
@@ -48,7 +49,7 @@ public class OsgiBuilder {
 		framework = OsgiBootUtils.launch(configuration);
 
 		BundleContext bc = framework.getBundleContext();
-		String osgiData = bc.getProperty(OsgiBoot.PROP_OSGI_INSTANCE_AREA);
+		String osgiData = bc.getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
 		// String osgiConf = bc.getProperty(OsgiBoot.CONFIGURATION_AREA_PROP);
 		String osgiConf = framework.getDataFile("").getAbsolutePath();
 		if (OsgiBootUtils.isDebug())
@@ -278,7 +279,7 @@ public class OsgiBuilder {
 	private Properties startLevelsToProperties() {
 		Properties properties = new Properties();
 		for (Integer startLevel : startLevels.keySet()) {
-			String property = OsgiBoot.PROP_ARGEO_OSGI_START + "." + startLevel;
+			String property = InitConstants.PROP_ARGEO_OSGI_START + "." + startLevel;
 			StringBuilder value = new StringBuilder();
 			for (String bundle : startLevels.get(startLevel).getBundles()) {
 				value.append(bundle);

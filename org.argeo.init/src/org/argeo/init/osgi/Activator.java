@@ -4,7 +4,7 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Objects;
 
-import org.argeo.init.Service;
+import org.argeo.init.ServiceMain;
 import org.argeo.init.logging.ThinLoggerFinder;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -29,7 +29,7 @@ public class Activator implements BundleActivator {
 
 	public void start(final BundleContext bundleContext) throws Exception {
 		// The OSGi runtime was created by us, and therefore already initialized
-		argeoInit = Boolean.parseBoolean(bundleContext.getProperty(Service.PROP_ARGEO_INIT_MAIN));
+		argeoInit = Boolean.parseBoolean(bundleContext.getProperty(ServiceMain.PROP_ARGEO_INIT_MAIN));
 		if (!argeoInit) {
 			if (runtimeContext == null) {
 				runtimeContext = new OsgiRuntimeContext(bundleContext);

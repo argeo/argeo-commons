@@ -20,8 +20,9 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import org.argeo.init.a2.A2Source;
-import org.argeo.init.a2.ProvisioningManager;
+import org.argeo.api.a2.A2Source;
+import org.argeo.api.a2.ProvisioningManager;
+import org.argeo.api.init.InitConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -37,10 +38,6 @@ import org.osgi.framework.wiring.FrameworkWiring;
  * methods, configured via properties.
  */
 public class OsgiBoot implements OsgiBootConstants {
-	public final static String PROP_ARGEO_OSGI_START = "argeo.osgi.start";
-	public final static String PROP_ARGEO_OSGI_MAX_START_LEVEL = "argeo.osgi.maxStartLevel";
-	public final static String PROP_ARGEO_OSGI_SOURCES = "argeo.osgi.sources";
-
 	@Deprecated
 	final static String PROP_ARGEO_OSGI_BUNDLES = "argeo.osgi.bundles";
 	final static String PROP_ARGEO_OSGI_BASE_URL = "argeo.osgi.baseUrl";
@@ -59,18 +56,6 @@ public class OsgiBoot implements OsgiBootConstants {
 	public final static String DEFAULT_BASE_URL = "reference:file:";
 	final static String DEFAULT_MAX_START_LEVEL = "32";
 
-	// OSGi standard properties
-	final static String PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL = "osgi.bundles.defaultStartLevel";
-	final static String PROP_OSGI_STARTLEVEL = "osgi.startLevel";
-	public final static String PROP_OSGI_INSTANCE_AREA = "osgi.instance.area";
-	public final static String PROP_OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
-	public final static String PROP_OSGI_SHARED_CONFIGURATION_AREA = "osgi.sharedConfiguration.area";
-	public final static String PROP_OSGI_USE_SYSTEM_PROPERTIES = "osgi.framework.useSystemProperties";
-
-	// Symbolic names
-	final static String SYMBOLIC_NAME_OSGI_BOOT = "org.argeo.init";
-	final static String SYMBOLIC_NAME_EQUINOX = "org.eclipse.osgi";
-
 	private final BundleContext bundleContext;
 	private final String localCache;
 	private final ProvisioningManager provisioningManager;
@@ -86,7 +71,7 @@ public class OsgiBoot implements OsgiBootConstants {
 		localCache = getProperty(PROP_ARGEO_OSGI_LOCAL_CACHE, homeUri + ".m2/repository/");
 
 		provisioningManager = new ProvisioningManager(bundleContext);
-		String sources = getProperty(PROP_ARGEO_OSGI_SOURCES);
+		String sources = getProperty(InitConstants.PROP_ARGEO_OSGI_SOURCES);
 		if (sources == null) {
 			provisioningManager.registerDefaultSource();
 		} else {
@@ -141,9 +126,9 @@ public class OsgiBoot implements OsgiBootConstants {
 			long begin = System.currentTimeMillis();
 
 			// notify start
-			String osgiInstancePath = getProperty(PROP_OSGI_INSTANCE_AREA);
-			String osgiConfigurationPath = getProperty(PROP_OSGI_CONFIGURATION_AREA);
-			String osgiSharedConfigurationPath = getProperty(PROP_OSGI_CONFIGURATION_AREA);
+			String osgiInstancePath = getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
+			String osgiConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
+			String osgiSharedConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
 			OsgiBootUtils.info("OSGi bootstrap starting" //
 					+ (osgiInstancePath != null ? " data: " + osgiInstancePath + "" : "") //
 					+ (osgiConfigurationPath != null ? " state: " + osgiConfigurationPath + "" : "") //
@@ -238,8 +223,8 @@ public class OsgiBoot implements OsgiBootConstants {
 				Bundle bundle = (Bundle) installedBundles.get(url);
 				if (OsgiBootUtils.isDebug())
 					debug("Bundle " + bundle.getSymbolicName() + " already installed from " + url);
-			} else if (url.contains("/" + SYMBOLIC_NAME_EQUINOX + "/")
-					|| url.contains("/" + SYMBOLIC_NAME_OSGI_BOOT + "/")) {
+			} else if (url.contains("/" + InitConstants.SYMBOLIC_NAME_EQUINOX + "/")
+					|| url.contains("/" + InitConstants.SYMBOLIC_NAME_INIT + "/")) {
 				if (OsgiBootUtils.isDebug())
 					warn("Skip " + url);
 				return;
@@ -285,8 +270,8 @@ public class OsgiBoot implements OsgiBootConstants {
 		} catch (BundleException e) {
 			final String ALREADY_INSTALLED = "is already installed";
 			String message = e.getMessage();
-			if ((message.contains("Bundle \"" + SYMBOLIC_NAME_OSGI_BOOT + "\"")
-					|| message.contains("Bundle \"" + SYMBOLIC_NAME_EQUINOX + "\""))
+			if ((message.contains("Bundle \"" + InitConstants.SYMBOLIC_NAME_INIT + "\"")
+					|| message.contains("Bundle \"" + InitConstants.SYMBOLIC_NAME_EQUINOX + "\""))
 					&& message.contains(ALREADY_INSTALLED)) {
 				// silent, in order to avoid warnings: we know that both
 				// have already been installed...
@@ -317,15 +302,15 @@ public class OsgiBoot implements OsgiBootConstants {
 		if (properties != null) {
 			for (String key : properties.keySet()) {
 				String property = key;
-				if (property.startsWith(PROP_ARGEO_OSGI_START)) {
+				if (property.startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
 					map.put(property, properties.get(property));
 				}
 			}
 		}
 		// then try all start level until a maximum
-		int maxStartLevel = Integer.parseInt(getProperty(PROP_ARGEO_OSGI_MAX_START_LEVEL, DEFAULT_MAX_START_LEVEL));
+		int maxStartLevel = Integer.parseInt(getProperty(InitConstants.PROP_ARGEO_OSGI_MAX_START_LEVEL, DEFAULT_MAX_START_LEVEL));
 		for (int i = 1; i <= maxStartLevel; i++) {
-			String key = PROP_ARGEO_OSGI_START + "." + i;
+			String key = InitConstants.PROP_ARGEO_OSGI_START + "." + i;
 			String value = getProperty(key);
 			if (value != null)
 				map.put(key, value);
@@ -333,7 +318,7 @@ public class OsgiBoot implements OsgiBootConstants {
 		}
 		// finally, override with system properties
 		for (Object key : System.getProperties().keySet()) {
-			if (key.toString().startsWith(PROP_ARGEO_OSGI_START)) {
+			if (key.toString().startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
 				map.put(key.toString(), System.getProperty(key.toString()));
 			}
 		}
@@ -348,7 +333,7 @@ public class OsgiBoot implements OsgiBootConstants {
 		if (properties != null) {
 			for (Object key : properties.keySet()) {
 				String property = key.toString();
-				if (property.startsWith(PROP_ARGEO_OSGI_START)) {
+				if (property.startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
 					map.put(property, properties.get(property).toString());
 				}
 			}
@@ -356,18 +341,18 @@ public class OsgiBoot implements OsgiBootConstants {
 		startBundles(map);
 	}
 
-	/** Start bundle based on keys starting with {@link #PROP_ARGEO_OSGI_START}. */
+	/** Start bundle based on keys starting with {@link InitConstants#PROP_ARGEO_OSGI_START}. */
 	protected void doStartBundles(Map<String, String> properties) {
 		FrameworkStartLevel frameworkStartLevel = bundleContext.getBundle(0).adapt(FrameworkStartLevel.class);
 
 		// default and active start levels from System properties
 		int initialStartLevel = frameworkStartLevel.getInitialBundleStartLevel();
-		int defaultStartLevel = Integer.parseInt(getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4"));
-		int activeStartLevel = Integer.parseInt(getProperty(PROP_OSGI_STARTLEVEL, "6"));
+		int defaultStartLevel = Integer.parseInt(getProperty(InitConstants.PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4"));
+		int activeStartLevel = Integer.parseInt(getProperty(InitConstants.PROP_OSGI_STARTLEVEL, "6"));
 		if (OsgiBootUtils.isDebug()) {
 			OsgiBootUtils.debug("OSGi default start level: "
-					+ getProperty(PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "<not set>") + ", using " + defaultStartLevel);
-			OsgiBootUtils.debug("OSGi active start level: " + getProperty(PROP_OSGI_STARTLEVEL, "<not set>")
+					+ getProperty(InitConstants.PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "<not set>") + ", using " + defaultStartLevel);
+			OsgiBootUtils.debug("OSGi active start level: " + getProperty(InitConstants.PROP_OSGI_STARTLEVEL, "<not set>")
 					+ ", using " + activeStartLevel);
 			OsgiBootUtils.debug("Framework start level: " + frameworkStartLevel.getStartLevel() + " (initial: "
 					+ initialStartLevel + ")");
@@ -454,11 +439,11 @@ public class OsgiBoot implements OsgiBootConstants {
 			Integer defaultStartLevel) {
 
 		// default (and previously, only behaviour)
-		appendToStartLevels(startLevels, defaultStartLevel, properties.getOrDefault(PROP_ARGEO_OSGI_START, ""));
+		appendToStartLevels(startLevels, defaultStartLevel, properties.getOrDefault(InitConstants.PROP_ARGEO_OSGI_START, ""));
 
 		// list argeo.osgi.start.* system properties
 		Iterator<String> keys = properties.keySet().iterator();
-		final String prefix = PROP_ARGEO_OSGI_START + ".";
+		final String prefix = InitConstants.PROP_ARGEO_OSGI_START + ".";
 		while (keys.hasNext()) {
 			String key = keys.next();
 			if (key.startsWith(prefix)) {

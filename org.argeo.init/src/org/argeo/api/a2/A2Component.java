@@ -1,4 +1,4 @@
-package org.argeo.init.a2;
+package org.argeo.api.a2;
 
 import java.util.Collections;
 import java.util.SortedMap;

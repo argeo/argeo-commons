@@ -1,7 +1,7 @@
-package org.argeo.init.a2;
+package org.argeo.api.a2;
 
-import static org.argeo.init.a2.A2Source.SCHEME_A2;
-import static org.argeo.init.a2.A2Source.SCHEME_A2_REFERENCE;
+import static org.argeo.api.a2.A2Source.SCHEME_A2;
+import static org.argeo.api.a2.A2Source.SCHEME_A2_REFERENCE;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
