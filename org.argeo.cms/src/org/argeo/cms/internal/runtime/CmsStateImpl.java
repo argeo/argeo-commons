@@ -111,7 +111,8 @@ public class CmsStateImpl implements CmsState {
 			if (log.isTraceEnabled())
 				log.trace("CMS State started");
 
-			this.uuid = uuidFactory.timeUUID();
+			String frameworkUuid = KernelUtils.getFrameworkProp(KernelUtils.OSGI_FRAMEWORK_UUID);
+			this.uuid = frameworkUuid != null ? UUID.fromString(frameworkUuid) : uuidFactory.timeUUID();
 
 			// hostname
 			this.hostname = getDeployProperty(CmsDeployProperty.HOST);
