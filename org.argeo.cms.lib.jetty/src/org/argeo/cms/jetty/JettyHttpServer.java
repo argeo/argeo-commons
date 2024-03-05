@@ -279,7 +279,7 @@ public class JettyHttpServer extends HttpsServer {
 		if (httpContext instanceof ContextHandlerHttpContext contextHandlerHttpContext) {
 			// TODO stop handler first?
 			// FIXME understand compatibility with Jetty 12
-			//contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
+			// contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
 		} else {
 			// FIXME apparently servlets cannot be removed in Jetty, we should replace the
 			// handler
@@ -315,9 +315,16 @@ public class JettyHttpServer extends HttpsServer {
 	}
 
 	private String httpPortsMsg() {
+		String hostStr = getHost();
+		hostStr = hostStr == null ? "*:" : hostStr + ":";
+		return (httpConnector != null ? "# HTTP " + hostStr + getHttpPort() + " " : "")
+				+ (httpsConnector != null ? "# HTTPS " + hostStr + getHttpsPort() : "");
+	}
 
-		return (httpConnector != null ? "HTTP " + getHttpPort() + " " : "")
-				+ (httpsConnector != null ? "HTTPS " + getHttpsPort() : "");
+	public String getHost() {
+		if (httpConnector == null)
+			return null;
+		return httpConnector.getHost();
 	}
 
 	public Integer getHttpPort() {
