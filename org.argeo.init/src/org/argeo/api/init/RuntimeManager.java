@@ -7,5 +7,5 @@ import java.util.function.Consumer;
 public interface RuntimeManager {
 	public void startRuntime(String relPath, Consumer<Map<String, String>> configCallback);
 
-	public void stopRuntime(String relPath, boolean async);
+	public void closeRuntime(String relPath, boolean async);
 }

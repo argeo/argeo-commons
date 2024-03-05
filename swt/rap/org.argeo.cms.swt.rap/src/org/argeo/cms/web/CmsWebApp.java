@@ -106,7 +106,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 				return entryPoint;
 			}, properties);
 			if (log.isDebugEnabled())
-				log.info("Added web entry point " + (contextName != null ? "/" + contextName : "") + entryPointName);
+				log.debug("Added web entry point " + (contextName != null ? "/" + contextName : "") + entryPointName);
 		}
 //		if (log.isDebugEnabled())
 //			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
@@ -150,8 +150,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 			rwtAppReg.unregister();
 		if (bundleContext != null) {
 			rwtAppReg = bundleContext.registerService(ApplicationConfiguration.class, this, regProps);
-			if (log.isDebugEnabled())
-				log.debug("Publishing CMS web app /" + (contextName != null ? contextName : "") + " ...");
+			log.info("Publishing CMS web app /" + (contextName != null ? contextName : "") + " ...");
 		}
 	}
 

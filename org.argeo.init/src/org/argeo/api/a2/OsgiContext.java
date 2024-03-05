@@ -1,6 +1,8 @@
 package org.argeo.api.a2;
 
-import org.argeo.init.osgi.OsgiBootUtils;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -10,6 +12,8 @@ import org.osgi.framework.Version;
  * A running OSGi bundle context seen as a {@link AbstractProvisioningSource}.
  */
 class OsgiContext extends AbstractProvisioningSource {
+	private final static Logger logger = System.getLogger(OsgiContext.class.getName());
+
 	private final BundleContext bc;
 
 	private A2Contribution runtimeContribution;
@@ -41,8 +45,8 @@ class OsgiContext extends AbstractProvisioningSource {
 		Version version = bundle.getVersion();
 		A2Component component = runtimeContribution.getOrAddComponent(componentId);
 		A2Module module = component.getOrAddModule(version, bundle);
-		if (OsgiBootUtils.isDebug())
-			OsgiBootUtils.debug("Registered bundle module " + module + " (location id: " + bundle.getLocation() + ")");
+		logger.log(Level.TRACE,
+				() -> "Registered bundle module " + module + " (location id: " + bundle.getLocation() + ")");
 
 	}
 }

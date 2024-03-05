@@ -1,10 +1,11 @@
 package org.argeo.api.a2;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Collections;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.argeo.init.osgi.OsgiBootUtils;
 import org.osgi.framework.Version;
 
 /**
@@ -13,6 +14,8 @@ import org.osgi.framework.Version;
  * compatibility.
  */
 public class A2Branch implements Comparable<A2Branch> {
+	private final static Logger logger = System.getLogger(A2Branch.class.getName());
+
 	private final A2Component component;
 	private final String id;
 
@@ -31,8 +34,9 @@ public class A2Branch implements Comparable<A2Branch> {
 	A2Module getOrAddModule(Version version, Object locator) {
 		if (modules.containsKey(version)) {
 			A2Module res = modules.get(version);
-			if (OsgiBootUtils.isDebug() && !res.getLocator().equals(locator)) {
-				OsgiBootUtils.debug("Inconsistent locator " + locator + " (registered: " + res.getLocator() + ")");
+			if (!res.getLocator().equals(locator)) {
+				logger.log(Level.TRACE,
+						() -> "Inconsistent locator " + locator + " (registered: " + res.getLocator() + ")");
 			}
 			return res;
 		} else

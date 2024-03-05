@@ -1,5 +1,8 @@
 package org.argeo.init.osgi;
 
+import static java.lang.System.Logger.Level.WARNING;
+
+import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -14,8 +17,9 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-@SuppressWarnings("deprecation")
 class OsgiBootDiagnostics {
+	private final static Logger logger = System.getLogger(OsgiBootDiagnostics.class.getName());
+
 	private final BundleContext bundleContext;
 
 	public OsgiBootDiagnostics(BundleContext bundleContext) {
@@ -41,7 +45,7 @@ class OsgiBootDiagnostics {
 		}
 
 		if (unresolvedBundles.size() != 0) {
-			OsgiBootUtils.warn("Unresolved bundles " + unresolvedBundles);
+			logger.log(WARNING, "Unresolved bundles " + unresolvedBundles);
 		}
 
 		// try to start unresolved bundles in order to trigger diagnostics

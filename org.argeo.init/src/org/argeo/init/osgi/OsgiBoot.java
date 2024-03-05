@@ -1,9 +1,13 @@
 package org.argeo.init.osgi;
 
-import static org.argeo.init.osgi.OsgiBootUtils.debug;
-import static org.argeo.init.osgi.OsgiBootUtils.warn;
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.TRACE;
+import static java.lang.System.Logger.Level.WARNING;
 
 import java.io.File;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +18,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
@@ -28,6 +34,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.Version;
+import org.osgi.framework.launch.Framework;
+import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.startlevel.FrameworkStartLevel;
 import org.osgi.framework.wiring.FrameworkWiring;
@@ -37,7 +45,9 @@ import org.osgi.framework.wiring.FrameworkWiring;
  * properties. The approach is to generate list of URLs based on various
  * methods, configured via properties.
  */
-public class OsgiBoot implements OsgiBootConstants {
+public class OsgiBoot {
+	private final static Logger logger = System.getLogger(OsgiBoot.class.getName());
+
 	@Deprecated
 	final static String PROP_ARGEO_OSGI_BUNDLES = "argeo.osgi.bundles";
 	final static String PROP_ARGEO_OSGI_BASE_URL = "argeo.osgi.baseUrl";
@@ -129,7 +139,7 @@ public class OsgiBoot implements OsgiBootConstants {
 			String osgiInstancePath = getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
 			String osgiConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
 			String osgiSharedConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
-			OsgiBootUtils.info("OSGi bootstrap starting" //
+			logger.log(DEBUG, () -> "OSGi bootstrap starting" //
 					+ (osgiInstancePath != null ? " data: " + osgiInstancePath + "" : "") //
 					+ (osgiConfigurationPath != null ? " state: " + osgiConfigurationPath + "" : "") //
 					+ (osgiSharedConfigurationPath != null ? " config: " + osgiSharedConfigurationPath + "" : "") //
@@ -153,28 +163,28 @@ public class OsgiBoot implements OsgiBootConstants {
 
 			// complete
 			long duration = System.currentTimeMillis() - begin;
-			OsgiBootUtils.info("OSGi bootstrap completed in " + Math.round(((double) duration) / 1000) + "s ("
+			logger.log(DEBUG, () -> "OSGi bootstrap completed in " + Math.round(((double) duration) / 1000) + "s ("
 					+ duration + "ms), " + bundleContext.getBundles().length + " bundles");
 		} catch (RuntimeException e) {
-			OsgiBootUtils.error("OSGi bootstrap FAILED", e);
+			logger.log(ERROR, "OSGi bootstrap FAILED", e);
 			throw e;
 		}
 
 		// diagnostics
-		if (OsgiBootUtils.isDebug()) {
+		if (logger.isLoggable(TRACE)) {
 			OsgiBootDiagnostics diagnostics = new OsgiBootDiagnostics(bundleContext);
 			diagnostics.checkUnresolved();
 			Map<String, Set<String>> duplicatePackages = diagnostics.findPackagesExportedTwice();
 			if (duplicatePackages.size() > 0) {
-				OsgiBootUtils.info("Packages exported twice:");
+				logger.log(TRACE, "Packages exported twice:");
 				Iterator<String> it = duplicatePackages.keySet().iterator();
 				while (it.hasNext()) {
 					String pkgName = it.next();
-					OsgiBootUtils.info(pkgName);
+					logger.log(TRACE, pkgName);
 					Set<String> bdles = duplicatePackages.get(pkgName);
 					Iterator<String> bdlesIt = bdles.iterator();
 					while (bdlesIt.hasNext())
-						OsgiBootUtils.info("  " + bdlesIt.next());
+						logger.log(TRACE, "  " + bdlesIt.next());
 				}
 			}
 		}
@@ -221,21 +231,20 @@ public class OsgiBoot implements OsgiBootConstants {
 		try {
 			if (installedBundles.containsKey(url)) {
 				Bundle bundle = (Bundle) installedBundles.get(url);
-				if (OsgiBootUtils.isDebug())
-					debug("Bundle " + bundle.getSymbolicName() + " already installed from " + url);
+				logger.log(TRACE, () -> "Bundle " + bundle.getSymbolicName() + " already installed from " + url);
 			} else if (url.contains("/" + InitConstants.SYMBOLIC_NAME_EQUINOX + "/")
 					|| url.contains("/" + InitConstants.SYMBOLIC_NAME_INIT + "/")) {
-				if (OsgiBootUtils.isDebug())
-					warn("Skip " + url);
+				if (logger.isLoggable(TRACE))
+					logger.log(WARNING, "Skip " + url);
 				return;
 			} else {
 				Bundle bundle = bundleContext.installBundle(url);
 				if (url.startsWith("http"))
-					OsgiBootUtils
-							.info("Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
-				else if (OsgiBootUtils.isDebug())
-					OsgiBootUtils.debug(
-							"Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
+					logger.log(DEBUG,
+							() -> "Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
+				else
+					logger.log(TRACE,
+							() -> "Installed " + bundle.getSymbolicName() + "-" + bundle.getVersion() + " from " + url);
 				assert bundle.getSymbolicName() != null;
 				// uninstall previous versions
 				bundles: for (Bundle b : bundleContext.getBundles()) {
@@ -250,17 +259,17 @@ public class OsgiBoot implements OsgiBootConstants {
 							if (bundleV.getMicro() > bV.getMicro()) {
 								// uninstall older bundles
 								b.uninstall();
-								OsgiBootUtils.debug("Uninstalled " + b);
+								logger.log(TRACE, () -> "Uninstalled " + b);
 							} else if (bundleV.getMicro() < bV.getMicro()) {
 								// uninstall just installed bundle if newer
 								bundle.uninstall();
-								OsgiBootUtils.debug("Uninstalled " + bundle);
+								logger.log(TRACE, () -> "Uninstalled " + bundle);
 								break bundles;
 							} else {
 								// uninstall any other with same major/minor
 								if (!bundleV.getQualifier().equals(bV.getQualifier())) {
 									b.uninstall();
-									OsgiBootUtils.debug("Uninstalled " + b);
+									logger.log(TRACE, () -> "Uninstalled " + b);
 								}
 							}
 						}
@@ -277,12 +286,12 @@ public class OsgiBoot implements OsgiBootConstants {
 				// have already been installed...
 			} else {
 				if (message.contains(ALREADY_INSTALLED)) {
-					if (OsgiBootUtils.isDebug())
-						OsgiBootUtils.warn("Duplicate install from " + url + ": " + message);
+					if (logger.isLoggable(TRACE))
+						logger.log(WARNING, "Duplicate install from " + url + ": " + message);
 				} else
-					OsgiBootUtils.warn("Could not install bundle from " + url + ": " + message);
+					logger.log(WARNING, "Could not install bundle from " + url + ": " + message);
 			}
-			if (OsgiBootUtils.isDebug() && !message.contains(ALREADY_INSTALLED))
+			if (logger.isLoggable(TRACE) && !message.contains(ALREADY_INSTALLED))
 				e.printStackTrace();
 		}
 	}
@@ -308,7 +317,8 @@ public class OsgiBoot implements OsgiBootConstants {
 			}
 		}
 		// then try all start level until a maximum
-		int maxStartLevel = Integer.parseInt(getProperty(InitConstants.PROP_ARGEO_OSGI_MAX_START_LEVEL, DEFAULT_MAX_START_LEVEL));
+		int maxStartLevel = Integer
+				.parseInt(getProperty(InitConstants.PROP_ARGEO_OSGI_MAX_START_LEVEL, DEFAULT_MAX_START_LEVEL));
 		for (int i = 1; i <= maxStartLevel; i++) {
 			String key = InitConstants.PROP_ARGEO_OSGI_START + "." + i;
 			String value = getProperty(key);
@@ -326,8 +336,7 @@ public class OsgiBoot implements OsgiBootConstants {
 		doStartBundles(map);
 	}
 
-	@Deprecated
-	public void startBundles(Properties properties) {
+	void startBundles(Properties properties) {
 		Map<String, String> map = new TreeMap<>();
 		// first use properties
 		if (properties != null) {
@@ -341,7 +350,10 @@ public class OsgiBoot implements OsgiBootConstants {
 		startBundles(map);
 	}
 
-	/** Start bundle based on keys starting with {@link InitConstants#PROP_ARGEO_OSGI_START}. */
+	/**
+	 * Start bundle based on keys starting with
+	 * {@link InitConstants#PROP_ARGEO_OSGI_START}.
+	 */
 	protected void doStartBundles(Map<String, String> properties) {
 		FrameworkStartLevel frameworkStartLevel = bundleContext.getBundle(0).adapt(FrameworkStartLevel.class);
 
@@ -349,12 +361,14 @@ public class OsgiBoot implements OsgiBootConstants {
 		int initialStartLevel = frameworkStartLevel.getInitialBundleStartLevel();
 		int defaultStartLevel = Integer.parseInt(getProperty(InitConstants.PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "4"));
 		int activeStartLevel = Integer.parseInt(getProperty(InitConstants.PROP_OSGI_STARTLEVEL, "6"));
-		if (OsgiBootUtils.isDebug()) {
-			OsgiBootUtils.debug("OSGi default start level: "
-					+ getProperty(InitConstants.PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "<not set>") + ", using " + defaultStartLevel);
-			OsgiBootUtils.debug("OSGi active start level: " + getProperty(InitConstants.PROP_OSGI_STARTLEVEL, "<not set>")
+		if (logger.isLoggable(TRACE)) {
+			logger.log(TRACE,
+					"OSGi default start level: "
+							+ getProperty(InitConstants.PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL, "<not set>") + ", using "
+							+ defaultStartLevel);
+			logger.log(TRACE, "OSGi active start level: " + getProperty(InitConstants.PROP_OSGI_STARTLEVEL, "<not set>")
 					+ ", using " + activeStartLevel);
-			OsgiBootUtils.debug("Framework start level: " + frameworkStartLevel.getStartLevel() + " (initial: "
+			logger.log(TRACE, "Framework start level: " + frameworkStartLevel.getStartLevel() + " (initial: "
 					+ initialStartLevel + ")");
 		}
 
@@ -392,23 +406,20 @@ public class OsgiBoot implements OsgiBootConstants {
 					try {
 						bundle.start();
 					} catch (BundleException e) {
-						OsgiBootUtils.error("Cannot mark " + bsn + " as started", e);
+						logger.log(ERROR, "Cannot mark " + bsn + " as started", e);
 					}
-					if (OsgiBootUtils.isDebug())
-						OsgiBootUtils.debug(bsn + " v" + bundle.getVersion() + " starts at level " + level);
+					logger.log(TRACE, () -> bsn + " v" + bundle.getVersion() + " starts at level " + level);
 				}
 			}
 		}
 
-		if (OsgiBootUtils.isDebug())
-			OsgiBootUtils.debug("About to set framework start level to " + activeStartLevel + " ...");
+		logger.log(TRACE, () -> "About to set framework start level to " + activeStartLevel + " ...");
 
 		frameworkStartLevel.setStartLevel(activeStartLevel, (FrameworkEvent event) -> {
 			if (event.getType() == FrameworkEvent.ERROR) {
-				OsgiBootUtils.error("Start sequence failed", event.getThrowable());
+				logger.log(ERROR, "Start sequence failed", event.getThrowable());
 			} else {
-				if (OsgiBootUtils.isDebug())
-					OsgiBootUtils.debug("Framework started at level " + frameworkStartLevel.getStartLevel());
+				logger.log(TRACE, () -> "Framework started at level " + frameworkStartLevel.getStartLevel());
 			}
 		});
 
@@ -439,7 +450,8 @@ public class OsgiBoot implements OsgiBootConstants {
 			Integer defaultStartLevel) {
 
 		// default (and previously, only behaviour)
-		appendToStartLevels(startLevels, defaultStartLevel, properties.getOrDefault(InitConstants.PROP_ARGEO_OSGI_START, ""));
+		appendToStartLevels(startLevels, defaultStartLevel,
+				properties.getOrDefault(InitConstants.PROP_ARGEO_OSGI_START, ""));
 
 		// list argeo.osgi.start.* system properties
 		Iterator<String> keys = properties.keySet().iterator();
@@ -514,8 +526,7 @@ public class OsgiBoot implements OsgiBootConstants {
 			return urls;
 
 //		bundlePatterns = SystemPropertyUtils.resolvePlaceholders(bundlePatterns);
-		if (OsgiBootUtils.isDebug())
-			debug(PROP_ARGEO_OSGI_BUNDLES + "=" + bundlePatterns);
+		logger.log(TRACE, () -> PROP_ARGEO_OSGI_BUNDLES + "=" + bundlePatterns);
 
 		StringTokenizer st = new StringTokenizer(bundlePatterns, ",");
 		List<BundlesSet> bundlesSets = new ArrayList<BundlesSet>();
@@ -617,8 +628,8 @@ public class OsgiBoot implements OsgiBootConstants {
 			File[] files = baseDir.listFiles();
 
 			if (files == null) {
-				if (OsgiBootUtils.isDebug())
-					OsgiBootUtils.warn("Base dir " + baseDir + " has no children, exists=" + baseDir.exists()
+				if (logger.isLoggable(TRACE))
+					logger.log(Level.WARNING, "Base dir " + baseDir + " has no children, exists=" + baseDir.exists()
 							+ ", isDirectory=" + baseDir.isDirectory());
 				return;
 			}
@@ -656,8 +667,8 @@ public class OsgiBoot implements OsgiBootConstants {
 //							}
 						} else {
 							boolean nonDirectoryOk = matcher.matches(Paths.get(newCurrentPath));
-							if (OsgiBootUtils.isDebug())
-								debug(currentPath + " " + (ok ? "" : " not ") + " matched with " + pattern);
+							logger.log(TRACE,
+									() -> currentPath + " " + (ok ? "" : " not ") + " matched with " + pattern);
 							if (nonDirectoryOk)
 								matched.add(relativeToFullPath(base, newCurrentPath));
 						}
@@ -728,6 +739,29 @@ public class OsgiBoot implements OsgiBootConstants {
 
 	public String getProperty(String name) {
 		return getProperty(name, null);
+	}
+
+	/*
+	 * PLAIN OSGI LAUNCHER
+	 */
+	/** Launch an OSGi framework. OSGi Boot initialisation is NOT performed. */
+	public static Framework defaultOsgiLaunch(Map<String, String> configuration) {
+		Optional<FrameworkFactory> frameworkFactory = ServiceLoader.load(FrameworkFactory.class).findFirst();
+		if (frameworkFactory.isEmpty())
+			throw new IllegalStateException("No framework factory found");
+		return defaultOsgiLaunch(frameworkFactory.get(), configuration);
+	}
+
+	/** Launch an OSGi framework. OSGi Boot initialisation is NOT performed. */
+	public static Framework defaultOsgiLaunch(FrameworkFactory frameworkFactory, Map<String, String> configuration) {
+		// start OSGi
+		Framework framework = frameworkFactory.newFramework(configuration);
+		try {
+			framework.start();
+		} catch (BundleException e) {
+			throw new IllegalStateException("Cannot start OSGi framework", e);
+		}
+		return framework;
 	}
 
 	/*

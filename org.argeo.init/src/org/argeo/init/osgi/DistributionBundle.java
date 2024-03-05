@@ -1,9 +1,12 @@
 package org.argeo.init.osgi;
 
+import static java.lang.System.Logger.Level.WARNING;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,6 +35,8 @@ import org.osgi.framework.Version;
  * name of the URL and of the content of the index.
  */
 public class DistributionBundle {
+	private final static Logger logger = System.getLogger(DistributionBundle.class.getName());
+
 	private final static String INDEX_FILE_NAME = "modularDistribution.csv";
 
 	private final String url;
@@ -113,7 +118,7 @@ public class DistributionBundle {
 	public void processUrl() {
 		JarInputStream jarIn = null;
 		try {
-			URL u = new URL(url);
+			URL u = new URI(url).toURL();
 
 			// local cache
 			URI localUri = new URI(localCache + relativeUrl);
@@ -213,7 +218,7 @@ public class DistributionBundle {
 			try {
 				localUri = new URI(localCache + relativeUrl);
 			} catch (URISyntaxException e) {
-				OsgiBootUtils.warn(e.getMessage());
+				logger.log(WARNING, e.getMessage());
 				localUri = null;
 			}
 			Version version = new Version(osgiArtifact.getVersion());

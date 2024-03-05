@@ -2,6 +2,8 @@ package org.argeo.api.a2;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,11 +11,12 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import org.argeo.init.osgi.OsgiBootUtils;
 import org.osgi.framework.Version;
 
 /** A file system {@link AbstractProvisioningSource} in Maven 2 format. */
 public class FsM2Source extends AbstractProvisioningSource {
+	private final static Logger logger = System.getLogger(FsM2Source.class.getName());
+
 	private final Path base;
 
 	public FsM2Source(Path base) {
@@ -45,8 +48,7 @@ public class FsM2Source extends AbstractProvisioningSource {
 				A2Contribution contribution = getOrAddContribution(contributionName);
 				A2Component component = contribution.getOrAddComponent(moduleName);
 				A2Module module = component.getOrAddModule(version, file);
-				if (OsgiBootUtils.isDebug())
-					OsgiBootUtils.debug("Registered " + module);
+				logger.log(Level.TRACE, () -> "Registered " + module);
 			}
 			return super.visitFile(file, attrs);
 		}

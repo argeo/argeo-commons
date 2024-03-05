@@ -1,5 +1,9 @@
 package org.argeo.init.osgi;
 
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.TRACE;
+
+import java.lang.System.Logger;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
@@ -26,6 +30,8 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /** OSGi builder, focusing on ease of use for scripting. */
 public class OsgiBuilder {
+	private final static Logger logger = System.getLogger(OsgiBuilder.class.getName());
+
 	private final static String PROP_HTTP_PORT = "org.osgi.service.http.port";
 	private final static String PROP_HTTPS_PORT = "org.osgi.service.https.port";
 	private final static String PROP_OSGI_CLEAN = "osgi.clean";
@@ -39,21 +45,22 @@ public class OsgiBuilder {
 
 	public OsgiBuilder() {
 		// configuration.put("osgi.clean", "true");
-		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, System.getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA));
-		configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA, System.getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA));
+		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
+				System.getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA));
+		configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
+				System.getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA));
 		configuration.put(PROP_OSGI_CLEAN, System.getProperty(PROP_OSGI_CLEAN));
 	}
 
 	public Framework launch() {
 		// start OSGi
-		framework = OsgiBootUtils.launch(configuration);
+		framework = OsgiBoot.defaultOsgiLaunch(configuration);
 
 		BundleContext bc = framework.getBundleContext();
 		String osgiData = bc.getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
 		// String osgiConf = bc.getProperty(OsgiBoot.CONFIGURATION_AREA_PROP);
 		String osgiConf = framework.getDataFile("").getAbsolutePath();
-		if (OsgiBootUtils.isDebug())
-			OsgiBootUtils.debug("OSGi starting - data: " + osgiData + " conf: " + osgiConf);
+		logger.log(TRACE, () -> "OSGi starting - data: " + osgiData + " conf: " + osgiConf);
 
 		OsgiBoot osgiBoot = new OsgiBoot(framework.getBundleContext());
 		if (distributionBundles.isEmpty()) {
@@ -179,7 +186,7 @@ public class OsgiBuilder {
 		try {
 			return st.waitForService(timeout);
 		} catch (InterruptedException e) {
-			OsgiBootUtils.error("Interrupted", e);
+			logger.log(ERROR, "Interrupted", e);
 			return null;
 		} finally {
 			st.close();

@@ -1,10 +1,15 @@
 package org.argeo.api.a2;
 
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.INFO;
+import static java.lang.System.Logger.Level.TRACE;
 import static org.argeo.api.a2.A2Source.SCHEME_A2;
 import static org.argeo.api.a2.A2Source.SCHEME_A2_REFERENCE;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.argeo.init.osgi.OsgiBootUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -31,9 +35,11 @@ import org.osgi.framework.wiring.FrameworkWiring;
 
 /** Loads provisioning sources into an OSGi context. */
 public class ProvisioningManager {
-	BundleContext bc;
-	OsgiContext osgiContext;
-	List<ProvisioningSource> sources = Collections.synchronizedList(new ArrayList<>());
+	private final static Logger logger = System.getLogger(ProvisioningManager.class.getName());
+
+	private BundleContext bc;
+	private OsgiContext osgiContext;
+	private List<ProvisioningSource> sources = Collections.synchronizedList(new ArrayList<>());
 
 	public ProvisioningManager(BundleContext bc) {
 		this.bc = bc;
@@ -93,7 +99,7 @@ public class ProvisioningManager {
 								includes, excludes);
 						source.load();
 						addSource(source);
-						OsgiBootUtils.info("Registered " + uri + " as source");
+						logger.log(INFO, () -> "Registered " + uri + " as source");
 
 						// OS specific / native
 						String localRelPath = A2Contribution.localOsArchRelativePath();
@@ -103,10 +109,11 @@ public class ProvisioningManager {
 									SCHEME_A2_REFERENCE.equals(u.getScheme()), includes, excludes);
 							libSource.load();
 							addSource(libSource);
-							OsgiBootUtils.info("Registered OS-specific " + uri + " as source (" + localRelPath + ")");
+							logger.log(DEBUG,
+									() -> "Registered OS-specific base " + localLibBase + " for source " + uri);
 						}
 					} else {
-						OsgiBootUtils.debug("Source " + base + " does not exist, ignoring.");
+						logger.log(TRACE, () -> "Source " + base + " does not exist, ignoring.");
 					}
 				} else {
 					throw new UnsupportedOperationException(
@@ -133,12 +140,12 @@ public class ProvisioningManager {
 						baseStr = '/' + baseStr.replace(File.separatorChar, '/');
 					URI baseUri = new URI(A2Source.SCHEME_A2, null, null, 0, baseStr, null, null);
 					registerSource(baseUri.toString());
-					OsgiBootUtils.debug("Default source from framework location " + frameworkLocation);
+					logger.log(TRACE, () -> "Default source from framework location " + frameworkLocation);
 					return true;
 				}
 			}
 		} catch (Exception e) {
-			OsgiBootUtils.error("Cannot register default source based on framework location " + frameworkLocation, e);
+			logger.log(ERROR, "Cannot register default source based on framework location " + frameworkLocation, e);
 		}
 		return false;
 	}
@@ -176,20 +183,19 @@ public class ProvisioningManager {
 					// TODO remove old module? Or keep update history?
 					osgiContext.registerBundle(bundle);
 					if (compare == 0)
-						OsgiBootUtils
-								.debug("Updated bundle " + bundle.getLocation() + " to same version " + moduleVersion);
+						logger.log(TRACE,
+								() -> "Updated bundle " + bundle.getLocation() + " to same version " + moduleVersion);
 					else
-						OsgiBootUtils.info("Updated bundle " + bundle.getLocation() + " to version " + moduleVersion);
+						logger.log(INFO, "Updated bundle " + bundle.getLocation() + " to version " + moduleVersion);
 					return bundle;
 				} else {
-					if (OsgiBootUtils.isDebug())
-						OsgiBootUtils.debug("Did not install as bundle module " + module
-								+ " since a module with higher version " + lastOsgiModule.getVersion()
-								+ " is already installed for branch " + osgiBranch);
+					logger.log(TRACE,
+							() -> "Did not install as bundle module " + module + " since a module with higher version "
+									+ lastOsgiModule.getVersion() + " is already installed for branch " + osgiBranch);
 				}
 			}
 		} catch (Exception e) {
-			OsgiBootUtils.error("Could not install module " + module + ": " + e.getMessage(), e);
+			logger.log(ERROR, "Could not install module " + module + ": " + e.getMessage(), e);
 		}
 		return null;
 	}
@@ -214,10 +220,10 @@ public class ProvisioningManager {
 						String fragmentHost = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
 						if (fragmentHost != null)
 							fragmentsUpdated = true;
-						OsgiBootUtils.info("Updated bundle " + bundle.getLocation() + " to version " + moduleVersion);
+						logger.log(INFO, "Updated bundle " + bundle.getLocation() + " to version " + moduleVersion);
 						updatedBundles.add(bundle);
 					} catch (Exception e) {
-						OsgiBootUtils.error("Cannot update with module " + module, e);
+						logger.log(ERROR, "Cannot update with module " + module, e);
 					}
 				}
 			}

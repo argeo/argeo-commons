@@ -1,13 +1,18 @@
 package org.argeo.init.osgi;
 
+import static java.lang.System.Logger.Level.TRACE;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
 /** Intermediary structure used by path matching */
 class BundlesSet {
+	private final static Logger logger = System.getLogger(BundlesSet.class.getName());
+
 	private String baseUrl = "reference:file";// not used yet
 	private final String dir;
 	private List<String> includes = new ArrayList<String>();
@@ -25,8 +30,7 @@ class BundlesSet {
 				dirPath = dirPath.substring("file:".length());
 
 			dir = new File(dirPath.replace('/', File.separatorChar)).getCanonicalPath();
-			if (OsgiBootUtils.isDebug())
-				OsgiBootUtils.debug("Base dir: " + dir);
+			logger.log(TRACE, () -> "Base dir: " + dir);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot convert to absolute path", e);
 		}

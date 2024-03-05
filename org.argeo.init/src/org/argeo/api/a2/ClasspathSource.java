@@ -2,12 +2,13 @@ package org.argeo.api.a2;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import org.argeo.init.osgi.OsgiBootUtils;
 import org.osgi.framework.Version;
 
 /**
@@ -15,13 +16,14 @@ import org.osgi.framework.Version;
  * been started.
  */
 public class ClasspathSource extends AbstractProvisioningSource {
-	
+	private final static Logger logger = System.getLogger(ClasspathSource.class.getName());
+
 	public ClasspathSource() {
 		super(true);
 	}
 
 	void load() throws IOException {
-		A2Contribution classpathContribution = getOrAddContribution( A2Contribution.CLASSPATH);
+		A2Contribution classpathContribution = getOrAddContribution(A2Contribution.CLASSPATH);
 		List<String> classpath = Arrays.asList(System.getProperty("java.class.path").split(File.pathSeparator));
 		parts: for (String part : classpath) {
 			Path file = Paths.get(part);
@@ -35,8 +37,7 @@ public class ClasspathSource extends AbstractProvisioningSource {
 			String moduleName = readSymbolicNameFromModule(file);
 			A2Component component = classpathContribution.getOrAddComponent(moduleName);
 			A2Module module = component.getOrAddModule(version, file);
-			if (OsgiBootUtils.isDebug())
-				OsgiBootUtils.debug("Registered " + module);
+			logger.log(Level.TRACE, () -> "Registered " + module);
 		}
 
 	}

@@ -1,6 +1,8 @@
 package org.argeo.api.a2;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.DirectoryStream;
@@ -13,11 +15,12 @@ import java.util.SortedMap;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 
-import org.argeo.init.osgi.OsgiBootUtils;
 import org.osgi.framework.Version;
 
 /** A file system {@link AbstractProvisioningSource} in A2 format. */
 public class FsA2Source extends AbstractProvisioningSource implements A2Source {
+	private final static Logger logger = System.getLogger(FsA2Source.class.getName());
+
 	private final Path base;
 	private final Map<String, String> variantsXOr;
 
@@ -112,14 +115,13 @@ public class FsA2Source extends AbstractProvisioningSource implements A2Source {
 					if (versionStr != null) {
 						version = new Version(versionStr);
 					} else {
-						OsgiBootUtils.debug("Ignore " + modulePath + " since version cannot be found");
+						logger.log(Level.TRACE, () -> "Ignore " + modulePath + " since version cannot be found");
 						continue modules;
 					}
 //					}
 					A2Component component = contribution.getOrAddComponent(componentName);
 					A2Module module = component.getOrAddModule(version, modulePath);
-					if (OsgiBootUtils.isDebug())
-						OsgiBootUtils.debug("Registered " + module);
+					logger.log(Level.TRACE, () -> "Registered " + module);
 				}
 			}
 		}

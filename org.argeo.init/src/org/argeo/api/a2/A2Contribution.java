@@ -92,6 +92,7 @@ public class A2Contribution implements Comparable<A2Contribution> {
 		return Os.local().toString() + "/" + Arch.local().toString();
 	}
 
+	/** Well-known operating systems. */
 	static enum Os {
 		LINUX, WIN32, MACOSX, UNKOWN;
 
@@ -100,6 +101,7 @@ public class A2Contribution implements Comparable<A2Contribution> {
 			return name().toLowerCase();
 		}
 
+		/** The local operating system. */
 		public static Os local() {
 			String osStr = System.getProperty("os.name").toLowerCase();
 			if (osStr.startsWith("linux"))
@@ -113,6 +115,7 @@ public class A2Contribution implements Comparable<A2Contribution> {
 
 	}
 
+	/** Well-known processor architectures. */
 	static enum Arch {
 		X86_64, AARCH64, X86, POWERPC, UNKOWN;
 
@@ -121,6 +124,7 @@ public class A2Contribution implements Comparable<A2Contribution> {
 			return name().toLowerCase();
 		}
 
+		/** The locla processor architecture. */
 		public static Arch local() {
 			String archStr = System.getProperty("os.arch").toLowerCase();
 			return switch (archStr) {
