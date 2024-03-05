@@ -96,9 +96,8 @@ class KernelUtils implements KernelConstants {
 
 	static String getFrameworkProp(String key, String def) {
 		String value;
-		if (CmsActivator.getBundleContext() != null)
-			value = CmsActivator.getBundleContext().getProperty(key);
-		else
+		value = CmsActivator.getFrameworkProperty(key);
+		if (value == null)
 			value = System.getProperty(key);
 		if (value == null)
 			return def;

@@ -3,6 +3,7 @@ package org.argeo.cms.internal.runtime;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -37,16 +38,18 @@ import javax.security.auth.login.Configuration;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
-import org.argeo.api.uuid.UuidFactory;
+import org.argeo.api.uuid.NodeIdSupplier;
+import org.argeo.api.uuid.UuidBinaryUtils;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.auth.ident.IdentClient;
+import org.argeo.cms.util.DigestUtils;
 import org.argeo.cms.util.FsUtils;
 import org.argeo.cms.util.OS;
 
 /**
  * Implementation of a {@link CmsState}, initialising the required services.
  */
-public class CmsStateImpl implements CmsState {
+public class CmsStateImpl implements CmsState, NodeIdSupplier {
 	private final static CmsLog log = CmsLog.getLog(CmsStateImpl.class);
 
 	// REFERENCES
@@ -55,8 +58,9 @@ public class CmsStateImpl implements CmsState {
 	private UUID uuid;
 //	private final boolean cleanState;
 	private String hostname;
+	private InetAddress inetAddress;
 
-	private UuidFactory uuidFactory;
+//	private UuidFactory uuidFactory;
 
 	private final Map<CmsDeployProperty, String> deployPropertyDefaults;
 
@@ -112,7 +116,7 @@ public class CmsStateImpl implements CmsState {
 				log.trace("CMS State started");
 
 			String frameworkUuid = KernelUtils.getFrameworkProp(KernelUtils.OSGI_FRAMEWORK_UUID);
-			this.uuid = frameworkUuid != null ? UUID.fromString(frameworkUuid) : uuidFactory.timeUUID();
+			this.uuid = frameworkUuid != null ? UUID.fromString(frameworkUuid) : UUID.randomUUID();
 
 			// hostname
 			this.hostname = getDeployProperty(CmsDeployProperty.HOST);
@@ -121,7 +125,8 @@ public class CmsStateImpl implements CmsState {
 				final String LOCALHOST_IP = "::1";
 				ForkJoinTask<String> hostnameFJT = ForkJoinPool.commonPool().submit(() -> {
 					try {
-						String hostname = InetAddress.getLocalHost().getHostName();
+						this.inetAddress = InetAddress.getLocalHost();
+						String hostname = this.inetAddress.getHostName();
 						return hostname;
 					} catch (UnknownHostException e) {
 						throw new IllegalStateException("Cannot get local hostname", e);
@@ -133,6 +138,16 @@ public class CmsStateImpl implements CmsState {
 					this.hostname = LOCALHOST_IP;
 					log.warn("Could not get local hostname, using " + this.hostname);
 				}
+			} else {
+				InetAddress[] addresses = InetAddress.getAllByName(this.hostname);
+				InetAddress selectedAddr = null;
+				addresses: for (InetAddress addr : addresses) {
+					if (selectedAddr == null)
+						selectedAddr = addr;
+					if (selectedAddr instanceof Inet6Address)
+						break addresses;
+				}
+				this.inetAddress = selectedAddr;
 			}
 
 			availableSince = System.currentTimeMillis();
@@ -155,7 +170,7 @@ public class CmsStateImpl implements CmsState {
 						}
 					}
 				}
-				log.debug("## CMS starting... (" + uuid + ")\n" + sb + "\n");
+				log.debug("## CMS starting on " + hostname + " ... (" + uuid + ")\n" + sb + "\n");
 			}
 
 			if (log.isTraceEnabled()) {
@@ -170,6 +185,7 @@ public class CmsStateImpl implements CmsState {
 
 		} catch (RuntimeException | IOException e) {
 			log.error("## FATAL: CMS state failed", e);
+			throw new IllegalStateException(e);
 		}
 	}
 
@@ -399,6 +415,77 @@ public class CmsStateImpl implements CmsState {
 	}
 
 	/*
+	 * NodeID supplier
+	 */
+
+	@Override
+	public Long get() {
+		return NodeIdSupplier.toNodeIdBase(getIpBytes());
+	}
+
+	/** Returns an SHA1 digest of one of the IP addresses. */
+	protected byte[] getIpBytes() {
+//		Enumeration<NetworkInterface> netInterfaces = null;
+//		try {
+//			netInterfaces = NetworkInterface.getNetworkInterfaces();
+//		} catch (SocketException e) {
+//			throw new IllegalStateException(e);
+//		}
+//
+//		InetAddress selectedIpv6 = null;
+//		InetAddress selectedIpv4 = null;
+//		if (netInterfaces != null) {
+//			netInterfaces: while (netInterfaces.hasMoreElements()) {
+//				NetworkInterface netInterface = netInterfaces.nextElement();
+//				byte[] hardwareAddress = null;
+//				try {
+//					hardwareAddress = netInterface.getHardwareAddress();
+//					if (hardwareAddress != null) {
+//						// first IPv6
+//						addr: for (InterfaceAddress addr : netInterface.getInterfaceAddresses()) {
+//							InetAddress ip = addr.getAddress();
+//							if (ip instanceof Inet6Address) {
+//								Inet6Address ipv6 = (Inet6Address) ip;
+//								if (ipv6.isAnyLocalAddress() || ipv6.isLinkLocalAddress() || ipv6.isLoopbackAddress())
+//									continue addr;
+//								selectedIpv6 = ipv6;
+//								break netInterfaces;
+//							}
+//
+//						}
+//						// then IPv4
+//						addr: for (InterfaceAddress addr : netInterface.getInterfaceAddresses()) {
+//							InetAddress ip = addr.getAddress();
+//							if (ip instanceof Inet4Address) {
+//								Inet4Address ipv4 = (Inet4Address) ip;
+//								if (ipv4.isAnyLocalAddress() || ipv4.isLinkLocalAddress() || ipv4.isLoopbackAddress())
+//									continue addr;
+//								selectedIpv4 = ipv4;
+//								// we keep searching for IPv6
+//							}
+//
+//						}
+//					}
+//				} catch (SocketException e) {
+//					throw new IllegalStateException(e);
+//				}
+//			}
+//		}
+//		InetAddress selectedIp = selectedIpv6 != null ? selectedIpv6 : selectedIpv4;
+		if (this.inetAddress.isLoopbackAddress()) {
+			log.warn("No IP address found, using a random node id for UUID generation");
+			return NodeIdSupplier.randomNodeId();
+		}
+		InetAddress selectedIp = this.inetAddress;
+		byte[] digest = DigestUtils.sha1(selectedIp.getAddress());
+		log.debug("Use IP " + selectedIp + " hashed as " + UuidBinaryUtils.toHexString(digest) + " as node id");
+		byte[] nodeId = NodeIdSupplier.toNodeIdBytes(digest, 0);
+		// marks that this is not based on MAC address
+		NodeIdSupplier.forceToNoMacAddress(nodeId, 0);
+		return nodeId;
+	}
+
+	/*
 	 * ACCESSORS
 	 */
 	@Override
@@ -406,9 +493,9 @@ public class CmsStateImpl implements CmsState {
 		return uuid;
 	}
 
-	public void setUuidFactory(UuidFactory uuidFactory) {
-		this.uuidFactory = uuidFactory;
-	}
+//	public void setUuidFactory(UuidFactory uuidFactory) {
+//		this.uuidFactory = uuidFactory;
+//	}
 
 	public String getHostname() {
 		return hostname;
@@ -454,4 +541,5 @@ public class CmsStateImpl implements CmsState {
 		// TODO make passphrase more configurable
 		return new IdentClient(remoteAddr);
 	}
+
 }

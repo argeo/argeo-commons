@@ -230,6 +230,7 @@ public class JettyHttpServer extends HttpsServer {
 			server.stop();
 			// TODO delete temp dir
 			started = false;
+			log.debug(() -> "Stopped Jetty server");
 		} catch (Exception e) {
 			log.error("Cannot stop Jetty HTTP server", e);
 		}

@@ -6,9 +6,8 @@ org.osgi.*;version=0.0.0,\
 
 Service-Component:\
 OSGI-INF/cmsOsgiLogger.xml,\
-OSGI-INF/uuidFactory.xml,\
+OSGI-INF/cmsUuidFactory.xml,\
 OSGI-INF/cmsEventBus.xml,\
-OSGI-INF/cmsState.xml,\
 OSGI-INF/transactionManager.xml,\
 OSGI-INF/cmsUserAdmin.xml,\
 OSGI-INF/cmsUserManager.xml,\

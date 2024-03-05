@@ -99,7 +99,7 @@ public class ProvisioningManager {
 								includes, excludes);
 						source.load();
 						addSource(source);
-						logger.log(INFO, () -> "Registered " + uri + " as source");
+						logger.log(DEBUG, () -> "Registered " + uri + " as source");
 
 						// OS specific / native
 						String localRelPath = A2Contribution.localOsArchRelativePath();

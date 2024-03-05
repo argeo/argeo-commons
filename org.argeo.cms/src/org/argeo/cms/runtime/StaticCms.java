@@ -16,8 +16,9 @@ import org.argeo.api.cms.transaction.WorkTransaction;
 import org.argeo.api.register.Component;
 import org.argeo.api.register.ComponentRegister;
 import org.argeo.api.register.SimpleRegister;
+import org.argeo.api.uuid.ConcurrentUuidFactory;
+import org.argeo.api.uuid.NodeIdSupplier;
 import org.argeo.api.uuid.UuidFactory;
-import org.argeo.cms.acr.CmsUuidFactory;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.internal.runtime.CmsDeploymentImpl;
 import org.argeo.cms.internal.runtime.CmsStateImpl;
@@ -36,19 +37,20 @@ public class StaticCms {
 	private CompletableFuture<Void> stopped = new CompletableFuture<Void>();
 
 	public void start() {
-		// UID factory
-		CmsUuidFactory uuidFactory = new CmsUuidFactory();
-		Component<CmsUuidFactory> uuidFactoryC = new Component.Builder<>(uuidFactory) //
-				.addType(UuidFactory.class) //
-				.build(register);
-
 		// CMS State
 		CmsStateImpl cmsState = new CmsStateImpl();
 		Component<CmsStateImpl> cmsStateC = new Component.Builder<>(cmsState) //
 				.addType(CmsState.class) //
+				.addType(NodeIdSupplier.class) //
 				.addActivation(cmsState::start) //
 				.addDeactivation(cmsState::stop) //
-				.addDependency(uuidFactoryC.getType(UuidFactory.class), cmsState::setUuidFactory, null) //
+				.build(register);
+
+		// UID factory
+		ConcurrentUuidFactory uuidFactory = new ConcurrentUuidFactory();
+		Component<ConcurrentUuidFactory> uuidFactoryC = new Component.Builder<>(uuidFactory) //
+				.addType(UuidFactory.class) //
+				.addDependency(cmsStateC.getType(NodeIdSupplier.class), uuidFactory::setNodeIdSupplier, null) //
 				.build(register);
 
 		// Transaction manager

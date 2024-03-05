@@ -95,7 +95,13 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 					new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.publisher")));
 		}
 		OsgiBoot osgiBoot = new OsgiBoot(bundleContext);
-		osgiBoot.bootstrap(config);
+		String frameworkUuuid = bundleContext.getProperty(Constants.FRAMEWORK_UUID);
+		new Thread("OSGi boot framework " + frameworkUuuid) {
+			@Override
+			public void run() {
+				osgiBoot.bootstrap(config);
+			}
+		}.start();
 	}
 
 	public void update() {
@@ -151,27 +157,18 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 	public void close() throws Exception {
 		if (framework == null)
 			return;
-//		Bundle scrBundle = osgiBoot.getBundlesBySymbolicName().get();
-//		if (scrBundle != null && scrBundle.getState() > Bundle.RESOLVED) {
-//			scrBundle.stop();
-//			while (!(scrBundle.getState() <= Bundle.RESOLVED)) {
-//				Thread.sleep(500);
-//			}
-//			Thread.sleep(1000);
-//		}
-
 		// TODO make shutdown of dynamic service more robust
-		for (Bundle scrBundle : framework.getBundleContext().getBundles()) {
-			if (scrBundle.getSymbolicName().equals(SYMBOLIC_NAME_FELIX_SCR)) {
-				if (scrBundle.getState() > Bundle.RESOLVED) {
-					scrBundle.stop();
-					while (!(scrBundle.getState() <= Bundle.RESOLVED)) {
-						Thread.sleep(100);
-					}
-					Thread.sleep(100);
-				}
-			}
-		}
+//		for (Bundle scrBundle : framework.getBundleContext().getBundles()) {
+//			if (scrBundle.getSymbolicName().equals(SYMBOLIC_NAME_FELIX_SCR)) {
+//				if (scrBundle.getState() > Bundle.RESOLVED) {
+//					scrBundle.stop();
+//					while (!(scrBundle.getState() <= Bundle.RESOLVED)) {
+//						Thread.sleep(100);
+//					}
+//					Thread.sleep(500);
+//				}
+//			}
+//		}
 
 		stop();
 		waitForStop(CLOSE_TIMEOUT);

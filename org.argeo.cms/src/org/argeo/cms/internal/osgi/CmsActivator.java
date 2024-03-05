@@ -1,9 +1,10 @@
 package org.argeo.cms.internal.osgi;
 
 import java.security.AllPermission;
-import java.util.Dictionary;
 
-import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsState;
+import org.argeo.api.uuid.NodeIdSupplier;
+import org.argeo.cms.internal.runtime.CmsStateImpl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -19,7 +20,7 @@ import org.osgi.service.permissionadmin.PermissionInfo;
  * bundle (and only it)
  */
 public class CmsActivator implements BundleActivator {
-	private final static CmsLog log = CmsLog.getLog(CmsActivator.class);
+//	private final static CmsLog log = CmsLog.getLog(CmsActivator.class);
 
 	// TODO make it configurable
 	private boolean hardened = false;
@@ -30,13 +31,6 @@ public class CmsActivator implements BundleActivator {
 	}
 
 	void destroy() {
-		try {
-			bundleContext = null;
-//			this.logReaderService = null;
-		} catch (Exception e) {
-			log.error("CMS activator shutdown failed", e);
-		}
-
 		new GogoShellKiller().start();
 	}
 
@@ -76,14 +70,14 @@ public class CmsActivator implements BundleActivator {
 
 	}
 
-	public static <T> void registerService(Class<T> clss, T service, Dictionary<String, ?> properties) {
-		if (bundleContext != null) {
-			bundleContext.registerService(clss, service, properties);
-		}
-
-	}
-
-	public static <T> T getService(Class<T> clss) {
+//	static <T> void registerService(Class<T> clss, T service, Dictionary<String, ?> properties) {
+//		if (bundleContext != null) {
+//			bundleContext.registerService(clss, service, properties);
+//		}
+//
+//	}
+//
+	static <T> T getService(Class<T> clss) {
 		if (bundleContext != null) {
 			return bundleContext.getService(bundleContext.getServiceReference(clss));
 		} else {
@@ -98,20 +92,32 @@ public class CmsActivator implements BundleActivator {
 	@Override
 	public void start(BundleContext bc) throws Exception {
 		bundleContext = bc;
-
+		CmsStateImpl cmsState = new CmsStateImpl();
+		cmsState.start();
+		bundleContext.registerService(new String[] { CmsState.class.getName(), NodeIdSupplier.class.getName() },
+				cmsState, null);
 		init();
 
 	}
 
 	@Override
 	public void stop(BundleContext bc) throws Exception {
-
-		destroy();
-		bundleContext = null;
+		try {
+			destroy();
+			CmsStateImpl cmsState = (CmsStateImpl) getService(CmsState.class);
+			cmsState.stop();
+		} finally {
+			bundleContext = null;
+		}
 	}
 
-	public static BundleContext getBundleContext() {
+	static BundleContext getBundleContext() {
 		return bundleContext;
 	}
 
+	public static String getFrameworkProperty(String key) {
+		if (bundleContext == null)
+			return null;
+		return getBundleContext().getProperty(key);
+	}
 }

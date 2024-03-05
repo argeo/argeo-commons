@@ -52,7 +52,7 @@ public class MacAddressUuidFactory extends ConcurrentUuidFactory {
 
 	}
 
-	public static byte[] hardwareAddressToNodeId(NetworkInterface nic) {
+	public static byte[] hardwareAddressToNodeId(NetworkInterface nic) throws IllegalStateException {
 		try {
 			byte[] hardwareAddress = nic.getHardwareAddress();
 			final int length = 6;
