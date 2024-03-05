@@ -79,7 +79,7 @@ public class CmsUuidFactory extends ConcurrentUuidFactory {
 			return NodeIdSupplier.randomNodeId();
 		}
 		byte[] digest = sha1(selectedIp.getAddress());
-		log.info("Use IP " + selectedIp + " hashed as " + UuidBinaryUtils.toHexString(digest) + " as node id");
+		log.debug("Use IP " + selectedIp + " hashed as " + UuidBinaryUtils.toHexString(digest) + " as node id");
 		byte[] nodeId = toNodeIdBytes(digest, 0);
 		// marks that this is not based on MAC address
 		forceToNoMacAddress(nodeId, 0);
