@@ -64,7 +64,10 @@ public class CmsDeploymentImpl implements CmsDeployment {
 	public void setHttpServer(HttpServer httpServer) {
 		Objects.requireNonNull(httpServer);
 		if (this.httpServer.isDone())
-			throw new IllegalStateException("HTTP server is already set");
+			if (httpExpected)
+				throw new IllegalStateException("HTTP server is already set");
+			else
+				return;// ignore
 		// create contexts whose handlers had already been published
 		synchronized (httpHandlers) {
 			synchronized (httpAuthenticators) {
@@ -107,7 +110,8 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		}
 		if (!this.httpServer.isDone())
 			throw new IllegalStateException("HTTP server is not set");
-		HttpContext httpContext = httpServer.resultNow().createContext(contextPath);
+		// TODO use resultNow when switching to Java 21
+		HttpContext httpContext = httpServer.join().createContext(contextPath);
 		// we want to set the authenticator BEFORE the handler actually becomes active
 		httpContext.setAuthenticator(authenticator);
 		httpContext.setHandler(httpHandler);
@@ -121,7 +125,8 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		httpHandlers.remove(contextPath);
 		if (!httpServer.isDone())
 			return;
-		httpServer.resultNow().removeContext(contextPath);
+		// TODO use resultNow when switching to Java 21
+		httpServer.join().removeContext(contextPath);
 		log.debug(() -> "Removed handler " + contextPath + " : " + httpHandler.getClass().getName());
 	}
 

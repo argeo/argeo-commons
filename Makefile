@@ -1,12 +1,4 @@
 include sdk.mk
-.PHONY: clean all osgi
-
-all: osgi
-	$(MAKE) -f Makefile-rcp.mk all
-	
-install: osgi-install
-
-uninstall: osgi-uninstall
 
 A2_CATEGORY = org.argeo.cms
 
@@ -49,10 +41,18 @@ org.argeo.api.uuid \
 org.argeo.api.acr \
 org.argeo.api.cms
 
-clean:
-	rm -rf $(BUILD_BASE)
+all: osgi-all
+	$(MAKE) -f Makefile-rcp.mk all
+	
+clean: osgi-clean
 	$(MAKE) -f Makefile-rcp.mk clean
 
-A2_BUNDLES_CLASSPATH = $(subst $(space),$(pathsep),$(strip $(A2_BUNDLES)))
+install: osgi-install
+	$(MAKE) -f Makefile-rcp.mk install
+
+uninstall: osgi-uninstall
+	$(MAKE) -f Makefile-rcp.mk uninstall
 
 include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk
+
+.PHONY: clean all install uninstall

@@ -30,7 +30,10 @@ public class ThinLoggerFinder extends LoggerFinder
 	@Override
 	public Logger getLogger(String name, Module module) {
 		lazyInit();
-		return logging.getLogger(name, module);
+		Objects.requireNonNull(name);
+		Logger logger = logging.getLogger(name, module);
+		Objects.requireNonNull(logger);
+		return logger;
 	}
 
 	private static void init() {

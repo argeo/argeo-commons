@@ -59,9 +59,22 @@ public class RuntimeManagerMain implements RuntimeManager {
 
 		logger.log(Level.TRACE, () -> "Runtime manager configuration: " + configuration);
 
+//		System.out.println("java.library.path=" + System.getProperty("java.library.path"));
 	}
 
 	public void run() {
+//		try {
+//			for (Path p : Files.newDirectoryStream(Paths.get("/usr/local/lib/a2"), "*.so")) {
+//				try {
+//					System.load(p.toString());
+//				} catch (UnsatisfiedLinkError e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+
 		OsgiRuntimeContext managerRuntimeContext = new OsgiRuntimeContext(configuration);
 		try {
 			managerRuntimeContext.run();

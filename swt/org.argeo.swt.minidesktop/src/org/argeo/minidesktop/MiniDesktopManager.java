@@ -44,82 +44,100 @@ public class MiniDesktopManager {
 		this.stacking = stacking;
 	}
 
+	public MiniDesktopManager() {
+		this(false, false);
+	}
+
+	public void start() {
+		init();
+	}
+
+	public void stop() {
+		dispose();
+		if (display != null) {
+			display.dispose();
+			display = null;
+		}
+	}
+
 	public void init() {
 		Display.setAppName("Mini SWT Desktop");
 		display = Display.getCurrent();
 		if (display != null)
 			throw new IllegalStateException("Already a display " + display);
-		display = new Display();
+		display = Display.getDefault();
 
-		if (display.getTouchEnabled()) {
-			System.out.println("Touch enabled.");
-		}
+		display.syncExec(() -> {
+			if (display.getTouchEnabled()) {
+				System.out.println("Touch enabled.");
+			}
 
-		images = new MiniDesktopImages(display);
+			images = new MiniDesktopImages(display);
 
-		int toolBarSize = 48;
+			int toolBarSize = 48;
 
-		if (isFullscreen()) {
-			rootShell = new Shell(display, SWT.NO_TRIM);
-			rootShell.setFullScreen(true);
-			Rectangle bounds = display.getBounds();
-			rootShell.setLocation(0, 0);
-			rootShell.setSize(bounds.width, bounds.height);
-		} else {
-			rootShell = new Shell(display, SWT.CLOSE | SWT.RESIZE);
-			Rectangle shellArea = rootShell.computeTrim(200, 200, 800, 480);
-			rootShell.setSize(shellArea.width, shellArea.height);
-			rootShell.setText(Display.getAppName());
-			rootShell.setImage(images.terminalIcon);
-		}
+			if (isFullscreen()) {
+				rootShell = new Shell(display, SWT.NO_TRIM);
+				rootShell.setFullScreen(true);
+				Rectangle bounds = display.getBounds();
+				rootShell.setLocation(0, 0);
+				rootShell.setSize(bounds.width, bounds.height);
+			} else {
+				rootShell = new Shell(display, SWT.CLOSE | SWT.RESIZE);
+				Rectangle shellArea = rootShell.computeTrim(200, 200, 800, 480);
+				rootShell.setSize(shellArea.width, shellArea.height);
+				rootShell.setText(Display.getAppName());
+				rootShell.setImage(images.terminalIcon);
+			}
 
-		rootShell.setLayout(noSpaceGridLayout(new GridLayout(2, false)));
-		Composite toolBarArea = new Composite(rootShell, SWT.NONE);
-		toolBarArea.setLayoutData(new GridData(toolBarSize, rootShell.getSize().y));
+			rootShell.setLayout(noSpaceGridLayout(new GridLayout(2, false)));
+			Composite toolBarArea = new Composite(rootShell, SWT.NONE);
+			toolBarArea.setLayoutData(new GridData(toolBarSize, rootShell.getSize().y));
 
-		ToolBar toolBar;
-		if (isFullscreen()) {
-			toolBarShell = new Shell(rootShell, SWT.NO_TRIM | SWT.ON_TOP);
-			toolBar = new ToolBar(toolBarShell, SWT.VERTICAL | SWT.FLAT | SWT.BORDER);
-			createDock(toolBar);
-			toolBarShell.pack();
-			toolBarArea.setLayoutData(new GridData(toolBar.getSize().x, toolBar.getSize().y));
-		} else {
-			toolBar = new ToolBar(toolBarArea, SWT.VERTICAL | SWT.FLAT | SWT.BORDER);
-			createDock(toolBar);
-			toolBarArea.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		}
+			ToolBar toolBar;
+			if (isFullscreen()) {
+				toolBarShell = new Shell(rootShell, SWT.NO_TRIM | SWT.ON_TOP);
+				toolBar = new ToolBar(toolBarShell, SWT.VERTICAL | SWT.FLAT | SWT.BORDER);
+				createDock(toolBar);
+				toolBarShell.pack();
+				toolBarArea.setLayoutData(new GridData(toolBar.getSize().x, toolBar.getSize().y));
+			} else {
+				toolBar = new ToolBar(toolBarArea, SWT.VERTICAL | SWT.FLAT | SWT.BORDER);
+				createDock(toolBar);
+				toolBarArea.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			}
 
-		if (isStacking()) {
-			tabFolder = new CTabFolder(rootShell, SWT.MULTI | SWT.BORDER | SWT.BOTTOM);
-			tabFolder.setLayout(noSpaceGridLayout(new GridLayout()));
-			tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+			if (isStacking()) {
+				tabFolder = new CTabFolder(rootShell, SWT.MULTI | SWT.BORDER | SWT.BOTTOM);
+				tabFolder.setLayout(noSpaceGridLayout(new GridLayout()));
+				tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-			Color selectionBackground = display.getSystemColor(SWT.COLOR_LIST_SELECTION);
-			tabFolder.setSelectionBackground(selectionBackground);
+				Color selectionBackground = display.getSystemColor(SWT.COLOR_LIST_SELECTION);
+				tabFolder.setSelectionBackground(selectionBackground);
 
-			// background
-			Control background = createBackground(tabFolder);
-			CTabItem homeTabItem = new CTabItem(tabFolder, SWT.NONE);
-			homeTabItem.setText("Home");
-			homeTabItem.setImage(images.homeIcon);
-			homeTabItem.setControl(background);
-			tabFolder.setFocus();
-		} else {
-			createBackground(rootShell);
-		}
+				// background
+				Control background = createBackground(tabFolder);
+				CTabItem homeTabItem = new CTabItem(tabFolder, SWT.NONE);
+				homeTabItem.setText("Home");
+				homeTabItem.setImage(images.homeIcon);
+				homeTabItem.setControl(background);
+				tabFolder.setFocus();
+			} else {
+				createBackground(rootShell);
+			}
 
-		rootShell.open();
-		// rootShell.layout(true, true);
+			rootShell.open();
+			// rootShell.layout(true, true);
 
-		if (toolBarShell != null) {
-			int toolBarShellY = (display.getBounds().height - toolBar.getSize().y) / 2;
-			toolBarShell.setLocation(0, toolBarShellY);
-			toolBarShell.open();
-		}
+			if (toolBarShell != null) {
+				int toolBarShellY = (display.getBounds().height - toolBar.getSize().y) / 2;
+				toolBarShell.setLocation(0, toolBarShellY);
+				toolBarShell.open();
+			}
 
-		long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
-		System.out.println("SWT Mini Desktop Manager available in " + jvmUptime + " ms.");
+			long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
+			System.out.println("SWT Mini Desktop Manager available in " + jvmUptime + " ms.");
+		});
 	}
 
 	protected void createDock(ToolBar toolBar) {

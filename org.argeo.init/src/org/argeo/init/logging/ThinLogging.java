@@ -194,6 +194,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		if (!loggers.containsKey(name)) {
 			ThinLogger logger = new ThinLogger(name, computeApplicableLevel(name));
 			loggers.put(name, logger);
+			return logger;
 		}
 		return loggers.get(name);
 	}

@@ -1,7 +1,4 @@
 include sdk.mk
-.PHONY: clean all osgi
-
-all: osgi 
 
 A2_CATEGORY = org.argeo.cms
 
@@ -19,9 +16,16 @@ osgi/api/org.argeo.tp.osgi \
 swt/rcp/org.argeo.tp.swt \
 lib/linux/x86_64/swt/rcp/org.argeo.tp.swt \
 
-clean:
-	rm -rf $(BUILD_BASE)
-
 VPATH = .:swt/rcp
 
+all: osgi-all
+
+clean: osgi-clean
+	
+install: osgi-install
+
+uninstall: osgi-uninstall
+
 include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk
+
+.PHONY: clean all install uninstall
