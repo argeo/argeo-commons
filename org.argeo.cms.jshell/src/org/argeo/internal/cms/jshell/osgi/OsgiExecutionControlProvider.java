@@ -212,7 +212,7 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 
 	static Path bundleToPath(Path frameworkLocation, Bundle bundle) throws IOException {
 		String location = bundle.getLocation();
-		if (location.startsWith("initial@reference:file:")) {
+		if (location.startsWith("initial@reference:file:")) {// Eclipse IDE environment
 			location = location.substring("initial@reference:file:".length());
 			Path p = frameworkLocation.getParent().resolve(location).toAbsolutePath();
 			if (Files.exists(p)) {
@@ -220,6 +220,15 @@ public class OsgiExecutionControlProvider implements ExecutionControlProvider {
 				// TODO load dev.properties from OSGi configuration directory
 				if (Files.isDirectory(p))
 					p = p.resolve("bin");
+				return p;
+			} else {
+				log.warn("Ignore bundle " + p + " as it does not exist");
+				return null;
+			}
+		} else if (location.startsWith("reference:file:")) {// a2+reference
+			location = location.substring("reference:".length());
+			Path p = Paths.get(URI.create(location));
+			if (Files.exists(p)) {
 				return p;
 			} else {
 				log.warn("Ignore bundle " + p + " as it does not exist");

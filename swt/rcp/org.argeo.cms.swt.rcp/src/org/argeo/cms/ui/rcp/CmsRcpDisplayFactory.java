@@ -61,15 +61,18 @@ public class CmsRcpDisplayFactory {
 		public void run() {
 			try {
 				display = Display.getDefault();
-				display.setRuntimeExceptionHandler((e) -> e.printStackTrace());
-				display.setErrorHandler((e) -> e.printStackTrace());
+				boolean displayOwner = display.getThread() == this;
+				if (displayOwner) {
+					display.setRuntimeExceptionHandler((e) -> e.printStackTrace());
+					display.setErrorHandler((e) -> e.printStackTrace());
 
-				while (!shutdown) {
-					if (!display.readAndDispatch())
-						display.sleep();
+					while (!shutdown) {
+						if (!display.readAndDispatch())
+							display.sleep();
+					}
+					display.dispose();
+					display = null;
 				}
-				display.dispose();
-				display = null;
 			} catch (UnsatisfiedLinkError e) {
 				logger.log(Level.ERROR,
 						"Cannot load SWT, either because the SWT DLLs are no in the java.library.path,"
@@ -79,6 +82,7 @@ public class CmsRcpDisplayFactory {
 		}
 	}
 
+	@Deprecated
 	public Display getDisplay() {
 		return display;
 	}

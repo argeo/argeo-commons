@@ -96,12 +96,21 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 		}
 		OsgiBoot osgiBoot = new OsgiBoot(bundleContext);
 		String frameworkUuuid = bundleContext.getProperty(Constants.FRAMEWORK_UUID);
-		new Thread("OSGi boot framework " + frameworkUuuid) {
+
+		// separate thread in order to improve logging
+		Thread osgiBootThread = new Thread("OSGi boot framework " + frameworkUuuid) {
 			@Override
 			public void run() {
 				osgiBoot.bootstrap(config);
 			}
-		}.start();
+		};
+		osgiBootThread.start();
+		// TODO return a completable stage so that inits can run in parallel
+//		try {
+//			osgiBootThread.join(60 * 1000);
+//		} catch (InterruptedException e) {
+//			// silent
+//		}
 	}
 
 	public void update() {

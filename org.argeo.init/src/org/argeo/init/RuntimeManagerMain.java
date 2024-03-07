@@ -2,19 +2,14 @@ package org.argeo.init;
 
 import static org.argeo.api.init.InitConstants.SYMBOLIC_NAME_INIT;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 
@@ -43,19 +38,20 @@ public class RuntimeManagerMain implements RuntimeManager {
 
 	private final static long RUNTIME_SHUTDOWN_TIMEOUT = 60 * 1000;
 
-	private final static String JVM_ARGS = "jvm.args";
-
 	private Path baseConfigArea;
-	private Path baseStateArea;
+	private Path baseWritableArea;
 	private Map<String, String> configuration = new HashMap<>();
 
 	private Map<String, OsgiRuntimeContext> runtimeContexts = new TreeMap<>();
 
 	RuntimeManagerMain(Path configArea, Path stateArea) {
-		loadConfig(configArea, configuration);
-		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, stateArea.toUri().toString());
+		RuntimeManager.loadConfig(configArea, configuration);
+		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, stateArea.resolve(STATE).toUri().toString());
+		// use config area if instance area is not set
+		if (!configuration.containsKey(InitConstants.PROP_OSGI_INSTANCE_AREA))
+			configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA, stateArea.resolve(DATA).toUri().toString());
 		this.baseConfigArea = configArea.getParent();
-		this.baseStateArea = stateArea.getParent();
+		this.baseWritableArea = stateArea.getParent();
 
 		logger.log(Level.TRACE, () -> "Runtime manager configuration: " + configuration);
 
@@ -129,44 +125,20 @@ public class RuntimeManagerMain implements RuntimeManager {
 		}
 	}
 
-	public static void loadConfig(Path dir, Map<String, String> config) {
-		try {
-//			System.out.println("Load from " + dir);
-			Path jvmArgsPath = dir.resolve(JVM_ARGS);
-			if (!Files.exists(jvmArgsPath)) {
-				// load from parent directory
-				loadConfig(dir.getParent(), config);
-			}
-
-			if (Files.exists(dir))
-				for (Path p : Files.newDirectoryStream(dir, "*.ini")) {
-					Properties props = new Properties();
-					try (InputStream in = Files.newInputStream(p)) {
-						props.load(in);
-					}
-					for (Object key : props.keySet()) {
-						config.put(key.toString(), props.getProperty(key.toString()));
-					}
-				}
-		} catch (IOException e) {
-			throw new UncheckedIOException("Cannot load configuration from " + dir, e);
-		}
-	}
-
 	OsgiRuntimeContext loadRuntime(String relPath, Consumer<Map<String, String>> configCallback) {
 		closeRuntime(relPath, false);
-		Path stateArea = baseStateArea.resolve(relPath);
+		Path writableArea = baseWritableArea.resolve(relPath);
 		Path configArea = baseConfigArea.resolve(relPath);
 		Map<String, String> config = new HashMap<>();
-		loadConfig(configArea, config);
-		config.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, stateArea.toUri().toString());
+		RuntimeManager.loadConfig(configArea, config);
+		config.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, writableArea.resolve(STATE).toUri().toString());
 
 		if (configCallback != null)
 			configCallback.accept(config);
 
 		// use config area if instance area is not set
 		if (!config.containsKey(InitConstants.PROP_OSGI_INSTANCE_AREA))
-			config.put(InitConstants.PROP_OSGI_INSTANCE_AREA, config.get(InitConstants.PROP_OSGI_CONFIGURATION_AREA));
+			config.put(InitConstants.PROP_OSGI_INSTANCE_AREA, writableArea.resolve(DATA).toUri().toString());
 
 		OsgiRuntimeContext runtimeContext = new OsgiRuntimeContext(config);
 		runtimeContexts.put(relPath, runtimeContext);
@@ -177,6 +149,21 @@ public class RuntimeManagerMain implements RuntimeManager {
 		OsgiRuntimeContext runtimeContext = loadRuntime(relPath, configCallback);
 		runtimeContext.run();
 		Framework framework = runtimeContext.getFramework();
+
+//		for (Bundle b : framework.getBundleContext().getBundles()) {
+//			try {
+////				if (b.getSymbolicName().startsWith("org.eclipse.swt.gtk")) {
+////					b.uninstall();
+////				}
+////				else if (b.getSymbolicName().startsWith("org.eclipse.jface")) {
+////					b.uninstall();
+////				}
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+
 		if (framework != null) {// in case the framework has closed very quickly after run
 			framework.getBundleContext().addFrameworkListener((e) -> {
 				if (e.getType() >= FrameworkEvent.STOPPED) {

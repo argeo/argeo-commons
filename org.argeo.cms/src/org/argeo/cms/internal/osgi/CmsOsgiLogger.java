@@ -44,7 +44,10 @@ public class CmsOsgiLogger implements LogListener {
 	//
 	@Override
 	public void logged(LogEntry status) {
-		CmsLog pluginLog = CmsLog.getLog(status.getBundle().getSymbolicName());
+		String loggerName = status.getBundle().getSymbolicName();
+		if (loggerName == null)
+			loggerName = "org.argeo.ext.osgi";
+		CmsLog pluginLog = CmsLog.getLog(loggerName);
 		LogLevel severity = status.getLogLevel();
 		if (severity.equals(LogLevel.ERROR) && pluginLog.isErrorEnabled()) {
 			// FIXME Fix Argeo TP

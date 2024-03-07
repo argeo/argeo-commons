@@ -68,7 +68,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	// we don't synchronize maps on purpose as it would be
 	// too expensive during normal operation
 	// updates to the config may be shortly inconsistent
-	private SortedMap<String, ThinLogger> loggers = new TreeMap<>();
+	private SortedMap<String, ThinLogger> loggers = Collections.synchronizedSortedMap(new TreeMap<>());
 	private NavigableMap<String, Level> levels = new TreeMap<>();
 	private volatile boolean updatingConfiguration = false;
 
@@ -191,6 +191,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	}
 
 	public Logger getLogger(String name, Module module) {
+		Objects.requireNonNull(name, "logger name");
 		if (!loggers.containsKey(name)) {
 			ThinLogger logger = new ThinLogger(name, computeApplicableLevel(name));
 			loggers.put(name, logger);

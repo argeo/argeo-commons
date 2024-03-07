@@ -99,19 +99,19 @@ public class OsgiBoot {
 						provisioningManager.registerSource(
 								A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/a2" + queryPart);
 					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/share/a2" + queryPart);
-					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/lib/a2" + queryPart);
+//					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/lib/a2" + queryPart);
 					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/share/a2" + queryPart);
-					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/lib/a2" + queryPart);
+//					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/lib/a2" + queryPart);
 				} else if (source.trim().equals(A2Source.DEFAULT_A2_REFERENCE_URI)) {
 					if (Files.exists(homePath))
 						provisioningManager.registerSource(A2Source.SCHEME_A2_REFERENCE + "://" + homePath.toString()
 								+ "/.local/share/a2" + queryPart);
 					provisioningManager
 							.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/local/share/a2" + queryPart);
-					provisioningManager
-							.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/local/lib/a2" + queryPart);
+//					provisioningManager
+//							.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/local/lib/a2" + queryPart);
 					provisioningManager.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/share/a2" + queryPart);
-					provisioningManager.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/lib/a2" + queryPart);
+//					provisioningManager.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/lib/a2" + queryPart);
 				} else {
 					provisioningManager.registerSource(source + queryPart);
 				}

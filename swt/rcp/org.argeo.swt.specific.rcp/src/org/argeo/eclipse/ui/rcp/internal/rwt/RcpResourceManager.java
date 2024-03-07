@@ -1,13 +1,11 @@
 package org.argeo.eclipse.ui.rcp.internal.rwt;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.argeo.cms.util.StreamUtils;
 import org.eclipse.rap.rwt.service.ResourceManager;
 
 public class RcpResourceManager implements ResourceManager {
@@ -15,11 +13,13 @@ public class RcpResourceManager implements ResourceManager {
 
 	@Override
 	public void register(String name, InputStream in) {
-		try {
-			register.put(name, StreamUtils.toByteArray(in));
-		} catch (IOException e) {
-			throw new RuntimeException("Cannot register " + name, e);
-		}
+		// FIXME implement it
+		throw new UnsupportedOperationException();
+//		try {
+//			register.put(name, StreamUtils.toByteArray(in));
+//		} catch (IOException e) {
+//			throw new RuntimeException("Cannot register " + name, e);
+//		}
 	}
 
 	@Override

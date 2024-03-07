@@ -123,7 +123,7 @@ public class CmsDeploymentImpl implements CmsDeployment {
 		if (contextPath == null)
 			return; // ignore silently
 		httpHandlers.remove(contextPath);
-		if (!httpServer.isDone())
+		if (!httpExpected || !httpServer.isDone())
 			return;
 		// TODO use resultNow when switching to Java 21
 		httpServer.join().removeContext(contextPath);
