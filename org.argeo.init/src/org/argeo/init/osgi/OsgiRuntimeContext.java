@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.argeo.api.init.RuntimeContext;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -28,7 +27,7 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 	private final static long STOP_FOR_UPDATE_TIMEOUT = 60 * 1000;
 	private final static long CLOSE_TIMEOUT = 60 * 1000;
 
-	private final static String SYMBOLIC_NAME_FELIX_SCR = "org.apache.felix.scr";
+	// private final static String SYMBOLIC_NAME_FELIX_SCR = "org.apache.felix.scr";
 
 	private Map<String, String> config;
 	private Framework framework;

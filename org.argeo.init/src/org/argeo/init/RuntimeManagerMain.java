@@ -59,18 +59,6 @@ public class RuntimeManagerMain implements RuntimeManager {
 	}
 
 	public void run() {
-//		try {
-//			for (Path p : Files.newDirectoryStream(Paths.get("/usr/local/lib/a2"), "*.so")) {
-//				try {
-//					System.load(p.toString());
-//				} catch (UnsatisfiedLinkError e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
 		OsgiRuntimeContext managerRuntimeContext = new OsgiRuntimeContext(configuration);
 		try {
 			managerRuntimeContext.run();
@@ -149,21 +137,6 @@ public class RuntimeManagerMain implements RuntimeManager {
 		OsgiRuntimeContext runtimeContext = loadRuntime(relPath, configCallback);
 		runtimeContext.run();
 		Framework framework = runtimeContext.getFramework();
-
-//		for (Bundle b : framework.getBundleContext().getBundles()) {
-//			try {
-////				if (b.getSymbolicName().startsWith("org.eclipse.swt.gtk")) {
-////					b.uninstall();
-////				}
-////				else if (b.getSymbolicName().startsWith("org.eclipse.jface")) {
-////					b.uninstall();
-////				}
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-
 		if (framework != null) {// in case the framework has closed very quickly after run
 			framework.getBundleContext().addFrameworkListener((e) -> {
 				if (e.getType() >= FrameworkEvent.STOPPED) {
