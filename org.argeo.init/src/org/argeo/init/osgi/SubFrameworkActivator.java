@@ -1,17 +1,22 @@
 package org.argeo.init.osgi;
 
+import static java.lang.System.Logger.Level.INFO;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,7 +26,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.BundleReference;
+import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.connect.ConnectContent;
 import org.osgi.framework.connect.ConnectFrameworkFactory;
 import org.osgi.framework.connect.ConnectModule;
@@ -30,56 +36,66 @@ import org.osgi.framework.launch.Framework;
 import org.osgi.framework.wiring.BundleWiring;
 
 public class SubFrameworkActivator implements BundleActivator {
+	private final static Logger logger = System.getLogger(SubFrameworkActivator.class.getName());
+
 //	private final static String EQUINOX_FRAMEWORK_CLASS = "org.eclipse.osgi.launch.Equinox";
 	private final static String EQUINOX_FRAMEWORK_FACTORY_CLASS = "org.eclipse.osgi.launch.EquinoxFactory";
 
 //	private ClassLoader bundleClassLoader;
 //	private ClassLoader subFrameworkClassLoader;
-	private BundleContext bundleContext;
+	private BundleContext foreignBundleContext;
 
 	private ConnectFrameworkFactory frameworkFactory;
 
+	private Map<UUID, Framework> subFrameworks = Collections.synchronizedMap(new HashMap<>());
+
+	private UUID foreignFrameworkUuid;
+
 	@Override
 	public void start(BundleContext context) throws Exception {
-		this.bundleContext = context;
+		this.foreignBundleContext = context;
+		foreignFrameworkUuid = UUID.fromString(foreignBundleContext.getProperty(Constants.FRAMEWORK_UUID));
 
 		try {
-			Bundle bundle = context.getBundle();
-			ClassLoader bundleClassLoader = bundle.adapt(BundleWiring.class).getClassLoader();
+//			Bundle bundle = context.getBundle();
+//			ClassLoader bundleClassLoader = bundle.adapt(BundleWiring.class).getClassLoader();
 //			subFrameworkClassLoader = new URLClassLoader(new URL[0], bundleClassLoader);
 
 			@SuppressWarnings("unchecked")
-			Class<? extends ConnectFrameworkFactory> frameworkFactoryClass = (Class<? extends ConnectFrameworkFactory>) bundleClassLoader
-					.loadClass(EQUINOX_FRAMEWORK_FACTORY_CLASS);
+			Class<? extends ConnectFrameworkFactory> frameworkFactoryClass = (Class<? extends ConnectFrameworkFactory>) Framework.class
+					.getClassLoader().loadClass(EQUINOX_FRAMEWORK_FACTORY_CLASS);
 			frameworkFactory = frameworkFactoryClass.getConstructor().newInstance();
 
-			new Thread() {
+			boolean test = true;
+			if (test)
+				new Thread() {
 
-				@Override
-				public void run() {
-					for (int i = 0; i < 5; i++) {
-						Map<String, String> config = new HashMap<>();
-						Path basePase = Paths.get(System.getProperty("user.home"), ".config/argeo/test/", "test" + i);
-						config.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
-								basePase.resolve(RuntimeManager.STATE).toString());
-						config.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
-								basePase.resolve(RuntimeManager.DATA).toString());
-						config.put("argeo.host", "host" + i);
-						config.put("osgi.console", "host" + i + ":2023");
-						startFramework(config);
+					@Override
+					public void run() {
+						for (int i = 0; i < 5; i++) {
+							Map<String, String> config = new HashMap<>();
+							Path basePase = Paths.get(System.getProperty("user.home"), ".config/argeo/test/",
+									"test" + i);
+							config.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
+									basePase.resolve(RuntimeManager.STATE).toString());
+							config.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
+									basePase.resolve(RuntimeManager.DATA).toString());
+							config.put("argeo.host", "host" + i);
+							config.put("osgi.console", "host" + i + ":2023");
+							createFramework(config);
+						}
 					}
-				}
 
-			}.start();
+				}.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
 
-	Framework startFramework(Map<String, String> config) {
+	Framework createFramework(Map<String, String> config) {
 		try {
-			URL bundleConfigUrl = bundleContext.getBundle().getEntry("config.ini");
+			URL bundleConfigUrl = foreignBundleContext.getBundle().getEntry("config.ini");
 			try (InputStream in = bundleConfigUrl.openStream()) {
 				RuntimeManager.loadConfig(in, config);
 			}
@@ -89,7 +105,7 @@ public class SubFrameworkActivator implements BundleActivator {
 //			config.put("osgi.parentClassLoader", "app");
 //			config.put("osgi.contextClassLoaderParent", "app");
 
-			ModuleConnector moduleConnector = new ParentBundleModuleConnector(bundleContext);
+			ModuleConnector moduleConnector = new ParentBundleModuleConnector(foreignBundleContext);
 
 //			URL frameworkUrl = URI.create(bundleContext.getProperty("osgi.framework")).toURL();
 //			URLClassLoader frameworkClassLoader = new URLClassLoader(new URL[] { frameworkUrl, });
@@ -98,11 +114,19 @@ public class SubFrameworkActivator implements BundleActivator {
 //			Framework framework = frameworkClass.getConstructor(Map.class, ModuleConnector.class).newInstance(config,
 //					moduleConnector);
 
+			config.put(InitConstants.PROP_ARGEO_OSGI_PARENT_UUID, foreignFrameworkUuid.toString());
 			Framework framework = frameworkFactory.newFramework(config, moduleConnector);
 
-			framework.init();
+			framework.init((e) -> {
+				UUID frameworkUuid = UUID
+						.fromString(framework.getBundleContext().getProperty(Constants.FRAMEWORK_UUID));
+				if (e.getType() == FrameworkEvent.STOPPED) {
+					subFrameworks.remove(frameworkUuid);
+					logger.log(INFO, "Removed subframework " + frameworkUuid + " in parent " + foreignFrameworkUuid);
+				}
+			});
 
-			for (Bundle b : bundleContext.getBundles()) {
+			for (Bundle b : foreignBundleContext.getBundles()) {
 				if (b.getBundleId() == 0)
 					continue;
 				String location = b.getLocation();
@@ -110,7 +134,6 @@ public class SubFrameworkActivator implements BundleActivator {
 						|| location.contains("/org.argeo.tp.sys/") //
 						|| location.contains("/org.argeo.tp.httpd/") //
 						|| location.contains("/org.argeo.tp.sshd/") //
-						|| location.contains("/org.argeo.cms/org.argeo.init") //
 				) {
 					framework.getBundleContext().installBundle(b.getLocation());
 				}
@@ -133,6 +156,10 @@ public class SubFrameworkActivator implements BundleActivator {
 //				if (bc == null)
 //					System.err.println(b.getSymbolicName() + " BC null");
 //			}
+
+			UUID frameworkUuid = UUID.fromString(framework.getBundleContext().getProperty(Constants.FRAMEWORK_UUID));
+			subFrameworks.put(frameworkUuid, framework);
+			logger.log(INFO, "Created subframework " + frameworkUuid + " in parent " + foreignFrameworkUuid);
 			return framework;
 		} catch (Exception e) {
 			throw new IllegalStateException("Cannot start framework", e);
@@ -141,11 +168,21 @@ public class SubFrameworkActivator implements BundleActivator {
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
-		bundleContext = null;
+		for (Iterator<Framework> it = subFrameworks.values().iterator(); it.hasNext();) {
+			Framework framework = it.next();
+			framework.stop();
+			it.remove();
+
+		}
+//		for (Framework framework : subFrameworks.values()) {
+//			framework.stop();
+//		}
+		subFrameworks.clear();
+		foreignBundleContext = null;
 		frameworkFactory = null;
 	}
 
-	class ParentBundleModuleConnector implements ModuleConnector {
+	static class ParentBundleModuleConnector implements ModuleConnector {
 		private final BundleContext foreignBundleContext;
 		private BundleContext localBundleContext;
 
@@ -177,7 +214,8 @@ public class SubFrameworkActivator implements BundleActivator {
 		public Optional<ConnectModule> connect(String location) throws BundleException {
 			Bundle bundle = foreignBundleContext.getBundle(location);
 			if (bundle != null && bundle.getBundleId() != 0) {
-				System.out.println("Foreign Bundle: " + bundle.getSymbolicName() + " " + location);
+				// System.out.println("Foreign Bundle: " + bundle.getSymbolicName() + " " +
+				// location);
 				ConnectModule module = new ConnectModule() {
 
 					@Override
@@ -191,7 +229,7 @@ public class SubFrameworkActivator implements BundleActivator {
 		}
 	}
 
-	class ForeignBundleClassLoader extends ClassLoader implements BundleReference {
+	static class ForeignBundleClassLoader extends ClassLoader {// implements BundleReference {
 		private BundleContext localBundleContext;
 		private Bundle foreignBundle;
 
@@ -202,24 +240,42 @@ public class SubFrameworkActivator implements BundleActivator {
 			this.foreignBundle = foreignBundle;
 		}
 
-		@Override
-		public Bundle getBundle() {
+//		@Override
+		protected Bundle getBundle() {
 			return localBundleContext.getBundle(foreignBundle.getLocation());
 		}
+
+//		@Override
+//		public URL getResource(String resName) {
+//			URL res = super.getResource(resName);
+//			return res;
+//		}
+//
+//		@Override
+//		protected URL findResource(String resName) {
+//			Bundle localBundle = getBundle();
+//			if (localBundle != null) {
+//				URL res = localBundle.getEntry(resName);
+//				if (res != null)
+//					return res;
+//			}
+//			return null;
+//		}
+
 	}
 
-	class ForeignBundleConnectContent implements ConnectContent {
-		private final Bundle bundle;
+	static class ForeignBundleConnectContent implements ConnectContent {
+		private final Bundle foreignBundle;
 		private final ClassLoader classLoader;
 
-		public ForeignBundleConnectContent(BundleContext localBundleContext, Bundle bundle) {
-			this.bundle = bundle;
-			this.classLoader = new ForeignBundleClassLoader(localBundleContext, bundle);
+		public ForeignBundleConnectContent(BundleContext localBundleContext, Bundle foreignBundle) {
+			this.foreignBundle = foreignBundle;
+			this.classLoader = new ForeignBundleClassLoader(localBundleContext, foreignBundle);
 		}
 
 		@Override
 		public Optional<Map<String, String>> getHeaders() {
-			Dictionary<String, String> dict = bundle.getHeaders();
+			Dictionary<String, String> dict = foreignBundle.getHeaders();
 			List<String> keys = Collections.list(dict.keys());
 			Map<String, String> dictCopy = keys.stream().collect(Collectors.toMap(Function.identity(), dict::get));
 			return Optional.of(dictCopy);
@@ -227,22 +283,24 @@ public class SubFrameworkActivator implements BundleActivator {
 
 		@Override
 		public Iterable<String> getEntries() throws IOException {
-			List<String> lst = Collections.list(bundle.findEntries("", "*", true)).stream().map((u) -> u.getPath())
-					.toList();
+			List<String> lst = Collections.list(foreignBundle.findEntries("", "*", true)).stream()
+					.map((u) -> u.getPath()).toList();
 			return lst;
 		}
 
 		@Override
 		public Optional<ConnectEntry> getEntry(String path) {
-			URL u = bundle.getEntry(path);
+			URL u = foreignBundle.getEntry(path);
 			if (u == null) {
-				u = bundle.getEntry("bin/" + path);
+				u = foreignBundle.getEntry("bin/" + path);
 				// System.err.println(u2);
 			}
 			if (u == null) {
 				if ("plugin.xml".equals(path))
 					return Optional.empty();
-				System.err.println(bundle.getSymbolicName() + " " + path + " not found");
+				if (path.startsWith("META-INF/versions/"))
+					return Optional.empty();
+				System.err.println(foreignBundle.getSymbolicName() + " " + path + " not found");
 				return Optional.empty();
 			}
 			URL url = u;
@@ -255,8 +313,7 @@ public class SubFrameworkActivator implements BundleActivator {
 
 				@Override
 				public long getLastModified() {
-					// FIXME
-					return System.currentTimeMillis();
+					return foreignBundle.getLastModified();
 				}
 
 				@Override
@@ -289,6 +346,7 @@ public class SubFrameworkActivator implements BundleActivator {
 
 		@Override
 		public void close() throws IOException {
+
 		}
 
 	}

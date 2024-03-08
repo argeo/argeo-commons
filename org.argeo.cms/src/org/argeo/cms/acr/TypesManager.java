@@ -118,6 +118,11 @@ class TypesManager {
 				List<StreamSource> sourcesToUse = new ArrayList<>();
 				for (URL sourceUrl : sources) {
 					sourcesToUse.add(new StreamSource(sourceUrl.toExternalForm()));
+//					try {
+//						sourcesToUse.add(new StreamSource(sourceUrl.openStream()));
+//					} catch (IOException e) {
+//						log.error("Cannot open schema source " + sourceUrl);
+//					}
 				}
 				schema = schemaFactory.newSchema(sourcesToUse.toArray(new Source[sourcesToUse.size()]));
 //				for (StreamSource source : sourcesToUse) {

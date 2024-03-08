@@ -4,6 +4,10 @@ Import-Package: \
 org.osgi.*;version=0.0.0,\
 *
 
+Export-Package:\
+org.argeo.cms.acr.schemas,\
+*
+
 Service-Component:\
 OSGI-INF/cmsOsgiLogger.xml,\
 OSGI-INF/cmsUuidFactory.xml,\

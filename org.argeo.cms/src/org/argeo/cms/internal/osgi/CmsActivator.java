@@ -21,18 +21,12 @@ import org.osgi.service.permissionadmin.PermissionInfo;
  */
 public class CmsActivator implements BundleActivator {
 //	private final static CmsLog log = CmsLog.getLog(CmsActivator.class);
+	private final static String PROP_ARGEO_OSGI_PARENT_UUID = "argeo.osgi.parent.uuid";
 
 	// TODO make it configurable
 	private boolean hardened = false;
 
 	private static BundleContext bundleContext;
-
-	void init() {
-	}
-
-	void destroy() {
-		new GogoShellKiller().start();
-	}
 
 	protected void initSecurity() {
 		// code-level permissions
@@ -96,15 +90,15 @@ public class CmsActivator implements BundleActivator {
 		cmsState.start();
 		bundleContext.registerService(new String[] { CmsState.class.getName(), NodeIdSupplier.class.getName() },
 				cmsState, null);
-		init();
-
 	}
 
 	@Override
 	public void stop(BundleContext bc) throws Exception {
 		try {
-			destroy();
 			CmsStateImpl cmsState = (CmsStateImpl) getService(CmsState.class);
+			String parentFrameworkuuid = bc.getProperty(PROP_ARGEO_OSGI_PARENT_UUID);
+			if (parentFrameworkuuid == null)
+				new GogoShellKiller().start();
 			cmsState.stop();
 		} finally {
 			bundleContext = null;

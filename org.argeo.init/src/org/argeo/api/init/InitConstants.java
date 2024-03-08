@@ -9,6 +9,8 @@ public interface InitConstants {
 	String PROP_OSGI_CONFIGURATION_AREA = "osgi.configuration.area";
 	String PROP_OSGI_SHARED_CONFIGURATION_AREA = "osgi.sharedConfiguration.area";
 	String PROP_ARGEO_OSGI_MAX_START_LEVEL = "argeo.osgi.maxStartLevel";
+	/** UUID of the parent framework. Marks a nested runtime. */
+	String PROP_ARGEO_OSGI_PARENT_UUID = "argeo.osgi.parent.uuid";
 
 	// OSGi standard properties
 	String PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL = "osgi.bundles.defaultStartLevel";
