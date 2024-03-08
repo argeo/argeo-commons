@@ -17,11 +17,10 @@ import org.argeo.api.init.InitConstants;
 import org.argeo.api.init.RuntimeContext;
 import org.argeo.api.init.RuntimeManager;
 import org.argeo.init.logging.ThinLoggerFinder;
+import org.argeo.init.osgi.OsgiBoot;
 import org.argeo.init.osgi.OsgiRuntimeContext;
 import org.argeo.internal.init.InternalState;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.launch.Framework;
 
@@ -69,16 +68,12 @@ public class RuntimeManagerMain implements RuntimeManager {
 
 			BundleContext bc = managerRuntimeContext.getFramework().getBundleContext();
 			// uninstall init as a bundle since it will be available via OSGi system
-			for (Bundle b : bc.getBundles()) {
-				if (b.getSymbolicName().equals(SYMBOLIC_NAME_INIT)) {
-					b.uninstall();
-				}
-			}
+			OsgiBoot.uninstallBundles(bc, SYMBOLIC_NAME_INIT);
 			bc.registerService(RuntimeManager.class, this, new Hashtable<>(configuration));
 			logger.log(Level.DEBUG, "Registered runtime manager");
 
 			managerRuntimeContext.waitForStop(0);
-		} catch (InterruptedException | BundleException e) {
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}

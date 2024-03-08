@@ -14,12 +14,12 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.SortedMap;
@@ -131,37 +131,15 @@ public class OsgiBoot {
 	 * with {@link BundleContext#getProperty(String)}. If these properties are
 	 * <code>null</code>, system properties are used instead.
 	 */
-	public void bootstrap(Map<String, String> properties) {
+	public void bootstrap() {
 		try {
 			long begin = System.currentTimeMillis();
-
-			// notify start
-			String osgiInstancePath = getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
-			String osgiConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
-			String osgiSharedConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
-			logger.log(DEBUG, () -> "OSGi bootstrap starting" //
-					+ (osgiInstancePath != null ? " data: " + osgiInstancePath + "" : "") //
-					+ (osgiConfigurationPath != null ? " state: " + osgiConfigurationPath + "" : "") //
-					+ (osgiSharedConfigurationPath != null ? " config: " + osgiSharedConfigurationPath + "" : "") //
-			);
-
-			// legacy install bundles
-			installUrls(getBundlesUrls());
-			installUrls(getDistributionUrls());
-
-			// A2 install bundles
-			provisioningManager.install(null);
-
+			// Install bundles
+			install();
 			// Make sure fragments are properly considered by refreshing
-			refreshFramework();
-
-			// start bundles
-//			if (properties != null && !Boolean.parseBoolean(properties.get(PROP_OSGI_USE_SYSTEM_PROPERTIES)))
-			startBundles(properties);
-//			else
-//				startBundles();
-
-			// complete
+			refresh();
+			// Start bundles
+			startBundles();
 			long duration = System.currentTimeMillis() - begin;
 			logger.log(DEBUG, () -> "OSGi bootstrap completed in " + Math.round(((double) duration) / 1000) + "s ("
 					+ duration + "ms), " + bundleContext.getBundles().length + " bundles");
@@ -191,14 +169,23 @@ public class OsgiBoot {
 		System.out.println();
 	}
 
-	/**
-	 * Calls {@link #bootstrap(Map)} with <code>null</code>.
-	 * 
-	 * @see #bootstrap(Map)
-	 */
-	@Deprecated
-	public void bootstrap() {
-		bootstrap(null);
+	public void install() {
+		String osgiInstancePath = getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
+		String osgiConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
+		String osgiSharedConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
+		logger.log(DEBUG, () -> "OSGi bootstrap starting" //
+				+ (osgiInstancePath != null ? " data: " + osgiInstancePath + "" : "") //
+				+ (osgiConfigurationPath != null ? " state: " + osgiConfigurationPath + "" : "") //
+				+ (osgiSharedConfigurationPath != null ? " config: " + osgiSharedConfigurationPath + "" : "") //
+		);
+
+		// legacy install bundles
+		installUrls(getBundlesUrls());
+		installUrls(getDistributionUrls());
+
+		// A2 install bundles
+		provisioningManager.install(null);
+
 	}
 
 	public void update() {
@@ -305,17 +292,17 @@ public class OsgiBoot {
 	 * 
 	 * @see OsgiBoot#doStartBundles(Map)
 	 */
-	public void startBundles(Map<String, String> properties) {
+	public void startBundles() {
 		Map<String, String> map = new TreeMap<>();
 		// first use properties
-		if (properties != null) {
-			for (String key : properties.keySet()) {
-				String property = key;
-				if (property.startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
-					map.put(property, properties.get(property));
-				}
-			}
-		}
+//		if (properties != null) {
+//			for (String key : properties.keySet()) {
+//				String property = key;
+//				if (property.startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
+//					map.put(property, properties.get(property));
+//				}
+//			}
+//		}
 		// then try all start level until a maximum
 		int maxStartLevel = Integer
 				.parseInt(getProperty(InitConstants.PROP_ARGEO_OSGI_MAX_START_LEVEL, DEFAULT_MAX_START_LEVEL));
@@ -327,28 +314,28 @@ public class OsgiBoot {
 
 		}
 		// finally, override with system properties
-		for (Object key : System.getProperties().keySet()) {
-			if (key.toString().startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
-				map.put(key.toString(), System.getProperty(key.toString()));
-			}
-		}
+//		for (Object key : System.getProperties().keySet()) {
+//			if (key.toString().startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
+//				map.put(key.toString(), System.getProperty(key.toString()));
+//			}
+//		}
 		// start
 		doStartBundles(map);
 	}
 
-	void startBundles(Properties properties) {
-		Map<String, String> map = new TreeMap<>();
-		// first use properties
-		if (properties != null) {
-			for (Object key : properties.keySet()) {
-				String property = key.toString();
-				if (property.startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
-					map.put(property, properties.get(property).toString());
-				}
-			}
-		}
-		startBundles(map);
-	}
+//	void startBundles(Properties properties) {
+//		Map<String, String> map = new TreeMap<>();
+//		// first use properties
+//		if (properties != null) {
+//			for (Object key : properties.keySet()) {
+//				String property = key.toString();
+//				if (property.startsWith(InitConstants.PROP_ARGEO_OSGI_START)) {
+//					map.put(property, properties.get(property).toString());
+//				}
+//			}
+//		}
+//		startBundles(map);
+//	}
 
 	/**
 	 * Start bundle based on keys starting with
@@ -717,7 +704,7 @@ public class OsgiBoot {
 		return (basePath + '/' + relativePath).replace('/', File.separatorChar);
 	}
 
-	private void refreshFramework() {
+	public void refresh() {
 		Bundle systemBundle = bundleContext.getBundle(0);
 		FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
 		// TODO deal with refresh breaking native loading (e.g SWT)
@@ -739,6 +726,14 @@ public class OsgiBoot {
 
 	public String getProperty(String name) {
 		return getProperty(name, null);
+	}
+
+	/*
+	 * BEAN METHODS
+	 */
+
+	public BundleContext getBundleContext() {
+		return bundleContext;
 	}
 
 	/*
@@ -765,11 +760,23 @@ public class OsgiBoot {
 	}
 
 	/*
-	 * BEAN METHODS
+	 * OSGI UTILITIES
 	 */
+	/** Uninstall all bundles with these symbolic names */
+	public static void uninstallBundles(BundleContext bc, String... symbolicNames) {
+		List<String> lst = Arrays.asList(symbolicNames);
+		for (Bundle b : bc.getBundles()) {
+			String sn = b.getSymbolicName();
+			if (sn == null)
+				continue;
+			if (lst.contains(sn)) {
+				try {
+					b.uninstall();
+				} catch (BundleException e) {
+					logger.log(ERROR, "Cannot uninstall " + sn, e);
+				}
+			}
+		}
 
-	public BundleContext getBundleContext() {
-		return bundleContext;
 	}
-
 }

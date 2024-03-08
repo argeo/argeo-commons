@@ -100,7 +100,7 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 		Thread osgiBootThread = new Thread("OSGi boot framework " + frameworkUuuid) {
 			@Override
 			public void run() {
-				osgiBoot.bootstrap(config);
+				osgiBoot.bootstrap();
 			}
 		};
 		osgiBootThread.start();

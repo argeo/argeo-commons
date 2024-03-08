@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -53,6 +52,7 @@ public class OsgiBuilder {
 	}
 
 	public Framework launch() {
+		configuration.putAll(startLevelsToProperties());
 		// start OSGi
 		framework = OsgiBoot.defaultOsgiLaunch(configuration);
 
@@ -73,7 +73,7 @@ public class OsgiBuilder {
 			}
 		}
 		// start bundles
-		osgiBoot.startBundles(startLevelsToProperties());
+		osgiBoot.startBundles();
 
 		// if (OsgiBootUtils.isDebug())
 		// for (Bundle bundle : bc.getBundles()) {
@@ -283,8 +283,8 @@ public class OsgiBuilder {
 	//
 	// UTILITIES
 	//
-	private Properties startLevelsToProperties() {
-		Properties properties = new Properties();
+	private Map<String, String> startLevelsToProperties() {
+		Map<String, String> properties = new HashMap<>();
 		for (Integer startLevel : startLevels.keySet()) {
 			String property = InitConstants.PROP_ARGEO_OSGI_START + "." + startLevel;
 			StringBuilder value = new StringBuilder();
