@@ -9,7 +9,6 @@ import org.argeo.cms.runtime.DirectoryConf;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogEntry;
 import org.osgi.service.log.LogLevel;
 import org.osgi.service.log.LogListener;
@@ -92,9 +91,9 @@ public class CmsOsgiLogger implements LogListener {
 			Object cn = sr.getProperty(CmsConstants.CN);
 			if (cn != null)
 				sb.append(" " + CmsConstants.CN + ": " + cn);
-			Object factoryPid = sr.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
-			if (factoryPid != null)
-				sb.append(" " + ConfigurationAdmin.SERVICE_FACTORYPID + ": " + factoryPid);
+//			Object factoryPid = sr.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
+//			if (factoryPid != null)
+//				sb.append(" " + ConfigurationAdmin.SERVICE_FACTORYPID + ": " + factoryPid);
 			// else {
 			// Object servicePid = sr.getProperty(Constants.SERVICE_PID);
 			// if (servicePid != null)
