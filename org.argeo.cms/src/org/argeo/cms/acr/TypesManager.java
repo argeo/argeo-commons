@@ -22,7 +22,6 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.xerces.impl.xs.XSImplementationImpl;
-import org.apache.xerces.impl.xs.util.StringListImpl;
 import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.apache.xerces.xs.StringList;
 import org.apache.xerces.xs.XSAttributeDeclaration;
@@ -158,7 +157,7 @@ class TypesManager {
 				for (URL sourceUrl : sources) {
 					systemIds.add(sourceUrl.toExternalForm());
 				}
-				StringList sl = new StringListImpl(systemIds.toArray(new String[systemIds.size()]), systemIds.size());
+				StringList sl = xsImplementation.createStringList(systemIds.toArray(new String[systemIds.size()]));
 				XSModel xsModel = xsLoader.loadURIList(sl);
 
 				// types
