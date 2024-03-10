@@ -12,8 +12,12 @@ import javax.xml.namespace.NamespaceContext;
 /**
  * Programmatically defined {@link NamespaceContext}, which is valid at runtime
  * (when the software is running). Code contributing namespaces MUST register
- * here with a single default prefix, nad MUST make sure that stored data
- * contains the fully qualified namespace URI.
+ * here with a single default prefix, and MUST make sure that stored data
+ * contains the fully qualified namespace URI.</br>
+ * </br>
+ * All environments sharing the classloader of this class MUST use strictly the
+ * same default prefix / namespace mappings, as a static reference to the
+ * mapping is kept.
  */
 public class RuntimeNamespaceContext implements NamespaceContext {
 	public final static String XSD_DEFAULT_PREFIX = "xs";
