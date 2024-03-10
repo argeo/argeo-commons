@@ -28,7 +28,7 @@ class MountManager {
 		partitions.put(mountPath, contentProvider);
 		if ("/".equals(mountPath))// root
 			return;
-		String[] parentPath = ContentUtils.getParentPath(mountPath);
+		String[] parentPath = CmsContent.getParentPath(mountPath);
 		Content parent = systemSession.get(parentPath[0]);
 		Content mount = parent.add(parentPath[1]);
 		mount.put(CrName.mount.qName(), "true");
@@ -57,7 +57,7 @@ class MountManager {
 		String mountPath = floorEntry.getKey();
 		if (!path.startsWith(mountPath)) {
 			// FIXME make it more robust and find when there is no content provider
-			String[] parent = ContentUtils.getParentPath(path);
+			String[] parent = CmsContent.getParentPath(path);
 			return findContentProvider(parent[0]);
 			// throw new IllegalArgumentException("Path " + path + " doesn't have a content
 			// provider");

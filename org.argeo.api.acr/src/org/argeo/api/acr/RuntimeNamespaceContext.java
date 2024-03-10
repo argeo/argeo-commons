@@ -23,6 +23,8 @@ public class RuntimeNamespaceContext implements NamespaceContext {
 	public final static String XSD_DEFAULT_PREFIX = "xs";
 	public final static String XSD_INSTANCE_DEFAULT_PREFIX = "xsi";
 
+	private final static RuntimeNamespaceContext INSTANCE = new RuntimeNamespaceContext();
+
 	private NavigableMap<String, String> prefixes = new TreeMap<>();
 	private NavigableMap<String, String> namespaces = new TreeMap<>();
 
@@ -58,7 +60,6 @@ public class RuntimeNamespaceContext implements NamespaceContext {
 	/*
 	 * STATIC
 	 */
-	private final static RuntimeNamespaceContext INSTANCE = new RuntimeNamespaceContext();
 
 	static {
 		// Standard
@@ -66,6 +67,7 @@ public class RuntimeNamespaceContext implements NamespaceContext {
 		register(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE);
 
 		// Common
+		// FIXME shouldn't it be registered externally?
 		register(XMLConstants.W3C_XML_SCHEMA_NS_URI, XSD_DEFAULT_PREFIX);
 		register(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, XSD_INSTANCE_DEFAULT_PREFIX);
 

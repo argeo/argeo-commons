@@ -15,7 +15,7 @@ import org.argeo.api.acr.NamespaceUtils;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
-import org.argeo.cms.acr.ContentUtils;
+import org.argeo.cms.acr.CmsContent;
 import org.argeo.cms.dav.DavResponse;
 import org.argeo.cms.http.HttpStatus;
 
@@ -41,7 +41,7 @@ public class DavContent extends AbstractContent {
 
 	@Override
 	public QName getName() {
-		String fileName = ContentUtils.getParentPath(uri.getPath())[1];
+		String fileName = CmsContent.getParentPath(uri.getPath())[1];
 		ContentName name = NamespaceUtils.parsePrefixedName(provider, fileName);
 		return name;
 	}
@@ -49,7 +49,7 @@ public class DavContent extends AbstractContent {
 	@Override
 	public Content getParent() {
 		try {
-			String parentPath = ContentUtils.getParentPath(uri.getPath())[0];
+			String parentPath = CmsContent.getParentPath(uri.getPath())[0];
 			URI parentUri = new URI(uri.getScheme(), uri.getHost(), parentPath, null);
 			return provider.getDavContent(getSession(), parentUri);
 		} catch (URISyntaxException e) {

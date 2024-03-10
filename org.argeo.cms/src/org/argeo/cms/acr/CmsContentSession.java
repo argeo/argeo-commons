@@ -74,7 +74,7 @@ class CmsContentSession implements ProvidedSession, UuidIdentified {
 			throw new IllegalArgumentException(path + " is not an absolute path");
 		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
 		String mountPath = contentProvider.getMountPath();
-		String relativePath = ContentUtils.relativize(mountPath, path);
+		String relativePath = CmsContent.relativize(mountPath, path);
 		ProvidedContent content = contentProvider.get(CmsContentSession.this, relativePath);
 		return content;
 	}
@@ -85,7 +85,7 @@ class CmsContentSession implements ProvidedSession, UuidIdentified {
 			throw new IllegalArgumentException(path + " is not an absolute path");
 		ContentProvider contentProvider = contentRepository.getMountManager().findContentProvider(path);
 		String mountPath = contentProvider.getMountPath();
-		String relativePath = ContentUtils.relativize(mountPath, path);
+		String relativePath = CmsContent.relativize(mountPath, path);
 		return contentProvider.exists(this, relativePath);
 	}
 
@@ -113,7 +113,7 @@ class CmsContentSession implements ProvidedSession, UuidIdentified {
 	 */
 	@Override
 	public Content getMountPoint(String path) {
-		String[] parent = ContentUtils.getParentPath(path);
+		String[] parent = CmsContent.getParentPath(path);
 		ProvidedContent mountParent = (ProvidedContent) get(parent[0]);
 //			Content mountPoint = mountParent.getProvider().get(CmsContentSession.this, null, path);
 		return mountParent.getMountPoint(parent[1]);

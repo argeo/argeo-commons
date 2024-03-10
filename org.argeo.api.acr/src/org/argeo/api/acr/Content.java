@@ -4,7 +4,6 @@ import static org.argeo.api.acr.NamespaceUtils.unqualified;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,74 +16,17 @@ import javax.xml.namespace.QName;
  * whose nodes are named.
  */
 public interface Content extends QualifiedData<Content> {
-	/** The base of a repository path. */
-	String ROOT_PATH = "/";
+	/** The path separator: '/' */
+	char PATH_SEPARATOR = '/';
 
-	QName getName();
+	/** The base of a repository path. */
+	String ROOT_PATH = Character.toString(PATH_SEPARATOR);
 
 	String getPath();
 
-	Content getParent();
-
-	/*
-	 * ATTRIBUTES OPERATIONS
-	 */
-
-	<A> Optional<A> get(QName key, Class<A> clss);
-
-	Class<?> getType(QName key);
-
-	boolean isMultiple(QName key);
-
-	<A> List<A> getMultiple(QName key, Class<A> clss);
-
-	/*
-	 * ATTRIBUTES OPERATION HELPERS
-	 */
-	default boolean containsKey(QNamed key) {
-		return containsKey(key.qName());
-	}
-
-	default <A> Optional<A> get(QNamed key, Class<A> clss) {
-		return get(key.qName(), clss);
-	}
-
-	default Object get(QNamed key) {
-		return get(key.qName());
-	}
-
-	default Object put(QNamed key, Object value) {
-		return put(key.qName(), value);
-	}
-
-	default Object remove(QNamed key) {
-		return remove(key.qName());
-	}
-
-	// TODO do we really need the helpers below?
-
-	default Object get(String key) {
-		return get(unqualified(key));
-	}
-
-	default Object put(String key, Object value) {
-		return put(unqualified(key), value);
-	}
-
-	default Object remove(String key) {
-		return remove(unqualified(key));
-	}
-
-	@SuppressWarnings("unchecked")
-	default <A> List<A> getMultiple(QName key) {
-		Class<A> type;
-		try {
-			type = (Class<A>) getType(key);
-		} catch (ClassCastException e) {
-			throw new IllegalArgumentException("Requested type is not the default type");
-		}
-		List<A> res = getMultiple(key, type);
-		return res;
+	/** MUST be {@link Content#PATH_SEPARATOR}. */
+	default char getPathSeparator() {
+		return PATH_SEPARATOR;
 	}
 
 	/*
@@ -166,20 +108,8 @@ public interface Content extends QualifiedData<Content> {
 	}
 
 	/*
-	 * SIBLINGS
-	 */
-
-	default int getSiblingIndex() {
-		return 1;
-	}
-
-	/*
 	 * DEFAULT METHODS
 	 */
-	default <A> A adapt(Class<A> clss) {
-		throw new UnsupportedOperationException("Cannot adapt content " + this + " to " + clss.getName());
-	}
-
 	default <C extends Closeable> C open(Class<C> clss) throws IOException {
 		throw new UnsupportedOperationException("Cannot open content " + this + " as " + clss.getName());
 	}
@@ -191,19 +121,6 @@ public interface Content extends QualifiedData<Content> {
 	/*
 	 * CHILDREN
 	 */
-
-	default boolean hasChild(QName name) {
-		for (Content child : this) {
-			if (child.getName().equals(name))
-				return true;
-		}
-		return false;
-	}
-
-	default boolean hasChild(QNamed name) {
-		return hasChild(name.qName());
-	}
-
 	default Content anyOrAddChild(QName name, QName... classes) {
 		Content child = anyChild(name);
 		if (child != null)
@@ -215,90 +132,8 @@ public interface Content extends QualifiedData<Content> {
 		return anyOrAddChild(unqualified(name), classes);
 	}
 
-	/** Any child with this name, or null if there is none */
-	default Content anyChild(QName name) {
-		for (Content child : this) {
-			if (child.getName().equals(name))
-				return child;
-		}
-		return null;
-	}
-
-	default List<Content> children(QName name) {
-		List<Content> res = new ArrayList<>();
-		for (Content child : this) {
-			if (child.getName().equals(name))
-				res.add(child);
-		}
-		return res;
-	}
-
-	default List<Content> children(QNamed name) {
-		return children(name.qName());
-	}
-
-	default Optional<Content> soleChild(QNamed name) {
-		return soleChild(name.qName());
-	}
-
-	default Optional<Content> soleChild(QName name) {
-		List<Content> res = children(name);
-		if (res.isEmpty())
-			return Optional.empty();
-		if (res.size() > 1)
-			throw new IllegalStateException(this + " has multiple children with name " + name);
-		return Optional.of(res.get(0));
-	}
-
 	default Content soleOrAddChild(QName name, QName... classes) {
 		return soleChild(name).orElseGet(() -> this.add(name, classes));
-	}
-
-	default Content child(QName name) {
-		return soleChild(name).orElseThrow();
-	}
-
-	default Content child(QNamed name) {
-		return child(name.qName());
-	}
-
-	/*
-	 * ATTR AS STRING
-	 */
-	/**
-	 * Convenience method returning an attribute as a {@link String}.
-	 * 
-	 * @param key the attribute name
-	 * @return the attribute value as a {@link String} or <code>null</code>.
-	 * 
-	 * @see Object#toString()
-	 */
-	default String attr(QName key) {
-		return get(key, String.class).orElse(null);
-	}
-
-	/**
-	 * Convenience method returning an attribute as a {@link String}.
-	 * 
-	 * @param key the attribute name
-	 * @return the attribute value as a {@link String} or <code>null</code>.
-	 * 
-	 * @see Object#toString()
-	 */
-	default String attr(QNamed key) {
-		return attr(key.qName());
-	}
-
-	/**
-	 * Convenience method returning an attribute as a {@link String}.
-	 * 
-	 * @param key the attribute name
-	 * @return the attribute value as a {@link String} or <code>null</code>.
-	 * 
-	 * @see Object#toString()
-	 */
-	default String attr(String key) {
-		return attr(unqualified(key));
 	}
 
 	/*

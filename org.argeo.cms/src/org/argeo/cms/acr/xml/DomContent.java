@@ -34,7 +34,7 @@ import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
-import org.argeo.cms.acr.ContentUtils;
+import org.argeo.cms.acr.CmsContent;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -239,8 +239,8 @@ public class DomContent extends AbstractContent implements ProvidedContent {
 			if (Content.ROOT_PATH.equals(mountPath)) {
 				return null;
 			}
-			String[] parent = ContentUtils.getParentPath(mountPath);
-			if (ContentUtils.EMPTY.equals(parent[0]))
+			String[] parent = CmsContent.getParentPath(mountPath);
+			if ("".equals(parent[0]))
 				return null;
 			return getSession().get(parent[0]);
 		}

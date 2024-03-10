@@ -42,7 +42,7 @@ import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.acr.AbstractContent;
-import org.argeo.cms.acr.ContentUtils;
+import org.argeo.cms.acr.CmsContent;
 import org.argeo.cms.util.FsUtils;
 
 /** Content persisted as a filesystem {@link Path}. */
@@ -332,7 +332,7 @@ public class FsContent extends AbstractContent implements ProvidedContent {
 			String mountPath = provider.getMountPath();
 			if (mountPath == null || mountPath.equals("/"))
 				return null;
-			String[] parent = ContentUtils.getParentPath(mountPath);
+			String[] parent = CmsContent.getParentPath(mountPath);
 			return getSession().get(parent[0]);
 		}
 		return new FsContent(this, path.getParent());

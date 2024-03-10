@@ -21,7 +21,7 @@ import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.cms.util.LangUtils;
 
 /** Partial reference implementation of a {@link ProvidedContent}. */
-public abstract class AbstractContent extends AbstractMap<QName, Object> implements ProvidedContent {
+public abstract class AbstractContent extends AbstractMap<QName, Object> implements CmsContent {
 	private final ProvidedSession session;
 
 	// cache
@@ -96,7 +96,7 @@ public abstract class AbstractContent extends AbstractMap<QName, Object> impleme
 			if (CrName.root.qName().equals(name))
 				continue ancestors;
 
-			path.append('/');
+			path.append(PATH_SEPARATOR);
 			path.append(NamespaceUtils.toPrefixedName(name));
 			int siblingIndex = c.getSiblingIndex();
 			if (siblingIndex != 1)
