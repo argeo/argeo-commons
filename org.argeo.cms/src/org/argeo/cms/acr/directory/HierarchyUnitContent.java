@@ -10,13 +10,12 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.Content;
 import org.argeo.api.acr.ContentName;
-import org.argeo.api.acr.CrName;
 import org.argeo.api.acr.DName;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.cms.directory.CmsDirectory;
+import org.argeo.api.cms.directory.CmsRole;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
-import org.osgi.service.useradmin.Role;
 
 class HierarchyUnitContent extends AbstractDirectoryContent {
 	private HierarchyUnit hierarchyUnit;
@@ -58,7 +57,7 @@ class HierarchyUnitContent extends AbstractDirectoryContent {
 		for (HierarchyUnit hu : hierarchyUnit.getDirectHierarchyUnits(false))
 			lst.add(new HierarchyUnitContent(getSession(), provider, hu));
 
-		for (Role role : ((UserDirectory) hierarchyUnit.getDirectory()).getHierarchyUnitRoles(hierarchyUnit, null,
+		for (CmsRole role : ((UserDirectory) hierarchyUnit.getDirectory()).getHierarchyUnitRoles(hierarchyUnit, null,
 				false))
 			lst.add(new RoleContent(getSession(), provider, this, role));
 		return lst.iterator();

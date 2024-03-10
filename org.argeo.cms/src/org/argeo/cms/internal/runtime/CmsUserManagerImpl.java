@@ -31,6 +31,7 @@ import org.argeo.api.acr.ldap.NamingUtils;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.directory.CmsGroup;
+import org.argeo.api.cms.directory.CmsRole;
 import org.argeo.api.cms.directory.CmsUser;
 import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
@@ -85,15 +86,19 @@ public class CmsUserManagerImpl implements CmsUserManager {
 
 	}
 
-	@Override
-	public String getMyMail() {
-		return getUserMail(CurrentUser.getUsername());
-	}
+//	@Override
+//	public String getMyMail() {
+//		return getUserMail(CurrentUser.getUsername());
+//	}
 
 	@Override
-	public Role[] getRoles(String filter) {
+	public CmsRole[] getRoles(String filter) {
 		try {
-			return userAdmin.getRoles(filter);
+			Role[] roles = userAdmin.getRoles(filter);
+			CmsRole[] res = new CmsRole[roles.length];
+			for (int i = 0; i < roles.length; i++)
+				res[i] = (CmsRole) roles[i];
+			return res;
 		} catch (InvalidSyntaxException e) {
 			throw new IllegalArgumentException("Invalid filter " + filter, e);
 		}
@@ -124,7 +129,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	/** Lists all roles of the given user */
 	@Override
 	public String[] getUserRoles(String dn) {
-		Authorization currAuth = getUserAdmin().getAuthorization(getUser(dn));
+		Authorization currAuth = getUserAdmin().getAuthorization((User) getUser(dn));
 		return currAuth.getRoles();
 	}
 
@@ -147,28 +152,12 @@ public class CmsUserManagerImpl implements CmsUserManager {
 		return users;
 	}
 
-//	@Override
-//	public Set<User> listAccounts(HierarchyUnit hierarchyUnit, boolean deep) {
-//		if(!hierarchyUnit.isFunctional())
-//			throw new IllegalArgumentException("Hierarchy unit "+hierarchyUnit.getBase()+" is not functional");
-//		UserDirectory directory = (UserDirectory)hierarchyUnit.getDirectory();
-//		Set<User> res = new HashSet<>();
-//		for(HierarchyUnit technicalHu:hierarchyUnit.getDirectHierarchyUnits(false)) {
-//			if(technicalHu.isFunctional())
-//				continue;
-//			for(Role role:directory.getHierarchyUnitRoles(technicalHu, null, false)) {
-//				if(role)
-//			}
-//		}
-//		return res;
-//	}
-
 	/** Recursively add users to list */
 	private void addUsers(Set<CmsUser> users, Group group, String filter) {
-		Role[] roles = group.getMembers();
+		Role[] roles = ((Group) group).getMembers();
 		for (Role role : roles) {
 			if (role.getType() == Role.GROUP) {
-				addUsers(users, (CmsGroup) role, filter);
+				addUsers(users, (Group) role, filter);
 			} else if (role.getType() == Role.USER) {
 				if (match(role, filter))
 					users.add((CmsUser) role);
@@ -240,7 +229,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	public CmsUser createUser(String username, Map<String, Object> properties, Map<String, Object> credentials) {
 		try {
 			userTransaction.begin();
-			CmsUser user = (CmsUser) userAdmin.createRole(username, Role.USER);
+			User user = (User) userAdmin.createRole(username, Role.USER);
 			if (properties != null) {
 				for (String key : properties.keySet())
 					user.getProperties().put(key, properties.get(key));
@@ -250,7 +239,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 					user.getCredentials().put(key, credentials.get(key));
 			}
 			userTransaction.commit();
-			return user;
+			return (CmsUser) user;
 		} catch (Exception e) {
 			try {
 				userTransaction.rollback();
@@ -355,7 +344,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public void addObjectClasses(Role role, Set<String> objectClasses, Map<String, Object> additionalProperties) {
+	public void addObjectClasses(CmsRole role, Set<String> objectClasses, Map<String, Object> additionalProperties) {
 		try {
 			userTransaction.begin();
 			LdapEntry.addObjectClasses(role.getProperties(), objectClasses);
@@ -417,10 +406,10 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public void addMember(CmsGroup group, Role role) {
+	public void addMember(CmsGroup group, CmsRole role) {
 		try {
 			userTransaction.begin();
-			group.addMember(role);
+			((Group) group).addMember((Role) role);
 			userTransaction.commit();
 		} catch (Exception e1) {
 			try {
@@ -435,10 +424,10 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public void removeMember(CmsGroup group, Role role) {
+	public void removeMember(CmsGroup group, CmsRole role) {
 		try {
 			userTransaction.begin();
-			group.removeMember(role);
+			((Group) group).removeMember((Role) role);
 			userTransaction.commit();
 		} catch (Exception e1) {
 			try {
@@ -675,7 +664,7 @@ public class CmsUserManagerImpl implements CmsUserManager {
 	}
 
 	@Override
-	public UserDirectory getDirectory(Role user) {
+	public UserDirectory getDirectory(CmsRole user) {
 		String name = user.getName();
 		NavigableMap<String, UserDirectory> possible = new TreeMap<>();
 		for (UserDirectory userDirectory : userDirectories) {

@@ -7,16 +7,15 @@ import java.util.List;
 
 import org.argeo.api.acr.ldap.LdapAttr;
 import org.osgi.service.useradmin.Authorization;
-import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.User;
 
 /** Basic authorization. */
-class LdifAuthorization implements Authorization {
+class LdifAuthorization implements CmsOsgiAuthorization {
 	private final String name;
 	private final String displayName;
 	private final List<String> allRoles;
 
-	public LdifAuthorization(User user, List<Role> allRoles) {
+	public LdifAuthorization(User user, List<CmsOsgiRole> allRoles) {
 		if (user == null) {
 			this.name = null;
 			this.displayName = "anonymous";

@@ -7,7 +7,7 @@ import org.argeo.api.acr.ContentName;
 import org.argeo.cms.SystemRole;
 
 /** Standard CMS system roles. */
-public enum CmsRole implements SystemRole {
+public enum CmsSystemRole implements SystemRole {
 	userAdmin, //
 	groupAdmin, //
 	//
@@ -17,7 +17,7 @@ public enum CmsRole implements SystemRole {
 
 	private final ContentName name;
 
-	CmsRole() {
+	CmsSystemRole() {
 		name = new ContentName(ArgeoNamespace.ROLE_NAMESPACE_URI, QUALIFIER + name());
 	}
 

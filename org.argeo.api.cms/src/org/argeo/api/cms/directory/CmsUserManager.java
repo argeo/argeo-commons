@@ -8,9 +8,6 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
-import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.User;
-
 /**
  * Provide method interfaces to manage user concepts without accessing directly
  * the userAdmin.
@@ -21,11 +18,11 @@ public interface CmsUserManager {
 	Set<UserDirectory> getUserDirectories();
 
 	// CurrentUser
-	/** Returns the e-mail of the current logged in user */
-	String getMyMail();
+//	/** Returns the e-mail of the current logged in user */
+//	String getMyMail();
 
 	// Other users
-	/** Returns a {@link User} given a username */
+	/** Returns a {@link CmsUser} given a username */
 	CmsUser getUser(String username);
 
 	/** Can be a group or a user */
@@ -42,7 +39,7 @@ public interface CmsUserManager {
 
 	// Search
 	/** Returns a filtered list of roles */
-	Role[] getRoles(String filter);
+	CmsRole[] getRoles(String filter);
 
 	/** Recursively lists users in a given group. */
 	Set<CmsUser> listUsersInGroup(String groupDn, String filter);
@@ -73,18 +70,18 @@ public interface CmsUserManager {
 	CmsGroup getOrCreateSystemRole(HierarchyUnit roles, QName systemRole);
 
 	/** Add additional object classes to this role. */
-	void addObjectClasses(Role role, Set<String> objectClasses, Map<String, Object> additionalProperties);
+	void addObjectClasses(CmsRole role, Set<String> objectClasses, Map<String, Object> additionalProperties);
 
 	/** Add additional object classes to this hierarchy unit. */
 	void addObjectClasses(HierarchyUnit hierarchyUnit, Set<String> objectClasses,
 			Map<String, Object> additionalProperties);
 
 	/** Add a member to this group. */
-	void addMember(CmsGroup group, Role role);
+	void addMember(CmsGroup group, CmsRole role);
 
 	/** Remove a member from this group. */
-	void removeMember(CmsGroup group, Role role);
-	
+	void removeMember(CmsGroup group, CmsRole role);
+
 	void edit(Runnable action);
 
 	/* MISCELLANEOUS */
@@ -95,7 +92,7 @@ public interface CmsUserManager {
 	String getDefaultDomainName();
 
 	/**
-	 * Search for a {@link User} (might also be a group) whose uid or cn is equals
+	 * Search for a {@link CmsUser} (might also be a group) whose uid or cn is equals
 	 * to localId within the various user repositories defined in the current
 	 * context.
 	 */
@@ -118,7 +115,7 @@ public interface CmsUserManager {
 
 	void expireAuthTokens(Subject subject);
 
-	UserDirectory getDirectory(Role role);
+	UserDirectory getDirectory(CmsRole role);
 
 	/** Create a new hierarchy unit. Does nothing if it already exists. */
 	HierarchyUnit getOrCreateHierarchyUnit(UserDirectory directory, String path);

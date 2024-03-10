@@ -22,6 +22,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.ldap.LdapName;
 
+import org.argeo.api.acr.QNamed;
 import org.argeo.api.acr.ldap.LdapAttr;
 import org.argeo.api.acr.ldap.LdapObj;
 import org.argeo.api.cms.directory.DirectoryDigestUtils;
@@ -143,6 +144,17 @@ public class DefaultLdapEntry implements LdapEntry {
 		if (credentials == null)
 			credentials = new AttributeDictionary(true);
 		return credentials;
+	}
+
+	protected String getPropertyAsString(QNamed key) {
+		return getPropertyAsString(key.localName());
+	}
+
+	protected String getPropertyAsString(String key) {
+		Object res = getProperties().get(key);
+		if (res == null)
+			return null;
+		return res.toString();
 	}
 
 	/*

@@ -22,11 +22,11 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.directory.CmsDirectory;
+import org.argeo.api.cms.directory.CmsRole;
 import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.util.CurrentSubject;
-import org.osgi.service.useradmin.Role;
 
 /** Utilities and routines around {@link Content}. */
 public class ContentUtils {
@@ -147,7 +147,7 @@ public class ContentUtils {
 	 * DIRECTORY
 	 */
 
-	public static Content roleToContent(CmsUserManager userManager, ContentSession contentSession, Role role) {
+	public static Content roleToContent(CmsUserManager userManager, ContentSession contentSession, CmsRole role) {
 		UserDirectory userDirectory = userManager.getDirectory(role);
 		String path = directoryPath(userDirectory) + userDirectory.getRolePath(role);
 		Content content = contentSession.get(path);
