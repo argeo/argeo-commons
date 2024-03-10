@@ -13,9 +13,10 @@ import java.util.concurrent.CompletableFuture;
 import javax.xml.namespace.QName;
 
 /**
- * A semi-structured content, with attributes, within a hierarchical structure.
+ * A semi-structured content, with attributes, within a hierarchical structure
+ * whose nodes are named.
  */
-public interface Content extends Iterable<Content>, Map<QName, Object> {
+public interface Content extends QualifiedData<Content> {
 	/** The base of a repository path. */
 	String ROOT_PATH = "/";
 
