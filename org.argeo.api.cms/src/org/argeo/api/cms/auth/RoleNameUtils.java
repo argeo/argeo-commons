@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.api.cms.auth;
 
 import static org.argeo.api.acr.RuntimeNamespaceContext.getNamespaceContext;
 
@@ -6,7 +6,7 @@ import javax.xml.namespace.QName;
 
 import org.argeo.api.acr.ArgeoNamespace;
 import org.argeo.api.acr.NamespaceUtils;
-import org.argeo.cms.directory.ldap.LdapNameUtils;
+import org.argeo.api.acr.ldap.LdapNameUtils;
 
 /** Simplifies analysis of system roles. */
 public class RoleNameUtils {

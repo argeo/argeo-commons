@@ -7,7 +7,6 @@ org.argeo.init \
 org.argeo.api.uuid \
 org.argeo.api.register \
 org.argeo.api.acr \
-org.argeo.api.cli \
 org.argeo.api.cms \
 org.argeo.cms \
 org.argeo.cms.ux \

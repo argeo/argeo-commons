@@ -1,4 +1,4 @@
-package org.argeo.cms.internal.auth;
+package org.argeo.api.cms.auth;
 
 import java.security.Principal;
 import java.util.HashSet;
@@ -6,16 +6,12 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.argeo.cms.RoleNameUtils;
-import org.osgi.service.useradmin.Authorization;
-
 /**
- * A {@link Principal} which has been implied by an {@link Authorization}. If it
- * is empty it means this is an additional identity, otherwise it lists the
- * users (typically the logged in user but possibly empty
- * {@link ImpliedByPrincipal}s) which have implied it. When an additional
- * identity is removed, the related {@link ImpliedByPrincipal}s can thus be
- * removed.
+ * A {@link Principal} which has been implied by an authorisation. If it is
+ * empty it means this is an additional identity, otherwise it lists the users
+ * (typically the logged-in user but possibly empty {@link ImpliedByPrincipal}s)
+ * which have implied it. When an additional identity is removed, the related
+ * {@link ImpliedByPrincipal}s can thus be removed.
  */
 public final class ImpliedByPrincipal implements Principal {
 	private final String name;

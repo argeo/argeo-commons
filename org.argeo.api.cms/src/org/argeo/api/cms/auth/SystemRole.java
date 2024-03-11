@@ -1,4 +1,4 @@
-package org.argeo.cms;
+package org.argeo.api.cms.auth;
 
 import java.util.Set;
 
@@ -6,7 +6,6 @@ import javax.security.auth.Subject;
 import javax.xml.namespace.QName;
 
 import org.argeo.api.cms.CmsConstants;
-import org.argeo.cms.internal.auth.ImpliedByPrincipal;
 
 /** A programmatic role. */
 public interface SystemRole {

@@ -1,4 +1,4 @@
-package org.argeo.cms.directory.ldap;
+package org.argeo.api.acr.ldap;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;

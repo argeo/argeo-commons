@@ -5,6 +5,7 @@ import java.util.Locale;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
+import org.argeo.api.acr.ldap.LdapNameUtils;
 import org.argeo.api.cms.directory.HierarchyUnit;
 
 /** LDIF/LDAP based implementation of {@link HierarchyUnit}. */

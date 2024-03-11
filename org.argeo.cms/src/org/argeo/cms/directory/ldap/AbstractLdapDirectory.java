@@ -1,6 +1,6 @@
 package org.argeo.cms.directory.ldap;
 
-import static org.argeo.cms.directory.ldap.LdapNameUtils.toLdapName;
+import static org.argeo.api.acr.ldap.LdapNameUtils.toLdapName;
 
 import java.io.File;
 import java.net.URI;
@@ -27,6 +27,7 @@ import javax.naming.ldap.Rdn;
 import javax.transaction.xa.XAResource;
 
 import org.argeo.api.acr.ldap.LdapAttr;
+import org.argeo.api.acr.ldap.LdapNameUtils;
 import org.argeo.api.acr.ldap.LdapObj;
 import org.argeo.api.cms.directory.CmsDirectory;
 import org.argeo.api.cms.directory.HierarchyUnit;

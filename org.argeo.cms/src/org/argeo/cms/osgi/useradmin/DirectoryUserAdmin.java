@@ -25,6 +25,7 @@ import javax.naming.ldap.Rdn;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosTicket;
 
+import org.argeo.api.acr.ldap.LdapNameUtils;
 import org.argeo.api.cms.directory.CmsRole;
 import org.argeo.api.cms.directory.DirectoryDigestUtils;
 import org.argeo.api.cms.directory.HierarchyUnit;
@@ -33,7 +34,6 @@ import org.argeo.cms.directory.ldap.AbstractLdapDirectory;
 import org.argeo.cms.directory.ldap.LdapDao;
 import org.argeo.cms.directory.ldap.LdapEntry;
 import org.argeo.cms.directory.ldap.LdapEntryWorkingCopy;
-import org.argeo.cms.directory.ldap.LdapNameUtils;
 import org.argeo.cms.directory.ldap.LdifDao;
 import org.argeo.cms.runtime.DirectoryConf;
 import org.argeo.cms.util.CurrentSubject;
