@@ -1,5 +1,7 @@
 package org.argeo.cms.acr;
 
+import static java.lang.System.Logger.Level.ERROR;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -58,9 +60,13 @@ public enum CmsContentNamespace implements ContentNamespace {
 				// FIXME workaround when in nested OSGi frameworks
 				resource = URI.create("platform:/plugin/org.argeo.cms" + RESOURCE_BASE + resourceFileName).toURL();
 			} catch (MalformedURLException e) {
-				throw new IllegalArgumentException("Cannot convert " + resourceFileName + " to URL");
+				resource = null;
+				System.getLogger(CmsContentNamespace.class.getName()).log(ERROR,
+						"Cannot load " + resourceFileName + ": " + e.getMessage());
+				// throw new IllegalArgumentException("Cannot convert " + resourceFileName + "
+				// to URL");
 			}
-			Objects.requireNonNull(resource);
+			// Objects.requireNonNull(resource);
 		}
 		if (publicUrl != null)
 			try {
