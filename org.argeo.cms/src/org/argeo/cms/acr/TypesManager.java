@@ -67,7 +67,7 @@ class TypesManager {
 	private SortedMap<QName, Map<QName, CrAttributeType>> types;
 
 	private boolean validating = false;
-	private boolean creatingXsModel = true;
+	private boolean creatingXsModel = false;
 
 	private final static boolean limited = false;
 
