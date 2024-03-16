@@ -6,3 +6,7 @@ Bundle-Activator: org.argeo.init.osgi.Activator
 Import-Package: \
 org.osgi.*;version=0.0.0,\
 java.util.logging;resolution:=optional
+
+Export-Package: \
+org.argeo.api.*,\
+org.argeo.init.osgi,\

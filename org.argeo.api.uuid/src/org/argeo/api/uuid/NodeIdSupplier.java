@@ -25,4 +25,28 @@ public interface NodeIdSupplier extends Supplier<Long> {
 		random.nextBytes(nodeId);
 		return nodeId;
 	}
+
+	/**
+	 * Force this node id to be identified as no MAC address.
+	 * 
+	 * @see "https://datatracker.ietf.org/doc/html/rfc4122#section-4.5"
+	 */
+	static void forceToNoMacAddress(byte[] nodeId, int offset) {
+		assert nodeId != null && offset < nodeId.length;
+		nodeId[offset] = (byte) (nodeId[offset] | 1);
+	}
+
+	/*
+	 * SPI UTILITIES
+	 */
+	/** Guarantees that a byte array of length 6 will be returned. */
+	static byte[] toNodeIdBytes(byte[] source, int offset) {
+		if (source == null)
+			return null;
+		if (offset < 0 || offset + 6 > source.length)
+			throw new ArrayIndexOutOfBoundsException(offset);
+		byte[] nodeId = new byte[6];
+		System.arraycopy(source, offset, nodeId, 0, 6);
+		return nodeId;
+	}
 }

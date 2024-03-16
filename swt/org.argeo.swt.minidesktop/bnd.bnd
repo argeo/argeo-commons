@@ -1,2 +1,5 @@
 Import-Package: org.eclipse.swt,\
 *
+
+Service-Component:\
+OSGI-INF/miniDesktop.xml,\

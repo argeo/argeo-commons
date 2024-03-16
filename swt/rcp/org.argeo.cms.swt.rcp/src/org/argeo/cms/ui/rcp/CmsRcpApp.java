@@ -81,20 +81,24 @@ public class CmsRcpApp extends AbstractSwtCmsView implements CmsView {
 			// Styling
 			CmsTheme theme = CmsSwtUtils.getCmsTheme(parent);
 			if (theme != null) {
-				cssEngine = new CSSSWTEngineImpl(display);
-				for (String path : theme.getSwtCssPaths()) {
-					try (InputStream in = theme.loadPath(path)) {
-						cssEngine.parseStyleSheet(in);
-					} catch (IOException e) {
-						throw new IllegalStateException("Cannot load stylesheet " + path, e);
+				try {
+					cssEngine = new CSSSWTEngineImpl(display);
+					for (String path : theme.getSwtCssPaths()) {
+						try (InputStream in = theme.loadPath(path)) {
+							cssEngine.parseStyleSheet(in);
+						} catch (IOException e) {
+							throw new IllegalStateException("Cannot load stylesheet " + path, e);
+						}
 					}
+					cssEngine.setErrorHandler(new CSSErrorHandler() {
+						public void error(Exception e) {
+							log.error("SWT styling error: ", e);
+						}
+					});
+					applyStyles(shell);
+				} catch (Throwable e) {// could be a class not found error
+					log.error("Cannot initialise RCP theming", e);
 				}
-				cssEngine.setErrorHandler(new CSSErrorHandler() {
-					public void error(Exception e) {
-						log.error("SWT styling error: ", e);
-					}
-				});
-				applyStyles(shell);
 			}
 			shell.layout(true, true);
 

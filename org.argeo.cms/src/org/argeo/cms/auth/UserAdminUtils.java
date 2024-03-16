@@ -14,6 +14,8 @@ import org.osgi.service.useradmin.User;
 import org.osgi.service.useradmin.UserAdmin;
 
 /** Centralise common patterns to manage users with a {@link UserAdmin} */
+@Deprecated
+// TODO use CmsRole after migrating to qualified properties
 public class UserAdminUtils {
 
 	// CURRENTUSER HELPERS
@@ -71,6 +73,10 @@ public class UserAdminUtils {
 		if (user == null)
 			return getUserLocalId(dn);
 		return getUserDisplayName(user);
+	}
+
+	public static String getUserDisplayName(org.argeo.api.cms.directory.CmsRole user) {
+		return getUserDisplayName((Role) user);
 	}
 
 	public static String getUserDisplayName(Role user) {

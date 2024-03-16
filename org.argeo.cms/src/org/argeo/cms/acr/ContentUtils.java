@@ -1,11 +1,12 @@
 package org.argeo.cms.acr;
 
+import static org.argeo.api.acr.Content.PATH_SEPARATOR;
+
 import java.io.PrintStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
 import java.util.function.BiConsumer;
@@ -22,14 +23,18 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.directory.CmsDirectory;
+import org.argeo.api.cms.directory.CmsRole;
 import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.util.CurrentSubject;
-import org.osgi.service.useradmin.Role;
 
 /** Utilities and routines around {@link Content}. */
 public class ContentUtils {
+	// Optimisations
+	static final String PATH_SEPARATOR_STRING = Character.toString(PATH_SEPARATOR);
+	private static final String DOUBLE_PATH_SEPARATOR = PATH_SEPARATOR_STRING + PATH_SEPARATOR_STRING;
+
 	public static void traverse(Content content, BiConsumer<Content, Integer> doIt) {
 		traverse(content, doIt, (Integer) null);
 	}
@@ -55,14 +60,19 @@ public class ContentUtils {
 			sb.append("  ");
 		}
 		String prefix = sb.toString();
-		out.println(prefix + content.getName());
-		for (QName key : content.keySet()) {
-			out.println(prefix + " " + key + "=" + content.get(key));
-		}
+		String txt = "";
 		if (printText) {
 			if (content.hasText()) {
-				out.println("<![CDATA[" + content.getText().trim() + "]]>");
+				final int MAX_LENGTH = 64;
+				txt = content.getText().trim();
+				if (txt.length() > MAX_LENGTH)
+					txt = txt.substring(0, 64) + " ...";
+				txt = " : " + txt;
 			}
+		}
+		out.println(prefix + content.getName() + txt);
+		for (QName key : content.keySet()) {
+			out.println(prefix + " " + key + "=" + content.get(key));
 		}
 	}
 
@@ -70,61 +80,33 @@ public class ContentUtils {
 //		return t instanceof String;
 //	}
 
-	public static final char SLASH = '/';
-	public static final String SLASH_STRING = Character.toString(SLASH);
-	public static final String EMPTY = "";
-
-	/**
-	 * Split a path (with '/' separator) in an array of length 2, the first part
-	 * being the parent path (which could be either absolute or relative), the
-	 * second one being the last segment, (guaranteed to be without a '/').
-	 */
-	public static String[] getParentPath(String path) {
-		if (path == null)
-			throw new IllegalArgumentException("Path cannot be null");
-		if (path.length() == 0)
-			throw new IllegalArgumentException("Path cannot be empty");
-		checkDoubleSlash(path);
-		int parentIndex = path.lastIndexOf(SLASH);
-		if (parentIndex == path.length() - 1) {// trailing '/'
-			path = path.substring(0, path.length() - 1);
-			parentIndex = path.lastIndexOf(SLASH);
-		}
-
-		if (parentIndex == -1) // no '/'
-			return new String[] { EMPTY, path };
-
-		return new String[] { parentIndex != 0 ? path.substring(0, parentIndex) : "" + SLASH,
-				path.substring(parentIndex + 1) };
-	}
-
 	public static String toPath(List<String> segments) {
 		// TODO checks
-		StringJoiner sj = new StringJoiner("/");
+		StringJoiner sj = new StringJoiner(PATH_SEPARATOR_STRING);
 		segments.forEach((s) -> sj.add(s));
 		return sj.toString();
 	}
 
-	public static List<String> toPathSegments(String path) {
+	static List<String> toPathSegments(String path) {
 		List<String> res = new ArrayList<>();
-		if (EMPTY.equals(path) || Content.ROOT_PATH.equals(path))
+		if ("".equals(path) || Content.ROOT_PATH.equals(path))
 			return res;
 		collectPathSegments(path, res);
 		return res;
 	}
 
-	private static void collectPathSegments(String path, List<String> segments) {
-		String[] parent = getParentPath(path);
-		if (EMPTY.equals(parent[1])) // root
+	static void collectPathSegments(String path, List<String> segments) {
+		String[] parent = CmsContent.getParentPath(path);
+		if ("".equals(parent[1])) // root
 			return;
 		segments.add(0, parent[1]);
-		if (EMPTY.equals(parent[0])) // end
+		if ("".equals(parent[0])) // end
 			return;
 		collectPathSegments(parent[0], segments);
 	}
 
-	public static void checkDoubleSlash(String path) {
-		if (path.contains(SLASH + "" + SLASH))
+	static void checkDoubleSlash(String path) {
+		if (path.contains(DOUBLE_PATH_SEPARATOR))
 			throw new IllegalArgumentException("Path " + path + " contains //");
 	}
 
@@ -142,7 +124,7 @@ public class ContentUtils {
 	 * DIRECTORY
 	 */
 
-	public static Content roleToContent(CmsUserManager userManager, ContentSession contentSession, Role role) {
+	public static Content roleToContent(CmsUserManager userManager, ContentSession contentSession, CmsRole role) {
 		UserDirectory userDirectory = userManager.getDirectory(role);
 		String path = directoryPath(userDirectory) + userDirectory.getRolePath(role);
 		Content content = contentSession.get(path);
@@ -151,7 +133,7 @@ public class ContentUtils {
 
 	public static Content hierarchyUnitToContent(ContentSession contentSession, HierarchyUnit hierarchyUnit) {
 		CmsDirectory directory = hierarchyUnit.getDirectory();
-		StringJoiner relativePath = new StringJoiner(SLASH_STRING);
+		StringJoiner relativePath = new StringJoiner(PATH_SEPARATOR_STRING);
 		buildHierarchyUnitPath(hierarchyUnit, relativePath);
 		String path = directoryPath(directory) + relativePath.toString();
 		Content content = contentSession.get(path);
@@ -160,7 +142,7 @@ public class ContentUtils {
 
 	/** The path to this {@link CmsDirectory}. Ends with a /. */
 	private static String directoryPath(CmsDirectory directory) {
-		return CmsContentRepository.DIRECTORY_BASE + SLASH + directory.getName() + SLASH;
+		return CmsContentRepository.DIRECTORY_BASE + PATH_SEPARATOR + directory.getName() + PATH_SEPARATOR;
 	}
 
 	/** Recursively build a relative path of a {@link HierarchyUnit}. */
@@ -184,7 +166,7 @@ public class ContentUtils {
 				return content;
 			}
 		} else {
-			String[] parentPath = getParentPath(path);
+			String[] parentPath = CmsContent.getParentPath(path);
 			Content parent = createCollections(session, parentPath[0]);
 			Content content = parent.add(parentPath[1], DName.collection.qName());
 			return content;
@@ -212,23 +194,6 @@ public class ContentUtils {
 
 	public static ContentSession openSession(ContentRepository contentRepository, CmsSession cmsSession) {
 		return CurrentSubject.callAs(cmsSession.getSubject(), () -> contentRepository.get());
-	}
-
-	/**
-	 * Constructs a relative path between a base path and a given path.
-	 * 
-	 * @throws IllegalArgumentException if the base path is not an ancestor of the
-	 *                                  path
-	 */
-	public static String relativize(String basePath, String path) throws IllegalArgumentException {
-		Objects.requireNonNull(basePath);
-		Objects.requireNonNull(path);
-		if (!path.startsWith(basePath))
-			throw new IllegalArgumentException(basePath + " is not an ancestor of " + path);
-		String relativePath = path.substring(basePath.length());
-		if (relativePath.length() > 0 && relativePath.charAt(0) == '/')
-			relativePath = relativePath.substring(1);
-		return relativePath;
 	}
 
 	/** A path in the node repository */

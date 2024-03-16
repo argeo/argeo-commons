@@ -10,12 +10,12 @@ import org.argeo.api.acr.ContentNotFoundException;
 import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
+import org.argeo.api.cms.directory.CmsUser;
 import org.argeo.api.cms.directory.CmsUserManager;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.acr.AbstractSimpleContentProvider;
 import org.argeo.cms.acr.ContentUtils;
-import org.osgi.service.useradmin.User;
 
 /** A {@link ContentProvider} based on a {@link CmsUserManager} service. */
 public class DirectoryContentProvider extends AbstractSimpleContentProvider<CmsUserManager> {
@@ -62,7 +62,7 @@ public class DirectoryContentProvider extends AbstractSimpleContentProvider<CmsU
 //			} catch (InvalidNameException e) {
 //				throw new IllegalStateException("Cannot interpret " + segments + " as DN", e);
 //			}
-			User user = (User) userDirectory.getRoleByPath(pathWithinUserDirectory);
+			CmsUser user = (CmsUser) userDirectory.getRoleByPath(pathWithinUserDirectory);
 			if (user != null) {
 				HierarchyUnit parent = userDirectory.getHierarchyUnit(user);
 				return new RoleContent(session, this, new HierarchyUnitContent(session, this, parent), user);

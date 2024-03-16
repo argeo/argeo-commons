@@ -76,6 +76,8 @@ public class SingleUserLoginModule implements LoginModule {
 			CmsAuthUtils.addAuthorization(subject, authorization);
 		} else {
 			// next step with user admin will properly populate
+			authorization = new SingleUserAuthorization(authorizationName);
+			CmsAuthUtils.addAuthorization(subject, authorization);
 		}
 
 		// Add standard Java OS login

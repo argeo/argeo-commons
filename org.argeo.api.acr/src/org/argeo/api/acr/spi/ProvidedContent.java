@@ -41,10 +41,10 @@ public interface ProvidedContent extends Content {
 	@Override
 	default Optional<Content> getContent(String path) {
 		String absolutePath;
-		if (path.startsWith(Content.ROOT_PATH)) {// absolute
+		if (path.startsWith(ROOT_PATH)) {// absolute
 			absolutePath = path;
 		} else {// relative
-			absolutePath = getPath() + '/' + path;
+			absolutePath = getPath() + PATH_SEPARATOR + path;
 		}
 		return getSession().exists(absolutePath) ? Optional.of(getSession().get(absolutePath)) : Optional.empty();
 	}

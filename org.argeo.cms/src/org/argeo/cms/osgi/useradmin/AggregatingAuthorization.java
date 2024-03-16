@@ -12,7 +12,7 @@ import org.argeo.api.cms.directory.CmsAuthorization;
 import org.osgi.service.useradmin.Authorization;
 
 /** An {@link Authorization} which combines roles form various auth sources. */
-class AggregatingAuthorization implements CmsAuthorization {
+class AggregatingAuthorization implements CmsAuthorization, Authorization {
 	private final String name;
 	private final String displayName;
 	private final Set<String> systemRoles;

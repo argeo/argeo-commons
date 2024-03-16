@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="UUID Factory">
+   <implementation class="org.argeo.api.uuid.ConcurrentUuidFactory"/>
+   <service>
+      <provide interface="org.argeo.api.uuid.UuidFactory"/>
+   </service>
+   <reference bind="setNodeIdSupplier" cardinality="1..1" interface="org.argeo.api.uuid.NodeIdSupplier" name="NodeIdSupplier" policy="static"/>
+</scr:component>

@@ -2,6 +2,8 @@ package org.argeo.init;
 
 import java.util.Map;
 
+import org.argeo.api.init.RuntimeContext;
+
 public class StaticRuntimeContext implements RuntimeContext {
 	private Map<String, String> config;
 

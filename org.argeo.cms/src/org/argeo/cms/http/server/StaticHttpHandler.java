@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
-import org.argeo.cms.acr.ContentUtils;
+import org.argeo.cms.acr.CmsContent;
 import org.argeo.cms.http.HttpHeader;
 import org.argeo.cms.http.HttpStatus;
 import org.argeo.cms.util.StreamUtils;
@@ -66,7 +66,7 @@ public class StaticHttpHandler implements HttpHandler {
 		String mountPath = entry.getKey();
 		if (!path.startsWith(mountPath)) {
 			// FIXME make it more robust and find when there is no content provider
-			String[] parent = ContentUtils.getParentPath(path);
+			String[] parent = CmsContent.getParentPath(path);
 			return findBind(parent[0]);
 		}
 		return entry;

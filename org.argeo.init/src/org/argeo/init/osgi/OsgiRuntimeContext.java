@@ -1,18 +1,19 @@
 package org.argeo.init.osgi;
 
+import java.io.Serializable;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.System.LoggerFinder;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import org.argeo.init.RuntimeContext;
-import org.argeo.init.logging.ThinLoggerFinder;
-import org.osgi.framework.Bundle;
+import org.argeo.api.init.RuntimeContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -21,9 +22,16 @@ import org.osgi.framework.launch.FrameworkFactory;
 
 /** An OSGi runtime context. */
 public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
+	private final static Logger logger = System.getLogger(OsgiRuntimeContext.class.getName());
+
+	private final static long STOP_FOR_UPDATE_TIMEOUT = 60 * 1000;
+	private final static long CLOSE_TIMEOUT = 60 * 1000;
+
+	// private final static String SYMBOLIC_NAME_FELIX_SCR = "org.apache.felix.scr";
+
 	private Map<String, String> config;
 	private Framework framework;
-	private OsgiBoot osgiBoot;
+//	private OsgiBoot osgiBoot;
 
 	/**
 	 * Constructor to use when the runtime context will create the OSGi
@@ -43,11 +51,17 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 
 	@Override
 	public void run() {
-		ServiceLoader<FrameworkFactory> sl = ServiceLoader.load(FrameworkFactory.class);
-		Optional<FrameworkFactory> opt = sl.findFirst();
-		if (opt.isEmpty())
-			throw new IllegalStateException("Cannot find OSGi framework");
-		framework = opt.get().newFramework(config);
+		if (framework != null && framework.getState() >= Framework.STARTING)
+			throw new IllegalStateException("OSGi framework is already started");
+
+		if (framework == null) {
+			ServiceLoader<FrameworkFactory> sl = ServiceLoader.load(FrameworkFactory.class);
+			Optional<FrameworkFactory> opt = sl.findFirst();
+			if (opt.isEmpty())
+				throw new IllegalStateException("Cannot find OSGi framework");
+			framework = opt.get().newFramework(config);
+		}
+
 		try {
 			framework.start();
 			BundleContext bundleContext = framework.getBundleContext();
@@ -57,31 +71,75 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 		}
 	}
 
-	public void start(BundleContext bundleContext) {
+	protected void start(BundleContext bundleContext) {
 		// preferences
 //		SystemRootPreferences systemRootPreferences = ThinPreferencesFactory.getInstance().getSystemRootPreferences();
 //		bundleContext.registerService(AbstractPreferences.class, systemRootPreferences, new Hashtable<>());
 
 		// Make sure LoggerFinder has been searched for, since it is lazily loaded
-		LoggerFinder.getLoggerFinder();
+		LoggerFinder loggerFinder = LoggerFinder.getLoggerFinder();
 
-		// logging
-		bundleContext.registerService(Consumer.class, ThinLoggerFinder.getConfigurationConsumer(),
-				new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.configuration")));
-		bundleContext.registerService(Flow.Publisher.class, ThinLoggerFinder.getLogEntryPublisher(),
-				new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.publisher")));
+		if (loggerFinder instanceof Consumer<?> && loggerFinder instanceof Supplier<?>) {
+			@SuppressWarnings("unchecked")
+			Consumer<Map<String, Object>> consumer = (Consumer<Map<String, Object>>) loggerFinder;
+			// ThinLoggerFinder.getConfigurationConsumer()
+			// ThinLoggerFinder.getLogEntryPublisher()
 
-		osgiBoot = new OsgiBoot(bundleContext);
-		osgiBoot.bootstrap(config);
+			@SuppressWarnings("unchecked")
+			Supplier<Flow.Publisher<Map<String, Serializable>>> supplier = (Supplier<Flow.Publisher<Map<String, Serializable>>>) loggerFinder;
+			// logging
+			bundleContext.registerService(Consumer.class, consumer,
+					new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.configuration")));
+			bundleContext.registerService(Flow.Publisher.class, supplier.get(),
+					new Hashtable<>(Collections.singletonMap(Constants.SERVICE_PID, "argeo.logging.publisher")));
+		}
+		OsgiBoot osgiBoot = new OsgiBoot(bundleContext);
+		String frameworkUuuid = bundleContext.getProperty(Constants.FRAMEWORK_UUID);
 
+		// separate thread in order to improve logging
+		Thread osgiBootThread = new Thread("OSGi boot framework " + frameworkUuuid) {
+			@Override
+			public void run() {
+				osgiBoot.bootstrap();
+			}
+		};
+		osgiBootThread.start();
+		// TODO return a completable stage so that inits can run in parallel
+//		try {
+//			osgiBootThread.join(60 * 1000);
+//		} catch (InterruptedException e) {
+//			// silent
+//		}
 	}
 
 	public void update() {
-		Objects.requireNonNull(osgiBoot);
-		osgiBoot.update();
+		stop();
+		try {
+			waitForStop(STOP_FOR_UPDATE_TIMEOUT);
+		} catch (InterruptedException e) {
+			logger.log(Level.TRACE, "Wait for stop interrupted", e);
+		}
+		run();
+
+		// TODO Optimise with OSGi mechanisms (e.g. framework.update())
+//		if (osgiBoot != null) {
+//			Objects.requireNonNull(osgiBoot);
+//			osgiBoot.update();
+//		}
 	}
 
-	public void stop(BundleContext bundleContext) {
+	protected void stop() {
+		if (framework == null)
+			return;
+		stop(framework.getBundleContext());
+		try {
+			framework.stop();
+		} catch (BundleException e) {
+			throw new IllegalStateException("Cannot stop OSGi framework", e);
+		}
+	}
+
+	protected void stop(BundleContext bundleContext) {
 //		if (loggingConfigurationSr != null)
 //			try {
 //				loggingConfigurationSr.unregister();
@@ -99,26 +157,32 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 	@Override
 	public void waitForStop(long timeout) throws InterruptedException {
 		if (framework == null)
-			throw new IllegalStateException("Framework is not initialised");
+			return;
 
 		framework.waitForStop(timeout);
 	}
 
 	public void close() throws Exception {
+		if (framework == null)
+			return;
 		// TODO make shutdown of dynamic service more robust
-		Bundle scrBundle = osgiBoot.getBundlesBySymbolicName().get("org.apache.felix.scr");
-		if (scrBundle != null) {
-			scrBundle.stop();
-			while (!(scrBundle.getState() <= Bundle.RESOLVED)) {
-				Thread.sleep(500);
-			}
-			Thread.sleep(1000);
-		}
+//		for (Bundle scrBundle : framework.getBundleContext().getBundles()) {
+//			if (scrBundle.getSymbolicName().equals(SYMBOLIC_NAME_FELIX_SCR)) {
+//				if (scrBundle.getState() > Bundle.RESOLVED) {
+//					scrBundle.stop();
+//					while (!(scrBundle.getState() <= Bundle.RESOLVED)) {
+//						Thread.sleep(100);
+//					}
+//					Thread.sleep(500);
+//				}
+//			}
+//		}
 
-		stop(framework.getBundleContext());
-		if (framework != null)
-			framework.stop();
-
+		stop();
+		waitForStop(CLOSE_TIMEOUT);
+		framework = null;
+//			osgiBoot = null;
+		config.clear();
 	}
 
 	public Framework getFramework() {

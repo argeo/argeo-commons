@@ -25,15 +25,15 @@ import javax.naming.ldap.Rdn;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosTicket;
 
+import org.argeo.api.acr.ldap.LdapNameUtils;
+import org.argeo.api.cms.directory.CmsRole;
 import org.argeo.api.cms.directory.DirectoryDigestUtils;
-import org.argeo.api.cms.directory.CmsUser;
 import org.argeo.api.cms.directory.HierarchyUnit;
 import org.argeo.api.cms.directory.UserDirectory;
 import org.argeo.cms.directory.ldap.AbstractLdapDirectory;
 import org.argeo.cms.directory.ldap.LdapDao;
 import org.argeo.cms.directory.ldap.LdapEntry;
 import org.argeo.cms.directory.ldap.LdapEntryWorkingCopy;
-import org.argeo.cms.directory.ldap.LdapNameUtils;
 import org.argeo.cms.directory.ldap.LdifDao;
 import org.argeo.cms.runtime.DirectoryConf;
 import org.argeo.cms.util.CurrentSubject;
@@ -126,30 +126,30 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	}
 
 	@Override
-	public String getRolePath(Role role) {
+	public String getRolePath(CmsRole role) {
 		return nameToRelativePath(LdapNameUtils.toLdapName(role.getName()));
 	}
 
 	@Override
-	public String getRoleSimpleName(Role role) {
+	public String getRoleSimpleName(CmsRole role) {
 		LdapName dn = LdapNameUtils.toLdapName(role.getName());
 		String name = LdapNameUtils.getLastRdnValue(dn);
 		return name;
 	}
 
 	@Override
-	public Role getRoleByPath(String path) {
+	public CmsRole getRoleByPath(String path) {
 		LdapEntry entry = doGetRole(pathToName(path));
-		if (!(entry instanceof Role)) {
+		if (!(entry instanceof CmsRole)) {
 			return null;
 //			throw new IllegalStateException("Path must be a UserAdmin Role.");
 		} else {
-			return (Role) entry;
+			return (CmsRole) entry;
 		}
 	}
 
-	protected List<Role> getAllRoles(CmsUser user) {
-		List<Role> allRoles = new ArrayList<Role>();
+	protected List<CmsOsgiRole> getAllRoles(CmsOsgiUser user) {
+		List<CmsOsgiRole> allRoles = new ArrayList<CmsOsgiRole>();
 		if (user != null) {
 			collectRoles((LdapEntry) user, allRoles);
 			allRoles.add(user);
@@ -158,17 +158,17 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		return allRoles;
 	}
 
-	private void collectRoles(LdapEntry user, List<Role> allRoles) {
+	private void collectRoles(LdapEntry user, List<CmsOsgiRole> allRoles) {
 		List<LdapEntry> allEntries = new ArrayList<>();
 		LdapEntry entry = user;
 		collectGroups(entry, allEntries);
 		for (LdapEntry e : allEntries) {
-			if (e instanceof Role)
-				allRoles.add((Role) e);
+			if (e instanceof CmsOsgiRole)
+				allRoles.add((CmsOsgiRole) e);
 		}
 	}
 
-	private void collectAnonymousRoles(List<Role> allRoles) {
+	private void collectAnonymousRoles(List<CmsOsgiRole> allRoles) {
 		// TODO gather anonymous roles
 	}
 
@@ -184,23 +184,23 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		return res.toArray(new Role[res.size()]);
 	}
 
-	List<CmsUser> getRoles(LdapName searchBase, String filter, boolean deep) throws InvalidSyntaxException {
+	List<CmsOsgiUser> getRoles(LdapName searchBase, String filter, boolean deep) throws InvalidSyntaxException {
 		LdapEntryWorkingCopy wc = getWorkingCopy();
 //		Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
 		List<LdapEntry> searchRes = getDirectoryDao().doGetEntries(searchBase, filter, deep);
-		List<CmsUser> res = new ArrayList<>();
+		List<CmsOsgiUser> res = new ArrayList<>();
 		for (LdapEntry entry : searchRes)
-			res.add((CmsUser) entry);
+			res.add((CmsOsgiUser) entry);
 		if (wc != null) {
-			for (Iterator<CmsUser> it = res.iterator(); it.hasNext();) {
-				CmsUser user = (CmsUser) it.next();
+			for (Iterator<CmsOsgiUser> it = res.iterator(); it.hasNext();) {
+				CmsOsgiUser user = it.next();
 				LdapName dn = LdapNameUtils.toLdapName(user.getName());
 				if (wc.getDeletedData().containsKey(dn))
 					it.remove();
 			}
 			Filter f = filter != null ? FrameworkUtil.createFilter(filter) : null;
 			for (LdapEntry ldapEntry : wc.getNewData().values()) {
-				CmsUser user = (CmsUser) ldapEntry;
+				CmsOsgiUser user = (CmsOsgiUser) ldapEntry;
 				if (f == null || f.match(user.getProperties()))
 					res.add(user);
 			}
@@ -213,7 +213,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	@Override
 	public User getUser(String key, String value) {
 		// TODO check value null or empty
-		List<CmsUser> collectedUsers = new ArrayList<CmsUser>();
+		List<CmsOsgiUser> collectedUsers = new ArrayList<>();
 		if (key != null) {
 			doGetUser(key, value, collectedUsers);
 		} else {
@@ -229,11 +229,11 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 		return null;
 	}
 
-	protected void doGetUser(String key, String value, List<CmsUser> collectedUsers) {
+	protected void doGetUser(String key, String value, List<CmsOsgiUser> collectedUsers) {
 		String f = "(" + key + "=" + value + ")";
 		List<LdapEntry> users = getDirectoryDao().doGetEntries(getBaseDn(), f, true);
 		for (LdapEntry entry : users)
-			collectedUsers.add((CmsUser) entry);
+			collectedUsers.add((CmsOsgiUser) entry);
 	}
 
 	@Override
@@ -242,9 +242,9 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 			return new LdifAuthorization(user, getAllRoles(null));
 		}
 		LdapName userName = toLdapName(user.getName());
-		if (isExternal(userName) && user instanceof LdapEntry) {
-			List<Role> allRoles = new ArrayList<Role>();
-			collectRoles((LdapEntry) user, allRoles);
+		if (isExternal(userName) && user instanceof LdapEntry ldapEntry) {
+			List<CmsOsgiRole> allRoles = new ArrayList<>();
+			collectRoles(ldapEntry, allRoles);
 			return new LdifAuthorization(user, allRoles);
 		} else {
 
@@ -263,8 +263,8 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 				return getAuthorizationFromScoped(scopedUserAdmin, user);
 			}
 
-			if (user instanceof CmsUser) {
-				return new LdifAuthorization(user, getAllRoles((CmsUser) user));
+			if (user instanceof CmsOsgiUser u) {
+				return new LdifAuthorization(user, getAllRoles(u));
 			} else {
 				// bind with authenticating user
 				DirectoryUserAdmin scopedUserAdmin = scope(user).orElseThrow();
@@ -275,7 +275,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 
 	private Authorization getAuthorizationFromScoped(DirectoryUserAdmin scopedUserAdmin, User user) {
 		try {
-			CmsUser directoryUser = (CmsUser) scopedUserAdmin.getRole(user.getName());
+			CmsOsgiUser directoryUser = (CmsOsgiUser) scopedUserAdmin.getRole(user.getName());
 			if (directoryUser == null)
 				throw new IllegalStateException("No scoped user found for " + user);
 			LdifAuthorization authorization = new LdifAuthorization(directoryUser,
@@ -348,7 +348,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	 * HIERARCHY
 	 */
 	@Override
-	public HierarchyUnit getHierarchyUnit(Role role) {
+	public HierarchyUnit getHierarchyUnit(CmsRole role) {
 		LdapName dn = LdapNameUtils.toLdapName(role.getName());
 		LdapName huDn = LdapNameUtils.getParent(dn);
 		HierarchyUnit hierarchyUnit = getDirectoryDao().doGetHierarchyUnit(huDn);
@@ -358,7 +358,7 @@ public class DirectoryUserAdmin extends AbstractLdapDirectory implements UserAdm
 	}
 
 	@Override
-	public Iterable<? extends Role> getHierarchyUnitRoles(HierarchyUnit hierarchyUnit, String filter, boolean deep) {
+	public Iterable<? extends CmsRole> getHierarchyUnitRoles(HierarchyUnit hierarchyUnit, String filter, boolean deep) {
 		LdapName dn = LdapNameUtils.toLdapName(hierarchyUnit.getBase());
 		try {
 			return getRoles(dn, filter, deep);

@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-import org.argeo.init.RuntimeContext;
-import org.argeo.init.Service;
+import org.argeo.api.init.RuntimeContext;
+import org.argeo.internal.init.InternalState;
 
 /**
  * A thin logging system based on the {@link Logger} framework. It is a
@@ -68,7 +68,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	// we don't synchronize maps on purpose as it would be
 	// too expensive during normal operation
 	// updates to the config may be shortly inconsistent
-	private SortedMap<String, ThinLogger> loggers = new TreeMap<>();
+	private SortedMap<String, ThinLogger> loggers = Collections.synchronizedSortedMap(new TreeMap<>());
 	private NavigableMap<String, Level> levels = new TreeMap<>();
 	private volatile boolean updatingConfiguration = false;
 
@@ -150,7 +150,7 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	}
 
 	private void close() {
-		RuntimeContext runtimeContext = Service.getRuntimeContext();
+		RuntimeContext runtimeContext = InternalState.getMainRuntimeContext();
 		if (runtimeContext != null) {
 			try {
 				runtimeContext.waitForStop(0);
@@ -191,9 +191,11 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 	}
 
 	public Logger getLogger(String name, Module module) {
+		Objects.requireNonNull(name, "logger name");
 		if (!loggers.containsKey(name)) {
 			ThinLogger logger = new ThinLogger(name, computeApplicableLevel(name));
 			loggers.put(name, logger);
+			return logger;
 		}
 		return loggers.get(name);
 	}
@@ -393,11 +395,11 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 					case "org.osgi.service.log.Logger":
 					case "org.eclipse.osgi.internal.log.LoggerImpl":
 					case "org.argeo.api.cms.CmsLog":
-					case "org.argeo.init.osgi.OsgiBootUtils":
-					case "org.slf4j.impl.ArgeoLogger":
-					case "org.argeo.cms.internal.osgi.CmsOsgiLogger":
 					case "org.eclipse.jetty.util.log.Slf4jLog":
 					case "sun.util.logging.internal.LoggingProviderImpl$JULWrapper":
+					case "org.slf4j.impl.ArgeoLogger":
+					case "org.argeo.cms.internal.osgi.CmsOsgiLogger":
+					case "org.argeo.init.osgi.OsgiBootUtils":
 						lowestLoggerInterface = i;
 						continue stack;
 					default:
@@ -609,24 +611,24 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 		}
 	}
 
-	public static void main(String args[]) {
-		Logger logger = System.getLogger(ThinLogging.class.getName());
-		logger.log(Logger.Level.ALL, "Log all");
-		logger.log(Logger.Level.TRACE, "Multi\nline\ntrace");
-		logger.log(Logger.Level.DEBUG, "Log debug");
-		logger.log(Logger.Level.INFO, "Log info");
-		logger.log(Logger.Level.WARNING, "Log warning");
-		logger.log(Logger.Level.ERROR, "Log exception", new Throwable());
-
-		try {
-			// we ait a bit in order to make sure all messages are flushed
-			// TODO synchronize more efficiently
-			// executor.awaitTermination(300, TimeUnit.MILLISECONDS);
-			ForkJoinPool.commonPool().awaitTermination(300, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-			// silent
-		}
-
-	}
+//	public static void main(String args[]) {
+//		Logger logger = System.getLogger(ThinLogging.class.getName());
+//		logger.log(Logger.Level.ALL, "Log all");
+//		logger.log(Logger.Level.TRACE, "Multi\nline\ntrace");
+//		logger.log(Logger.Level.DEBUG, "Log debug");
+//		logger.log(Logger.Level.INFO, "Log info");
+//		logger.log(Logger.Level.WARNING, "Log warning");
+//		logger.log(Logger.Level.ERROR, "Log exception", new Throwable());
+//
+//		try {
+//			// we wait a bit in order to make sure all messages are flushed
+//			// TODO synchronize more efficiently
+//			// executor.awaitTermination(300, TimeUnit.MILLISECONDS);
+//			ForkJoinPool.commonPool().awaitTermination(300, TimeUnit.MILLISECONDS);
+//		} catch (InterruptedException e) {
+//			// silent
+//		}
+//
+//	}
 
 }

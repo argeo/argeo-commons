@@ -11,12 +11,12 @@ import org.argeo.api.uuid.UuidFactory;
  *             concept that using shared memory in order to limit the JNI
  *             overhead does not yield any significant performance gain. But it
  *             could be an approach for computing and transferring bulk UUIDs
- *             computations in one go, vi
+ *             computations in one go, via
  *             {@link ByteBuffer#allocateDirect(int)}.
  */
 public class DirectLibuuidFactory implements UuidFactory {
 	static {
-		System.loadLibrary("Java_org_argeo_api_uuid_libuuid");
+		System.loadLibrary("Java_org_argeo_api_uuid_libuuid." + APM.MAJOR + "." + APM.MINOR);
 	}
 
 	@Override

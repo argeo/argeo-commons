@@ -1,17 +1,15 @@
 package org.argeo.api.cms.directory;
 
-import org.osgi.service.useradmin.Role;
-
 /** Information about a user directory. */
 public interface UserDirectory extends CmsDirectory {
 
-	HierarchyUnit getHierarchyUnit(Role role);
+	HierarchyUnit getHierarchyUnit(CmsRole role);
 
-	Iterable<? extends Role> getHierarchyUnitRoles(HierarchyUnit hierarchyUnit, String filter, boolean deep);
+	Iterable<? extends CmsRole> getHierarchyUnitRoles(HierarchyUnit hierarchyUnit, String filter, boolean deep);
 
-	String getRolePath(Role role);
+	String getRolePath(CmsRole role);
 
-	String getRoleSimpleName(Role role);
+	String getRoleSimpleName(CmsRole role);
 
-	Role getRoleByPath(String path);
+	CmsRole getRoleByPath(String path);
 }

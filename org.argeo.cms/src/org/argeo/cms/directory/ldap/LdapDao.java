@@ -20,6 +20,7 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.argeo.api.acr.ldap.LdapAttr;
+import org.argeo.api.acr.ldap.LdapNameUtils;
 import org.argeo.api.acr.ldap.LdapObj;
 import org.argeo.api.cms.directory.HierarchyUnit;
 

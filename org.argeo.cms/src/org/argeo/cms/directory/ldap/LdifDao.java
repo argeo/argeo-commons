@@ -257,8 +257,12 @@ public class LdifDao extends AbstractLdapDirectoryDao {
 			}
 			if (user == null)
 				throw new IllegalStateException("User to modify no found " + dn);
-			user.publishAttributes(modifiedAttrs);
+			publishAttributes(dn, modifiedAttrs);
 		}
+	}
+
+	protected void publishAttributes(LdapName dn, Attributes modifiedAttributes) {
+		values.put(dn, modifiedAttributes);
 	}
 
 	@Override

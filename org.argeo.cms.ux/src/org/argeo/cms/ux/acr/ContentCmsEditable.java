@@ -5,7 +5,7 @@ import org.argeo.api.acr.spi.ContentProvider;
 import org.argeo.api.acr.spi.ProvidedContent;
 import org.argeo.api.acr.spi.ProvidedSession;
 import org.argeo.api.cms.ux.CmsEditable;
-import org.argeo.cms.acr.ContentUtils;
+import org.argeo.cms.acr.CmsContent;
 import org.argeo.cms.ux.AbstractCmsEditable;
 
 /** {@link CmsEditable} semantics for a {@link Content}. */
@@ -22,7 +22,7 @@ public class ContentCmsEditable extends AbstractCmsEditable {
 		canEdit = providedContent.canEdit();
 		session = providedContent.getSession();
 		provider = providedContent.getProvider();
-		relativePath = ContentUtils.relativize(provider.getMountPath(), content.getPath());
+		relativePath = CmsContent.relativize(provider.getMountPath(), content.getPath());
 	}
 
 	@Override

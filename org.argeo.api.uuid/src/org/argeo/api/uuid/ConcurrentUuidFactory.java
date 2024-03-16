@@ -28,7 +28,7 @@ public class ConcurrentUuidFactory extends AbstractAsyncUuidFactory implements T
 		Objects.requireNonNull(nodeId);
 		if (offset + 6 > nodeId.length)
 			throw new IllegalArgumentException("Offset too big: " + offset);
-		byte[] defaultNodeId = toNodeIdBytes(nodeId, offset);
+		byte[] defaultNodeId = NodeIdSupplier.toNodeIdBytes(nodeId, offset);
 		long nodeIdBase = NodeIdSupplier.toNodeIdBase(defaultNodeId);
 		setNodeIdSupplier(() -> nodeIdBase, initialClockRange);
 	}

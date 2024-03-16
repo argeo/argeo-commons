@@ -96,7 +96,8 @@ public class CmsContextImpl implements CmsContext {
 			availableSince = System.currentTimeMillis();
 			long jvmUptime = ManagementFactory.getRuntimeMXBean().getUptime();
 			String jvmUptimeStr = " in " + (jvmUptime / 1000) + "." + (jvmUptime % 1000) + "s";
-			log.info("## ARGEO CMS AVAILABLE" + (log.isDebugEnabled() ? jvmUptimeStr : "") + " ##");
+			log.info("## ARGEO CMS " + cmsState.getUuid() + " AVAILABLE" + (log.isDebugEnabled() ? jvmUptimeStr : "")
+					+ " ##");
 			if (log.isDebugEnabled()) {
 				log.debug("## state: " + state);
 				if (data != null)

@@ -20,7 +20,7 @@ public interface LdapEntry {
 
 	Attributes getAttributes();
 
-	void publishAttributes(Attributes modifiedAttributes);
+	//void publishAttributes(Attributes modifiedAttributes);
 
 	List<LdapName> getReferences(String attributeId);
 

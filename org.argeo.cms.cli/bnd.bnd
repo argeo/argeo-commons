@@ -5,7 +5,6 @@ Main-Class: org.argeo.cms.cli.ArgeoCli
 
 Class-Path: \
 org.argeo.api.acr.2.1.jar \
-org.argeo.api.cli.2.1.jar \
 org.argeo.api.cms.2.1.jar \
 org.argeo.api.register.2.1.jar \
 org.argeo.api.uuid.2.1.jar \
@@ -107,7 +106,7 @@ org.argeo.init.2.1.jar \
 ../crypto/fips/org.argeo.tp.crypto/bcpkix-fips.1.0.src.jar \
 ../crypto/fips/org.argeo.tp.crypto/bctls-fips.1.0.jar \
 ../crypto/fips/org.argeo.tp.crypto/bctls-fips.1.0.src.jar \
-../osgi/equinox/org.argeo.cms/org.argeo.cms.lib.equinox.2.1.jar \
+../osgi/equinox/org.argeo.cms/org.argeo.cms.lib.equinox.2.3.jar \
 ../osgi/equinox/org.argeo.tp.osgi/org.apache.felix.gogo.command.1.1.jar \
 ../osgi/equinox/org.argeo.tp.osgi/org.apache.felix.gogo.runtime.1.1.jar \
 ../osgi/equinox/org.argeo.tp.osgi/org.apache.felix.gogo.shell.1.1.jar \

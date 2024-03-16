@@ -30,7 +30,7 @@ class GogoShellKiller extends Thread {
 			return;
 		System.exit(0);
 		// No non-deamon threads left, forcibly halting the VM
-		//Runtime.getRuntime().halt(0);
+		// Runtime.getRuntime().halt(0);
 	}
 
 	private ThreadGroup getRootThreadGroup(ThreadGroup tg) {
@@ -56,7 +56,7 @@ class GogoShellKiller extends Thread {
 		Thread[] threads = new Thread[rootThreadGroup.activeCount()];
 		rootThreadGroup.enumerate(threads, true);
 		for (Thread thread : threads) {
-			if (thread.getName().equals("pipe-gosh --login --noshutdown"))
+			if (thread.getName() != null && thread.getName().equals("pipe-gosh --login --noshutdown"))
 				return thread;
 		}
 		return null;

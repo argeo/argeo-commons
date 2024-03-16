@@ -13,7 +13,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServicePermission;
-import org.osgi.service.cm.ConfigurationPermission;
 import org.osgi.service.condpermadmin.BundleLocationCondition;
 import org.osgi.service.condpermadmin.ConditionInfo;
 import org.osgi.service.condpermadmin.ConditionalPermissionAdmin;
@@ -125,20 +124,22 @@ public interface SecurityProfile {
 
 		// DS
 		Bundle dsBundle = findBundle("org.eclipse.equinox.ds");
-		update.getConditionalPermissionInfos().add(permissionAdmin.newConditionalPermissionInfo(null,
-				new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
-						new String[] { dsBundle.getLocation() }) },
-				new PermissionInfo[] { new PermissionInfo(ConfigurationPermission.class.getName(), "*", "configure"),
-						new PermissionInfo(AdminPermission.class.getName(), "*", "*"),
-						new PermissionInfo(ServicePermission.class.getName(), "*", "get"),
-						new PermissionInfo(ServicePermission.class.getName(), "*", "register"),
-						new PermissionInfo(PropertyPermission.class.getName(), "osgi.*", "read"),
-						new PermissionInfo(PropertyPermission.class.getName(), "xml.*", "read"),
-						new PermissionInfo(PropertyPermission.class.getName(), "equinox.*", "read"),
-						new PermissionInfo(RuntimePermission.class.getName(), "accessDeclaredMembers", null),
-						new PermissionInfo(RuntimePermission.class.getName(), "getClassLoader", null),
-						new PermissionInfo(ReflectPermission.class.getName(), "suppressAccessChecks", null), },
-				ConditionalPermissionInfo.ALLOW));
+		update.getConditionalPermissionInfos()
+				.add(permissionAdmin.newConditionalPermissionInfo(null,
+						new ConditionInfo[] { new ConditionInfo(BundleLocationCondition.class.getName(),
+								new String[] { dsBundle.getLocation() }) },
+						new PermissionInfo[] {
+								new PermissionInfo("org.osgi.service.cm.ConfigurationPermission", "*", "configure"),
+								new PermissionInfo(AdminPermission.class.getName(), "*", "*"),
+								new PermissionInfo(ServicePermission.class.getName(), "*", "get"),
+								new PermissionInfo(ServicePermission.class.getName(), "*", "register"),
+								new PermissionInfo(PropertyPermission.class.getName(), "osgi.*", "read"),
+								new PermissionInfo(PropertyPermission.class.getName(), "xml.*", "read"),
+								new PermissionInfo(PropertyPermission.class.getName(), "equinox.*", "read"),
+								new PermissionInfo(RuntimePermission.class.getName(), "accessDeclaredMembers", null),
+								new PermissionInfo(RuntimePermission.class.getName(), "getClassLoader", null),
+								new PermissionInfo(ReflectPermission.class.getName(), "suppressAccessChecks", null), },
+						ConditionalPermissionInfo.ALLOW));
 
 		// Jetty
 		// Bundle jettyUtilBundle = findBundle("org.eclipse.equinox.http.jetty");

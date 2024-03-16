@@ -35,24 +35,26 @@ public class MacAddressUuidFactory extends ConcurrentUuidFactory {
 		try {
 			localHost = InetAddress.getLocalHost();
 			NetworkInterface nic = NetworkInterface.getByInetAddress(localHost);
-			if (nic != null)
+			if (nic != null && nic.getHardwareAddress() != null)
 				return hardwareAddressToNodeId(nic);
 			Enumeration<NetworkInterface> netInterfaces = null;
-			try {
-				netInterfaces = NetworkInterface.getNetworkInterfaces();
-			} catch (SocketException e) {
-				throw new IllegalStateException(e);
-			}
+			netInterfaces = NetworkInterface.getNetworkInterfaces();
 			if (netInterfaces == null || !netInterfaces.hasMoreElements())
 				throw new IllegalStateException("No interfaces");
-			return hardwareAddressToNodeId(netInterfaces.nextElement());
+			while (netInterfaces.hasMoreElements()) {
+				// TODO find out public/physical interfaces
+				nic = netInterfaces.nextElement();
+				if (nic.getHardwareAddress() != null)
+					return hardwareAddressToNodeId(nic);
+			}
+			throw new IllegalStateException("No interfaces with a MAC address");
 		} catch (UnknownHostException | SocketException e) {
 			throw new IllegalStateException(e);
 		}
 
 	}
 
-	public static byte[] hardwareAddressToNodeId(NetworkInterface nic) {
+	public static byte[] hardwareAddressToNodeId(NetworkInterface nic) throws IllegalStateException {
 		try {
 			byte[] hardwareAddress = nic.getHardwareAddress();
 			final int length = 6;

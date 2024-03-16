@@ -172,7 +172,7 @@ public class CmsSshServer implements CmsSshd {
 			// start
 			sshd.start();
 
-			log.debug(() -> "CMS SSH server started on port " + port + (host != null ? " of host " + host : ""));
+			log.info("# SSH " + (host != null ? host + ":" : "*:") + port);
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot start SSH server on port " + port, e);
 		}
@@ -207,9 +207,9 @@ public class CmsSshServer implements CmsSshd {
 		} catch (IOException | KeyStoreException | NoSuchProviderException | NoSuchAlgorithmException
 				| CertificateException | IllegalArgumentException | UnrecoverableKeyException e) {
 			if (log.isTraceEnabled())
-				log.error("Cannot add node public key to SSH authorized keys", e);
+				log.warn("Cannot add node public key to SSH authorized keys", e);
 			else
-				log.error("Cannot add node public key to SSH authorized keys: " + e.getMessage());
+				log.warn("Cannot add node public key to SSH authorized keys: " + e);
 			return null;
 		}
 

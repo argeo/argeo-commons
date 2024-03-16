@@ -78,11 +78,9 @@ public class MiniBrowser {
 		browser.addLocationListener(new LocationAdapter() {
 			@Override
 			public void changed(LocationEvent event) {
-				System.out.println(event);
 				if (addressT != null)
 					addressT.setText(event.location);
 			}
-
 		});
 
 		MiniDesktopSpecific.getMiniDesktopSpecific().addBrowserTitleListener(this, browser);
@@ -91,7 +89,6 @@ public class MiniBrowser {
 	}
 
 	public Browser openNewBrowserWindow() {
-
 		if (isFullScreen()) {
 			// TODO manage multiple tabs?
 			return browser;

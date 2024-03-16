@@ -1,5 +1,9 @@
 package org.argeo.init.osgi;
 
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.TRACE;
+
+import java.lang.System.Logger;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
@@ -8,10 +12,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.argeo.api.init.InitConstants;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -25,6 +29,8 @@ import org.osgi.util.tracker.ServiceTracker;
 
 /** OSGi builder, focusing on ease of use for scripting. */
 public class OsgiBuilder {
+	private final static Logger logger = System.getLogger(OsgiBuilder.class.getName());
+
 	private final static String PROP_HTTP_PORT = "org.osgi.service.http.port";
 	private final static String PROP_HTTPS_PORT = "org.osgi.service.https.port";
 	private final static String PROP_OSGI_CLEAN = "osgi.clean";
@@ -38,21 +44,23 @@ public class OsgiBuilder {
 
 	public OsgiBuilder() {
 		// configuration.put("osgi.clean", "true");
-		configuration.put(OsgiBoot.PROP_OSGI_CONFIGURATION_AREA, System.getProperty(OsgiBoot.PROP_OSGI_CONFIGURATION_AREA));
-		configuration.put(OsgiBoot.PROP_OSGI_INSTANCE_AREA, System.getProperty(OsgiBoot.PROP_OSGI_INSTANCE_AREA));
+		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
+				System.getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA));
+		configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
+				System.getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA));
 		configuration.put(PROP_OSGI_CLEAN, System.getProperty(PROP_OSGI_CLEAN));
 	}
 
 	public Framework launch() {
+		configuration.putAll(startLevelsToProperties());
 		// start OSGi
-		framework = OsgiBootUtils.launch(configuration);
+		framework = OsgiBoot.defaultOsgiLaunch(configuration);
 
 		BundleContext bc = framework.getBundleContext();
-		String osgiData = bc.getProperty(OsgiBoot.PROP_OSGI_INSTANCE_AREA);
+		String osgiData = bc.getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
 		// String osgiConf = bc.getProperty(OsgiBoot.CONFIGURATION_AREA_PROP);
 		String osgiConf = framework.getDataFile("").getAbsolutePath();
-		if (OsgiBootUtils.isDebug())
-			OsgiBootUtils.debug("OSGi starting - data: " + osgiData + " conf: " + osgiConf);
+		logger.log(TRACE, () -> "OSGi starting - data: " + osgiData + " conf: " + osgiConf);
 
 		OsgiBoot osgiBoot = new OsgiBoot(framework.getBundleContext());
 		if (distributionBundles.isEmpty()) {
@@ -65,7 +73,7 @@ public class OsgiBuilder {
 			}
 		}
 		// start bundles
-		osgiBoot.startBundles(startLevelsToProperties());
+		osgiBoot.startBundles();
 
 		// if (OsgiBootUtils.isDebug())
 		// for (Bundle bundle : bc.getBundles()) {
@@ -178,7 +186,7 @@ public class OsgiBuilder {
 		try {
 			return st.waitForService(timeout);
 		} catch (InterruptedException e) {
-			OsgiBootUtils.error("Interrupted", e);
+			logger.log(ERROR, "Interrupted", e);
 			return null;
 		} finally {
 			st.close();
@@ -275,10 +283,10 @@ public class OsgiBuilder {
 	//
 	// UTILITIES
 	//
-	private Properties startLevelsToProperties() {
-		Properties properties = new Properties();
+	private Map<String, String> startLevelsToProperties() {
+		Map<String, String> properties = new HashMap<>();
 		for (Integer startLevel : startLevels.keySet()) {
-			String property = OsgiBoot.PROP_ARGEO_OSGI_START + "." + startLevel;
+			String property = InitConstants.PROP_ARGEO_OSGI_START + "." + startLevel;
 			StringBuilder value = new StringBuilder();
 			for (String bundle : startLevels.get(startLevel).getBundles()) {
 				value.append(bundle);

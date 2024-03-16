@@ -13,7 +13,6 @@ import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -31,36 +30,15 @@ import javax.naming.ldap.LdapName;
 /** Utilities around Java basic features. */
 public class LangUtils {
 	/*
-	 * NON-API OSGi
+	 * OBJECTS and STRINGS
 	 */
 	/**
-	 * Returns an array with the names of the provided classes. Useful when
-	 * registering services with multiple interfaces in OSGi.
+	 * Whether this {@link String} is <code>null</null>, empty, or only white
+	 * spaces.
 	 */
-	public static String[] names(Class<?>... clzz) {
-		String[] res = new String[clzz.length];
-		for (int i = 0; i < clzz.length; i++)
-			res[i] = clzz[i].getName();
-		return res;
+	public static boolean isEmpty(String str) {
+		return str == null || "".equals(str.strip());
 	}
-
-//	/*
-//	 * MAP
-//	 */
-//	/**
-//	 * Creates a new {@link Map} with one key-value pair. Key should not be null,
-//	 * but if the value is null, it returns an empty {@link Map}.
-//	 * 
-//	 * @deprecated Use {@link Collections#singletonMap(Object, Object)} instead.
-//	 */
-//	@Deprecated
-//	public static Map<String, Object> map(String key, Object value) {
-//		assert key != null;
-//		HashMap<String, Object> props = new HashMap<>();
-//		if (value != null)
-//			props.put(key, value);
-//		return props;
-//	}
 
 	/*
 	 * DICTIONARY
@@ -343,6 +321,20 @@ public class LangUtils {
 			return count > 1 ? count + " minutes" : count + " minute";
 		count = ChronoUnit.SECONDS.between(start, end);
 		return count > 1 ? count + " seconds" : count + " second";
+	}
+
+	/*
+	 * NON-API OSGi
+	 */
+	/**
+	 * Returns an array with the names of the provided classes. Useful when
+	 * registering services with multiple interfaces in OSGi.
+	 */
+	public static String[] names(Class<?>... clzz) {
+		String[] res = new String[clzz.length];
+		for (int i = 0; i < clzz.length; i++)
+			res[i] = clzz[i].getName();
+		return res;
 	}
 
 	/** Singleton constructor. */

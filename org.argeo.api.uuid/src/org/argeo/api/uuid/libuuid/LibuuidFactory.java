@@ -8,7 +8,7 @@ import org.argeo.api.uuid.UuidFactory;
 /** An {@link UuidFactory} based on a native library. */
 public class LibuuidFactory implements UuidFactory, TypedUuidFactory {
 	static {
-		System.loadLibrary("Java_org_argeo_api_uuid_libuuid");
+		System.loadLibrary("Java_org_argeo_api_uuid_libuuid." + APM.MAJOR + "." + APM.MINOR);
 	}
 
 	@Override

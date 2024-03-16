@@ -2,6 +2,7 @@ package org.argeo.cms.ssh;
 
 import java.io.Console;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -51,16 +52,20 @@ public abstract class AbstractSsh {
 	}
 
 	public void authenticate() {
+		authenticate(System.in);
+	}
+
+	public void authenticate(InputStream in) {
 		if (sshKeyPair != null) {
 			session.addPublicKeyIdentity(sshKeyPair.asKeyPair());
 		} else {
 
-			if (!passwordSet) {
+			if (!passwordSet && in != null) {
 				String password;
 				Console console = System.console();
 				if (console == null) {// IDE
 					System.out.print("Password: ");
-					try (Scanner s = new Scanner(System.in)) {
+					try (Scanner s = new Scanner(in)) {
 						password = s.next();
 					}
 				} else {
