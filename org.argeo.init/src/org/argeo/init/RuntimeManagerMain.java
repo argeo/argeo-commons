@@ -28,7 +28,7 @@ import org.osgi.framework.launch.Framework;
  * Dynamically configures and launches multiple runtimes, coordinated by a main
  * one.
  */
-public class RuntimeManagerMain implements RuntimeManager {
+public class RuntimeManagerMain {
 	private final static Logger logger = System.getLogger(RuntimeManagerMain.class.getName());
 
 	private final static String ENV_STATE_DIRECTORY = "STATE_DIRECTORY";
@@ -41,14 +41,17 @@ public class RuntimeManagerMain implements RuntimeManager {
 	private Path baseWritableArea;
 	private Map<String, String> configuration = new HashMap<>();
 
-	private Map<String, OsgiRuntimeContext> runtimeContexts = new TreeMap<>();
-
 	RuntimeManagerMain(Path configArea, Path stateArea) {
 		RuntimeManager.loadConfig(configArea, configuration);
-		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, stateArea.resolve(STATE).toUri().toString());
+		
+		// integration with OSGi runtime; this will be read by the init bundle
+		configuration.put(ServiceMain.PROP_ARGEO_INIT_MAIN, "true");
+		configuration.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea.toUri().toString());
+		
+		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, stateArea.resolve(RuntimeManager.STATE).toUri().toString());
 		// use config area if instance area is not set
 		if (!configuration.containsKey(InitConstants.PROP_OSGI_INSTANCE_AREA))
-			configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA, stateArea.resolve(DATA).toUri().toString());
+			configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA, stateArea.resolve(RuntimeManager.DATA).toUri().toString());
 		this.baseConfigArea = configArea.getParent();
 		this.baseWritableArea = stateArea.getParent();
 
@@ -66,10 +69,10 @@ public class RuntimeManagerMain implements RuntimeManager {
 			// shutdown on exit
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> shutdown(), "Runtime shutdown"));
 
-			BundleContext bc = managerRuntimeContext.getFramework().getBundleContext();
-			// uninstall init as a bundle since it will be available via OSGi system
-			OsgiBoot.uninstallBundles(bc, SYMBOLIC_NAME_INIT);
-			bc.registerService(RuntimeManager.class, this, new Hashtable<>(configuration));
+//			BundleContext bc = managerRuntimeContext.getFramework().getBundleContext();
+//			// uninstall init as a bundle since it will be available via OSGi system
+//			OsgiBoot.uninstallBundles(bc, SYMBOLIC_NAME_INIT);
+//			bc.registerService(RuntimeManager.class, this, new Hashtable<>(configuration));
 			logger.log(Level.DEBUG, "Registered runtime manager");
 
 			managerRuntimeContext.waitForStop(0);
@@ -81,21 +84,6 @@ public class RuntimeManagerMain implements RuntimeManager {
 	}
 
 	protected void shutdown() {
-		// shutdowm runtimes
-		Map<String, RuntimeContext> shutdowning = new HashMap<>(runtimeContexts);
-		for (String id : new HashSet<>(runtimeContexts.keySet())) {
-			logger.log(Logger.Level.DEBUG, "Shutting down runtime " + id + " ...");
-			closeRuntime(id, true);
-		}
-		for (String id : shutdowning.keySet())
-			try {
-				RuntimeContext runtimeContext = shutdowning.get(id);
-				runtimeContext.waitForStop(RUNTIME_SHUTDOWN_TIMEOUT);
-			} catch (InterruptedException e) {
-				// silent
-			} catch (Exception e) {
-				logger.log(Logger.Level.DEBUG, "Cannot wait for " + id + " to shutdown", e);
-			}
 		// shutdown manager runtime
 		try {
 			InternalState.getMainRuntimeContext().close();
@@ -106,60 +94,6 @@ public class RuntimeManagerMain implements RuntimeManager {
 			e.printStackTrace();
 			Runtime.getRuntime().halt(1);
 		}
-	}
-
-	OsgiRuntimeContext loadRuntime(String relPath, Consumer<Map<String, String>> configCallback) {
-		closeRuntime(relPath, false);
-		Path writableArea = baseWritableArea.resolve(relPath);
-		Path configArea = baseConfigArea.resolve(relPath);
-		Map<String, String> config = new HashMap<>();
-		RuntimeManager.loadConfig(configArea, config);
-		config.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, writableArea.resolve(STATE).toUri().toString());
-
-		if (configCallback != null)
-			configCallback.accept(config);
-
-		// use config area if instance area is not set
-		if (!config.containsKey(InitConstants.PROP_OSGI_INSTANCE_AREA))
-			config.put(InitConstants.PROP_OSGI_INSTANCE_AREA, writableArea.resolve(DATA).toUri().toString());
-
-		OsgiRuntimeContext runtimeContext = new OsgiRuntimeContext(config);
-		runtimeContexts.put(relPath, runtimeContext);
-		return runtimeContext;
-	}
-
-	public void startRuntime(String relPath, Consumer<Map<String, String>> configCallback) {
-		OsgiRuntimeContext runtimeContext = loadRuntime(relPath, configCallback);
-		runtimeContext.run();
-		Framework framework = runtimeContext.getFramework();
-		if (framework != null) {// in case the framework has closed very quickly after run
-			framework.getBundleContext().addFrameworkListener((e) -> {
-				if (e.getType() >= FrameworkEvent.STOPPED) {
-					logger.log(Level.DEBUG, "Externally stopped runtime " + relPath + ". Unregistering...", e);
-					runtimeContexts.remove(relPath);
-				}
-			});
-		} else {
-			closeRuntime(relPath, false);
-		}
-	}
-
-	public void closeRuntime(String relPath, boolean async) {
-		if (!runtimeContexts.containsKey(relPath))
-			return;
-		RuntimeContext runtimeContext = runtimeContexts.get(relPath);
-		try {
-			runtimeContext.close();
-			if (!async) {
-				runtimeContext.waitForStop(RUNTIME_SHUTDOWN_TIMEOUT);
-				System.gc();
-			}
-		} catch (Exception e) {
-			logger.log(Level.ERROR, "Cannot close runtime context " + relPath, e);
-		} finally {
-			runtimeContexts.remove(relPath);
-		}
-
 	}
 
 	public static void main(String[] args) {

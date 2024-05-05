@@ -4,6 +4,7 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Objects;
 
+import org.argeo.api.init.RuntimeManager;
 import org.argeo.init.ServiceMain;
 import org.argeo.init.logging.ThinLoggerFinder;
 import org.osgi.framework.BundleActivator;
@@ -14,18 +15,20 @@ import org.osgi.framework.BundleContext;
  * <a href="http://wiki.eclipse.org/Configurator">http:
  * //wiki.eclipse.org/Configurator</a>
  */
-public class Activator implements BundleActivator {
+public class InitActivator implements BundleActivator {
 	static {
 		// must be called first
 		ThinLoggerFinder.lazyInit();
 	}
-	private final static Logger logger = System.getLogger(Activator.class.getName());
+	private final static Logger logger = System.getLogger(InitActivator.class.getName());
 
 	private Long checkpoint = null;
 
 	private boolean argeoInit = false;
 	/** Not null if we created it ourselves. */
 	private OsgiRuntimeContext runtimeContext;
+
+	private static OsgiRuntimeManager runtimeManager;
 
 	public void start(final BundleContext bundleContext) throws Exception {
 		// The OSGi runtime was created by us, and therefore already initialized
@@ -50,6 +53,10 @@ public class Activator implements BundleActivator {
 				checkpoint = System.currentTimeMillis();
 			}
 		}
+
+		if (runtimeManager != null)
+			throw new IllegalArgumentException("Runtime manager is already set");
+		runtimeManager = new OsgiRuntimeManager(bundleContext);
 	}
 
 	public void stop(BundleContext context) throws Exception {
@@ -58,6 +65,11 @@ public class Activator implements BundleActivator {
 			runtimeContext.stop(context);
 			runtimeContext = null;
 		}
+		runtimeManager = null;
+	}
+
+	public static RuntimeManager getRuntimeManager() {
+		return runtimeManager;
 	}
 
 }

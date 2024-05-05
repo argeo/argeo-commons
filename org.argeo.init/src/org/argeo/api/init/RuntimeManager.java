@@ -2,6 +2,8 @@ package org.argeo.api.init;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +20,20 @@ public interface RuntimeManager {
 	public void startRuntime(String relPath, Consumer<Map<String, String>> configCallback);
 
 	public void closeRuntime(String relPath, boolean async);
+
+	default void startRuntime(String relPath, String props) {
+		Properties properties = new Properties();
+		try (Reader reader = new StringReader(props)) {
+			properties.load(reader);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Cannot load properties", e);
+		}
+		startRuntime(relPath, (config) -> {
+			for (Object key : properties.keySet()) {
+				config.put(key.toString(), properties.getProperty(key.toString()));
+			}
+		});
+	}
 
 	/**
 	 * Load configs recursively starting with the parent directories, until a

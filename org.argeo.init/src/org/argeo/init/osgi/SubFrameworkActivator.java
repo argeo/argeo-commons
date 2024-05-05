@@ -66,7 +66,7 @@ public class SubFrameworkActivator implements BundleActivator {
 					.getClassLoader().loadClass(EQUINOX_FRAMEWORK_FACTORY_CLASS);
 			frameworkFactory = frameworkFactoryClass.getConstructor().newInstance();
 
-			boolean test = true;
+			boolean test = false;
 			if (test)
 				new Thread() {
 
