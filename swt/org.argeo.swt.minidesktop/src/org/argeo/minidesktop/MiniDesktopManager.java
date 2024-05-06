@@ -55,8 +55,10 @@ public class MiniDesktopManager {
 	public void stop() {
 		dispose();
 		if (display != null) {
-			display.dispose();
-			display = null;
+			display.syncExec(() -> {
+				display.dispose();
+				display = null;
+			});
 		}
 	}
 
@@ -288,8 +290,11 @@ public class MiniDesktopManager {
 	}
 
 	public void dispose() {
-		if (!rootShell.isDisposed())
-			rootShell.dispose();
+		if (!rootShell.isDisposed()) {
+			rootShell.getDisplay().syncExec(() -> {
+				rootShell.dispose();
+			});
+		}
 	}
 
 	protected boolean isFullscreen() {
