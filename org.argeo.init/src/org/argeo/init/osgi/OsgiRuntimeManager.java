@@ -2,7 +2,6 @@ package org.argeo.init.osgi;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,7 +16,6 @@ import org.argeo.api.init.RuntimeContext;
 import org.argeo.api.init.RuntimeManager;
 import org.argeo.internal.init.InternalState;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.connect.ConnectFrameworkFactory;
 import org.osgi.framework.launch.Framework;
@@ -30,8 +28,6 @@ class OsgiRuntimeManager implements RuntimeManager {
 
 	private final static long RUNTIME_SHUTDOWN_TIMEOUT = 60 * 1000;
 
-	private final static String EQUINOX_FRAMEWORK_FACTORY_CLASS = "org.eclipse.osgi.launch.EquinoxFactory";
-
 	private Path baseConfigArea;
 	private Path baseWritableArea;
 	private Map<String, String> configuration = new HashMap<>();
@@ -41,16 +37,7 @@ class OsgiRuntimeManager implements RuntimeManager {
 	private ConnectFrameworkFactory frameworkFactory;
 
 	OsgiRuntimeManager(BundleContext bundleContext) {
-		try {
-			@SuppressWarnings("unchecked")
-			Class<? extends ConnectFrameworkFactory> frameworkFactoryClass = (Class<? extends ConnectFrameworkFactory>) Framework.class
-					.getClassLoader().loadClass(EQUINOX_FRAMEWORK_FACTORY_CLASS);
-			frameworkFactory = frameworkFactoryClass.getConstructor().newInstance();
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			throw new IllegalStateException("Cannot create OSGi framework factory", e);
-		}
-
+		frameworkFactory = OsgiRuntimeContext.getFrameworkFactory(bundleContext);
 		this.baseConfigArea = Paths
 				.get(URI.create(bundleContext.getProperty(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA)))
 				.getParent();
@@ -107,20 +94,20 @@ class OsgiRuntimeManager implements RuntimeManager {
 			config.put(InitConstants.PROP_OSGI_INSTANCE_AREA, writableArea.resolve(DATA).toUri().toString());
 
 		// create framework
-		Framework framework = frameworkFactory.newFramework(config, null);
-		try {
-			framework.start();
-		} catch (BundleException e) {
-			throw new IllegalStateException("Cannot initialise framework", e);
-		}
-		OsgiRuntimeContext runtimeContext = new OsgiRuntimeContext(framework.getBundleContext());
+//		Framework framework = frameworkFactory.newFramework(config, null);
+//		try {
+//			framework.start();
+//		} catch (BundleException e) {
+//			throw new IllegalStateException("Cannot initialise framework", e);
+//		}
+		OsgiRuntimeContext runtimeContext = new OsgiRuntimeContext(frameworkFactory, config);
 		runtimeContexts.put(relPath, runtimeContext);
 		return runtimeContext;
 	}
 
 	public void startRuntime(String relPath, Consumer<Map<String, String>> configCallback) {
 		OsgiRuntimeContext runtimeContext = loadRuntime(relPath, configCallback);
-		//runtimeContext.run();
+		runtimeContext.run();
 		Framework framework = runtimeContext.getFramework();
 		if (framework != null) {// in case the framework has closed very quickly after run
 			framework.getBundleContext().addFrameworkListener((e) -> {

@@ -1,28 +1,17 @@
 package org.argeo.init;
 
-import static org.argeo.api.init.InitConstants.SYMBOLIC_NAME_INIT;
-
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Consumer;
 
 import org.argeo.api.init.InitConstants;
-import org.argeo.api.init.RuntimeContext;
 import org.argeo.api.init.RuntimeManager;
 import org.argeo.init.logging.ThinLoggerFinder;
-import org.argeo.init.osgi.OsgiBoot;
 import org.argeo.init.osgi.OsgiRuntimeContext;
 import org.argeo.internal.init.InternalState;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.launch.Framework;
 
 /**
  * Dynamically configures and launches multiple runtimes, coordinated by a main
@@ -37,23 +26,21 @@ public class RuntimeManagerMain {
 
 	private final static long RUNTIME_SHUTDOWN_TIMEOUT = 60 * 1000;
 
-	private Path baseConfigArea;
-	private Path baseWritableArea;
 	private Map<String, String> configuration = new HashMap<>();
 
 	RuntimeManagerMain(Path configArea, Path stateArea) {
 		RuntimeManager.loadConfig(configArea, configuration);
-		
+
 		// integration with OSGi runtime; this will be read by the init bundle
 		configuration.put(ServiceMain.PROP_ARGEO_INIT_MAIN, "true");
 		configuration.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea.toUri().toString());
-		
-		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, stateArea.resolve(RuntimeManager.STATE).toUri().toString());
+
+		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
+				stateArea.resolve(RuntimeManager.STATE).toUri().toString());
 		// use config area if instance area is not set
 		if (!configuration.containsKey(InitConstants.PROP_OSGI_INSTANCE_AREA))
-			configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA, stateArea.resolve(RuntimeManager.DATA).toUri().toString());
-		this.baseConfigArea = configArea.getParent();
-		this.baseWritableArea = stateArea.getParent();
+			configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
+					stateArea.resolve(RuntimeManager.DATA).toUri().toString());
 
 		logger.log(Level.TRACE, () -> "Runtime manager configuration: " + configuration);
 
@@ -61,7 +48,8 @@ public class RuntimeManagerMain {
 	}
 
 	public void run() {
-		OsgiRuntimeContext managerRuntimeContext = new OsgiRuntimeContext(configuration);
+		OsgiRuntimeContext managerRuntimeContext = new OsgiRuntimeContext(OsgiRuntimeContext.loadFrameworkFactory(),
+				configuration);
 		try {
 			managerRuntimeContext.run();
 			InternalState.setMainRuntimeContext(managerRuntimeContext);

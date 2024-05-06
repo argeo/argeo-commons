@@ -17,8 +17,9 @@ import org.argeo.api.init.RuntimeContext;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.connect.ConnectFrameworkFactory;
 import org.osgi.framework.launch.Framework;
-import org.osgi.framework.launch.FrameworkFactory;
 
 /** An OSGi runtime context. */
 public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
@@ -29,6 +30,7 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 
 	// private final static String SYMBOLIC_NAME_FELIX_SCR = "org.apache.felix.scr";
 
+	private ConnectFrameworkFactory frameworkFactory;
 	private Map<String, String> config;
 	private Framework framework;
 //	private OsgiBoot osgiBoot;
@@ -37,7 +39,8 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 	 * Constructor to use when the runtime context will create the OSGi
 	 * {@link Framework}.
 	 */
-	public OsgiRuntimeContext(Map<String, String> config) {
+	public OsgiRuntimeContext(ConnectFrameworkFactory frameworkFactory, Map<String, String> config) {
+		this.frameworkFactory = frameworkFactory;
 		this.config = config;
 	}
 
@@ -55,16 +58,18 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 			throw new IllegalStateException("OSGi framework is already started");
 
 		if (framework == null) {
-			ServiceLoader<FrameworkFactory> sl = ServiceLoader.load(FrameworkFactory.class);
-			Optional<FrameworkFactory> opt = sl.findFirst();
-			if (opt.isEmpty())
-				throw new IllegalStateException("Cannot find OSGi framework");
-			framework = opt.get().newFramework(config);
+//			ServiceLoader<FrameworkFactory> sl = ServiceLoader.load(FrameworkFactory.class);
+//			Optional<FrameworkFactory> opt = sl.findFirst();
+//			if (opt.isEmpty())
+//				throw new IllegalStateException("Cannot find OSGi framework");
+//			framework = opt.get().newFramework(config);
+			framework = frameworkFactory.newFramework(config, null);
 		}
 
 		try {
 			framework.start();
 			BundleContext bundleContext = framework.getBundleContext();
+			bundleContext.registerService(ConnectFrameworkFactory.class, frameworkFactory, null);
 			start(bundleContext);
 		} catch (BundleException e) {
 			throw new IllegalStateException("Cannot start OSGi framework", e);
@@ -189,4 +194,23 @@ public class OsgiRuntimeContext implements RuntimeContext, AutoCloseable {
 		return framework;
 	}
 
+	/**
+	 * Load {@link ConnectFrameworkFactory} from Java service loader. This will not
+	 * work within a pure OSGi runtime, so the reference should be passed to child
+	 * runtimes as an OSGi service.
+	 */
+	public static ConnectFrameworkFactory loadFrameworkFactory() {
+		ServiceLoader<ConnectFrameworkFactory> sl = ServiceLoader.load(ConnectFrameworkFactory.class);
+		Optional<ConnectFrameworkFactory> opt = sl.findFirst();
+		if (opt.isEmpty())
+			throw new IllegalStateException("Cannot find OSGi framework factory");
+		return opt.get();
+	}
+
+	public static ConnectFrameworkFactory getFrameworkFactory(BundleContext bundleContext) {
+		ServiceReference<ConnectFrameworkFactory> sr = bundleContext.getServiceReference(ConnectFrameworkFactory.class);
+		if (sr == null)
+			return null;
+		return bundleContext.getService(sr);
+	}
 }
