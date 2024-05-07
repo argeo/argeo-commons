@@ -172,7 +172,7 @@ public class OsgiBoot {
 	public void install() {
 		String osgiInstancePath = getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
 		String osgiConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
-		String osgiSharedConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
+		String osgiSharedConfigurationPath = getProperty(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA);
 		logger.log(DEBUG, () -> "OSGi bootstrap starting" //
 				+ (osgiInstancePath != null ? " data: " + osgiInstancePath + "" : "") //
 				+ (osgiConfigurationPath != null ? " state: " + osgiConfigurationPath + "" : "") //

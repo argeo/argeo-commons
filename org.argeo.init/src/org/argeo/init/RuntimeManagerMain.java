@@ -21,26 +21,30 @@ public class RuntimeManagerMain {
 	private final static Logger logger = System.getLogger(RuntimeManagerMain.class.getName());
 
 	private final static String ENV_STATE_DIRECTORY = "STATE_DIRECTORY";
-//	private final static String ENV_CONFIGURATION_DIRECTORY = "CONFIGURATION_DIRECTORY";
+	private final static String ENV_CONFIGURATION_DIRECTORY = "CONFIGURATION_DIRECTORY";
 //	private final static String ENV_CACHE_DIRECTORY = "CACHE_DIRECTORY";
 
 	private final static long RUNTIME_SHUTDOWN_TIMEOUT = 60 * 1000;
 
 	private Map<String, String> configuration = new HashMap<>();
 
-	RuntimeManagerMain(Path configArea, Path stateArea) {
-		RuntimeManager.loadConfig(configArea, configuration);
+	RuntimeManagerMain(Path configArea, Path writableArea) {
+//		RuntimeManager.loadConfig(configArea, configuration);
 
 		// integration with OSGi runtime; this will be read by the init bundle
-		configuration.put(ServiceMain.PROP_ARGEO_INIT_MAIN, "true");
+//		configuration.put(ServiceMain.PROP_ARGEO_INIT_MAIN, "true");
+		RuntimeManager.loadDefaults(configuration);
+		
 		configuration.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea.toUri().toString());
+		configuration.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA_RO, "true");
+		configuration.put(InitConstants.PROP_OSGI_USE_SYSTEM_PROPERTIES, "false");
 
 		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
-				stateArea.resolve(RuntimeManager.STATE).toUri().toString());
+				writableArea.resolve(RuntimeManager.STATE).toUri().toString());
 		// use config area if instance area is not set
 		if (!configuration.containsKey(InitConstants.PROP_OSGI_INSTANCE_AREA))
 			configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
-					stateArea.resolve(RuntimeManager.DATA).toUri().toString());
+					writableArea.resolve(RuntimeManager.DATA).toUri().toString());
 
 		logger.log(Level.TRACE, () -> "Runtime manager configuration: " + configuration);
 
@@ -88,19 +92,17 @@ public class RuntimeManagerMain {
 		ThinLoggerFinder.reloadConfiguration();
 		logger.log(Logger.Level.DEBUG, () -> "Argeo Init starting with PID " + ProcessHandle.current().pid());
 		Map<String, String> env = System.getenv();
-//		for (String envName : new TreeSet<>(env.keySet())) {
-//			System.out.format("%s=%s%n", envName, env.get(envName));
-//		}
-		if (args.length < 1)
-			throw new IllegalArgumentException("A relative configuration directory must be specified");
-		Path configArea = Paths.get(System.getProperty("user.dir"), args[0]);
+
+//		if (args.length < 1)
+//			throw new IllegalArgumentException("A relative configuration directory must be specified");
+//		Path configArea = Paths.get(System.getProperty("user.dir"), args[0]);
 
 		// System.out.println("## Start with PID " + ProcessHandle.current().pid());
 		// System.out.println("user.dir=" + System.getProperty("user.dir"));
 
-		Path stateArea = Paths.get(env.get(ENV_STATE_DIRECTORY));
-
-		RuntimeManagerMain runtimeManager = new RuntimeManagerMain(configArea, stateArea);
+		Path writableArea = Paths.get(env.get(ENV_STATE_DIRECTORY));
+		Path configArea = Paths.get(env.get(ENV_CONFIGURATION_DIRECTORY));
+		RuntimeManagerMain runtimeManager = new RuntimeManagerMain(configArea, writableArea);
 		runtimeManager.run();
 	}
 
