@@ -29,6 +29,7 @@ public interface InitConstants {
 	@Deprecated
 	String PROP_ARGEO_OSGI_PARENT_CATEGORIES = "argeo.osgi.parent.categories";
 	String PROP_ARGEO_OSGI_EXPORT_CATEGORIES = "argeo.osgi.export.categories";
+	String PROP_ARGEO_OSGI_EXPORT_ENABLED = "argeo.osgi.export.enabled";
 
 	// Symbolic names
 	String SYMBOLIC_NAME_INIT = "org.argeo.init";

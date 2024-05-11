@@ -45,6 +45,9 @@ class OsgiRuntimeManager implements RuntimeManager {
 
 	private Map<String, OsgiRuntimeContext> runtimeContexts = new TreeMap<>();
 
+	private boolean useForeignRuntime = Boolean
+			.parseBoolean(System.getProperty(InitConstants.PROP_ARGEO_OSGI_EXPORT_ENABLED, "true"));
+
 	OsgiRuntimeManager(BundleContext bundleContext) {
 		Objects.requireNonNull(bundleContext);
 		this.bundleContext = bundleContext;
@@ -91,38 +94,42 @@ class OsgiRuntimeManager implements RuntimeManager {
 	OsgiRuntimeContext loadRuntime(String relPath, Consumer<Map<String, String>> configCallback) {
 		closeRuntime(relPath, false);
 
-		BundleContext foreignBundleContext = bundleContext;
+		BundleContext foreignBundleContext = null;
+		if (useForeignRuntime) {
+			foreignBundleContext = bundleContext;
 
-		Path parentRelPath = Paths.get(relPath).getParent();
-		if (parentRelPath != null && Files.exists(baseConfigArea.resolve(parentRelPath))) {
-			if (!runtimeContexts.containsKey(parentRelPath.toString())) {
+			Path parentRelPath = Paths.get(relPath).getParent();
+			if (parentRelPath != null && Files.exists(baseConfigArea.resolve(parentRelPath))) {
+				if (!runtimeContexts.containsKey(parentRelPath.toString())) {
 
-				String exportCategories = bundleContext.getProperty(InitConstants.PROP_ARGEO_OSGI_EXPORT_CATEGORIES);
-				List<String> foreignCategories = exportCategories == null ? new ArrayList<>()
-						: Arrays.asList(exportCategories.trim().split(","));
-				Path writableArea = baseWritableArea.resolve(parentRelPath);
-				Path configArea = baseConfigArea.resolve(parentRelPath);
-				Map<String, String> config = new HashMap<>();
-				RuntimeManager.loadDefaults(config);
-				config.put(InitConstants.PROP_OSGI_USE_SYSTEM_PROPERTIES, "false");
-				config.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA, writableArea.resolve(STATE).toUri().toString());
-				config.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea.toUri().toString());
-				config.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA_RO, "true");
-				OsgiRuntimeContext runtimeContext = new OsgiRuntimeContext(frameworkFactory, config,
-						foreignBundleContext, foreignCategories);
-				runtimeContexts.put(parentRelPath.toString(), runtimeContext);
-				runtimeContext.run();
-				// FIXME properly stage installation
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					// silent
+					String exportCategories = bundleContext
+							.getProperty(InitConstants.PROP_ARGEO_OSGI_EXPORT_CATEGORIES);
+					List<String> foreignCategories = exportCategories == null ? new ArrayList<>()
+							: Arrays.asList(exportCategories.trim().split(","));
+					Path writableArea = baseWritableArea.resolve(parentRelPath);
+					Path configArea = baseConfigArea.resolve(parentRelPath);
+					Map<String, String> config = new HashMap<>();
+					RuntimeManager.loadDefaults(config);
+					config.put(InitConstants.PROP_OSGI_USE_SYSTEM_PROPERTIES, "false");
+					config.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
+							writableArea.resolve(STATE).toUri().toString());
+					config.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea.toUri().toString());
+					config.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA_RO, "true");
+					OsgiRuntimeContext runtimeContext = new OsgiRuntimeContext(frameworkFactory, config,
+							foreignBundleContext, foreignCategories);
+					runtimeContexts.put(parentRelPath.toString(), runtimeContext);
+					runtimeContext.run();
+					// FIXME properly stage installation
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// silent
+					}
 				}
+				OsgiRuntimeContext parentRuntimeContext = runtimeContexts.get(parentRelPath.toString());
+				foreignBundleContext = parentRuntimeContext.getFramework().getBundleContext();
 			}
-			OsgiRuntimeContext parentRuntimeContext = runtimeContexts.get(parentRelPath.toString());
-			foreignBundleContext = parentRuntimeContext.getFramework().getBundleContext();
 		}
-
 		Path writableArea = baseWritableArea.resolve(relPath);
 		Path configArea = baseConfigArea.resolve(relPath).getParent().resolve(SHARED);
 		Map<String, String> config = new HashMap<>();
@@ -141,11 +148,15 @@ class OsgiRuntimeManager implements RuntimeManager {
 			config.put(InitConstants.PROP_OSGI_INSTANCE_AREA, writableArea.resolve(DATA).toUri().toString());
 
 		// create framework
-		String exportCategories = bundleContext.getProperty(InitConstants.PROP_ARGEO_OSGI_EXPORT_CATEGORIES);
-		List<String> foreignCategories = exportCategories == null ? new ArrayList<>()
-				: Arrays.asList(exportCategories.trim().split(","));
-		OsgiRuntimeContext runtimeContext = new OsgiRuntimeContext(frameworkFactory, config, foreignBundleContext,
-				foreignCategories);
+		OsgiRuntimeContext runtimeContext;
+		if (useForeignRuntime) {
+			String exportCategories = bundleContext.getProperty(InitConstants.PROP_ARGEO_OSGI_EXPORT_CATEGORIES);
+			List<String> foreignCategories = exportCategories == null ? new ArrayList<>()
+					: Arrays.asList(exportCategories.trim().split(","));
+			runtimeContext = new OsgiRuntimeContext(frameworkFactory, config, foreignBundleContext, foreignCategories);
+		} else {
+			runtimeContext = new OsgiRuntimeContext(frameworkFactory, config);
+		}
 		runtimeContexts.put(relPath, runtimeContext);
 		return runtimeContext;
 	}
