@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 public interface RuntimeManager {
 	String JVM_ARGS = "jvm.args";
 	String STATE = "state";
+	String OSGI_STORAGE_DIRNAME = "osgi";
 	String DATA = "data";
 	String SHARED = "shared";
 

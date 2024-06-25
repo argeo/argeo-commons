@@ -22,33 +22,25 @@ public class RuntimeManagerMain {
 
 	private final static String ENV_STATE_DIRECTORY = "STATE_DIRECTORY";
 	private final static String ENV_CONFIGURATION_DIRECTORY = "CONFIGURATION_DIRECTORY";
-//	private final static String ENV_CACHE_DIRECTORY = "CACHE_DIRECTORY";
+	private final static String ENV_CACHE_DIRECTORY = "CACHE_DIRECTORY";
 
 	private final static long RUNTIME_SHUTDOWN_TIMEOUT = 60 * 1000;
 
 	private Map<String, String> configuration = new HashMap<>();
 
-	RuntimeManagerMain(Path configArea, Path writableArea) {
-//		RuntimeManager.loadConfig(configArea, configuration);
-
-		// integration with OSGi runtime; this will be read by the init bundle
-//		configuration.put(ServiceMain.PROP_ARGEO_INIT_MAIN, "true");
+	RuntimeManagerMain(Path configArea, Path stateArea, Path cacheArea) {
 		RuntimeManager.loadDefaults(configuration);
-		
+
 		configuration.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea.toUri().toString());
 		configuration.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA_RO, "true");
-		configuration.put(InitConstants.PROP_OSGI_USE_SYSTEM_PROPERTIES, "false");
+//		configuration.put(InitConstants.PROP_OSGI_USE_SYSTEM_PROPERTIES, "false");
 
 		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
-				writableArea.resolve(RuntimeManager.STATE).toUri().toString());
-		// use config area if instance area is not set
-		if (!configuration.containsKey(InitConstants.PROP_OSGI_INSTANCE_AREA))
-			configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
-					writableArea.resolve(RuntimeManager.DATA).toUri().toString());
+				cacheArea.resolve(RuntimeManager.OSGI_STORAGE_DIRNAME).toUri().toString());
+		configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
+				stateArea.resolve(RuntimeManager.DATA).toUri().toString());
 
 		logger.log(Level.TRACE, () -> "Runtime manager configuration: " + configuration);
-
-//		System.out.println("java.library.path=" + System.getProperty("java.library.path"));
 	}
 
 	public void run() {
@@ -91,19 +83,23 @@ public class RuntimeManagerMain {
 	public static void main(String[] args) {
 		ThinLoggerFinder.reloadConfiguration();
 		logger.log(Logger.Level.DEBUG, () -> "Argeo Init starting with PID " + ProcessHandle.current().pid());
-		Map<String, String> env = System.getenv();
 
-//		if (args.length < 1)
-//			throw new IllegalArgumentException("A relative configuration directory must be specified");
-//		Path configArea = Paths.get(System.getProperty("user.dir"), args[0]);
-
-		// System.out.println("## Start with PID " + ProcessHandle.current().pid());
-		// System.out.println("user.dir=" + System.getProperty("user.dir"));
-
-		Path writableArea = Paths.get(env.get(ENV_STATE_DIRECTORY));
-		Path configArea = Paths.get(env.get(ENV_CONFIGURATION_DIRECTORY));
-		RuntimeManagerMain runtimeManager = new RuntimeManagerMain(configArea, writableArea);
+		Path writableArea = getLocalPath(InitConstants.PROP_ARGEO_STATE_AREA, ENV_STATE_DIRECTORY);
+		Path configArea =getLocalPath(InitConstants.PROP_ARGEO_CONFIG_AREA, ENV_CONFIGURATION_DIRECTORY);
+		Path cacheArea = getLocalPath(InitConstants.PROP_ARGEO_CACHE_AREA, ENV_CACHE_DIRECTORY);
+		RuntimeManagerMain runtimeManager = new RuntimeManagerMain(configArea, writableArea, cacheArea);
 		runtimeManager.run();
 	}
 
+	private static Path getLocalPath(String systemProperty, String environmentVariable) {
+		String prop = System.getProperty(systemProperty);
+		if (prop != null)
+			return Paths.get(prop);
+		String env = System.getenv().get(environmentVariable);
+		if (env != null)
+			return Paths.get(env);
+		throw new IllegalStateException("No local path set with system property " + systemProperty
+				+ " or environment variable " + environmentVariable);
+		// TODO allocate a temporary directory? or defaults based on working directory ?
+	}
 }
