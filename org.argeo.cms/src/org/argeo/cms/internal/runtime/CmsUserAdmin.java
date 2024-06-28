@@ -54,7 +54,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 	private final static CmsLog log = CmsLog.getLog(CmsUserAdmin.class);
 
 	// GSS API
-	private Path nodeKeyTab = KernelUtils.getOsgiInstancePath(KernelConstants.NODE_KEY_TAB_PATH);
+	private Path nodeKeyTab = null;
 	private GSSCredential acceptorCredentials;
 
 	private boolean singleUser = false;
@@ -271,7 +271,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 		Optional<String> realm = userDirectory.getRealm();
 		if (realm.isPresent()) {
 			loadIpaJaasConfiguration();
-			if (Files.exists(nodeKeyTab)) {
+			if (nodeKeyTab != null && Files.exists(nodeKeyTab)) {
 				String servicePrincipal = getKerberosServicePrincipal(realm.get());
 				if (servicePrincipal != null) {
 					CallbackHandler callbackHandler = new CallbackHandler() {
@@ -313,6 +313,17 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 
 	private void loadIpaJaasConfiguration() {
 		if (CmsStateImpl.getDeployProperty(cmsState, CmsDeployProperty.JAVA_LOGIN_CONFIG) == null) {
+			if (System.getProperty(KernelConstants.PROP_ARGEO_NODE_KRB5_KEYTAB) == null) {
+				System.setProperty(KernelConstants.PROP_ARGEO_NODE_KRB5_KEYTAB,
+						KernelUtils.getOsgiInstancePath(KernelConstants.NODE_KEY_TAB_PATH).toString());
+			}
+			Path kt = Paths.get(System.getProperty(KernelConstants.PROP_ARGEO_NODE_KRB5_KEYTAB));
+			if (nodeKeyTab != null) {
+				if (!nodeKeyTab.equals(kt))
+					throw new IllegalStateException("A node keytab is already set");
+			} else {
+				nodeKeyTab = kt;
+			}
 			String jaasConfig = KernelConstants.JAAS_CONFIG_IPA;
 			URL url = getClass().getClassLoader().getResource(jaasConfig);
 			KernelUtils.setJaasConfiguration(url);
@@ -321,7 +332,7 @@ public class CmsUserAdmin extends AggregatingUserAdmin {
 	}
 
 	protected String getKerberosServicePrincipal(String realm) {
-		if (!Files.exists(nodeKeyTab))
+		if (nodeKeyTab == null || !Files.exists(nodeKeyTab))
 			return null;
 		List<String> dns = CmsStateImpl.getDeployProperties(cmsState, CmsDeployProperty.DNS);
 		String hostname = CmsStateImpl.getDeployProperty(cmsState, CmsDeployProperty.HOST);

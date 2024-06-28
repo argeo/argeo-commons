@@ -2,12 +2,6 @@ package org.argeo.api.init;
 
 /** Supported init constants. */
 public interface InitConstants {
-	/** Read-only configuration area */
-	String PROP_ARGEO_CONFIG_AREA = "argeo.configArea";
-	/** Read-write persistent data area */
-	String PROP_ARGEO_STATE_AREA = "argeo.stateArea";
-	/** Read-write cache area */
-	String PROP_ARGEO_CACHE_AREA = "argeo.cacheArea";
 
 	String PROP_ARGEO_OSGI_SOURCES = "argeo.osgi.sources";
 	String PROP_ARGEO_OSGI_START = "argeo.osgi.start";
@@ -22,6 +16,14 @@ public interface InitConstants {
 	String PROP_OSGI_BUNDLES_DEFAULTSTARTLEVEL = "osgi.bundles.defaultStartLevel";
 	String PROP_OSGI_STARTLEVEL = "osgi.startLevel";
 
+	// System properties
+	/** Read-only configuration area */
+	String PROP_ARGEO_CONFIG_AREA = "argeo.configArea";
+	/** Read-write persistent data area */
+	String PROP_ARGEO_STATE_AREA = "argeo.stateArea";
+	/** Read-write cache area */
+	String PROP_ARGEO_CACHE_AREA = "argeo.cacheArea";
+
 	// FOREIGN RUNTIME PROPERTIES
 	/**
 	 * UUID of the parent framework. It is set by the parent runtime and marks a
@@ -34,7 +36,7 @@ public interface InitConstants {
 	String PROP_ARGEO_OSGI_EXPORT_CATEGORIES = "argeo.osgi.export.categories";
 	String PROP_ARGEO_OSGI_EXPORT_ENABLED = "argeo.osgi.export.enabled";
 
-	// Symbolic names
+	// BUndle symbolic names
 	String SYMBOLIC_NAME_INIT = "org.argeo.init";
 	String SYMBOLIC_NAME_EQUINOX = "org.eclipse.osgi";
 

@@ -12,9 +12,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
-import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.internal.osgi.CmsActivator;
 
 /** Package utilities */
@@ -97,8 +95,8 @@ class KernelUtils implements KernelConstants {
 	static String getFrameworkProp(String key, String def) {
 		String value;
 		value = CmsActivator.getFrameworkProperty(key);
-		if (value == null)
-			value = System.getProperty(key);
+//		if (value == null)
+//			value = System.getProperty(key);
 		if (value == null)
 			return def;
 		return value;
@@ -108,11 +106,11 @@ class KernelUtils implements KernelConstants {
 		return getFrameworkProp(key, null);
 	}
 
-	static void logFrameworkProperties(CmsLog log) {
-		for (Object sysProp : new TreeSet<Object>(System.getProperties().keySet())) {
-			log.debug(sysProp + "=" + getFrameworkProp(sysProp.toString()));
-		}
-	}
+//	static void logFrameworkProperties(CmsLog log) {
+//		for (Object sysProp : new TreeSet<Object>(System.getProperties().keySet())) {
+//			log.debug(sysProp + "=" + getFrameworkProp(sysProp.toString()));
+//		}
+//	}
 
 	static void printSystemProperties(PrintStream out) {
 		TreeMap<String, String> display = new TreeMap<>();

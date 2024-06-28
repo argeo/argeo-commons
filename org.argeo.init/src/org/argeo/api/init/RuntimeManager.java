@@ -85,7 +85,7 @@ public interface RuntimeManager {
 
 	/**
 	 * Load config from a {@link Properties} formatted stream. If a property value
-	 * starts with a '+' character, itis expected that the last character is a
+	 * starts with a '+' character, it is expected that the last character is a
 	 * separator and it will be prepended to the existing value.
 	 */
 	@Deprecated

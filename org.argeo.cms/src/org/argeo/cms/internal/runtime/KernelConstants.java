@@ -8,6 +8,11 @@ interface KernelConstants {
 	String DIR_PRIVATE = "private";
 
 	// Files
+	/**
+	 * Kerberos 5 keytab which will be common to all IPA-enabled children
+	 * frameworks.
+	 */
+	String PROP_ARGEO_NODE_KRB5_KEYTAB = "argeo.node.krb5.keytab";
 	String NODE_KEY_TAB_PATH = DIR_PRIVATE + "/krb5.keytab";
 	String NODE_SSHD_AUTHORIZED_KEYS_PATH = DIR_PRIVATE + "/authorized_keys";
 

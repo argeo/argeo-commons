@@ -31,14 +31,22 @@ public class RuntimeManagerMain {
 	RuntimeManagerMain(Path configArea, Path stateArea, Path cacheArea) {
 		RuntimeManager.loadDefaults(configuration);
 
+		configuration.put(InitConstants.PROP_OSGI_USE_SYSTEM_PROPERTIES, "false");
+
+		configuration.put(InitConstants.PROP_ARGEO_CONFIG_AREA, configArea.toString());
+		configuration.put(InitConstants.PROP_ARGEO_STATE_AREA, stateArea.toString());
+		configuration.put(InitConstants.PROP_ARGEO_CACHE_AREA, cacheArea.toString());
+
 		configuration.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA, configArea.toUri().toString());
 		configuration.put(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA_RO, "true");
-//		configuration.put(InitConstants.PROP_OSGI_USE_SYSTEM_PROPERTIES, "false");
 
 		configuration.put(InitConstants.PROP_OSGI_CONFIGURATION_AREA,
 				cacheArea.resolve(RuntimeManager.OSGI_STORAGE_DIRNAME).toUri().toString());
 		configuration.put(InitConstants.PROP_OSGI_INSTANCE_AREA,
 				stateArea.resolve(RuntimeManager.DATA).toUri().toString());
+
+		// TODO find a cleaner way to configure Jackrabbit indexes
+		configuration.put("argeo.node.repo.indexesBase", cacheArea.resolve("indexes").toString());
 
 		logger.log(Level.TRACE, () -> "Runtime manager configuration: " + configuration);
 	}
@@ -84,20 +92,22 @@ public class RuntimeManagerMain {
 		ThinLoggerFinder.reloadConfiguration();
 		logger.log(Logger.Level.DEBUG, () -> "Argeo Init starting with PID " + ProcessHandle.current().pid());
 
-		Path writableArea = getLocalPath(InitConstants.PROP_ARGEO_STATE_AREA, ENV_STATE_DIRECTORY);
-		Path configArea =getLocalPath(InitConstants.PROP_ARGEO_CONFIG_AREA, ENV_CONFIGURATION_DIRECTORY);
-		Path cacheArea = getLocalPath(InitConstants.PROP_ARGEO_CACHE_AREA, ENV_CACHE_DIRECTORY);
+		Path writableArea = getLocalPath(InitConstants.PROP_ARGEO_STATE_AREA, ENV_STATE_DIRECTORY, null);
+		Path configArea = getLocalPath(InitConstants.PROP_ARGEO_CONFIG_AREA, ENV_CONFIGURATION_DIRECTORY, null);
+		Path cacheArea = getLocalPath(InitConstants.PROP_ARGEO_CACHE_AREA, ENV_CACHE_DIRECTORY, writableArea);
 		RuntimeManagerMain runtimeManager = new RuntimeManagerMain(configArea, writableArea, cacheArea);
 		runtimeManager.run();
 	}
 
-	private static Path getLocalPath(String systemProperty, String environmentVariable) {
+	private static Path getLocalPath(String systemProperty, String environmentVariable, Path defaultPath) {
 		String prop = System.getProperty(systemProperty);
 		if (prop != null)
 			return Paths.get(prop);
 		String env = System.getenv().get(environmentVariable);
 		if (env != null)
 			return Paths.get(env);
+		if (defaultPath != null)
+			return defaultPath;
 		throw new IllegalStateException("No local path set with system property " + systemProperty
 				+ " or environment variable " + environmentVariable);
 		// TODO allocate a temporary directory? or defaults based on working directory ?
