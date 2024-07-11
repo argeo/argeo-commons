@@ -99,19 +99,19 @@ public class OsgiBoot {
 						provisioningManager.registerSource(
 								A2Source.SCHEME_A2 + "://" + homePath.toString() + "/.local/share/a2" + queryPart);
 					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/share/a2" + queryPart);
-//					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/lib/a2" + queryPart);
+					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/local/lib/a2" + queryPart);
 					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/share/a2" + queryPart);
-//					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/lib/a2" + queryPart);
+					provisioningManager.registerSource(A2Source.SCHEME_A2 + ":///usr/lib/a2" + queryPart);
 				} else if (source.trim().equals(A2Source.DEFAULT_A2_REFERENCE_URI)) {
 					if (Files.exists(homePath))
 						provisioningManager.registerSource(A2Source.SCHEME_A2_REFERENCE + "://" + homePath.toString()
 								+ "/.local/share/a2" + queryPart);
 					provisioningManager
 							.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/local/share/a2" + queryPart);
-//					provisioningManager
-//							.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/local/lib/a2" + queryPart);
+					provisioningManager
+							.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/local/lib/a2" + queryPart);
 					provisioningManager.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/share/a2" + queryPart);
-//					provisioningManager.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/lib/a2" + queryPart);
+					provisioningManager.registerSource(A2Source.SCHEME_A2_REFERENCE + ":///usr/lib/a2" + queryPart);
 				} else {
 					provisioningManager.registerSource(source + queryPart);
 				}
@@ -172,7 +172,7 @@ public class OsgiBoot {
 	public void install() {
 		String osgiInstancePath = getProperty(InitConstants.PROP_OSGI_INSTANCE_AREA);
 		String osgiConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
-		String osgiSharedConfigurationPath = getProperty(InitConstants.PROP_OSGI_CONFIGURATION_AREA);
+		String osgiSharedConfigurationPath = getProperty(InitConstants.PROP_OSGI_SHARED_CONFIGURATION_AREA);
 		logger.log(DEBUG, () -> "OSGi bootstrap starting" //
 				+ (osgiInstancePath != null ? " data: " + osgiInstancePath + "" : "") //
 				+ (osgiConfigurationPath != null ? " state: " + osgiConfigurationPath + "" : "") //

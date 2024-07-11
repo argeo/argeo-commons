@@ -27,6 +27,7 @@ public class ServiceMain {
 
 	final static String FILE_SYSTEM_PROPERTIES = "system.properties";
 
+	@Deprecated
 	public final static String PROP_ARGEO_INIT_MAIN = "argeo.init.main";
 
 //	private static RuntimeContext runtimeContext = null;
@@ -121,7 +122,8 @@ public class ServiceMain {
 					config.put(InitConstants.PROP_OSGI_INSTANCE_AREA, dataArea);
 				// config.put(OsgiBoot.PROP_OSGI_USE_SYSTEM_PROPERTIES, "true");
 
-				OsgiRuntimeContext osgiRuntimeContext = new OsgiRuntimeContext(config);
+				OsgiRuntimeContext osgiRuntimeContext = new OsgiRuntimeContext(
+						OsgiRuntimeContext.loadFrameworkFactory(), config);
 				osgiRuntimeContext.run();
 				InternalState.setMainRuntimeContext(osgiRuntimeContext);
 				for (Runnable run : postStart) {
