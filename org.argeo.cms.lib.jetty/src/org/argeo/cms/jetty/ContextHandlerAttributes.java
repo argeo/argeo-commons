@@ -1,12 +1,11 @@
 package org.argeo.cms.jetty;
 
 import java.util.AbstractMap;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jetty.ee8.nested.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
 
 /**
  * A {@link Map} implementation wrapping the attributes of a Jetty
@@ -23,8 +22,12 @@ class ContextHandlerAttributes extends AbstractMap<String, Object> {
 	@Override
 	public Set<Entry<String, Object>> entrySet() {
 		Set<Entry<String, Object>> entries = new HashSet<>();
-		for (Enumeration<String> keys = contextHandler.getAttributeNames(); keys.hasMoreElements();) {
-			entries.add(new ContextAttributeEntry(keys.nextElement()));
+		// Jetty ee8
+//		for (Enumeration<String> keys = contextHandler.getAttributeNames(); keys.hasMoreElements();) {
+//			entries.add(new ContextAttributeEntry(keys.nextElement()));
+//		}
+		for (String key : contextHandler.asAttributeMap().keySet()) {
+			entries.add(new ContextAttributeEntry(key));
 		}
 		return entries;
 	}

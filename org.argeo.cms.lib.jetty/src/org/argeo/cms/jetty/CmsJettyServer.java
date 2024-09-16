@@ -5,15 +5,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.websocket.DeploymentException;
-import javax.websocket.server.ServerContainer;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.SessionHandler;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer.Configurator;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 
-import org.eclipse.jetty.ee8.nested.SessionHandler;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee8.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
-import org.eclipse.jetty.ee8.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.server.ServerContainer;
 
 /** A {@link JettyHttpServer} which is compatible with Equinox servlets. */
 public class CmsJettyServer extends JettyHttpServer {
@@ -47,10 +47,11 @@ public class CmsJettyServer extends JettyHttpServer {
 
 		servletContextHandler.setAttribute(CONTEXT_TEMPDIR, tempDir.toAbsolutePath().toFile());
 		SessionHandler handler = new SessionHandler();
-		handler.setMaxInactiveInterval(-1);
+		// FIXME deal with long running session
+		// handler.setMaxInactiveInterval(-1);
 		servletContextHandler.setSessionHandler(handler);
 
-		JavaxWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
+		JakartaWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
 
 			@Override
 			public void accept(ServletContext servletContext, ServerContainer serverContainer)

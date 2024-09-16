@@ -3,4 +3,5 @@ OSGI-INF/equinoxJettyServer.xml,\
 
 Import-Package:\
 org.eclipse.jetty.session,\
+org.eclipse.jetty.server,\
 *

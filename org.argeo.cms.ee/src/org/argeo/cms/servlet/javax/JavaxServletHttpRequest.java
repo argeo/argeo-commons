@@ -1,18 +1,18 @@
-package org.argeo.cms.servlet;
+package org.argeo.cms.servlet.javax;
 
 import java.util.Locale;
 import java.util.Objects;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthSession;
 
-public class ServletHttpRequest implements RemoteAuthRequest {
+public class JavaxServletHttpRequest implements RemoteAuthRequest {
 	private final HttpServletRequest request;
 
-	public ServletHttpRequest(HttpServletRequest request) {
+	public JavaxServletHttpRequest(HttpServletRequest request) {
 		Objects.requireNonNull(request);
 		this.request = request;
 	}
@@ -22,12 +22,12 @@ public class ServletHttpRequest implements RemoteAuthRequest {
 		HttpSession httpSession = request.getSession(false);
 		if (httpSession == null)
 			return null;
-		return new ServletHttpSession(httpSession);
+		return new JavaxServletHttpSession(httpSession);
 	}
 
 	@Override
 	public RemoteAuthSession createSession() {
-		return new ServletHttpSession(request.getSession(true));
+		return new JavaxServletHttpSession(request.getSession(true));
 	}
 
 	@Override

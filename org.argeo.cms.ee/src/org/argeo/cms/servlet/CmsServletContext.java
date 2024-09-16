@@ -6,8 +6,8 @@ import java.util.Map;
 
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
@@ -40,7 +40,7 @@ public class CmsServletContext extends ServletContextHelper {
 
 	}
 
-	@Override
+//	@Override
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (log.isTraceEnabled())
 			HttpUtils.logRequestHeaders(log, request);

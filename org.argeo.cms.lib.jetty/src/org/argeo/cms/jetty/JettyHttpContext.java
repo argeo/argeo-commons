@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.argeo.cms.websocket.server.WebsocketEndpoints;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.Filter;

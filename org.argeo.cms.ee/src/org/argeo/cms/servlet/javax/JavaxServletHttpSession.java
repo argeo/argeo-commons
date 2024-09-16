@@ -1,11 +1,13 @@
-package org.argeo.cms.servlet;
+package org.argeo.cms.servlet.javax;
+
+import javax.servlet.http.HttpSession;
 
 import org.argeo.cms.auth.RemoteAuthSession;
 
-public class ServletHttpSession implements RemoteAuthSession {
-	private jakarta.servlet.http.HttpSession session;
+public class JavaxServletHttpSession implements RemoteAuthSession {
+	private HttpSession session;
 
-	public ServletHttpSession(jakarta.servlet.http.HttpSession session) {
+	public JavaxServletHttpSession(HttpSession session) {
 		super();
 		this.session = session;
 	}

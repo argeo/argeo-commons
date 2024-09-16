@@ -2,17 +2,17 @@ package org.argeo.cms.jetty;
 
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.websocket.DeploymentException;
-import javax.websocket.server.ServerContainer;
+import jakarta.servlet.ServletContext;
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.server.ServerContainer;
 
 import org.argeo.cms.servlet.httpserver.HttpContextServlet;
 import org.argeo.cms.websocket.server.WebsocketEndpoints;
-import org.eclipse.jetty.ee8.nested.SessionHandler;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee8.servlet.ServletHolder;
-import org.eclipse.jetty.ee8.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
-import org.eclipse.jetty.ee8.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
+import org.eclipse.jetty.ee10.servlet.SessionHandler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer.Configurator;
 
 import com.sun.net.httpserver.HttpHandler;
 
@@ -34,7 +34,8 @@ class ContextHandlerHttpContext extends JettyHttpContext {
 		servletContextHandler.addServlet(new ServletHolder(servlet), "/*");
 		SessionHandler sessionHandler = new SessionHandler();
 		// FIXME find a better default
-		sessionHandler.setMaxInactiveInterval(-1);
+		// FIXME find out how to have long-running sessions
+		// sessionHandler.setMaxInactiveInterval(-1);
 		servletContextHandler.setSessionHandler(sessionHandler);
 
 		attributes = new ContextHandlerAttributes(servletContextHandler);
@@ -46,7 +47,7 @@ class ContextHandlerHttpContext extends JettyHttpContext {
 
 		// web socket
 		if (handler instanceof WebsocketEndpoints) {
-			JavaxWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
+			JakartaWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
 
 				@Override
 				public void accept(ServletContext servletContext, ServerContainer serverContainer)

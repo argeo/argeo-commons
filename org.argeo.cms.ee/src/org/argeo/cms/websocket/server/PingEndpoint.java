@@ -2,8 +2,8 @@ package org.argeo.cms.websocket.server;
 
 import java.nio.channels.ClosedChannelException;
 
-import javax.websocket.OnError;
-import javax.websocket.server.ServerEndpoint;
+import jakarta.websocket.OnError;
+import jakarta.websocket.server.ServerEndpoint;
 
 import org.argeo.api.cms.CmsLog;
 

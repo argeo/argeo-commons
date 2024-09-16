@@ -2,18 +2,18 @@ package org.argeo.equinox.jetty;
 
 import java.util.Dictionary;
 
-import javax.servlet.ServletContext;
-import javax.websocket.DeploymentException;
-import javax.websocket.server.ServerContainer;
+import jakarta.servlet.ServletContext;
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.server.ServerContainer;
 
-import org.eclipse.equinox.http.jetty.JettyCustomizer;
+import org.eclipse.rap.http.jetty.JettyCustomizer;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.ee8.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer;
-import org.eclipse.jetty.ee8.websocket.javax.server.config.JavaxWebSocketServletContainerInitializer.Configurator;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer.Configurator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
@@ -33,12 +33,12 @@ public class CmsJettyCustomizer extends JettyCustomizer {
 		Object webSocketEnabled = settings.get(WEBSOCKET_ENABLED);
 		if (webSocketEnabled != null && webSocketEnabled.toString().equals("true")) {
 			ServletContextHandler servletContextHandler = (ServletContextHandler) context;
-			JavaxWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
+			JakartaWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
 
 				@Override
 				public void accept(ServletContext servletContext, ServerContainer serverContainer)
 						throws DeploymentException {
-					bc.registerService(javax.websocket.server.ServerContainer.class, serverContainer, null);
+					bc.registerService(jakarta.websocket.server.ServerContainer.class, serverContainer, null);
 				}
 			});
 		}

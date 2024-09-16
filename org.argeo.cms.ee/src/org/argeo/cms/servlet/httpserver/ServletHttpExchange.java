@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 import javax.net.ssl.SSLSession;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpContext;

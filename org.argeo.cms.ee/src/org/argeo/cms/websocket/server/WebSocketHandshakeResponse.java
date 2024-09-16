@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.websocket.HandshakeResponse;
+import jakarta.websocket.HandshakeResponse;
 
 import org.argeo.cms.auth.RemoteAuthResponse;
 

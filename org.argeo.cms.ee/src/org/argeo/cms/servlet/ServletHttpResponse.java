@@ -2,7 +2,7 @@ package org.argeo.cms.servlet;
 
 import java.util.Objects;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.argeo.cms.auth.RemoteAuthResponse;
 
