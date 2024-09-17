@@ -2,10 +2,10 @@ package org.argeo.eclipse.ui.specific;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.swt.widgets.Display;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /** Singleton class providing single sources infos about the UI context. */
 public class UiContext {
