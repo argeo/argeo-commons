@@ -11,7 +11,7 @@ import org.eclipse.jetty.server.handler.ContextHandler;
  * A {@link Map} implementation wrapping the attributes of a Jetty
  * {@link ContextHandler}.
  */
-class ContextHandlerAttributes extends AbstractMap<String, Object> {
+public class ContextHandlerAttributes extends AbstractMap<String, Object> {
 	private ContextHandler contextHandler;
 
 	public ContextHandlerAttributes(ContextHandler contextHandler) {

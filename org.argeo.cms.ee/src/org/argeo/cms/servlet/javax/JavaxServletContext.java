@@ -1,4 +1,4 @@
-package org.argeo.cms.servlet;
+package org.argeo.cms.servlet.javax;
 
 import java.io.IOException;
 import java.net.URL;
@@ -14,20 +14,19 @@ import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.servlet.internal.HttpUtils;
-import org.eclipse.rap.service.http.HttpContext;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.osgi.service.http.context.ServletContextHelper;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Default servlet context degrading to anonymous if the the session is not
  * pre-authenticated.
  */
-public class CmsServletContext extends ServletContextHelper {
-	private final static CmsLog log = CmsLog.getLog(CmsServletContext.class);
+public class JavaxServletContext extends ServletContextHelper {
+	private final static CmsLog log = CmsLog.getLog(JavaxServletContext.class);
 	// use CMS bundle for resources
 	private Bundle bundle = FrameworkUtil.getBundle(getClass());
 
@@ -42,14 +41,14 @@ public class CmsServletContext extends ServletContextHelper {
 
 	}
 
-//	@Override
+	@Override
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if (log.isTraceEnabled())
-			HttpUtils.logRequestHeaders(log, request);
-		RemoteAuthRequest remoteAuthRequest = new ServletHttpRequest(request);
-		RemoteAuthResponse remoteAuthResponse = new ServletHttpResponse(response);
+//		if (log.isTraceEnabled())
+//			HttpUtils.logRequestHeaders(log, request);
+		RemoteAuthRequest remoteAuthRequest = new JavaxServletHttpRequest(request);
+		RemoteAuthResponse remoteAuthResponse = new JavaxServletHttpResponse(response);
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(CmsServletContext.class.getClassLoader());
+		Thread.currentThread().setContextClassLoader(JavaxServletContext.class.getClassLoader());
 		LoginContext lc;
 		try {
 			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthRequest, remoteAuthResponse));
@@ -119,10 +118,4 @@ public class CmsServletContext extends ServletContextHelper {
 		return bundle.getResource(name);
 	}
 
-	@Override
-	public String getMimeType(String name) {
-		return null;
-	}
-
-	
 }

@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.argeo.cms.websocket.server.WebsocketEndpoints;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.Filter;
@@ -14,10 +13,9 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 /**
- * An @{HttpContext} implementation based on Jetty. It supports web sockets if
- * the handler implements {@link WebsocketEndpoints}.
+ * An @{HttpContext} implementation based on Jetty. 
  */
-abstract class JettyHttpContext extends HttpContext {
+public abstract class AbstractJettyHttpContext extends HttpContext {
 	private final JettyHttpServer httpServer;
 	private final String path;
 	private final List<Filter> filters = new ArrayList<>();
@@ -25,14 +23,14 @@ abstract class JettyHttpContext extends HttpContext {
 	private HttpHandler handler;
 	private Authenticator authenticator;
 
-	public JettyHttpContext(JettyHttpServer httpServer, String path) {
+	public AbstractJettyHttpContext(JettyHttpServer httpServer, String path) {
 		this.httpServer = httpServer;
 		if (!path.endsWith("/"))
 			throw new IllegalArgumentException("Path " + path + " should end with a /");
 		this.path = path;
 	}
 
-	protected abstract ServletContextHandler getServletContextHandler();
+	protected abstract ContextHandler getJettyHandler();
 
 	@Override
 	public HttpHandler getHandler() {

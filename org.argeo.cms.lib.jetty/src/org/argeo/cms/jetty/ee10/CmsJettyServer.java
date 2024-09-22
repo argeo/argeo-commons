@@ -1,17 +1,18 @@
-package org.argeo.cms.jetty;
+package org.argeo.cms.jetty.ee10;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
+import org.argeo.cms.jetty.JettyHttpServer;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.SessionHandler;
-import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer.Configurator;
 import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
+import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer.Configurator;
+import org.eclipse.jetty.server.Handler;
 
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
 import jakarta.websocket.DeploymentException;
 import jakarta.websocket.server.ServerContainer;
 
@@ -24,7 +25,7 @@ public class CmsJettyServer extends JettyHttpServer {
 
 	private CompletableFuture<ServerContainer> serverContainer = new CompletableFuture<>();
 
-	protected void addServlets(ServletContextHandler servletContextHandler) throws ServletException {
+	protected void addServlets(ServletContextHandler servletContextHandler) {
 	}
 
 	@Override
@@ -64,13 +65,13 @@ public class CmsJettyServer extends JettyHttpServer {
 	}
 
 	@Override
-	protected ServerContainer getRootServerContainer() {
+	public ServerContainer getRootServerContainer() {
 		return serverContainer.join();
 	}
 
 	@Override
-	protected void configureRootContextHandler(ServletContextHandler servletContextHandler) throws ServletException {
-		addServlets(servletContextHandler);
+	protected void configureRootContextHandler(Handler servletContextHandler) {
+		addServlets((ServletContextHandler) servletContextHandler);
 	}
 
 	/*

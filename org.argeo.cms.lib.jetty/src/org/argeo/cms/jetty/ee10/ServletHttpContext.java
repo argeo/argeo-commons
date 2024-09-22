@@ -1,13 +1,12 @@
-package org.argeo.cms.jetty;
+package org.argeo.cms.jetty.ee10;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.websocket.DeploymentException;
-import jakarta.websocket.server.ServerContainer;
-
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.jetty.AbstractJettyHttpContext;
+import org.argeo.cms.jetty.JettyHttpServer;
 import org.argeo.cms.servlet.httpserver.HttpContextServlet;
 import org.argeo.cms.websocket.server.WebsocketEndpoints;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
@@ -15,11 +14,15 @@ import org.eclipse.jetty.ee10.servlet.ServletHolder;
 
 import com.sun.net.httpserver.HttpHandler;
 
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.server.ServerContainer;
+
 /**
- * A {@link JettyHttpContext} based on registering a servlet to the root handler
- * of the {@link JettyHttpServer}, in order to integrate the sessions.
+ * A {@link AbstractJettyHttpContext} based on registering a servlet to the root handler
+ * of the {@link JettyHttpServer}, in order to integrate the sessions. It
+ * supports web sockets if the handler implements {@link WebsocketEndpoints}.
  */
-public class ServletHttpContext extends JettyHttpContext {
+public class ServletHttpContext extends AbstractJettyHttpContext {
 	private final static CmsLog log = CmsLog.getLog(ServletHttpContext.class);
 
 	private Map<String, Object> attributes = Collections.synchronizedMap(new HashMap<>());
@@ -27,7 +30,7 @@ public class ServletHttpContext extends JettyHttpContext {
 	public ServletHttpContext(JettyHttpServer httpServer, String path) {
 		super(httpServer, path);
 
-		ServletContextHandler rootContextHandler = httpServer.getRootContextHandler();
+		ServletContextHandler rootContextHandler = (ServletContextHandler) httpServer.getRootContextHandler();
 		HttpContextServlet servlet = new HttpContextServlet(this);
 		rootContextHandler.addServlet(new ServletHolder(servlet), path + "*");
 	}
@@ -56,8 +59,8 @@ public class ServletHttpContext extends JettyHttpContext {
 	}
 
 	@Override
-	protected ServletContextHandler getServletContextHandler() {
-		return getJettyHttpServer().getRootContextHandler();
+	protected ServletContextHandler getJettyHandler() {
+		return (ServletContextHandler) getJettyHttpServer().getRootContextHandler();
 	}
 
 }

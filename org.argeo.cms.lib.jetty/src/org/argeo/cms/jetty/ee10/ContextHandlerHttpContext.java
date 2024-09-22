@@ -1,4 +1,4 @@
-package org.argeo.cms.jetty;
+package org.argeo.cms.jetty.ee10;
 
 import java.util.Map;
 
@@ -6,6 +6,9 @@ import jakarta.servlet.ServletContext;
 import jakarta.websocket.DeploymentException;
 import jakarta.websocket.server.ServerContainer;
 
+import org.argeo.cms.jetty.ContextHandlerAttributes;
+import org.argeo.cms.jetty.AbstractJettyHttpContext;
+import org.argeo.cms.jetty.JettyHttpServer;
 import org.argeo.cms.servlet.httpserver.HttpContextServlet;
 import org.argeo.cms.websocket.server.WebsocketEndpoints;
 import org.eclipse.jetty.ee10.servlet.SessionHandler;
@@ -20,7 +23,8 @@ import com.sun.net.httpserver.HttpHandler;
  * An @{HttpContext} implementation based on a Jetty
  * {@link ServletContextHandler}.
  */
-class ContextHandlerHttpContext extends JettyHttpContext {
+@Deprecated
+public class ContextHandlerHttpContext extends AbstractJettyHttpContext {
 	private final ServletContextHandler servletContextHandler;
 	private final ContextHandlerAttributes attributes;
 
@@ -73,7 +77,7 @@ class ContextHandlerHttpContext extends JettyHttpContext {
 	}
 
 	@Override
-	protected ServletContextHandler getServletContextHandler() {
+	protected ServletContextHandler getJettyHandler() {
 		return servletContextHandler;
 	}
 

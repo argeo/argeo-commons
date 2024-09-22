@@ -9,15 +9,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.net.ssl.SSLContext;
-import jakarta.servlet.ServletException;
-import jakarta.websocket.server.ServerContainer;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.http.server.HttpServerUtils;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.argeo.cms.jetty.ee10.ContextHandlerHttpContext;
+import org.argeo.cms.jetty.server.JettyHttpContext;
 import org.eclipse.jetty.http.UriCompliance;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -35,6 +35,8 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
+
+import jakarta.websocket.server.ServerContainer;
 
 /** An {@link HttpServer} implementation based on Jetty. */
 public class JettyHttpServer extends HttpsServer {
@@ -55,9 +57,9 @@ public class JettyHttpServer extends HttpsServer {
 
 	private HttpsConfigurator httpsConfigurator;
 
-	private final Map<String, JettyHttpContext> contexts = new TreeMap<>();
+	private final Map<String, AbstractJettyHttpContext> contexts = new TreeMap<>();
 
-	private ServletContextHandler rootContextHandler;
+	private Handler rootContextHandler;
 	protected final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
 
 	private boolean started;
@@ -263,10 +265,10 @@ public class JettyHttpServer extends HttpsServer {
 		if (contexts.containsKey(path))
 			throw new IllegalArgumentException("Context " + path + " already exists");
 
-		JettyHttpContext httpContext = new ServletHttpContext(this, path);
+		AbstractJettyHttpContext httpContext = new JettyHttpContext(this, path);
 		contexts.put(path, httpContext);
 
-		contextHandlerCollection.addHandler(httpContext.getServletContextHandler());
+		contextHandlerCollection.addHandler(httpContext.getJettyHandler());
 		return httpContext;
 	}
 
@@ -276,7 +278,7 @@ public class JettyHttpServer extends HttpsServer {
 			path = path + "/";
 		if (!contexts.containsKey(path))
 			throw new IllegalArgumentException("Context " + path + " does not exist");
-		JettyHttpContext httpContext = contexts.remove(path);
+		AbstractJettyHttpContext httpContext = contexts.remove(path);
 		if (httpContext instanceof ContextHandlerHttpContext contextHandlerHttpContext) {
 			// TODO stop handler first?
 			// FIXME understand compatibility with Jetty 12
@@ -340,27 +342,29 @@ public class JettyHttpServer extends HttpsServer {
 		return httpsConnector.getLocalPort();
 	}
 
-	protected ServletContextHandler createRootContextHandler() {
+	protected Handler createRootContextHandler() {
 		return null;
 	}
 
-	protected void configureRootContextHandler(ServletContextHandler servletContextHandler) throws ServletException {
+	protected void configureRootContextHandler(Handler servletContextHandler) {
 
+	}
+
+	// TODO protect it?
+	public Handler getRootContextHandler() {
+		return rootContextHandler;
 	}
 
 	public void setCmsState(CmsState cmsState) {
 		this.cmsState = cmsState;
 	}
 
-	boolean isStarted() {
+	public boolean isStarted() {
 		return started;
 	}
 
-	ServletContextHandler getRootContextHandler() {
-		return rootContextHandler;
-	}
-
-	ServerContainer getRootServerContainer() {
+	// TODO protect it?
+	public ServerContainer getRootServerContainer() {
 		throw new UnsupportedOperationException();
 	}
 

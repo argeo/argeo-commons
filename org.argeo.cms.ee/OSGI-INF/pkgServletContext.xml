@@ -2,7 +2,7 @@
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" name="org.argeo.cms.pkgServletContext">
    <implementation class="org.argeo.cms.servlet.CmsServletContext"/>
    <service>
-      <provide interface="org.osgi.service.http.context.ServletContextHelper"/>
+      <provide interface="org.eclipse.rap.service.http.HttpContext"/>
    </service>
    <property name="osgi.http.whiteboard.context.name" type="String" value="pkgServletContext"/>
    <property name="osgi.http.whiteboard.context.path" type="String" value="/pkg"/>
