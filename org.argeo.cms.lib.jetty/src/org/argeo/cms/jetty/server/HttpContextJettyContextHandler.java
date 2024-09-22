@@ -8,7 +8,8 @@ import com.sun.net.httpserver.HttpContext;
 class HttpContextJettyContextHandler extends ContextHandler {
 
 	public HttpContextJettyContextHandler(HttpContext httpContext) {
-		super(new HttpContextJettyHandler(httpContext), httpContext.getPath());
+		// FIXME make path more robust
+		super(new HttpContextJettyHandler(httpContext), httpContext.getPath() + "/*");
 	}
 
 }

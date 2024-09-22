@@ -39,7 +39,7 @@ public class CmsJettyServer extends JettyHttpServer {
 	}
 
 	@Override
-	protected ServletContextHandler createRootContextHandler() {
+	protected ServletContextHandler createRootHandler() {
 		ServletContextHandler servletContextHandler = new ServletContextHandler();
 		servletContextHandler.setAttribute(INTERNAL_CONTEXT_CLASSLOADER,
 				Thread.currentThread().getContextClassLoader());
@@ -70,7 +70,7 @@ public class CmsJettyServer extends JettyHttpServer {
 	}
 
 	@Override
-	protected void configureRootContextHandler(Handler servletContextHandler) {
+	protected void configureRootHandler(Handler servletContextHandler) {
 		addServlets((ServletContextHandler) servletContextHandler);
 	}
 

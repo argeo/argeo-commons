@@ -31,7 +31,7 @@ public class HttpServerUtils {
 		Objects.requireNonNull(fullPath);
 		String contextPath = httpContext.getPath();
 		if (!fullPath.startsWith(contextPath))
-			throw new IllegalArgumentException(fullPath + " does not belong to context" + contextPath);
+			throw new IllegalArgumentException(fullPath + " does not belong to context " + contextPath);
 		String path = fullPath.substring(contextPath.length());
 		// TODO optimise?
 		if (!startWithSlash && path.startsWith(SLASH)) {

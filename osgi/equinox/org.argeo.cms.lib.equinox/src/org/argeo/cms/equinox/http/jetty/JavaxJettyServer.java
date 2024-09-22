@@ -17,7 +17,6 @@ import javax.servlet.http.HttpSessionListener;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.jetty.ee10.CmsJettyServer;
 import org.argeo.cms.jetty.ee8.CmsJavaxJettyServer;
-import org.eclipse.equinox.http.servlet.HttpServiceServlet;
 import org.eclipse.jetty.ee8.nested.SessionHandler;
 import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee8.servlet.ServletHolder;
@@ -47,7 +46,8 @@ public class JavaxJettyServer extends CmsJavaxJettyServer {
 	}
 
 	public static class InternalHttpServiceServlet implements HttpSessionListener, HttpSessionIdListener, Servlet {
-		private final Servlet httpServiceServlet = new HttpServiceServlet();
+		// FIXME dependency to equinox.http
+		private final Servlet httpServiceServlet = null;// = new HttpServiceServlet();
 		private ClassLoader contextLoader;
 		private final Method sessionDestroyed;
 		private final Method sessionIdChanged;

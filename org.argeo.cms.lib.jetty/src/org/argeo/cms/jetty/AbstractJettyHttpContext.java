@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.Handler;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.Filter;
@@ -30,7 +30,7 @@ public abstract class AbstractJettyHttpContext extends HttpContext {
 		this.path = path;
 	}
 
-	protected abstract ContextHandler getJettyHandler();
+	protected abstract Handler getJettyHandler();
 
 	@Override
 	public HttpHandler getHandler() {

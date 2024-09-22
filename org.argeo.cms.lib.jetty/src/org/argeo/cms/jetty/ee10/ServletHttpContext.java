@@ -30,7 +30,7 @@ public class ServletHttpContext extends AbstractJettyHttpContext {
 	public ServletHttpContext(JettyHttpServer httpServer, String path) {
 		super(httpServer, path);
 
-		ServletContextHandler rootContextHandler = (ServletContextHandler) httpServer.getRootContextHandler();
+		ServletContextHandler rootContextHandler = (ServletContextHandler) httpServer.getRootHandler();
 		HttpContextServlet servlet = new HttpContextServlet(this);
 		rootContextHandler.addServlet(new ServletHolder(servlet), path + "*");
 	}
@@ -60,7 +60,7 @@ public class ServletHttpContext extends AbstractJettyHttpContext {
 
 	@Override
 	protected ServletContextHandler getJettyHandler() {
-		return (ServletContextHandler) getJettyHttpServer().getRootContextHandler();
+		return (ServletContextHandler) getJettyHttpServer().getRootHandler();
 	}
 
 }

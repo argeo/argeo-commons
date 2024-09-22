@@ -1,10 +1,12 @@
 package org.argeo.cms.jetty.server;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.argeo.cms.jetty.AbstractJettyHttpContext;
 import org.argeo.cms.jetty.ContextHandlerAttributes;
 import org.argeo.cms.jetty.JettyHttpServer;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 
 import com.sun.net.httpserver.HttpContext;
@@ -14,18 +16,26 @@ import com.sun.net.httpserver.HttpContext;
  * the jakarta/javax servlet APIs).
  */
 public class JettyHttpContext extends AbstractJettyHttpContext {
-	private final ContextHandler contextHandler;
-	private final ContextHandlerAttributes attributes;
+	private final Handler handler;
+	private Map<String, Object> attributes;
 
 	public JettyHttpContext(JettyHttpServer httpServer, String path) {
 		super(httpServer, path);
-		contextHandler = new HttpContextJettyContextHandler(this);
-		attributes = new ContextHandlerAttributes(contextHandler);
+		boolean useContextHandler = false;
+		if (useContextHandler) {
+			// TODO not working yet
+			// (sub contexts do not work)
+			handler = new HttpContextJettyContextHandler(this);
+			attributes = new ContextHandlerAttributes((ContextHandler) handler);
+		} else {
+			handler = new HttpContextJettyHandler(this);
+			attributes = new HashMap<>();
+		}
 	}
 
 	@Override
-	protected ContextHandler getJettyHandler() {
-		return contextHandler;
+	protected Handler getJettyHandler() {
+		return handler;
 	}
 
 	@Override

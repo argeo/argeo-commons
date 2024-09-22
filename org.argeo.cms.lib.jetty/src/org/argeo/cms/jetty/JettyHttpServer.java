@@ -14,9 +14,9 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.http.server.HttpServerUtils;
-import org.argeo.cms.jetty.ee10.ContextHandlerHttpContext;
 import org.argeo.cms.jetty.server.JettyHttpContext;
 import org.eclipse.jetty.http.UriCompliance;
+import org.eclipse.jetty.http.pathmap.PathSpec;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -24,7 +24,11 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.PathMappingsHandler;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
+import org.eclipse.jetty.util.resource.Resources;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -59,8 +63,10 @@ public class JettyHttpServer extends HttpsServer {
 
 	private final Map<String, AbstractJettyHttpContext> contexts = new TreeMap<>();
 
-	private Handler rootContextHandler;
-	protected final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
+	private Handler rootHandler;
+	// protected final ContextHandlerCollection contextHandlerCollection = new
+	// ContextHandlerCollection(true);
+	PathMappingsHandler pathMappingsHandler = new PathMappingsHandler(true);
 
 	private boolean started;
 
@@ -111,15 +117,30 @@ public class JettyHttpServer extends HttpsServer {
 			// holder
 
 			// context
-			rootContextHandler = createRootContextHandler();
+			rootHandler = createRootHandler();
 			// httpContext.addServlet(holder, "/*");
-			if (rootContextHandler != null)
-				configureRootContextHandler(rootContextHandler);
+			if (rootHandler != null)
+				configureRootHandler(rootHandler);
 
-			if (rootContextHandler != null && !contexts.containsKey("/"))
-				contextHandlerCollection.addHandler(rootContextHandler);
+//			if (rootContextHandler != null && !contexts.containsKey("/"))
+//				contextHandlerCollection.addHandler(rootContextHandler);
+//			server.setHandler(contextHandlerCollection);
+			if (rootHandler != null && !contexts.containsKey("/")) {
+				pathMappingsHandler.addMapping(PathSpec.from("/"), rootHandler);
+			} else {
+				ResourceFactory resourceFactory = ResourceFactory.of(server);
+				Resource rootResourceDir = resourceFactory.newClassLoaderResource("/static-root/");
+				if (!Resources.isReadableDirectory(rootResourceDir))
+					throw new IllegalStateException("Unable to find root resource");
 
-			server.setHandler(contextHandlerCollection);
+				ResourceHandler rootResourceHandler = new ResourceHandler();
+				rootResourceHandler.setBaseResource(rootResourceDir);
+				rootResourceHandler.setDirAllowed(false);
+				rootResourceHandler.setWelcomeFiles("index.html");
+
+				pathMappingsHandler.addMapping(PathSpec.from("/"), rootResourceHandler);
+			}
+			server.setHandler(pathMappingsHandler);
 
 			//
 			// START
@@ -268,7 +289,19 @@ public class JettyHttpServer extends HttpsServer {
 		AbstractJettyHttpContext httpContext = new JettyHttpContext(this, path);
 		contexts.put(path, httpContext);
 
-		contextHandlerCollection.addHandler(httpContext.getJettyHandler());
+		Handler jettyHandler = httpContext.getJettyHandler();
+		// contextHandlerCollection.addHandler(httpContext.getJettyHandler());
+		// FIXME make path more robust
+		PathSpec pathSpec = PathSpec.from(path + "*");
+		pathMappingsHandler.addMapping(pathSpec, jettyHandler);
+		if (isStarted()) {
+			// server is already started, handler has to be started explicitly
+			try {
+				jettyHandler.start();
+			} catch (Exception e) {
+				throw new IllegalStateException("Could not start dynamically added Jetty handler", e);
+			}
+		}
 		return httpContext;
 	}
 
@@ -279,14 +312,23 @@ public class JettyHttpServer extends HttpsServer {
 		if (!contexts.containsKey(path))
 			throw new IllegalArgumentException("Context " + path + " does not exist");
 		AbstractJettyHttpContext httpContext = contexts.remove(path);
-		if (httpContext instanceof ContextHandlerHttpContext contextHandlerHttpContext) {
-			// TODO stop handler first?
-			// FIXME understand compatibility with Jetty 12
-			// contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
-		} else {
-			// FIXME apparently servlets cannot be removed in Jetty, we should replace the
-			// handler
+		Handler jettyHandler = httpContext.getJettyHandler();
+		if (jettyHandler.isStarted()) {
+			try {
+				jettyHandler.stop();
+			} catch (Exception e) {
+				log.error("Cannot stop Jetty handler " + path, e);
+			}
 		}
+
+//		if (httpContext instanceof ContextHandlerHttpContext contextHandlerHttpContext) {
+//			// TODO stop handler first?
+//			// FIXME understand compatibility with Jetty 12
+//			// contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
+//		} else {
+//			// FIXME apparently servlets cannot be removed in Jetty, we should replace the
+//			// handler
+//		}
 	}
 
 	@Override
@@ -342,17 +384,17 @@ public class JettyHttpServer extends HttpsServer {
 		return httpsConnector.getLocalPort();
 	}
 
-	protected Handler createRootContextHandler() {
+	protected Handler createRootHandler() {
 		return null;
 	}
 
-	protected void configureRootContextHandler(Handler servletContextHandler) {
+	protected void configureRootHandler(Handler jettyHandler) {
 
 	}
 
 	// TODO protect it?
-	public Handler getRootContextHandler() {
-		return rootContextHandler;
+	public Handler getRootHandler() {
+		return rootHandler;
 	}
 
 	public void setCmsState(CmsState cmsState) {
@@ -371,11 +413,11 @@ public class JettyHttpServer extends HttpsServer {
 	public static void main(String... args) {
 		JettyHttpServer httpServer = new JettyHttpServer();
 		System.setProperty("argeo.http.port", "8080");
-		httpServer.createContext("/", (exchange) -> {
+
+		httpServer.createContext("/hello", (exchange) -> {
 			exchange.getResponseBody().write("Hello World!".getBytes());
 		});
-		httpServer.start();
-		httpServer.createContext("/sub/context", (exchange) -> {
+		httpServer.createContext("/subcontext", (exchange) -> {
 			final String key = "count";
 			Integer count = (Integer) exchange.getHttpContext().getAttributes().get(key);
 			if (count == null)
@@ -388,5 +430,6 @@ public class JettyHttpServer extends HttpsServer {
 			sb.append(" relativePath=" + HttpServerUtils.relativize(exchange));
 			exchange.getResponseBody().write(sb.toString().getBytes());
 		});
+		httpServer.start();
 	}
 }

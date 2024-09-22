@@ -2,6 +2,7 @@ Import-Package:\
 org.osgi.service.http;version=0.0.0,\
 org.osgi.service.http.whiteboard;version=0.0.0,\
 org.osgi.framework.namespace;version=0.0.0,\
+org.eclipse.rap.service.http,\
 org.argeo.cms.osgi,\
 *
 
