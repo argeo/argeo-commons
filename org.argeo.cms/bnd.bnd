@@ -1,6 +1,7 @@
 Bundle-Activator: org.argeo.cms.internal.osgi.CmsActivator
 
 Import-Package: \
+org.osgi.framework.namespace,\
 *
 
 Export-Package:\
@@ -15,8 +16,9 @@ OSGI-INF/transactionManager.xml,\
 OSGI-INF/cmsUserAdmin.xml,\
 OSGI-INF/cmsUserManager.xml,\
 OSGI-INF/cmsContentRepository.xml,\
-OSGI-INF/cmsAcrHttpHandler.xml,\
 OSGI-INF/cmsDeployment.xml,\
 OSGI-INF/cmsContext.xml,\
 OSGI-INF/cmsFileSystemProvider.xml,\
+OSGI-INF/cmsAcrHttpHandler.xml,\
+OSGI-INF/pkgHttpHandler.xml,\
 

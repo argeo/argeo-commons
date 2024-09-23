@@ -10,6 +10,4 @@ org.argeo.cms.osgi,\
 
 
 Service-Component:\
-OSGI-INF/pkgServletContext.xml,\
-OSGI-INF/pkgServlet.xml,\
 OSGI-INF/statusHandler.xml,\

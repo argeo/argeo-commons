@@ -7,15 +7,23 @@ package org.argeo.cms.http;
  */
 public enum HttpStatus {
 	// Successful responses (200–299)
+	/** 200 */
 	OK(200, "OK"), //
+	/** 204 */
 	NO_CONTENT(204, "No Content"), //
+	/** 207 */
 	MULTI_STATUS(207, "Multi-Status"), // WebDav
 	// Client error responses (400–499)
+	/** 401 */
 	UNAUTHORIZED(401, "Unauthorized"), //
+	/** 403 */
 	FORBIDDEN(403, "Forbidden"), //
+	/** 404 */
 	NOT_FOUND(404, "Not Found"), //
 	// Server error responses (500-599)
+	/** 500 */
 	INTERNAL_SERVER_ERROR(500, "Internal Server Error"), //
+	/** 501 */
 	NOT_IMPLEMENTED(501, "Not Implemented"), //
 	;
 
