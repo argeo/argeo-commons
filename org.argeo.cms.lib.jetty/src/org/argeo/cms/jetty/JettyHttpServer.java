@@ -413,6 +413,7 @@ public class JettyHttpServer extends HttpsServer {
 	public static void main(String... args) {
 		JettyHttpServer httpServer = new JettyHttpServer();
 		System.setProperty("argeo.http.port", "8080");
+		httpServer.start();
 
 		httpServer.createContext("/hello", (exchange) -> {
 			exchange.getResponseBody().write("Hello World!".getBytes());
@@ -430,6 +431,5 @@ public class JettyHttpServer extends HttpsServer {
 			sb.append(" relativePath=" + HttpServerUtils.relativize(exchange));
 			exchange.getResponseBody().write(sb.toString().getBytes());
 		});
-		httpServer.start();
 	}
 }

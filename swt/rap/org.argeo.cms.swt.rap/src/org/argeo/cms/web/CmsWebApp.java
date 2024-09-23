@@ -146,6 +146,7 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 
 	protected void publishWebApp() {
 		Dictionary<String, Object> regProps = LangUtils.dict(CONTEXT_NAME, contextName);
+		//regProps.put("httpService.target", "(osgi.http.endpoint=/cms/user)");
 		if (rwtAppReg != null)
 			rwtAppReg.unregister();
 		if (bundleContext != null) {

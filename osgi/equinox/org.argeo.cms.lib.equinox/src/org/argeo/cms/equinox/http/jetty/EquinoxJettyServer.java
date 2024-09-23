@@ -4,6 +4,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.jetty.ee10.CmsJettyServer;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.SessionHandler;
+import org.eclipse.rap.http.servlet.HttpServiceServlet;
+
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -14,31 +21,26 @@ import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionIdListener;
 import jakarta.servlet.http.HttpSessionListener;
 
-import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.jetty.ee10.CmsJettyServer;
-import org.eclipse.rap.http.servlet.HttpServiceServlet;
-import org.eclipse.jetty.ee10.servlet.SessionHandler;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.osgi.framework.Constants;
-
 /** A {@link CmsJettyServer} integrating with Equinox HTTP framework. */
 public class EquinoxJettyServer extends CmsJettyServer {
 	private final static CmsLog log = CmsLog.getLog(EquinoxJettyServer.class);
 	private static final String INTERNAL_CONTEXT_CLASSLOADER = "org.eclipse.equinox.http.jetty.internal.ContextClassLoader";
 
 	@Override
-	protected void addServlets(ServletContextHandler rootContextHandler) {
+	protected void addServlets(ServletContextHandler servletContextHandler) {
 		try {
-			ServletHolder holder = new ServletHolder(new InternalHttpServiceServlet());
+			// servletContextHandler.setContextPath("/");
+			// ServletHolder holder = new ServletHolder(new InternalHttpServiceServlet());
+			ServletHolder holder = new ServletHolder(new HttpServiceServlet());
 			holder.setInitOrder(0);
-			holder.setInitParameter(Constants.SERVICE_VENDOR, "Eclipse.org"); //$NON-NLS-1$
-			holder.setInitParameter(Constants.SERVICE_DESCRIPTION, "Equinox Jetty-based Http Service"); //$NON-NLS-1$
+//			holder.setInitParameter(Constants.SERVICE_VENDOR, "Eclipse.org"); //$NON-NLS-1$
+//			holder.setInitParameter(Constants.SERVICE_DESCRIPTION, "Equinox Jetty-based Http Service"); //$NON-NLS-1$
 
-			rootContextHandler.addServlet(holder, "/*");
+			// holder.setInitParameter("osgi.http.endpoint","/cms/user");
+			servletContextHandler.addServlet(holder, "/*");
 
 			// post-start
-			SessionHandler sessionManager = rootContextHandler.getSessionHandler();
+			SessionHandler sessionManager = servletContextHandler.getSessionHandler();
 			sessionManager.addEventListener((HttpSessionIdListener) holder.getServlet());
 		} catch (ServletException e) {
 			throw new RuntimeException("Cannot add servlets", e);
