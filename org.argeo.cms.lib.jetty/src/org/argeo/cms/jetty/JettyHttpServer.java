@@ -15,8 +15,14 @@ import org.argeo.api.cms.CmsState;
 import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.http.server.HttpServerUtils;
 import org.argeo.cms.jetty.server.JettyHttpContext;
+import org.eclipse.jetty.alpn.java.server.JDK9ServerALPNProcessor;
+import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
+import org.eclipse.jetty.http.PreEncodedHttpField;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.pathmap.PathSpec;
+import org.eclipse.jetty.http2.hpack.HpackFieldPreEncoder;
+import org.eclipse.jetty.http2.server.HTTP2CServerConnectionFactory;
+import org.eclipse.jetty.http2.server.HTTP2ServerConnectionFactory;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -72,7 +78,7 @@ public class JettyHttpServer extends HttpsServer {
 	private boolean started;
 
 	private CmsState cmsState;
-	
+
 	private WebSocketUpgradeHandler webSocketUpgradeHandler;
 
 	@Override
@@ -193,7 +199,15 @@ public class JettyHttpServer extends HttpsServer {
 				}
 
 				int httpPort = Integer.parseInt(httpPortStr);
-				httpConnector = new ServerConnector(server, new HttpConnectionFactory(httpConfiguration));
+
+				// see
+				// https://jetty.org/docs/jetty/12/programming-guide/server/http.html#connector-protocol-http2
+				// HTTP/1.1
+				HttpConnectionFactory http11 = new HttpConnectionFactory(httpConfiguration);
+				// HTTP/2 PLAIN (h2c)
+				HTTP2CServerConnectionFactory h2c = new HTTP2CServerConnectionFactory(httpConfiguration);
+
+				httpConnector = new ServerConnector(server, http11, h2c);
 				httpConnector.setPort(httpPort);
 				httpConnector.setHost(httpHost);
 				httpConnector.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
@@ -236,9 +250,32 @@ public class JettyHttpServer extends HttpsServer {
 				httpsConfiguration.addCustomizer(new SecureRequestCustomizer());
 				httpsConfiguration.setUriCompliance(UriCompliance.LEGACY);
 
+				// see
+				// https://jetty.org/docs/jetty/12/programming-guide/server/http.html#connector-protocol-http2-tls
+				// HTTP/1.1
+				HttpConnectionFactory http11 = new HttpConnectionFactory(httpsConfiguration);
+				// HTTP/2 over TLS (h2)
+				HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpsConfiguration);
+				// ALPN protocol for security negotiation
+				ALPNServerConnectionFactory alpn;
+				// BEGIN HACK
+				// we make sure that the proper class loader is used to load the processor implementation
+				ClassLoader currentContextCL = Thread.currentThread().getContextClassLoader();
+				try {
+					Thread.currentThread().setContextClassLoader(JDK9ServerALPNProcessor.class.getClassLoader());
+					alpn = new ALPNServerConnectionFactory();
+				} finally {
+					Thread.currentThread().setContextClassLoader(currentContextCL);
+				}
+				// END HACK
+
+				// The default protocol to use in case there is no negotiation.
+				alpn.setDefaultProtocol(http11.getProtocol());
+
+				SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
+
 				// HTTPS connector
-				httpsConnector = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
-						new HttpConnectionFactory(httpsConfiguration));
+				httpsConnector = new ServerConnector(server, tls, alpn, h2, http11);
 				int httpsPort = Integer.parseInt(httpsPortStr);
 				httpsConnector.setPort(httpsPort);
 				httpsConnector.setHost(httpHost);
@@ -422,6 +459,24 @@ public class JettyHttpServer extends HttpsServer {
 
 	public WebSocketUpgradeHandler getWebSocketUpgradeHandler() {
 		return webSocketUpgradeHandler;
+	}
+
+	static {
+		ClassLoader currentContextCL = Thread.currentThread().getContextClassLoader();
+		// BEGIN HACK
+		// Force initialisation of pre-field encoder for HTTP/2
+		// this could be done by wrapping new Server() instead,
+		// but it may have other side effects
+		try {
+			// services are loaded in the static initialisation of PreEncodedHttpField
+			// since HTTP/1 and HTTP/1.1. are forced, we just make sure HTTP/2 hpack will be
+			// considered
+			Thread.currentThread().setContextClassLoader(HpackFieldPreEncoder.class.getClassLoader());
+			new PreEncodedHttpField("Hack", "HACK");
+		} finally {
+			Thread.currentThread().setContextClassLoader(currentContextCL);
+		}
+		// END HACK
 	}
 
 	public static void main(String... args) {

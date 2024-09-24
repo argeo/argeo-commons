@@ -19,8 +19,16 @@ public class PingWebSocket implements Listener, HttpHandler {
 
 	@Override
 	public void handle(HttpExchange exchange) throws IOException {
-		exchange.sendResponseHeaders(200, -1);
-		exchange.getResponseBody().write("pong".getBytes());
+		String message = "pong";
+		byte[] arr = message.getBytes();
+		exchange.sendResponseHeaders(200, arr.length);
+		try {
+			exchange.getResponseBody().write(arr);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
+		}
 		exchange.getResponseBody().close();
 	}
 
