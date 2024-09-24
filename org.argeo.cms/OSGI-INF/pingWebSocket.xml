@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.argeo.cms.pingWebSocket">
+   <implementation class="org.argeo.cms.internal.http.PingWebSocket"/>
+   <service>
+      <provide interface="java.net.http.WebSocket$Listener"/>
+      <provide interface="com.sun.net.httpserver.HttpHandler"/>
+   </service>
+   <property name="context.path" type="String" value="/status/ping/" />
+   <property name="context.public" type="String" value="true" />
+</scr:component>

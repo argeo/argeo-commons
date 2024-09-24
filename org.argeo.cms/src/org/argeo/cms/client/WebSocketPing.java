@@ -77,14 +77,14 @@ public class WebSocketPing implements Runnable {
 		}
 	}
 
-//	public static void main(String[] args) throws Exception {
-//		if (args.length == 0) {
-//			System.err.println("usage: java " + WsPing.class.getName() + " <url>");
-//			System.exit(1);
-//			return;
-//		}
-//		URI uri = URI.create(args[0]);
-//		new WsPing(uri).run();
-//	}
+	public static void main(String[] args) throws Exception {
+		if (args.length == 0) {
+			System.err.println("usage: java " + WebSocketPing.class.getName() + " <url>");
+			System.exit(1);
+			return;
+		}
+		URI uri = URI.create(args[0]);
+		new WebSocketPing(uri).run();
+	}
 
 }

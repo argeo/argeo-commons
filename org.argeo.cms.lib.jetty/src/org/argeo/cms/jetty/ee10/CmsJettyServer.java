@@ -45,7 +45,7 @@ public class CmsJettyServer extends JettyHttpServer {
 				Thread.currentThread().getContextClassLoader());
 		servletContextHandler.setClassLoader(this.getClass().getClassLoader());
 		servletContextHandler.setContextPath("/");
-		//servletContextHandler.setContextPath("/cms/user");
+		// servletContextHandler.setContextPath("/cms/user");
 
 		servletContextHandler.setAttribute(CONTEXT_TEMPDIR, tempDir.toAbsolutePath().toFile());
 		SessionHandler handler = new SessionHandler();

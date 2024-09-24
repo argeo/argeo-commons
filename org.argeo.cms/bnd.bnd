@@ -21,4 +21,5 @@ OSGI-INF/cmsContext.xml,\
 OSGI-INF/cmsFileSystemProvider.xml,\
 OSGI-INF/cmsAcrHttpHandler.xml,\
 OSGI-INF/pkgHttpHandler.xml,\
+OSGI-INF/pingWebSocket.xml,\
 

@@ -33,6 +33,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
+import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpHandler;
@@ -71,6 +72,8 @@ public class JettyHttpServer extends HttpsServer {
 	private boolean started;
 
 	private CmsState cmsState;
+	
+	private WebSocketUpgradeHandler webSocketUpgradeHandler;
 
 	@Override
 	public void bind(InetSocketAddress addr, int backlog) throws IOException {
@@ -121,6 +124,9 @@ public class JettyHttpServer extends HttpsServer {
 			// httpContext.addServlet(holder, "/*");
 			if (rootHandler != null)
 				configureRootHandler(rootHandler);
+
+			webSocketUpgradeHandler = WebSocketUpgradeHandler.from(server);
+			pathMappingsHandler.addMapping(PathSpec.from("/ws/*"), webSocketUpgradeHandler);
 
 //			if (rootContextHandler != null && !contexts.containsKey("/"))
 //				contextHandlerCollection.addHandler(rootContextHandler);
@@ -408,6 +414,14 @@ public class JettyHttpServer extends HttpsServer {
 	// TODO protect it?
 	public ServerContainer getRootServerContainer() {
 		throw new UnsupportedOperationException();
+	}
+
+	public Server getServer() {
+		return server;
+	}
+
+	public WebSocketUpgradeHandler getWebSocketUpgradeHandler() {
+		return webSocketUpgradeHandler;
 	}
 
 	public static void main(String... args) {

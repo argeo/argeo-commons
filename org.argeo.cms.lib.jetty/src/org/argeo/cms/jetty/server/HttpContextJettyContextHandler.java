@@ -9,7 +9,7 @@ class HttpContextJettyContextHandler extends ContextHandler {
 
 	public HttpContextJettyContextHandler(HttpContext httpContext) {
 		// FIXME make path more robust
-		super(new HttpContextJettyHandler(httpContext), httpContext.getPath() + "/*");
+		super(new HttpContextJettyHandler(httpContext), null);
 	}
 
 }
