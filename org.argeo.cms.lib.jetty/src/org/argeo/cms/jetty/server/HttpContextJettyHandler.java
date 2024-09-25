@@ -6,9 +6,10 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
+import com.sun.net.httpserver.Filter;
 import com.sun.net.httpserver.HttpContext;
 
-/** A jetty {@link Handler} based on an {@link HttpContext}. */
+/** A Jetty {@link Handler} based on an {@link HttpContext}. */
 class HttpContextJettyHandler extends Abstract {
 	private final HttpContext httpContext;
 
@@ -19,8 +20,11 @@ class HttpContextJettyHandler extends Abstract {
 	@Override
 	public boolean handle(Request request, Response response, Callback callback) throws Exception {
 		JettyHttpExchange httpExchange = new JettyHttpExchange(httpContext, request, response);
-		// FIXME deal with authentication
-		httpContext.getHandler().handle(httpExchange);
+		
+		Filter.Chain chain = new Filter.Chain(httpContext.getFilters(), httpContext.getHandler());
+		chain.doFilter(httpExchange);
+//		// FIXME deal with authentication
+//		httpContext.getHandler().handle(httpExchange);
 		callback.succeeded();
 		return true;
 	}

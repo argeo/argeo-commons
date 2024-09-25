@@ -10,6 +10,8 @@ import java.net.URI;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLSession;
 
+import org.argeo.cms.auth.RemoteAuthSession;
+import org.argeo.cms.http.server.AbstractCmsHttpExchange;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
@@ -18,50 +20,59 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Fields;
 
-import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpPrincipal;
 import com.sun.net.httpserver.HttpsExchange;
 
 /** Integrates {@link HttpsExchange} in a servlet container. */
-class JettyHttpExchange extends HttpsExchange {
+class JettyHttpExchange extends AbstractCmsHttpExchange {
 	private final static Logger logger = System.getLogger(JettyHttpExchange.class.getName());
+
+	private final Request jettyRequest;
+	private final Response jettyResponse;
+
 	// see
 	// https://github.com/jetty/jetty.project/blob/jetty-12.0.x/documentation/jetty/modules/code/examples/src/main/java/org/eclipse/jetty/docs/programming/migration/ServletToHandlerDocs.java
-	// for mapping between the Servelt and Jetty APIs.
-
-	private final HttpContext httpContext;
-	private final Request request;
-	private final Response response;
-
-	private final Headers requestHeaders;
-	private final Headers responseHeaders;
-
-	private InputStream filteredIn;
-	private OutputStream filteredOut;
-
-	private HttpPrincipal principal;
+	// for mapping between the Servlet and Jetty APIs.
 
 	public JettyHttpExchange(HttpContext httpContext, Request jettyRequest, Response jettyResponse) {
-		this.httpContext = httpContext;
-		this.request = jettyRequest;
-		this.response = jettyResponse;
+		super(httpContext);
+		this.jettyRequest = jettyRequest;
+		this.jettyResponse = jettyResponse;
 
 		// request headers
-		requestHeaders = new Headers();
-
-		Fields allParameters = Request.extractQueryParameters(request);
+		Fields allParameters = Request.extractQueryParameters(this.jettyRequest);
 		for (Fields.Field parameter : allParameters) {
 			requestHeaders.put(parameter.getName(), parameter.getValues());
 		}
-
-		responseHeaders = new Headers();
 	}
+
+	/*
+	 * CMS specific
+	 */
+
+	@Override
+	protected RemoteAuthSession getRemoteAuthSession() {
+		return new JettyAuthSession(jettyRequest.getSession(true));
+	}
+
+	@Override
+	public InputStream doGetRequestBody() {
+		return Content.Source.asInputStream(jettyRequest);
+	}
+
+	@Override
+	public OutputStream doGetResponseBody() {
+		return Content.Sink.asOutputStream(jettyResponse);
+	}
+
+	/*
+	 * HttpExchange implementation
+	 */
 
 	@Override
 	public SSLSession getSSLSession() {
 		SSLSession sslSession = null;
-		EndPoint endPoint = request.getConnectionMetaData().getConnection().getEndPoint();
+		EndPoint endPoint = jettyRequest.getConnectionMetaData().getConnection().getEndPoint();
 		if (endPoint instanceof SslEndPoint sslEndPoint) {
 			SslConnection sslConnection = sslEndPoint.getSslConnection();
 			SSLEngine sslEngine = sslConnection.getSSLEngine();
@@ -73,121 +84,71 @@ class JettyHttpExchange extends HttpsExchange {
 	}
 
 	@Override
-	public Headers getRequestHeaders() {
-		return requestHeaders;
-	}
-
-	@Override
-	public Headers getResponseHeaders() {
-		return responseHeaders;
-	}
-
-	@Override
 	public URI getRequestURI() {
-		return request.getHttpURI().toURI();
+		return jettyRequest.getHttpURI().toURI();
 	}
 
 	@Override
 	public String getRequestMethod() {
-		return request.getMethod();
-	}
-
-	@Override
-	public HttpContext getHttpContext() {
-		return httpContext;
+		return jettyRequest.getMethod();
 	}
 
 	@Override
 	public void close() {
 
 		try {
-			Content.Source.asInputStream(request).close();
+			Content.Source.asInputStream(jettyRequest).close();
 		} catch (IOException e) {
-			logger.log(System.Logger.Level.WARNING, "Cannot close stream of request " + request, e);
+			logger.log(System.Logger.Level.WARNING, "Cannot close stream of request " + jettyRequest, e);
 		}
 		try {
-			Content.Sink.asOutputStream(response).close();
+			Content.Sink.asOutputStream(jettyResponse).close();
 		} catch (IOException e) {
-			logger.log(System.Logger.Level.WARNING, "Cannot close stream of response " + response, e);
+			logger.log(System.Logger.Level.WARNING, "Cannot close stream of response " + jettyResponse, e);
 		}
 
-	}
-
-	@Override
-	public InputStream getRequestBody() {
-		if (filteredIn != null)
-			return filteredIn;
-		else
-			return Content.Source.asInputStream(request);
-	}
-
-	@Override
-	public OutputStream getResponseBody() {
-		if (filteredOut != null)
-			return filteredOut;
-		else
-			return Content.Sink.asOutputStream(response);
 	}
 
 	@Override
 	public void sendResponseHeaders(int rCode, long responseLength) throws IOException {
 		for (String headerName : responseHeaders.keySet()) {
 			for (String headerValue : responseHeaders.get(headerName)) {
-				response.getHeaders().put(headerName, headerValue);
+				jettyResponse.getHeaders().put(headerName, headerValue);
 			}
 		}
 		// TODO deal with content length etc.
-		response.setStatus(rCode);
+		jettyResponse.setStatus(rCode);
 	}
 
 	@Override
 	public InetSocketAddress getRemoteAddress() {
 		// TODO support non IP socket address? (e.g. UNIX sockets)
-		return (InetSocketAddress) request.getConnectionMetaData().getRemoteSocketAddress();
+		return (InetSocketAddress) jettyRequest.getConnectionMetaData().getRemoteSocketAddress();
 	}
 
 	@Override
 	public int getResponseCode() {
-		return response.getStatus();
+		return jettyResponse.getStatus();
 	}
 
 	@Override
 	public InetSocketAddress getLocalAddress() {
 		// TODO support non IP socket address? (e.g. UNIX sockets)
-		return (InetSocketAddress) request.getConnectionMetaData().getLocalSocketAddress();
+		return (InetSocketAddress) jettyRequest.getConnectionMetaData().getLocalSocketAddress();
 	}
 
 	@Override
 	public String getProtocol() {
-		return request.getConnectionMetaData().getProtocol();
+		return jettyRequest.getConnectionMetaData().getProtocol();
 	}
 
 	@Override
 	public Object getAttribute(String name) {
-		return request.getAttribute(name);
+		return jettyRequest.getAttribute(name);
 	}
 
 	@Override
 	public void setAttribute(String name, Object value) {
-		request.setAttribute(name, value);
+		jettyRequest.setAttribute(name, value);
 	}
-
-	@Override
-	public void setStreams(InputStream i, OutputStream o) {
-		if (i != null)
-			filteredIn = i;
-		if (o != null)
-			filteredOut = o;
-
-	}
-
-	@Override
-	public HttpPrincipal getPrincipal() {
-		return principal;
-	}
-
-	void setPrincipal(HttpPrincipal principal) {
-		this.principal = principal;
-	}
-
 }

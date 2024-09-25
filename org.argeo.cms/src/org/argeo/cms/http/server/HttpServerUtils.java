@@ -18,7 +18,6 @@ import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.http.HttpMethod;
-import org.argeo.cms.http.RemoteAuthHttpExchange;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -59,7 +58,7 @@ public class HttpServerUtils {
 	/** Returns content session consistent with this HTTP context. */
 	public static ContentSession getContentSession(ContentRepository contentRepository, HttpExchange exchange) {
 		ContentSession session = RemoteAuthUtils.doAs(() -> contentRepository.get(),
-				new RemoteAuthHttpExchange(exchange));
+				new HttpRemoteAuthExchange(exchange));
 		return session;
 	}
 

@@ -85,6 +85,7 @@ public class RemoteSessionLoginModule implements LoginModule {
 							log.trace("Retrieved authorization from " + cmsSession);
 					}
 				}else {
+					// TODO check whether this is really needed
 					request.createSession();
 				}
 			}

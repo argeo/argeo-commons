@@ -26,7 +26,7 @@ import org.argeo.cms.dav.DavHttpHandler;
 import org.argeo.cms.dav.DavPropfind;
 import org.argeo.cms.dav.DavResponse;
 import org.argeo.cms.http.HttpStatus;
-import org.argeo.cms.http.RemoteAuthHttpExchange;
+import org.argeo.cms.http.server.HttpRemoteAuthExchange;
 import org.argeo.cms.util.StreamUtils;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -44,7 +44,7 @@ public class CmsAcrHttpHandler extends DavHttpHandler {
 	@Override
 	protected void handleGET(HttpExchange exchange, String path) throws IOException {
 		ContentSession session = RemoteAuthUtils.doAs(() -> contentRepository.get(),
-				new RemoteAuthHttpExchange(exchange));
+				new HttpRemoteAuthExchange(exchange));
 		if (!session.exists(path)) // not found
 			throw new ContentNotFoundException(session, path);
 		Content content = session.get(path);
@@ -61,7 +61,7 @@ public class CmsAcrHttpHandler extends DavHttpHandler {
 	protected CompletableFuture<Void> handlePROPFIND(HttpExchange exchange, String path, DavPropfind davPropfind,
 			Consumer<DavResponse> consumer) throws IOException {
 		ContentSession session = RemoteAuthUtils.doAs(() -> contentRepository.get(),
-				new RemoteAuthHttpExchange(exchange));
+				new HttpRemoteAuthExchange(exchange));
 		if (!session.exists(path)) // not found
 			throw new ContentNotFoundException(session, path);
 		Content content = session.get(path);

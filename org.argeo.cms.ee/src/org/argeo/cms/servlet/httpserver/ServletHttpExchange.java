@@ -15,36 +15,60 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 import javax.net.ssl.SSLSession;
+
+import org.argeo.cms.auth.RemoteAuthSession;
+import org.argeo.cms.http.server.AbstractCmsHttpExchange;
+import org.argeo.cms.servlet.ServletHttpSession;
+
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpsExchange;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpPrincipal;
-import com.sun.net.httpserver.HttpsExchange;
-
 /** Integrates {@link HttpsExchange} in a servlet container. */
-class ServletHttpExchange extends HttpsExchange {
-	private final HttpContext httpContext;
+class ServletHttpExchange extends AbstractCmsHttpExchange {
 	private final HttpServletRequest httpServletRequest;
 	private final HttpServletResponse httpServletResponse;
 
-	private final Headers requestHeaders;
-	private final Headers responseHeaders;
+	/*
+	 * CMS specific
+	 */
 
-	private InputStream filteredIn;
-	private OutputStream filteredOut;
+	@Override
+	public InputStream doGetRequestBody() {
+		try {
+			return httpServletRequest.getInputStream();
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot get request body", e);
+		}
+	}
 
-	private HttpPrincipal principal;
+	@Override
+	protected RemoteAuthSession getRemoteAuthSession() {
+		return new ServletHttpSession(httpServletRequest.getSession());
+	}
+
+	@Override
+	public OutputStream doGetResponseBody() {
+		try {
+			return httpServletResponse.getOutputStream();
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot get response body", e);
+		}
+	}
+
+	/*
+	 * HttpExchange implementation
+	 */
 
 	public ServletHttpExchange(HttpContext httpContext, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) {
-		this.httpContext = httpContext;
+		super(httpContext);
 		this.httpServletRequest = httpServletRequest;
 		this.httpServletResponse = httpServletResponse;
 
 		// request headers
-		requestHeaders = new Headers();
 		for (Enumeration<String> headerNames = httpServletRequest.getHeaderNames(); headerNames.hasMoreElements();) {
 			String headerName = headerNames.nextElement();
 			List<String> values = new ArrayList<>();
@@ -53,8 +77,6 @@ class ServletHttpExchange extends HttpsExchange {
 				values.add(headerValues.nextElement());
 			requestHeaders.put(headerName, values);
 		}
-
-		responseHeaders = new Headers();
 	}
 
 	@Override
@@ -63,16 +85,6 @@ class ServletHttpExchange extends HttpsExchange {
 		if (obj == null || !(obj instanceof SSLSession))
 			throw new IllegalStateException("SSL session not found");
 		return (SSLSession) obj;
-	}
-
-	@Override
-	public Headers getRequestHeaders() {
-		return requestHeaders;
-	}
-
-	@Override
-	public Headers getResponseHeaders() {
-		return responseHeaders;
 	}
 
 	@Override
@@ -96,11 +108,6 @@ class ServletHttpExchange extends HttpsExchange {
 	}
 
 	@Override
-	public HttpContext getHttpContext() {
-		return httpContext;
-	}
-
-	@Override
 	public void close() {
 		try {
 			httpServletRequest.getInputStream().close();
@@ -115,30 +122,6 @@ class ServletHttpExchange extends HttpsExchange {
 			e.printStackTrace();
 		}
 
-	}
-
-	@Override
-	public InputStream getRequestBody() {
-		try {
-			if (filteredIn != null)
-				return filteredIn;
-			else
-				return httpServletRequest.getInputStream();
-		} catch (IOException e) {
-			throw new IllegalStateException("Cannot get request body", e);
-		}
-	}
-
-	@Override
-	public OutputStream getResponseBody() {
-		try {
-			if (filteredOut != null)
-				return filteredOut;
-			else
-				return httpServletResponse.getOutputStream();
-		} catch (IOException e) {
-			throw new IllegalStateException("Cannot get response body", e);
-		}
 	}
 
 	@Override
@@ -180,24 +163,6 @@ class ServletHttpExchange extends HttpsExchange {
 	@Override
 	public void setAttribute(String name, Object value) {
 		httpServletRequest.setAttribute(name, value);
-	}
-
-	@Override
-	public void setStreams(InputStream i, OutputStream o) {
-		if (i != null)
-			filteredIn = i;
-		if (o != null)
-			filteredOut = o;
-
-	}
-
-	@Override
-	public HttpPrincipal getPrincipal() {
-		return principal;
-	}
-
-	void setPrincipal(HttpPrincipal principal) {
-		this.principal = principal;
 	}
 
 }

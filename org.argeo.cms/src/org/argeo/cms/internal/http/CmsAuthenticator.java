@@ -10,7 +10,7 @@ import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthUtils;
-import org.argeo.cms.http.RemoteAuthHttpExchange;
+import org.argeo.cms.http.server.HttpRemoteAuthExchange;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpExchange;
@@ -24,7 +24,7 @@ public class CmsAuthenticator extends Authenticator {
 
 	@Override
 	public Result authenticate(HttpExchange exch) {
-		RemoteAuthHttpExchange remoteAuthExchange = new RemoteAuthHttpExchange(exch);
+		HttpRemoteAuthExchange remoteAuthExchange = new HttpRemoteAuthExchange(exch);
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(CmsAuthenticator.class.getClassLoader());
 		LoginContext lc;

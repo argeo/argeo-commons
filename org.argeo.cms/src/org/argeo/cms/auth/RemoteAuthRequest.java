@@ -7,8 +7,10 @@ public interface RemoteAuthRequest {
 	final static String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
 	final static String AUTHORIZATION = "org.osgi.service.useradmin.authorization";
 
+	/** Can be null.*/
 	RemoteAuthSession getSession();
 
+	/** May not be implemented, will return null in that case.*/
 	RemoteAuthSession createSession();
 
 	Locale getLocale();

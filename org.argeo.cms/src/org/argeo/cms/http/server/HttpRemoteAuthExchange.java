@@ -1,11 +1,11 @@
-package org.argeo.cms.http;
+package org.argeo.cms.http.server;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
+import org.argeo.cms.auth.RemoteAuthExchange;
 import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthSession;
@@ -16,14 +16,19 @@ import com.sun.net.httpserver.HttpExchange;
  * Implementation of {@link RemoteAuthRequest} and {@link RemoteAuthResponse}
  * based on {@link HttpExchange}.
  */
-public class RemoteAuthHttpExchange implements RemoteAuthRequest, RemoteAuthResponse {
+public class HttpRemoteAuthExchange implements RemoteAuthExchange {
 	private final HttpExchange httpExchange;
 	private RemoteAuthSession remoteAuthSession;
 
-	public RemoteAuthHttpExchange(HttpExchange httpExchange) {
+	public HttpRemoteAuthExchange(HttpExchange httpExchange) {
 		this.httpExchange = httpExchange;
-		this.remoteAuthSession = (RemoteAuthSession) httpExchange.getAttribute(RemoteAuthSession.class.getName());
-		Objects.requireNonNull(this.remoteAuthSession);
+		// this.remoteAuthSession = (RemoteAuthSession)
+		// httpExchange.getAttribute(RemoteAuthSession.class.getName());
+		if (httpExchange instanceof AbstractCmsHttpExchange abstractHttpExchange)
+			this.remoteAuthSession = abstractHttpExchange.getRemoteAuthSession();
+		else
+			this.remoteAuthSession = (RemoteAuthSession) httpExchange.getAttribute(RemoteAuthSession.class.getName());
+		//Objects.requireNonNull(this.remoteAuthSession);
 	}
 
 	@Override

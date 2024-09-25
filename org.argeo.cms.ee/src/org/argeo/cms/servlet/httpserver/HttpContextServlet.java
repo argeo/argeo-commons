@@ -38,7 +38,7 @@ public class HttpContextServlet extends HttpServlet {
 				Authenticator.Result authenticationResult = authenticator.authenticate(httpExchange);
 				if (authenticationResult instanceof Authenticator.Success) {
 					HttpPrincipal httpPrincipal = ((Authenticator.Success) authenticationResult).getPrincipal();
-					httpExchange.setPrincipal(httpPrincipal);
+					//httpExchange.setPrincipal(httpPrincipal);
 				} else if (authenticationResult instanceof Authenticator.Retry) {
 					httpExchange.sendResponseHeaders((((Authenticator.Retry) authenticationResult).getResponseCode()),
 							-1);
