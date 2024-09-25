@@ -10,7 +10,9 @@ import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpPrincipal;
 
-public class CmsAuthenticatorFilter extends Filter {
+/** A {@link Filter} based on an {@link Authenticator}. */
+// TODO make it a public interface?
+class CmsAuthenticatorFilter extends Filter {
 
 	@Override
 	public String description() {
@@ -26,32 +28,31 @@ public class CmsAuthenticatorFilter extends Filter {
 
 		HttpContext httpContext = httpExchange.getHttpContext();
 		Authenticator authenticator = httpContext.getAuthenticator();
-		if (authenticator == null)
+		if (authenticator == null) {
+			// TODO or force anonymous access in such case?
 			throw new IllegalStateException(
 					"Only HTTP context with an " + Authenticator.class.getSimpleName() + " are supported. Use "
 							+ PublicCmsAuthenticator.class.getName() + " if you need anonymous access.");
+		}
+
 		try {
 //			RemoteAuthSession httpSession = new ServletHttpSession(req.getSession());
 			// httpExchange.setAttribute(RemoteAuthSession.class.getName(), httpSession);
-			if (authenticator != null) {
-				Authenticator.Result authenticationResult = authenticator.authenticate(httpExchange);
-				if (authenticationResult instanceof Authenticator.Success) {
-					HttpPrincipal httpPrincipal = ((Authenticator.Success) authenticationResult).getPrincipal();
-					httpExchange.setPrincipal(httpPrincipal);
-				} else if (authenticationResult instanceof Authenticator.Retry) {
-					httpExchange.sendResponseHeaders((((Authenticator.Retry) authenticationResult).getResponseCode()),
-							-1);
+			Authenticator.Result authenticationResult = authenticator.authenticate(httpExchange);
+			if (authenticationResult instanceof Authenticator.Success) {
+				HttpPrincipal httpPrincipal = ((Authenticator.Success) authenticationResult).getPrincipal();
+				httpExchange.setPrincipal(httpPrincipal);
+			} else if (authenticationResult instanceof Authenticator.Retry) {
+				httpExchange.sendResponseHeaders((((Authenticator.Retry) authenticationResult).getResponseCode()), -1);
 //					resp.flushBuffer();
-					return;
-				} else if (authenticationResult instanceof Authenticator.Failure) {
-					httpExchange.sendResponseHeaders(((Authenticator.Failure) authenticationResult).getResponseCode(),
-							-1);
+				return;
+			} else if (authenticationResult instanceof Authenticator.Failure) {
+				httpExchange.sendResponseHeaders(((Authenticator.Failure) authenticationResult).getResponseCode(), -1);
 //					resp.flushBuffer();
-					return;
-				} else {
-					throw new UnsupportedOperationException(
-							"Authentication result " + authenticationResult.getClass().getName() + " is not supported");
-				}
+				return;
+			} else {
+				throw new UnsupportedOperationException(
+						"Authentication result " + authenticationResult.getClass().getName() + " is not supported");
 			}
 
 			chain.doFilter(httpExchange);

@@ -1,11 +1,14 @@
 package org.argeo.cms.http;
 
+import java.util.function.Supplier;
+
 /**
  * Standard HTTP response status codes (including WebDav ones).
  * 
- * @see "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status"
+ * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status">MDN
+ *      Web Docs</a>
  */
-public enum HttpStatus {
+public enum HttpStatus implements Supplier<Integer> {
 	// Successful responses (200–299)
 	/** 200 */
 	OK(200, "OK"), //
@@ -35,7 +38,14 @@ public enum HttpStatus {
 		this.reasonPhrase = reasonPhrase;
 	}
 
+	/** @deprecated Use {@link #get()} instead. */
+	@Deprecated
 	public int getCode() {
+		return code;
+	}
+
+	@Override
+	public Integer get() {
 		return code;
 	}
 
@@ -57,7 +67,7 @@ public enum HttpStatus {
 			String[] arr = statusLine.split(" ");
 			int code = Integer.parseInt(arr[1]);
 			for (HttpStatus status : values()) {
-				if (status.getCode() == code)
+				if (status.get() == code)
 					return status;
 			}
 		} catch (Exception e) {
@@ -68,7 +78,7 @@ public enum HttpStatus {
 
 	@Override
 	public String toString() {
-		return code + " " + reasonPhrase;
+		return get() + " " + getReasonPhrase();
 	}
 
 }

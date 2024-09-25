@@ -4,7 +4,7 @@ import org.argeo.cms.auth.RemoteAuthSession;
 import org.eclipse.jetty.server.Session;
 
 /** A {@link RemoteAuthSession} based on Jetty {@link Session}. */
-public class JettyAuthSession implements RemoteAuthSession, Session.API {
+class JettyAuthSession implements RemoteAuthSession, Session.API {
 	private final Session jettySession;
 
 	public JettyAuthSession(Session jettySession) {

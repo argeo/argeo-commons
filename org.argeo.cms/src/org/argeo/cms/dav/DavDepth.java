@@ -1,11 +1,16 @@
 package org.argeo.cms.dav;
 
-import org.argeo.cms.http.HttpHeader;
+import static org.argeo.cms.http.HttpHeader.DEPTH;
+
+import java.util.function.Supplier;
 
 import com.sun.net.httpserver.HttpExchange;
 
-public enum DavDepth {
-	DEPTH_0("0"), DEPTH_1("1"), DEPTH_INFINITY("infinity");
+/** WebDav depth possible values. */
+public enum DavDepth implements Supplier<String> {
+	DEPTH_0("0"), //
+	DEPTH_1("1"), //
+	DEPTH_INFINITY("infinity");
 
 	private final String value;
 
@@ -15,15 +20,22 @@ public enum DavDepth {
 
 	@Override
 	public String toString() {
-		return getValue();
+		return get();
 	}
 
+	/** @deprecated Use {@link #get()} instead. */
+	@Deprecated
 	public String getValue() {
+		return get();
+	}
+
+	@Override
+	public String get() {
 		return value;
 	}
 
 	public static DavDepth fromHttpExchange(HttpExchange httpExchange) {
-		String value = httpExchange.getRequestHeaders().getFirst(HttpHeader.DEPTH.getHeaderName());
+		String value = httpExchange.getRequestHeaders().getFirst(DEPTH.get());
 		if (value == null)
 			return null;
 		DavDepth depth = switch (value) {
@@ -34,4 +46,5 @@ public enum DavDepth {
 		};
 		return depth;
 	}
+
 }

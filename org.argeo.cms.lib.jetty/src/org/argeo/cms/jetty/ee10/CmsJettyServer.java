@@ -31,6 +31,7 @@ public class CmsJettyServer extends JettyHttpServer {
 	@Override
 	public void start() {
 		try {
+			// TODO make it more robust
 			tempDir = Files.createTempDirectory("jetty");
 		} catch (IOException e) {
 			throw new IllegalStateException("Cannot create temp dir", e);
@@ -49,8 +50,8 @@ public class CmsJettyServer extends JettyHttpServer {
 
 		servletContextHandler.setAttribute(CONTEXT_TEMPDIR, tempDir.toAbsolutePath().toFile());
 		SessionHandler handler = new SessionHandler();
-		// FIXME deal with long running session
-		// handler.setMaxInactiveInterval(-1);
+		// TODO make it configurable
+		handler.setMaxInactiveInterval(-1);
 		servletContextHandler.setSessionHandler(handler);
 
 		JakartaWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {

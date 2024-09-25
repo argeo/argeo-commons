@@ -10,6 +10,7 @@ import org.argeo.cms.jetty.JettyHttpServer;
 import org.argeo.cms.jetty.websocket.JettyLocalWebSocket;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.session.SessionHandler;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.websocket.server.ServerUpgradeRequest;
 import org.eclipse.jetty.websocket.server.ServerUpgradeResponse;
@@ -28,12 +29,14 @@ public class JettyHttpContext extends AbstractJettyHttpContext {
 
 	public JettyHttpContext(JettyHttpServer httpServer, String path) {
 		super(httpServer, path);
-		boolean useContextHandler = false;
+		boolean useContextHandler = true;
 		if (useContextHandler) {
-			// TODO not working yet
-			// (sub contexts do not work)
-			httpHandler = new HttpContextJettyContextHandler(this);
-			attributes = new ContextHandlerAttributes((ContextHandler) httpHandler);
+			ContextHandler contextHandler = new ContextHandler();
+			SessionHandler sessionHandler = new SessionHandler();
+			contextHandler.setHandler(sessionHandler);
+			sessionHandler.setHandler(new HttpContextJettyHandler(this));
+			attributes = new ContextHandlerAttributes(contextHandler);
+			httpHandler = contextHandler;
 		} else {
 			httpHandler = new HttpContextJettyHandler(this);
 			attributes = new HashMap<>();

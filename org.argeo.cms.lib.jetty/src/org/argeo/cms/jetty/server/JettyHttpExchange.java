@@ -12,13 +12,14 @@ import javax.net.ssl.SSLSession;
 
 import org.argeo.cms.auth.RemoteAuthSession;
 import org.argeo.cms.http.server.AbstractCmsHttpExchange;
+import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.io.EndPoint;
 import org.eclipse.jetty.io.ssl.SslConnection;
 import org.eclipse.jetty.io.ssl.SslConnection.SslEndPoint;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.util.Fields;
+import org.eclipse.jetty.server.Session;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpsExchange;
@@ -40,9 +41,8 @@ class JettyHttpExchange extends AbstractCmsHttpExchange {
 		this.jettyResponse = jettyResponse;
 
 		// request headers
-		Fields allParameters = Request.extractQueryParameters(this.jettyRequest);
-		for (Fields.Field parameter : allParameters) {
-			requestHeaders.put(parameter.getName(), parameter.getValues());
+		for (HttpField headerField : jettyRequest.getHeaders()) {
+			requestHeaders.put(headerField.getName(), headerField.getValueList());
 		}
 	}
 
@@ -52,7 +52,8 @@ class JettyHttpExchange extends AbstractCmsHttpExchange {
 
 	@Override
 	protected RemoteAuthSession getRemoteAuthSession() {
-		return new JettyAuthSession(jettyRequest.getSession(true));
+		Session jettySession = jettyRequest.getSession(true);
+		return jettySession == null ? null : new JettyAuthSession(jettySession);
 	}
 
 	@Override

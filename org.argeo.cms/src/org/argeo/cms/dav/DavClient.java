@@ -1,5 +1,13 @@
 package org.argeo.cms.dav;
 
+import static org.argeo.cms.dav.DavDepth.DEPTH_0;
+import static org.argeo.cms.dav.DavDepth.DEPTH_1;
+import static org.argeo.cms.http.HttpHeader.DEPTH;
+import static org.argeo.cms.http.HttpMethod.HEAD;
+import static org.argeo.cms.http.HttpMethod.PROPFIND;
+import static org.argeo.cms.http.HttpMethod.PROPPATCH;
+import static org.argeo.cms.http.HttpStatus.NOT_FOUND;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
@@ -14,10 +22,6 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Iterator;
 
 import javax.xml.namespace.QName;
-
-import org.argeo.cms.http.HttpHeader;
-import org.argeo.cms.http.HttpMethod;
-import org.argeo.cms.http.HttpStatus;
 
 public class DavClient {
 
@@ -58,8 +62,8 @@ public class DavClient {
 							""";
 			System.out.println(body);
 			HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)) //
-					.header(HttpHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_1.getValue()) //
-					.method(HttpMethod.PROPPATCH.name(), BodyPublishers.ofString(body)) //
+					.header(DEPTH.get(), DEPTH_1.get()) //
+					.method(PROPPATCH.name(), BodyPublishers.ofString(body)) //
 					.build();
 			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);
@@ -78,8 +82,8 @@ public class DavClient {
 					  <D:propname/>
 					</D:propfind>""";
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(HttpHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_1.getValue()) //
-					.method(HttpMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
+					.header(DEPTH.get(), DEPTH_1.get()) //
+					.method(PROPFIND.name(), BodyPublishers.ofString(body)) //
 					.build();
 
 			HttpResponse<String> responseStr = httpClient.send(request, BodyHandlers.ofString());
@@ -97,14 +101,14 @@ public class DavClient {
 	public boolean exists(URI uri) {
 		try {
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(HttpHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_0.getValue()) //
-					.method(HttpMethod.HEAD.name(), BodyPublishers.noBody()) //
+					.header(DEPTH.get(), DEPTH_0.get()) //
+					.method(HEAD.name(), BodyPublishers.noBody()) //
 					.build();
 			BodyHandler<String> bodyHandler = BodyHandlers.ofString();
 			HttpResponse<String> response = httpClient.send(request, bodyHandler);
 			System.out.println(response.body());
 			int responseStatusCode = response.statusCode();
-			if (responseStatusCode == HttpStatus.NOT_FOUND.getCode())
+			if (responseStatusCode == NOT_FOUND.get())
 				return false;
 			if (responseStatusCode >= 200 && responseStatusCode < 300)
 				return true;
@@ -124,8 +128,8 @@ public class DavClient {
 					  <D:allprop/>
 					</D:propfind>""";
 			HttpRequest request = HttpRequest.newBuilder().uri(uri) //
-					.header(HttpHeader.DEPTH.getHeaderName(), DavDepth.DEPTH_0.getValue()) //
-					.method(HttpMethod.PROPFIND.name(), BodyPublishers.ofString(body)) //
+					.header(DEPTH.get(), DEPTH_0.get()) //
+					.method(PROPFIND.name(), BodyPublishers.ofString(body)) //
 					.build();
 
 //			HttpResponse<String> responseStr = httpClient.send(request, BodyHandlers.ofString());
@@ -151,7 +155,7 @@ public class DavClient {
 		while (responses.hasNext()) {
 			DavResponse response = responses.next();
 			System.out.println(response.getHref() + (response.isCollection() ? " (collection)" : ""));
-			//System.out.println("  " + response.getPropertyNames(HttpStatus.OK));
+			// System.out.println(" " + response.getPropertyNames(HttpStatus.OK));
 
 		}
 //		davClient.setProperty("http://localhost/unstable/a2/org.argeo.tp.sdk/org.opentest4j.1.2.jar",

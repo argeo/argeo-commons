@@ -1,5 +1,16 @@
 package org.argeo.cms.dav;
 
+import static org.argeo.cms.http.HttpHeader.ALLOW;
+import static org.argeo.cms.http.HttpHeader.DAV;
+import static org.argeo.cms.http.HttpMethod.GET;
+import static org.argeo.cms.http.HttpMethod.OPTIONS;
+import static org.argeo.cms.http.HttpMethod.PROPFIND;
+import static org.argeo.cms.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.argeo.cms.http.HttpStatus.MULTI_STATUS;
+import static org.argeo.cms.http.HttpStatus.NOT_FOUND;
+import static org.argeo.cms.http.HttpStatus.NOT_IMPLEMENTED;
+import static org.argeo.cms.http.HttpStatus.NO_CONTENT;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,9 +22,7 @@ import javax.xml.namespace.NamespaceContext;
 
 import org.argeo.api.acr.ContentNotFoundException;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.http.HttpHeader;
 import org.argeo.cms.http.HttpMethod;
-import org.argeo.cms.http.HttpStatus;
 import org.argeo.cms.http.server.HttpServerUtils;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -32,12 +41,12 @@ public abstract class DavHttpHandler implements HttpHandler {
 		String subPath = HttpServerUtils.subPath(exchange);
 		String method = exchange.getRequestMethod();
 		try {
-			if (HttpMethod.GET.name().equals(method)) {
+			if (GET.name().equals(method)) {
 				handleGET(exchange, subPath);
-			} else if (HttpMethod.OPTIONS.name().equals(method)) {
+			} else if (OPTIONS.name().equals(method)) {
 				handleOPTIONS(exchange, subPath);
-				exchange.sendResponseHeaders(HttpStatus.NO_CONTENT.getCode(), -1);
-			} else if (HttpMethod.PROPFIND.name().equals(method)) {
+				exchange.sendResponseHeaders(NO_CONTENT.get(), -1);
+			} else if (PROPFIND.name().equals(method)) {
 				DavDepth depth = DavDepth.fromHttpExchange(exchange);
 				if (depth == null) {
 					// default, as per http://www.webdav.org/specs/rfc4918.html#METHOD_PROPFIND
@@ -49,7 +58,7 @@ public abstract class DavHttpHandler implements HttpHandler {
 				}
 				MultiStatusWriter multiStatusWriter = new MultiStatusWriter(exchange.getProtocol());
 				CompletableFuture<Void> published = handlePROPFIND(exchange, subPath, davPropfind, multiStatusWriter);
-				exchange.sendResponseHeaders(HttpStatus.MULTI_STATUS.getCode(), 0l);
+				exchange.sendResponseHeaders(MULTI_STATUS.get(), 0l);
 				NamespaceContext namespaceContext = getNamespaceContext(exchange, subPath);
 				try (OutputStream out = exchange.getResponseBody()) {
 					multiStatusWriter.process(namespaceContext, out, published.minimalCompletionStage(),
@@ -59,16 +68,16 @@ public abstract class DavHttpHandler implements HttpHandler {
 				throw new IllegalArgumentException("Unsupported method " + method);
 			}
 		} catch (ContentNotFoundException e) {
-			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.getCode(), -1);
+			exchange.sendResponseHeaders(NOT_FOUND.get(), -1);
 		}
 		// TODO return a structured error message
 		// TODO better filter application errors and failed login etc.
 		catch (UnsupportedOperationException e) {
 			e.printStackTrace();
-			exchange.sendResponseHeaders(HttpStatus.NOT_IMPLEMENTED.getCode(), -1);
+			exchange.sendResponseHeaders(NOT_IMPLEMENTED.get(), -1);
 		} catch (Exception e) {
 			log.error("Failed HTTP exchange " + exchange.getRequestURI(), e);
-			exchange.sendResponseHeaders(HttpStatus.INTERNAL_SERVER_ERROR.getCode(), -1);
+			exchange.sendResponseHeaders(INTERNAL_SERVER_ERROR.get(), -1);
 		}
 
 	}
@@ -81,7 +90,7 @@ public abstract class DavHttpHandler implements HttpHandler {
 	protected abstract void handleGET(HttpExchange exchange, String path) throws IOException;
 
 	protected void handleOPTIONS(HttpExchange exchange, String path) throws IOException {
-		exchange.getResponseHeaders().set(HttpHeader.DAV.getHeaderName(), "1, 3");
+		exchange.getResponseHeaders().set(DAV.get(), "1, 3");
 		StringJoiner methods = new StringJoiner(",");
 		methods.add(HttpMethod.OPTIONS.name());
 		methods.add(HttpMethod.HEAD.name());
@@ -96,7 +105,7 @@ public abstract class DavHttpHandler implements HttpHandler {
 		methods.add(HttpMethod.MOVE.name());
 		methods.add(HttpMethod.COPY.name());
 
-		exchange.getResponseHeaders().add(HttpHeader.ALLOW.getHeaderName(), methods.toString());
+		exchange.getResponseHeaders().add(ALLOW.get(), methods.toString());
 	}
 
 }

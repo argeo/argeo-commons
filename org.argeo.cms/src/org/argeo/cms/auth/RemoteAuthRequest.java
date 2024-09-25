@@ -1,16 +1,17 @@
 package org.argeo.cms.auth;
 
 import java.util.Locale;
+import java.util.function.Supplier;
 
-/** Transitional interface to decouple from the Servlet API. */
+/** Authentication information received from a remote request. */
 public interface RemoteAuthRequest {
 	final static String REMOTE_USER = "org.osgi.service.http.authentication.remote.user";
 	final static String AUTHORIZATION = "org.osgi.service.useradmin.authorization";
 
-	/** Can be null.*/
+	/** Can be null. */
 	RemoteAuthSession getSession();
 
-	/** May not be implemented, will return null in that case.*/
+	/** May not be implemented, will return null in that case. */
 	RemoteAuthSession createSession();
 
 	Locale getLocale();
@@ -19,7 +20,8 @@ public interface RemoteAuthRequest {
 
 	void setAttribute(String key, Object object);
 
-	String getHeader(String key);
+	/** The (single) value of a header. */
+	String getHeader(String headerName);
 
 	String getRemoteAddr();
 
@@ -27,4 +29,11 @@ public interface RemoteAuthRequest {
 
 	int getRemotePort();
 
+	/*
+	 * CONVENIENCE METHODS
+	 */
+	/** Convenience method calling {@link #getHeader(String)}. */
+	default String getHeader(Supplier<String> headerName) {
+		return getHeader(headerName.get());
+	}
 }

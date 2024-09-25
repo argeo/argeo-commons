@@ -32,6 +32,8 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.PathMappingsHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.session.DefaultSessionIdManager;
+import org.eclipse.jetty.session.HouseKeeper;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.resource.Resources;
@@ -111,6 +113,19 @@ public class JettyHttpServer extends HttpsServer {
 
 			server = new Server(threadPool);
 
+			// Session management common to all handlers
+			DefaultSessionIdManager idMgr = new DefaultSessionIdManager(server);
+			// TODO deal with clustering
+			// idMgr.setWorkerName("server7");
+			server.addBean(idMgr, true);
+
+			HouseKeeper houseKeeper = new HouseKeeper();
+			houseKeeper.setSessionIdManager(idMgr);
+			// set the frequency of scavenge cycles
+			houseKeeper.setIntervalSec(600L);
+			idMgr.setSessionHouseKeeper(houseKeeper);
+
+			// Connectors configuration
 			configureConnectors(httpPortStr, httpsPortStr, httpHost);
 
 			if (httpConnector != null) {
@@ -259,7 +274,8 @@ public class JettyHttpServer extends HttpsServer {
 				// ALPN protocol for security negotiation
 				ALPNServerConnectionFactory alpn;
 				// BEGIN HACK
-				// we make sure that the proper class loader is used to load the processor implementation
+				// we make sure that the proper class loader is used to load the processor
+				// implementation
 				ClassLoader currentContextCL = Thread.currentThread().getContextClassLoader();
 				try {
 					Thread.currentThread().setContextClassLoader(JDK9ServerALPNProcessor.class.getClassLoader());
