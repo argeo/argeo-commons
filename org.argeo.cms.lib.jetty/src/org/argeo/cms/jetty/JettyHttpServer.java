@@ -30,6 +30,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.PathMappingsHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
@@ -70,12 +71,12 @@ public class JettyHttpServer extends HttpsServer {
 
 	private HttpsConfigurator httpsConfigurator;
 
+	// We have to track contexts in order to honour the removeContext() API
 	private final Map<String, AbstractJettyHttpContext> contexts = new TreeMap<>();
 
 	private Handler rootHandler;
-	// protected final ContextHandlerCollection contextHandlerCollection = new
-	// ContextHandlerCollection(true);
-	PathMappingsHandler pathMappingsHandler = new PathMappingsHandler(true);
+//	protected final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection(true);
+	private PathMappingsHandler pathMappingsHandler = new PathMappingsHandler(true);
 
 	private boolean started;
 
@@ -127,32 +128,32 @@ public class JettyHttpServer extends HttpsServer {
 
 			// Connectors configuration
 			configureConnectors(httpPortStr, httpsPortStr, httpHost);
-
 			if (httpConnector != null) {
 				httpConnector.open();
 				server.addConnector(httpConnector);
 			}
-
 			if (httpsConnector != null) {
 				httpsConnector.open();
 				server.addConnector(httpsConnector);
 			}
 
-			// holder
-
-			// context
+			// root handler
 			rootHandler = createRootHandler();
 			// httpContext.addServlet(holder, "/*");
 			if (rootHandler != null)
 				configureRootHandler(rootHandler);
 
+//			if (rootHandler != null && !contexts.containsKey("/"))
+//				contextHandlerCollection.addHandler(rootHandler);
+//			// TODO add top-levle handler (compression, QoS, etc.)
+//			server.setHandler(contextHandlerCollection);
+
 			webSocketUpgradeHandler = WebSocketUpgradeHandler.from(server);
+//			ContextHandler webSocketContextHandler = new ContextHandler(webSocketUpgradeHandler, "/ws");
+//			contextHandlerCollection.addHandler(webSocketContextHandler);
 			pathMappingsHandler.addMapping(PathSpec.from("/ws/*"), webSocketUpgradeHandler);
 
-//			if (rootContextHandler != null && !contexts.containsKey("/"))
-//				contextHandlerCollection.addHandler(rootContextHandler);
-//			server.setHandler(contextHandlerCollection);
-			if (rootHandler != null && !contexts.containsKey("/")) {
+			if (rootHandler != null) {
 				pathMappingsHandler.addMapping(PathSpec.from("/"), rootHandler);
 			} else {
 				ResourceFactory resourceFactory = ResourceFactory.of(server);
@@ -340,54 +341,63 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public synchronized HttpContext createContext(String path) {
-		if (!path.endsWith("/"))
-			path = path + "/";
-		if (contexts.containsKey(path))
-			throw new IllegalArgumentException("Context " + path + " already exists");
+//		if (!path.endsWith("/"))
+//			path = path + "/";
+//		if (contexts.containsKey(path))
+//			throw new IllegalArgumentException("Context " + path + " already exists");
 
 		AbstractJettyHttpContext httpContext = new JettyHttpContext(this, path);
 		contexts.put(path, httpContext);
 
 		Handler jettyHandler = httpContext.getJettyHandler();
+		// IMPORTANT: server need to be set on this handler tree before it is added
+//		jettyHandler.setServer(getServer());
+
 		// contextHandlerCollection.addHandler(httpContext.getJettyHandler());
-		// FIXME make path more robust
-		PathSpec pathSpec = PathSpec.from(path + "*");
+
+		PathSpec pathSpec = PathSpec.from(path + (path.endsWith("/") ? "*" : ""));
 		pathMappingsHandler.addMapping(pathSpec, jettyHandler);
-		if (isStarted()) {
+		if (server.isStarted()) {
 			// server is already started, handler has to be started explicitly
+			// but after mapping it otherwise implicit setServer fails.
 			try {
 				jettyHandler.start();
 			} catch (Exception e) {
 				throw new IllegalStateException("Could not start dynamically added Jetty handler", e);
 			}
 		}
+		pathMappingsHandler.manage(jettyHandler);// so that it is stopped when removed
 		return httpContext;
 	}
 
 	@Override
 	public synchronized void removeContext(String path) throws IllegalArgumentException {
-		if (!path.endsWith("/"))
-			path = path + "/";
+//		if (!path.endsWith("/"))
+//			path = path + "/";
 		if (!contexts.containsKey(path))
 			throw new IllegalArgumentException("Context " + path + " does not exist");
-		AbstractJettyHttpContext httpContext = contexts.remove(path);
-		Handler jettyHandler = httpContext.getJettyHandler();
-		if (jettyHandler.isStarted()) {
+		contexts.remove(path);
+//		Handler jettyHandler = httpContext.getJettyHandler();
+//		if (jettyHandler.isStarted()) {
+//			try {
+//				jettyHandler.stop();
+//			} catch (Exception e) {
+//				log.error("Cannot stop Jetty handler " + path, e);
+//			}
+//		}
+
+		// this will unregister the previous handler
+		Handler noOpHandler = new DefaultHandler(false, false);
+		pathMappingsHandler.addMapping(PathSpec.from(path + (path.endsWith("/") ? "*" : "")), noOpHandler);
+		if (server.isStarted()) {
+			// server is already started, handler has to be started explicitly
 			try {
-				jettyHandler.stop();
+				noOpHandler.start();
 			} catch (Exception e) {
-				log.error("Cannot stop Jetty handler " + path, e);
+				throw new IllegalStateException("Could not start dynamically added Jetty handler", e);
 			}
 		}
-
-//		if (httpContext instanceof ContextHandlerHttpContext contextHandlerHttpContext) {
-//			// TODO stop handler first?
-//			// FIXME understand compatibility with Jetty 12
-//			// contextHandlerCollection.removeHandler(contextHandlerHttpContext.getServletContextHandler());
-//		} else {
-//			// FIXME apparently servlets cannot be removed in Jetty, we should replace the
-//			// handler
-//		}
+		pathMappingsHandler.manage(noOpHandler);
 	}
 
 	@Override
@@ -503,7 +513,7 @@ public class JettyHttpServer extends HttpsServer {
 		httpServer.createContext("/hello", (exchange) -> {
 			exchange.getResponseBody().write("Hello World!".getBytes());
 		});
-		httpServer.createContext("/subcontext", (exchange) -> {
+		httpServer.createContext("/sub/context", (exchange) -> {
 			final String key = "count";
 			Integer count = (Integer) exchange.getHttpContext().getAttributes().get(key);
 			if (count == null)

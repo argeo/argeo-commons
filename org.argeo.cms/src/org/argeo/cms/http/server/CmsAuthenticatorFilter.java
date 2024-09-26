@@ -2,8 +2,6 @@ package org.argeo.cms.http.server;
 
 import java.io.IOException;
 
-import org.argeo.cms.internal.http.PublicCmsAuthenticator;
-
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.Filter;
 import com.sun.net.httpserver.HttpContext;
@@ -11,12 +9,11 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpPrincipal;
 
 /** A {@link Filter} based on an {@link Authenticator}. */
-// TODO make it a public interface?
-class CmsAuthenticatorFilter extends Filter {
+public class CmsAuthenticatorFilter extends Filter {
 
 	@Override
 	public String description() {
-		return "Argeo CMS Authenticator System";
+		return "Argeo CMS Authenticator";
 	}
 
 	@Override
@@ -30,9 +27,8 @@ class CmsAuthenticatorFilter extends Filter {
 		Authenticator authenticator = httpContext.getAuthenticator();
 		if (authenticator == null) {
 			// TODO or force anonymous access in such case?
-			throw new IllegalStateException(
-					"Only HTTP context with an " + Authenticator.class.getSimpleName() + " are supported. Use "
-							+ PublicCmsAuthenticator.class.getName() + " if you need anonymous access.");
+			throw new IllegalStateException("Only HTTP context with an " + Authenticator.class.getSimpleName()
+					+ " are supported. Use a public authenticator if anonymous access is needed.");
 		}
 
 		try {

@@ -26,8 +26,8 @@ public abstract class AbstractCmsHttpContext extends HttpContext {
 	public AbstractCmsHttpContext(HttpServer httpServer, String path) {
 		this.httpServer = httpServer;
 		// TODO Is it really necessary? Make it more robust.
-		if (!path.endsWith("/"))
-			throw new IllegalArgumentException("Path " + path + " should end with a /");
+//		if (!path.endsWith("/"))
+//			throw new IllegalArgumentException("Path " + path + " should end with a /");
 		this.path = path;
 	}
 
@@ -71,8 +71,9 @@ public abstract class AbstractCmsHttpContext extends HttpContext {
 				currentCmsAuthenticatorFilter.ifPresent((filter) -> filters.remove(filter));
 			} else {// authentication enabled
 				if (currentCmsAuthenticatorFilter.isEmpty()) {
-					// first time an authenticator is set, we assume that there is good reasons to
-					// have non authenticated filters first
+					// First time an authenticator is set, we assume that there are good reasons to
+					// have non authenticated filters first. In most cases it should be first, in
+					// order to be consistent with the JDK HTTP server behaviour.
 					filters.add(new CmsAuthenticatorFilter());
 				}
 			}
