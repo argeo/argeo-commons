@@ -398,6 +398,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 					case "org.eclipse.jetty.util.log.Slf4jLog":
 					case "sun.util.logging.internal.LoggingProviderImpl$JULWrapper":
 					case "org.slf4j.impl.ArgeoLogger":
+					case "org.argeo.api.syslogger.SystemLoggingAdapter":
+					case "org.argeo.tp.internal.syslogger.slf4j.ArgeoLogger":
 					case "org.argeo.cms.internal.osgi.CmsOsgiLogger":
 					case "org.argeo.init.osgi.OsgiBootUtils":
 						lowestLoggerInterface = i;
