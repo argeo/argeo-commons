@@ -1,5 +1,8 @@
 package org.argeo.cms.internal.runtime;
 
+import static org.argeo.cms.http.HttpStatus.NOT_FOUND;
+import static org.argeo.cms.http.HttpStatus.OK;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -25,8 +28,8 @@ import org.argeo.cms.dav.DavDepth;
 import org.argeo.cms.dav.DavHttpHandler;
 import org.argeo.cms.dav.DavPropfind;
 import org.argeo.cms.dav.DavResponse;
-import org.argeo.cms.http.HttpStatus;
 import org.argeo.cms.http.server.HttpRemoteAuthExchange;
+import org.argeo.cms.http.server.HttpServerUtils;
 import org.argeo.cms.util.StreamUtils;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -43,14 +46,15 @@ public class CmsAcrHttpHandler extends DavHttpHandler {
 
 	@Override
 	protected void handleGET(HttpExchange exchange, String path) throws IOException {
-		ContentSession session = RemoteAuthUtils.doAs(() -> contentRepository.get(),
-				new HttpRemoteAuthExchange(exchange));
+//		ContentSession session = RemoteAuthUtils.doAs(() -> contentRepository.get(),
+//				new HttpRemoteAuthExchange(exchange));
+		ContentSession session = HttpServerUtils.getContentSession(contentRepository, exchange);
 		if (!session.exists(path)) // not found
 			throw new ContentNotFoundException(session, path);
 		Content content = session.get(path);
 		Optional<Long> size = content.get(DName.getcontentlength, Long.class);
 		try (InputStream in = content.open(InputStream.class)) {
-			exchange.sendResponseHeaders(HttpStatus.OK.getCode(), size.orElse(0l));
+			exchange.sendResponseHeaders(OK.get(), size.orElse(0l));
 			StreamUtils.copy(in, exchange.getResponseBody());
 		} catch (IOException e) {
 			throw new RuntimeException("Cannot process " + path, e);
@@ -87,22 +91,22 @@ public class CmsAcrHttpHandler extends DavHttpHandler {
 			davResponse.setCollection(true);
 		if (davPropfind.isAllprop()) {
 			for (Map.Entry<QName, Object> entry : content.entrySet()) {
-				davResponse.getPropertyNames(HttpStatus.OK).add(entry.getKey());
+				davResponse.getPropertyNames(OK).add(entry.getKey());
 				processMapEntry(davResponse, entry.getKey(), entry.getValue());
 			}
 			davResponse.getResourceTypes().addAll(content.getContentClasses());
 		} else if (davPropfind.isPropname()) {
 			for (QName key : content.keySet()) {
-				davResponse.getPropertyNames(HttpStatus.OK).add(key);
+				davResponse.getPropertyNames(OK).add(key);
 			}
 		} else {
 			for (QName key : davPropfind.getProps()) {
 				if (content.containsKey(key)) {
-					davResponse.getPropertyNames(HttpStatus.OK).add(key);
+					davResponse.getPropertyNames(OK).add(key);
 					Object value = content.get(key);
 					processMapEntry(davResponse, key, value);
 				} else {
-					davResponse.getPropertyNames(HttpStatus.NOT_FOUND).add(key);
+					davResponse.getPropertyNames(NOT_FOUND).add(key);
 				}
 				if (DName.resourcetype.qName().equals(key)) {
 					davResponse.getResourceTypes().addAll(content.getContentClasses());
