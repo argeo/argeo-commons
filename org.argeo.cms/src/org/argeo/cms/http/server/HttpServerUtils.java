@@ -1,5 +1,9 @@
 package org.argeo.cms.http.server;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.argeo.cms.http.HttpHeader.CONTENT_TYPE;
+import static org.argeo.cms.http.HttpHeader.DATE;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -13,11 +17,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.cms.auth.RemoteAuthUtils;
+import org.argeo.cms.http.CommonMediaType;
+import org.argeo.cms.http.HttpHeader;
 import org.argeo.cms.http.HttpMethod;
+import org.argeo.cms.http.HttpStatus;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
@@ -56,6 +64,7 @@ public class HttpServerUtils {
 	}
 
 	/** Returns content session consistent with this HTTP context. */
+	// TODO move this method to another, ACR-specific, class
 	public static ContentSession getContentSession(ContentRepository contentRepository, HttpExchange exchange) {
 		ContentSession session = RemoteAuthUtils.doAs(() -> contentRepository.get(),
 				new HttpRemoteAuthExchange(exchange));
@@ -65,6 +74,15 @@ public class HttpServerUtils {
 	/*
 	 * QUERY PARAMETERS
 	 */
+	public static Optional<String> getParameter(Map<String, List<String>> parameters, String key) {
+		if (!parameters.containsKey(key))
+			return Optional.empty();
+		List<String> values = parameters.get(key);
+		if (values == null || values.size() != 1)
+			throw new IllegalArgumentException("Parameter " + key + " is present but either, empty, or multiple");
+		return Optional.of(values.get(0));
+	}
+
 	/** Returns the HTTP parameters form an {@link HttpExchange}. */
 	public static Map<String, List<String>> parseParameters(HttpExchange exchange) {
 		// TODO check encoding?
@@ -111,6 +129,47 @@ public class HttpServerUtils {
 				parameters.put(key, new ArrayList<>());
 			parameters.get(key).add(value);
 		}
+	}
+
+	/*
+	 * HEADER UTILITIES
+	 */
+	/**
+	 * Set content type. For text-based format (text/* and application/json) set
+	 * UTF-8 charset.
+	 */
+	public static void setContentType(HttpExchange exchange, CommonMediaType mediaType) {
+		setContentType(exchange, mediaType.get(), mediaType.isTextBased() ? UTF_8 : null);
+	}
+
+	public static void setContentType(HttpExchange exchange, CommonMediaType mediaType, Charset charset) {
+		setContentType(exchange, mediaType.get(), charset);
+	}
+
+	public static void setContentType(HttpExchange exchange, String mediaType, Charset charset) {
+		exchange.getResponseHeaders().set(CONTENT_TYPE.get(),
+				HttpHeader.formatContentType(mediaType, charset.name(), null));
+	}
+
+	/** Set date header to the current time. */
+	public static void setDateHeader(HttpExchange exchange) {
+		setDateHeader(exchange, System.currentTimeMillis());
+	}
+
+	public static void setDateHeader(HttpExchange exchange, long epoch) {
+		exchange.getResponseHeaders().set(DATE.get(), Long.toString(epoch));
+	}
+
+	/*
+	 * STATUS UTILITIES
+	 */
+	/**
+	 * Send a status code (typically an error) without a respons body. It calls
+	 * {@link HttpExchange#sendResponseHeaders(int, long)}, so nothing else can be
+	 * set or written after calling this method.
+	 */
+	public static void sendStatusOnly(HttpExchange exchange, HttpStatus status) throws IOException {
+		exchange.sendResponseHeaders(status.get(), -1);
 	}
 
 	/** singleton */

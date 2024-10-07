@@ -1,8 +1,8 @@
 package org.argeo.cms.websocket.server;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.singletonList;
-import static org.argeo.cms.http.HttpHeader.CONTENT_TYPE;
+import static org.argeo.cms.http.CommonMediaType.TEXT_PLAIN;
+import static org.argeo.cms.http.HttpStatus.OK;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -16,6 +16,7 @@ import org.argeo.cms.CmsDeployProperty;
 import org.argeo.cms.CurrentUser;
 import org.argeo.cms.auth.RemoteAuthUtils;
 import org.argeo.cms.http.server.HttpRemoteAuthExchange;
+import org.argeo.cms.http.server.HttpServerUtils;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -54,9 +55,8 @@ public class StatusHandler implements WebsocketEndpoints, HttpHandler {
 				new HttpRemoteAuthExchange(exchange));
 
 		byte[] msg = sb.toString().getBytes(UTF_8);
-		// TODO factorize
-		exchange.getResponseHeaders().put(CONTENT_TYPE.get(), singletonList("text/plain; charset=utf-8"));
-		exchange.sendResponseHeaders(200, msg.length);
+		HttpServerUtils.setContentType(exchange, TEXT_PLAIN, UTF_8);
+		exchange.sendResponseHeaders(OK.get(), msg.length);
 		exchange.getResponseBody().write(msg);
 	}
 

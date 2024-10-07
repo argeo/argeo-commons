@@ -42,6 +42,10 @@ public enum HttpHeader implements Supplier<String> {
 	public final static String ATTACHMENT = "attachment";
 	public final static String FILENAME = "filename";
 
+	// Content-Type related constants
+	public final static String CHARSET = "charset";
+	public final static String BOUNDARY = "charset";
+
 	private final String headerName;
 
 	private HttpHeader(String headerName) {
@@ -62,5 +66,26 @@ public enum HttpHeader implements Supplier<String> {
 	@Override
 	public String toString() {
 		return get();
+	}
+
+	/*
+	 * STATIC UTILITIES
+	 * 
+	 * Canonical utilities, typically when a header has parameters or a specific
+	 * format.
+	 */
+	/**
+	 * Format a Content-Type header with parameters.
+	 * 
+	 * @see <a href=
+	 *      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type#directives">MDN
+	 *      Web Docs</a>
+	 */
+	public static String formatContentType(String mediaType, String charset, String boundary) {
+		// not clear whether both encoding and boundary can be set; we won't enforce
+		return mediaType //
+				+ (charset != null ? ";" + CHARSET + "=" + charset.toLowerCase() : "") //
+				+ (boundary != null ? ";" + BOUNDARY + "=" + boundary : "") //
+		;
 	}
 }
