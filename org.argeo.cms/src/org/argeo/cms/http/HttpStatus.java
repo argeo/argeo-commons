@@ -12,6 +12,8 @@ public enum HttpStatus implements Supplier<Integer> {
 	// Successful responses (200–299)
 	/** 200 */
 	OK(200, "OK"), //
+	/** 201 */
+	CREATED(201, "Created"), //
 	/** 204 */
 	NO_CONTENT(204, "No Content"), //
 	/** 207 */

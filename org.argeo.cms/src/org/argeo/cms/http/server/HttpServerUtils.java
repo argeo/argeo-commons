@@ -3,6 +3,8 @@ package org.argeo.cms.http.server;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.argeo.cms.http.HttpHeader.CONTENT_TYPE;
 import static org.argeo.cms.http.HttpHeader.DATE;
+import static org.argeo.cms.http.HttpHeader.VIA;
+import static org.argeo.cms.http.HttpHeader.X_FORWARDED_HOST;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,11 +33,15 @@ import org.argeo.cms.http.HttpStatus;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpsExchange;
 
 /** HTTP utilities on the server-side. */
 public class HttpServerUtils {
 	private final static String SLASH = "/";
 
+	/*
+	 * PATHS
+	 */
 	private static String extractPathWithingContext(HttpContext httpContext, String fullPath, boolean startWithSlash) {
 		Objects.requireNonNull(fullPath);
 		String contextPath = httpContext.getPath();
@@ -48,6 +54,11 @@ public class HttpServerUtils {
 		} else if (startWithSlash && !path.startsWith(SLASH)) {
 			path = SLASH + path;
 		}
+
+		// make sure it does not start with "//"
+		if (path.startsWith(SLASH + SLASH))
+			path = path.substring(1);
+
 		return path;
 	}
 
@@ -134,7 +145,7 @@ public class HttpServerUtils {
 	}
 
 	/*
-	 * HEADER UTILITIES
+	 * HEADERS
 	 */
 	/**
 	 * Set content type. For text-based format (text/* and application/json) set
@@ -163,7 +174,7 @@ public class HttpServerUtils {
 	}
 
 	/*
-	 * STATUS UTILITIES
+	 * STATUS
 	 */
 	/**
 	 * Send a status code (typically an error) without a respons body. It calls
@@ -175,7 +186,7 @@ public class HttpServerUtils {
 	}
 
 	/*
-	 * STREAM UTILITIES
+	 * STREAMS
 	 */
 	/** The response body as an UTF-8 {@link Writer}. */
 	public static Writer getResponseWriter(HttpExchange exchange) {
@@ -185,6 +196,70 @@ public class HttpServerUtils {
 	/** The response body as a {@link Writer}. */
 	public static Writer getResponseWriter(HttpExchange exchange, Charset charset) {
 		return new OutputStreamWriter(exchange.getResponseBody(), charset);
+	}
+
+	/*
+	 * REVERSE PROXY
+	 */
+	/**
+	 * The base URL for this query (without any path component (not even an ending
+	 * '/'), taking into account reverse proxies.
+	 */
+	public static StringBuilder getRequestUrlBase(HttpExchange exchange) {
+		return getRequestUrlBase(exchange, false);
+	}
+
+	/**
+	 * The base URL for this query (without any path component (not even an ending
+	 * '/'), taking into account reverse proxies.
+	 * 
+	 * @param forceReverseProxyHttps if a reverse proxy is detected and this is set
+	 *                               to true, the https scheme will be used. This is
+	 *                               to work around issued when the an https reverse
+	 *                               proxy is talking to an http application.
+	 */
+	public static StringBuilder getRequestUrlBase(HttpExchange exchange, boolean forceReverseProxyHttps) {
+		List<String> viaHosts = new ArrayList<>();
+		if (exchange.getRequestHeaders().containsKey(VIA.get()))
+			for (String value : exchange.getRequestHeaders().get(VIA.get())) {
+				String[] arr = value.split(" ");
+				// FIXME make it more robust
+				// see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Via
+				viaHosts.add(arr[1]);
+			}
+
+		String outerHost = viaHosts.isEmpty() ? null : viaHosts.get(0);
+		if (outerHost == null) {
+			// Try non-standard header
+			String forwardedHost = exchange.getRequestHeaders().getFirst(X_FORWARDED_HOST.get());
+			if (forwardedHost != null) {
+				String[] arr = forwardedHost.split(",");
+				outerHost = arr[0];
+			}
+		}
+
+		// URI requestUrl = URI.create(req.getRequestURL().toString());
+		URI requestUrl = exchange.getRequestURI();
+
+		boolean isReverseProxy = outerHost != null && !outerHost.equals(requestUrl.getHost());
+		if (isReverseProxy) {
+			String protocol;
+			if (forceReverseProxyHttps)
+				protocol = "https";
+			else
+				protocol = exchange instanceof HttpsExchange ? "https" : "http";
+			return new StringBuilder(protocol + "://" + outerHost);
+		} else {
+			return new StringBuilder(requestUrl.getScheme() + "://" + requestUrl.getHost()
+					+ (requestUrl.getPort() > 0 ? ":" + requestUrl.getPort() : ""));
+		}
+	}
+
+	/*
+	 * MULTIPART
+	 */
+	public static Iterable<MimePart> extractFormData(HttpExchange exchange) {
+		return FormDataExtractor.extractParts(exchange);
 	}
 
 	/** singleton */
