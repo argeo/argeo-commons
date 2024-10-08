@@ -7,7 +7,9 @@ import static org.argeo.cms.http.HttpHeader.DATE;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
@@ -148,7 +150,7 @@ public class HttpServerUtils {
 
 	public static void setContentType(HttpExchange exchange, String mediaType, Charset charset) {
 		exchange.getResponseHeaders().set(CONTENT_TYPE.get(),
-				HttpHeader.formatContentType(mediaType, charset.name(), null));
+				HttpHeader.formatContentType(mediaType, charset != null ? charset.name() : null, null));
 	}
 
 	/** Set date header to the current time. */
@@ -170,6 +172,19 @@ public class HttpServerUtils {
 	 */
 	public static void sendStatusOnly(HttpExchange exchange, HttpStatus status) throws IOException {
 		exchange.sendResponseHeaders(status.get(), -1);
+	}
+
+	/*
+	 * STREAM UTILITIES
+	 */
+	/** The response body as an UTF-8 {@link Writer}. */
+	public static Writer getResponseWriter(HttpExchange exchange) {
+		return getResponseWriter(exchange, UTF_8);
+	}
+
+	/** The response body as a {@link Writer}. */
+	public static Writer getResponseWriter(HttpExchange exchange, Charset charset) {
+		return new OutputStreamWriter(exchange.getResponseBody(), charset);
 	}
 
 	/** singleton */
