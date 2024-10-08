@@ -18,16 +18,13 @@ public enum CommonMediaType implements Supplier<String> {
 	TEXT_CSV("text/csv", true, "csv"), //
 	// application
 	APPLICATION_JSON("application/json", true, "json"), //
+	APPLICATION_ZIP("application/zip", false, "zip"), //
 	;
 
 	private final String type;
 	private final boolean textBased;
 	/** Default extension must be first. */
 	private final String[] extensions;
-
-	CommonMediaType(String type, String... extensions) {
-		this(type, false, extensions);
-	}
 
 	CommonMediaType(String type, boolean textBased, String... extensions) {
 		this.type = type;
