@@ -1,33 +1,54 @@
 package org.argeo.cms.http.server;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.argeo.cms.http.HttpHeader.CONTENT_TYPE;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.argeo.cms.http.CommonMediaType;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 
 /** Initial implementation. API will change. */
+// TODO Write from scratch a better, more optimized, and tested implementation
 class FormDataExtractor {
 
-	static List<MimePart> extractParts(HttpExchange httpExchange) {
-		Headers headers = httpExchange.getRequestHeaders();
-		String contentType = headers.getFirst("Content-Type");
-		if (contentType.startsWith("multipart/form-data")) {
+	static List<MimePart> extractParts(HttpExchange exchange) throws IOException {
+		Headers headers = exchange.getRequestHeaders();
+		String contentType = headers.getFirst(CONTENT_TYPE.get());
+
+//		try (BufferedReader in = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), UTF_8))) {
+//			String line = null;
+//			while ((line = in.readLine()) != null) {
+//				System.out.println(line);
+//			}
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+		if (contentType.startsWith(CommonMediaType.MULTIPART_FORM_DATA.get())) {
 			// found form data
 			String boundary = contentType.substring(contentType.indexOf("boundary=") + 9);
 			// as of rfc7578 - prepend "\r\n--"
 			byte[] boundaryBytes = ("\r\n--" + boundary).getBytes(UTF_8);
-			byte[] payload = getInputAsBinary(httpExchange.getRequestBody());
+			byte[] payload = getInputAsBinary(exchange.getRequestBody());
+
+			// Files.write(Paths.get("/home/mbaudier/tmp/payload.txt"), payload);
+
 			ArrayList<MimePart> list = new ArrayList<>();
 
 			List<Integer> offsets = searchBytes(payload, boundaryBytes, 0, payload.length - 1);
+
+			// HACK, since it doesn't find the first one
+			offsets.add(0, 0);
+
 			for (int idx = 0; idx < offsets.size(); idx++) {
 				int startPart = offsets.get(idx);
 				int endPart = payload.length;
@@ -35,12 +56,13 @@ class FormDataExtractor {
 					endPart = offsets.get(idx + 1);
 				}
 				byte[] part = Arrays.copyOfRange(payload, startPart, endPart);
+//				System.out.print("PART|\n" + new String(part, UTF_8) + "\n|\n");
 				// look for header
 				int headerEnd = indexOf(part, "\r\n\r\n".getBytes(UTF_8), 0, part.length - 1);
 				if (headerEnd > 0) {
 					MimePart p = new MimePart();
 					byte[] head = Arrays.copyOfRange(part, 0, headerEnd);
-					String header = new String(head);
+					String header = new String(head, UTF_8);
 					// extract name from header
 					int nameIndex = header.indexOf("\r\nContent-Disposition: form-data; name=");
 					if (nameIndex >= 0) {
@@ -83,7 +105,10 @@ class FormDataExtractor {
 //						p.value = new String(body);
 //					} else {
 //						// must be a file upload
-					p.bytes = Arrays.copyOfRange(part, headerEnd + 4, part.length);
+//					p.bytes = Arrays.copyOfRange(part, headerEnd + 4, part.length);
+					// if (p.submittedFileName == null) {
+					System.out.print("BODY|\n" + new String(p.bytes, UTF_8) + "\n|\n");
+					// }
 //					}
 					list.add(p);
 				}
@@ -94,9 +119,8 @@ class FormDataExtractor {
 		}
 	}
 
-	private static byte[] getInputAsBinary(InputStream requestStream) {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		try {
+	private static byte[] getInputAsBinary(InputStream requestStream) throws IOException {
+		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 			byte[] buf = new byte[100000];
 			int bytesRead = 0;
 			while ((bytesRead = requestStream.read(buf)) != -1) {
@@ -106,12 +130,8 @@ class FormDataExtractor {
 			}
 			requestStream.close();
 			bos.close();
-		} catch (IOException e) {
-//			Logger log = Logger.getLogger(MultiPartFormDataExtractor.class.getName());
-//			log.log(Level.SEVERE, "error while decoding http input stream", e);
-			throw new UncheckedIOException(e);
+			return bos.toByteArray();
 		}
-		return bos.toByteArray();
 	}
 
 	/**

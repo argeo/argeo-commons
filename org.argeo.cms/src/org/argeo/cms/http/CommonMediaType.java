@@ -1,7 +1,5 @@
 package org.argeo.cms.http;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.function.Supplier;
 
@@ -19,6 +17,11 @@ public enum CommonMediaType implements Supplier<String> {
 	// application
 	APPLICATION_JSON("application/json", true, "json"), //
 	APPLICATION_ZIP("application/zip", false, "zip"), //
+	// image
+	IMAGE_JPEG("image/jpeg", false, "jpeg", "jpg"), //
+	IMAGE_PNG("image/png", false, "png"), //
+	// multipart
+	MULTIPART_FORM_DATA("multipart/form-data", false), //
 	;
 
 	private final String type;
@@ -54,21 +57,21 @@ public enum CommonMediaType implements Supplier<String> {
 			return null;
 	}
 
-	@Deprecated
-	public String toHttpContentType(Charset charset) {
-		if (charset == null)
-			return type;
-		return type + "; charset=" + charset.name();
-	}
-
-	@Deprecated
-	public String toHttpContentType() {
-		if (type.startsWith("text/")) {
-			return toHttpContentType(StandardCharsets.UTF_8);
-		} else {
-			return type;
-		}
-	}
+//	@Deprecated
+//	public String toHttpContentType(Charset charset) {
+//		if (charset == null)
+//			return type;
+//		return type + "; charset=" + charset.name();
+//	}
+//
+//	@Deprecated
+//	public String toHttpContentType() {
+//		if (type.startsWith("text/")) {
+//			return toHttpContentType(StandardCharsets.UTF_8);
+//		} else {
+//			return type;
+//		}
+//	}
 
 	public boolean isTextBased() {
 		return textBased;

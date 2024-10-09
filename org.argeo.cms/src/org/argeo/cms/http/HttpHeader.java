@@ -1,5 +1,8 @@
 package org.argeo.cms.http;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 /** Selection of standard or common HTTP headers (including WebDav). */
@@ -23,6 +26,13 @@ public enum HttpHeader implements Supplier<String> {
 	CONTENT_TYPE("Content-Type"), //
 	CONTENT_LENGTH("Content-Length"), //
 	CONTENT_DISPOSITION("Content-Disposition"), //
+	/**
+	 * Date the message was sent.
+	 * 
+	 * @see <a href=
+	 *      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Date">MDN
+	 *      WebDocs</a>
+	 */
 	DATE("Date"), //
 
 	// WebDav
@@ -45,6 +55,12 @@ public enum HttpHeader implements Supplier<String> {
 	// Content-Type related constants
 	public final static String CHARSET = "charset";
 	public final static String BOUNDARY = "charset";
+
+	// Date related utilities
+	/** {@link DateTimeFormatter} for the {@link #DATE} header value. */
+
+	public final static DateTimeFormatter HTTP_HEADER_DATE_FORMATTER = DateTimeFormatter
+			.ofPattern("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH).withZone(ZoneId.of("GMT"));
 
 	private final String headerName;
 

@@ -3,12 +3,15 @@ package org.argeo.cms.http.server;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.argeo.cms.http.HttpHeader.CONTENT_TYPE;
 import static org.argeo.cms.http.HttpHeader.DATE;
+import static org.argeo.cms.http.HttpHeader.HTTP_HEADER_DATE_FORMATTER;
 import static org.argeo.cms.http.HttpHeader.VIA;
 import static org.argeo.cms.http.HttpHeader.X_FORWARDED_HOST;
+import static org.argeo.cms.http.HttpStatus.OK;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
@@ -16,6 +19,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -166,11 +170,11 @@ public class HttpServerUtils {
 
 	/** Set date header to the current time. */
 	public static void setDateHeader(HttpExchange exchange) {
-		setDateHeader(exchange, System.currentTimeMillis());
+		setDateHeader(exchange, Instant.now());
 	}
 
-	public static void setDateHeader(HttpExchange exchange, long epoch) {
-		exchange.getResponseHeaders().set(DATE.get(), Long.toString(epoch));
+	public static void setDateHeader(HttpExchange exchange, Instant instant) {
+		exchange.getResponseHeaders().set(DATE.get(), HTTP_HEADER_DATE_FORMATTER.format(instant));
 	}
 
 	/*
@@ -188,6 +192,30 @@ public class HttpServerUtils {
 	/*
 	 * STREAMS
 	 */
+	/**
+	 * Convenience method to send the response headers (via
+	 * {@link HttpExchange#sendResponseHeaders(int, long)}) with status code
+	 * {@link HttpStatus#OK} and write a chunked response body as an
+	 * {@link OutputStream}. Typically to used in at the start of a <code>try</code>
+	 * clause. All response headers must have bee set before calling this method.
+	 */
+	public static OutputStream sendResponse(HttpExchange exchange) throws IOException {
+		exchange.sendResponseHeaders(OK.get(), 0);
+		return exchange.getResponseBody();
+	}
+
+	/**
+	 * Convenience method to send the response headers (via
+	 * {@link HttpExchange#sendResponseHeaders(int, long)}) with status code
+	 * {@link HttpStatus#OK} and write a chunked response body as an UTF-8 encoded
+	 * {@link Writer}. Typically to used in at the start of a <code>try</code>
+	 * clause. All response headers must have bee set before calling this method.
+	 */
+	public static Writer sendResponseAsWriter(HttpExchange exchange) throws IOException {
+		exchange.sendResponseHeaders(OK.get(), 0);
+		return getResponseWriter(exchange, UTF_8);
+	}
+
 	/** The response body as an UTF-8 {@link Writer}. */
 	public static Writer getResponseWriter(HttpExchange exchange) {
 		return getResponseWriter(exchange, UTF_8);
@@ -258,7 +286,7 @@ public class HttpServerUtils {
 	/*
 	 * MULTIPART
 	 */
-	public static Iterable<MimePart> extractFormData(HttpExchange exchange) {
+	public static Iterable<MimePart> extractFormData(HttpExchange exchange) throws IOException {
 		return FormDataExtractor.extractParts(exchange);
 	}
 
