@@ -8,15 +8,20 @@ import java.util.function.Supplier;
  * files-based applications but
  * {@link Files#probeContentType(java.nio.file.Path)} should be considered in
  * such cases.
+ * 
+ * @see <a href=
+ *      "https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types">MDN
+ *      Web Docs</a>
  */
 public enum CommonMediaType implements Supplier<String> {
 	// text
 	TEXT_PLAIN("text/plain", true, "txt"), //
-	TEXT_XML("text/xml", true, "xml"), //
 	TEXT_CSV("text/csv", true, "csv"), //
 	// application
+	APPLICATION_XML("application/xml", true, "xml"), //
 	APPLICATION_JSON("application/json", true, "json"), //
 	APPLICATION_ZIP("application/zip", false, "zip"), //
+	APPLICATION_PDF("application/pdf", false, "pdf"), //
 	// image
 	IMAGE_JPEG("image/jpeg", false, "jpeg", "jpg"), //
 	IMAGE_PNG("image/png", false, "png"), //
