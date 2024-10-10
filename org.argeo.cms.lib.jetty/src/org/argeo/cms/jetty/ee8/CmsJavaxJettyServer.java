@@ -72,10 +72,10 @@ public class CmsJavaxJettyServer extends JettyHttpServer {
 //		return serverContainer.join();
 //	}
 
-	@Override
-	protected void configureRootHandler(Handler servletContextHandler) {
-		addServlets(rootContextHandler);
-	}
+//	@Override
+//	protected void configureRootHandler(Handler servletContextHandler) {
+//		addServlets(rootContextHandler);
+//	}
 
 	/*
 	 * WEB SOCKET

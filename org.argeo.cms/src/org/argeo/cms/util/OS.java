@@ -38,6 +38,25 @@ public class OS {
 		return File.separatorChar == '\\';
 	}
 
+	public Path getSystemRoot() {
+		if (isMSWindows()) {
+			// TODO test it on MS Windows
+			String systemDriveEnv = System.getenv("SystemDrive");
+			Path systemRoot = null;
+			for (File root : File.listRoots()) {
+				if (root.getName().equals(systemDriveEnv)) {
+					systemRoot = root.toPath();
+					break;
+				}
+			}
+			if (systemRoot == null)
+				throw new IllegalStateException("Cannot find a system root");
+			return systemRoot;
+		} else {
+			return Paths.get("/");
+		}
+	}
+
 	public String[] getDefaultShellCommand() {
 		if (!isMSWindows())
 			return new String[] { "/bin/bash", "-l", "-i" };

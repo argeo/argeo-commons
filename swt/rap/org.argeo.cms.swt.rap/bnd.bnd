@@ -3,7 +3,7 @@ org.argeo.api.acr,\
 org.eclipse.swt,\
 org.argeo.eclipse.ui,\
 org.eclipse.swt.graphics,\
-javax.servlet.*;version="[3,5)",\
+org.eclipse.jetty.server.handler,\
 *
 
 Service-Component: OSGI-INF/cmsWebAppFactory.xml

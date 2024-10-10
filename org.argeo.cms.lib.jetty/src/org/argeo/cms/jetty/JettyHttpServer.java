@@ -2,6 +2,7 @@ package org.argeo.cms.jetty;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
@@ -35,6 +36,7 @@ import org.eclipse.jetty.server.handler.PathMappingsHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
 import org.eclipse.jetty.session.HouseKeeper;
+import org.eclipse.jetty.session.SessionIdManager;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.resource.Resources;
@@ -49,8 +51,6 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
-
-import jakarta.websocket.server.ServerContainer;
 
 /** An {@link HttpServer} implementation based on Jetty. */
 public class JettyHttpServer extends HttpsServer {
@@ -74,6 +74,7 @@ public class JettyHttpServer extends HttpsServer {
 	// We have to track contexts in order to honour the removeContext() API
 	private final Map<String, AbstractJettyHttpContext> contexts = new TreeMap<>();
 
+	private SessionIdManager sessionIdManager;
 	private Handler rootHandler;
 //	protected final ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection(true);
 	private PathMappingsHandler pathMappingsHandler = new PathMappingsHandler(true);
@@ -86,11 +87,15 @@ public class JettyHttpServer extends HttpsServer {
 
 	@Override
 	public void bind(InetSocketAddress addr, int backlog) throws IOException {
+		// TODO implement multiple connectors
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public void start() {
+		if (cmsState == null) {
+			log.warn("No CMS state is configured, make sure to configure via ystem properties.");
+		}
 		String httpPortStr = getDeployProperty(CmsDeployProperty.HTTP_PORT);
 		String httpsPortStr = getDeployProperty(CmsDeployProperty.HTTPS_PORT);
 		if (httpPortStr != null && httpsPortStr != null)
@@ -119,6 +124,7 @@ public class JettyHttpServer extends HttpsServer {
 			// TODO deal with clustering
 			// idMgr.setWorkerName("server7");
 			server.addBean(idMgr, true);
+			sessionIdManager = idMgr;
 
 			HouseKeeper houseKeeper = new HouseKeeper();
 			houseKeeper.setSessionIdManager(idMgr);
@@ -140,8 +146,8 @@ public class JettyHttpServer extends HttpsServer {
 			// root handler
 			rootHandler = createRootHandler();
 			// httpContext.addServlet(holder, "/*");
-			if (rootHandler != null)
-				configureRootHandler(rootHandler);
+//			if (rootHandler != null)
+//				configureRootHandler(rootHandler);
 
 //			if (rootHandler != null && !contexts.containsKey("/"))
 //				contextHandlerCollection.addHandler(rootHandler);
@@ -157,7 +163,9 @@ public class JettyHttpServer extends HttpsServer {
 				pathMappingsHandler.addMapping(PathSpec.from("/"), rootHandler);
 			} else {
 				ResourceFactory resourceFactory = ResourceFactory.of(server);
-				Resource rootResourceDir = resourceFactory.newClassLoaderResource("/static-root/");
+//				Resource rootResourceDir = resourceFactory.newClassLoaderResource("/static-root/");
+				Resource rootResourceDir = resourceFactory.newResource(Paths.get("/var/www/html"));
+
 				if (!Resources.isReadableDirectory(rootResourceDir))
 					throw new IllegalStateException("Unable to find root resource");
 
@@ -244,6 +252,7 @@ public class JettyHttpServer extends HttpsServer {
 				SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
 				// sslContextFactory.setKeyStore(KeyS)
 
+				// FIXME check values and warn/fail when mandatory ones are not set
 				sslContextFactory.setKeyStoreType(getDeployProperty(CmsDeployProperty.SSL_KEYSTORETYPE));
 				sslContextFactory.setKeyStorePath(getDeployProperty(CmsDeployProperty.SSL_KEYSTORE));
 				sslContextFactory.setKeyStorePassword(getDeployProperty(CmsDeployProperty.SSL_PASSWORD));
@@ -270,29 +279,35 @@ public class JettyHttpServer extends HttpsServer {
 				// https://jetty.org/docs/jetty/12/programming-guide/server/http.html#connector-protocol-http2-tls
 				// HTTP/1.1
 				HttpConnectionFactory http11 = new HttpConnectionFactory(httpsConfiguration);
-				// HTTP/2 over TLS (h2)
-				HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpsConfiguration);
-				// ALPN protocol for security negotiation
-				ALPNServerConnectionFactory alpn;
-				// BEGIN HACK
-				// we make sure that the proper class loader is used to load the processor
-				// implementation
-				ClassLoader currentContextCL = Thread.currentThread().getContextClassLoader();
-				try {
-					Thread.currentThread().setContextClassLoader(JDK9ServerALPNProcessor.class.getClassLoader());
-					alpn = new ALPNServerConnectionFactory();
-				} finally {
-					Thread.currentThread().setContextClassLoader(currentContextCL);
+				boolean http2 = true;
+				if (http2) {
+					// HTTP/2 over TLS (h2)
+					HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(httpsConfiguration);
+					// ALPN protocol for security negotiation
+					ALPNServerConnectionFactory alpn = null;
+					// BEGIN HACK
+					// we make sure that the proper class loader is used to load the processor
+					// implementation
+					ClassLoader currentContextCL = Thread.currentThread().getContextClassLoader();
+					try {
+						Thread.currentThread().setContextClassLoader(JDK9ServerALPNProcessor.class.getClassLoader());
+						alpn = new ALPNServerConnectionFactory();
+					} finally {
+						Thread.currentThread().setContextClassLoader(currentContextCL);
+					}
+					// END HACK
+
+					// The default protocol to use in case there is no negotiation.
+					alpn.setDefaultProtocol(http11.getProtocol());
+
+					SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
+
+					// HTTPS connector
+					httpsConnector = new ServerConnector(server, tls, alpn, h2, http11);
+				} else {
+					SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, "http/1.1");
+					httpsConnector = new ServerConnector(server, tls, http11);
 				}
-				// END HACK
-
-				// The default protocol to use in case there is no negotiation.
-				alpn.setDefaultProtocol(http11.getProtocol());
-
-				SslConnectionFactory tls = new SslConnectionFactory(sslContextFactory, alpn.getProtocol());
-
-				// HTTPS connector
-				httpsConnector = new ServerConnector(server, tls, alpn, h2, http11);
 				int httpsPort = Integer.parseInt(httpsPortStr);
 				httpsConnector.setPort(httpsPort);
 				httpsConnector.setHost(httpHost);
@@ -454,12 +469,12 @@ public class JettyHttpServer extends HttpsServer {
 	}
 
 	protected Handler createRootHandler() {
-		return null;
+		return new DefaultHandler(false, false);
 	}
 
-	protected void configureRootHandler(Handler jettyHandler) {
-
-	}
+//	protected void configureRootHandler(Handler jettyHandler) {
+//
+//	}
 
 	// TODO protect it?
 	public Handler getRootHandler() {
@@ -474,17 +489,24 @@ public class JettyHttpServer extends HttpsServer {
 		return started;
 	}
 
-	// TODO protect it?
-	public ServerContainer getRootServerContainer() {
-		throw new UnsupportedOperationException();
-	}
+//	public ServerContainer getRootServerContainer() {
+//		throw new UnsupportedOperationException();
+//	}
 
 	public Server getServer() {
 		return server;
 	}
 
+	protected PathMappingsHandler getPathMappingsHandler() {
+		return pathMappingsHandler;
+	}
+
 	public WebSocketUpgradeHandler getWebSocketUpgradeHandler() {
 		return webSocketUpgradeHandler;
+	}
+
+	protected SessionIdManager getSessionIdManager() {
+		return sessionIdManager;
 	}
 
 	static {

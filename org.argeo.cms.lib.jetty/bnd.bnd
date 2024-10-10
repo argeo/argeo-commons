@@ -4,3 +4,6 @@ org.eclipse.jetty.server.handler,\
 org.eclipse.jetty.util,\
 org.eclipse.jetty.util.component,\
 *
+
+Service-Component: \
+OSGI-INF/httpServer.xml,\

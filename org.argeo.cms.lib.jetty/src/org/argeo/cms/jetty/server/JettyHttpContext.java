@@ -32,6 +32,9 @@ public class JettyHttpContext extends AbstractJettyHttpContext {
 		ContextHandler contextHandler = new ContextHandler();
 		SessionHandler sessionHandler = new SessionHandler();
 		contextHandler.setHandler(sessionHandler);
+		// TODO setting paths messes up with sessions
+//		contextHandler.setContextPath(path);
+//		sessionHandler.setSessionPath("/");
 		HttpContextJettyHandler httpContextJettyHandler = new HttpContextJettyHandler(this);
 		sessionHandler.setHandler(httpContextJettyHandler);
 		attributes = new ContextHandlerAttributes(contextHandler);

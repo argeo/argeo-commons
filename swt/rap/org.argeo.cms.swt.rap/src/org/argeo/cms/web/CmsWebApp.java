@@ -1,7 +1,10 @@
 package org.argeo.cms.web;
 
+import static org.argeo.cms.web.osgi.RapOsgiConstants.HTTP_SERVICE_ENDPOINT;
+
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,7 +15,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.ux.CmsTheme;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.util.LangUtils;
+import org.argeo.cms.web.osgi.RapOsgiConstants;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.Application.OperationMode;
@@ -105,20 +108,17 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 				CmsWebEntryPoint entryPoint = new CmsWebEntryPoint(this, uiName);
 				return entryPoint;
 			}, properties);
-			if (log.isDebugEnabled())
-				log.debug("Added web entry point " + (contextName != null ? "/" + contextName : "") + entryPointName);
+			log.debug(() -> "Added web entry point " + (contextName != null ? "/" + contextName : "") + entryPointName);
 		}
-//		if (log.isDebugEnabled())
-//			log.debug("Published CMS web app /" + (contextName != null ? contextName : ""));
 	}
 
 	public CmsApp getCmsApp() {
 		return cmsApp;
 	}
 
-	BundleContext getBundleContext() {
-		return bundleContext;
-	}
+//	BundleContext getBundleContext() {
+//		return bundleContext;
+//	}
 
 	public void setCmsApp(CmsApp cmsApp) {
 		this.cmsApp = cmsApp;
@@ -145,13 +145,17 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 	}
 
 	protected void publishWebApp() {
-		Dictionary<String, Object> regProps = LangUtils.dict(CONTEXT_NAME, contextName);
-		//regProps.put("httpService.target", "(osgi.http.endpoint=/cms/user)");
+//		Dictionary<String, Object> regProps = LangUtils.dict(CONTEXT_NAME, contextName);
+		Dictionary<String, Object> regProps = new Hashtable<>();
+		// RAP OSGi matching (see org.eclipse.rap.rwt.osgi.internal.Matcher)
+		// We over-do it, as only one of the two criteria would be enough.
+		regProps.put(HTTP_SERVICE_ENDPOINT, "/" + contextName);
+		regProps.put(RapOsgiConstants.HTTP_SERVICE_TARGET, "(" + HTTP_SERVICE_ENDPOINT + "=/" + contextName + ")");
 		if (rwtAppReg != null)
 			rwtAppReg.unregister();
 		if (bundleContext != null) {
 			rwtAppReg = bundleContext.registerService(ApplicationConfiguration.class, this, regProps);
-			log.info("Publishing CMS web app /" + (contextName != null ? contextName : "") + " ...");
+			log.info("Published CMS web app /" + (contextName != null ? contextName : ""));
 		}
 	}
 

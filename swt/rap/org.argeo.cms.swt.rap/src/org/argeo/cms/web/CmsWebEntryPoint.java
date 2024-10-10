@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** The {@link CmsView} for a {@link CmsWebApp}. */
 @SuppressWarnings("restriction")
-public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView, BrowserNavigationListener {
+class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView, BrowserNavigationListener {
 	private static final long serialVersionUID = 7733510691684570402L;
 	private final static CmsLog log = CmsLog.getLog(CmsWebEntryPoint.class);
 

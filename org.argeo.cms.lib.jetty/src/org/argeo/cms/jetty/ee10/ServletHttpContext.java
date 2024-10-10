@@ -40,17 +40,17 @@ public class ServletHttpContext extends AbstractJettyHttpContext {
 		super.setHandler(handler);
 
 		// web socket
-		if (handler instanceof WebsocketEndpoints) {
-			ServerContainer serverContainer = getJettyHttpServer().getRootServerContainer();
-			for (Class<?> clss : ((WebsocketEndpoints) handler).getEndPoints()) {
-				try {
-					serverContainer.addEndpoint(clss);
-					log.debug(() -> "Added web socket " + clss + " to " + getPath());
-				} catch (DeploymentException e) {
-					log.error("Cannot deploy Web Socket " + clss, e);
-				}
-			}
-		}
+//		if (handler instanceof WebsocketEndpoints) {
+//			ServerContainer serverContainer = getJettyHttpServer().getRootServerContainer();
+//			for (Class<?> clss : ((WebsocketEndpoints) handler).getEndPoints()) {
+//				try {
+//					serverContainer.addEndpoint(clss);
+//					log.debug(() -> "Added web socket " + clss + " to " + getPath());
+//				} catch (DeploymentException e) {
+//					log.error("Cannot deploy Web Socket " + clss, e);
+//				}
+//			}
+//		}
 	}
 
 	@Override
