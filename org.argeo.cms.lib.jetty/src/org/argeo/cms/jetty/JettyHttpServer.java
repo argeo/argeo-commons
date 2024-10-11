@@ -3,10 +3,13 @@ package org.argeo.cms.jetty;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
+
+import javax.net.ssl.SSLContext;
 
 import org.argeo.api.cms.CmsLog;
 import org.argeo.cms.http.server.HttpServerUtils;
@@ -224,12 +227,17 @@ public class JettyHttpServer extends HttpsServer implements JettyServer {
 
 		if (httpsEnabled) {
 			SslContextFactory.Server sslContextFactory = newSslContextFactory();
+
+			// FIXME integrate properly with Jetty
 			if (httpsConfigurator == null) {
 				// we make sure that an HttpSConfigurator is set, so that clients can detect
 				// whether this server is HTTP or HTTPS
-				httpsConfigurator = new HttpsConfigurator(sslContextFactory.getSslContext());
+				try {
+					httpsConfigurator = new HttpsConfigurator(SSLContext.getDefault());
+				} catch (NoSuchAlgorithmException e) {
+					log.error("Cannot initialize hTTPS configurator", e);
+				}
 			} else {
-				// FIXME integrate properly with Jetty
 			}
 
 			// HTTPS Configuration
