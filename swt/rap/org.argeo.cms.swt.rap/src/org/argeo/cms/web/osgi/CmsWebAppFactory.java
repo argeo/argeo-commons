@@ -13,17 +13,13 @@ import org.argeo.api.cms.CmsEventBus;
 import org.argeo.cms.web.CmsWebApp;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.servlet.SessionHandler;
 import org.eclipse.rap.http.servlet.HttpServiceServlet;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.osgi.framework.BundleContext;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpSessionIdListener;
-
 /** Publish a CmsApp as a RAP application. */
 public class CmsWebAppFactory {
-	private final static int DEFAULT_MAX_INACTIVE_INTERVAL = 24 * 60 * 60;
+//	private final static int DEFAULT_MAX_INACTIVE_INTERVAL = 24 * 60 * 60;
 
 	private BundleContext bundleContext; // = FrameworkUtil.getBundle(CmsWebAppFactory.class).getBundleContext();
 	private final static String CONTEXT_NAME = "contextName";

@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.jetty.ee10.CmsJettyServer;
+import org.argeo.cms.jetty.ee.CmsEeJettyServer;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.ee10.servlet.SessionHandler;
@@ -21,8 +21,8 @@ import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionIdListener;
 import jakarta.servlet.http.HttpSessionListener;
 
-/** A {@link CmsJettyServer} integrating with Equinox HTTP framework. */
-public class EquinoxJettyServer extends CmsJettyServer {
+/** A {@link CmsEeJettyServer} integrating with Equinox HTTP framework. */
+public class EquinoxJettyServer extends CmsEeJettyServer {
 	private final static CmsLog log = CmsLog.getLog(EquinoxJettyServer.class);
 	private static final String INTERNAL_CONTEXT_CLASSLOADER = "org.eclipse.equinox.http.jetty.internal.ContextClassLoader";
 

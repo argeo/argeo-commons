@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.4.0" activate="start" deactivate="stop" name="org.argeo.cms.lib.jetty.httpServer">
-   <implementation class="org.argeo.cms.jetty.ee10.CmsJettyServer"/>
+   <implementation class="org.argeo.cms.jetty.ee.CmsEeJettyServer"/>
    <service>
       <provide interface="com.sun.net.httpserver.HttpServer"/>
       <provide interface="com.sun.net.httpserver.HttpsServer"/>
       <provide interface="org.argeo.cms.jetty.JettyHttpServer"/>
    </service>
    <reference bind="setCmsState" cardinality="1..1" interface="org.argeo.api.cms.CmsState" name="CmsState" policy="static"/>
-   <reference bind="addJakartaServletContextHandler" cardinality="0..n" interface="org.eclipse.jetty.ee10.servlet.ServletContextHandler" name="ServletContextHandler" policy="dynamic" unbind="removeJakartaServletContextHandler"/>
+   <reference bind="addJakartaServletContextHandler" cardinality="0..n" interface="org.eclipse.jetty.ee10.servlet.ServletContextHandler" name="JakartaServletContextHandler" policy="dynamic" unbind="removeJakartaServletContextHandler"/>
+   <reference bind="addJavaxServletContextHandler" cardinality="0..n" interface="org.eclipse.jetty.ee8.servlet.ServletContextHandler" name="JavaxServletContextHandler" policy="dynamic" unbind="removeJavaxServletContextHandler"/>
 </scr:component>
