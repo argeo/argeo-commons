@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" name="org.argeo.cms.lib.equinox">
-   <implementation class="org.argeo.cms.jetty.websocket.JettyServerWebSocketFactory"/>
-   <reference bind="setJettyHttpServer" cardinality="1..1" interface="org.argeo.cms.jetty.JettyHttpServer" name="JettyHttpServer" policy="static"/>
-   <reference bind="addWebSocket" cardinality="0..n" interface="java.net.http.WebSocket$Listener" unbind="removeWebSocket" policy="dynamic"/>
-</scr:component>

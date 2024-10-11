@@ -1,9 +1,0 @@
-Service-Component: \
-OSGI-INF/equinoxJettyServer.xml,\
-OSGI-INF/jettyServerWebSocketFactory.xml,\
-
-Import-Package:\
-org.eclipse.jetty.session,\
-org.eclipse.jetty.server,\
-org.argeo.cms.jetty.websocket,\
-*

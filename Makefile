@@ -17,7 +17,6 @@ org.argeo.cms.lib.dbus \
 org.argeo.cms.lib.sshd \
 org.argeo.cms.ee \
 org.argeo.cms.cli \
-osgi/equinox/org.argeo.cms.lib.equinox \
 swt/org.argeo.swt.minidesktop \
 swt/org.argeo.cms.swt \
 swt/rap/org.argeo.swt.specific.rap \
