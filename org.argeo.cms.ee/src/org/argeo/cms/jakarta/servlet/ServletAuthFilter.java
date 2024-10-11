@@ -1,14 +1,9 @@
-package org.argeo.cms.javax.servlet;
+package org.argeo.cms.jakarta.servlet;
 
 import java.io.IOException;
 
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.argeo.api.cms.CmsAuth;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
@@ -16,14 +11,19 @@ import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthUtils;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpFilter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 /**
- * Authenticating filter degrading to anonymous if the the session is not
+ * Default servlet context degrading to anonymous if the the session is not
  * pre-authenticated.
  */
-public class JavaxAuthFilter extends HttpFilter {
+public class ServletAuthFilter extends HttpFilter {
 
-	private static final long serialVersionUID = -7536266717807144843L;
-
+	private static final long serialVersionUID = 8916866306520391671L;
 	private String httpAuthRealm = "Argeo";
 	private boolean forceBasic = false;
 	private boolean authRequired = true;
@@ -31,11 +31,11 @@ public class JavaxAuthFilter extends HttpFilter {
 	@Override
 	protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		RemoteAuthRequest remoteAuthRequest = new JavaxServletHttpRequest(request);
-		RemoteAuthResponse remoteAuthResponse = new JavaxServletHttpResponse(response);
+		RemoteAuthRequest remoteAuthRequest = new ServletHttpRequest(request);
+		RemoteAuthResponse remoteAuthResponse = new ServletHttpResponse(response);
 		// TODO factorize
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(JavaxAuthFilter.class.getClassLoader());
+		Thread.currentThread().setContextClassLoader(ServletAuthFilter.class.getClassLoader());
 		LoginContext lc;
 		try {
 			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthRequest, remoteAuthResponse));
@@ -71,6 +71,5 @@ public class JavaxAuthFilter extends HttpFilter {
 	public void setAuthRequired(boolean authRequired) {
 		this.authRequired = authRequired;
 	}
-	
-	
+
 }

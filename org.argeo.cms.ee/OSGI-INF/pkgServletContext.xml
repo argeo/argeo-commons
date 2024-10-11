@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="init" deactivate="destroy" name="org.argeo.cms.pkgServletContext">
-   <implementation class="org.argeo.cms.jakarta.servlet.CmsServletContext"/>
-   <service>
-      <provide interface="org.eclipse.rap.service.http.HttpContext"/>
-   </service>
-   <property name="osgi.http.whiteboard.context.name" type="String" value="pkgServletContext"/>
-   <property name="osgi.http.whiteboard.context.path" type="String" value="/pkg"/>
-</scr:component>

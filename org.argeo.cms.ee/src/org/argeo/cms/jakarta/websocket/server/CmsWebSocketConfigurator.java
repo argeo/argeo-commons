@@ -18,7 +18,7 @@ import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthSession;
 import org.argeo.cms.auth.RemoteAuthUtils;
-import org.argeo.cms.jakarta.servlet.CmsServletContext;
+import org.argeo.cms.jakarta.servlet.ServletAuthFilter;
 
 /**
  * <strong>Disabled until third party issues are solved.</strong>. Customises
@@ -81,7 +81,7 @@ public class CmsWebSocketConfigurator extends Configurator {
 //			rejectResponse(response, null);
 //		}
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(CmsServletContext.class.getClassLoader());
+		Thread.currentThread().setContextClassLoader(ServletAuthFilter.class.getClassLoader());
 		LoginContext lc;
 		try {
 			lc = CmsAuth.USER.newLoginContext(new RemoteAuthCallbackHandler(remoteAuthRequest, remoteAuthResponse));

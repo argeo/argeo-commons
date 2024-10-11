@@ -32,7 +32,7 @@ public class ServletUtils {
 	 */
 	public static StringBuilder getRequestUrlBase(HttpServletRequest req, boolean forceReverseProxyHttps) {
 		List<String> viaHosts = new ArrayList<>();
-		for (Enumeration<String> it = req.getHeaders(VIA.getHeaderName()); it.hasMoreElements();) {
+		for (Enumeration<String> it = req.getHeaders(VIA.get()); it.hasMoreElements();) {
 			String[] arr = it.nextElement().split(" ");
 			viaHosts.add(arr[1]);
 		}
@@ -40,7 +40,7 @@ public class ServletUtils {
 		String outerHost = viaHosts.isEmpty() ? null : viaHosts.get(0);
 		if (outerHost == null) {
 			// Try non-standard header
-			String forwardedHost = req.getHeader(X_FORWARDED_HOST.getHeaderName());
+			String forwardedHost = req.getHeader(X_FORWARDED_HOST.get());
 			if (forwardedHost != null) {
 				String[] arr = forwardedHost.split(",");
 				outerHost = arr[0];

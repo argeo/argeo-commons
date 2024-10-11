@@ -70,8 +70,7 @@ public class PkgHttpHandler implements HttpHandler {
 
 		// content type
 		String contentType = fileNameMap.getContentTypeFor(file);
-		exchange.getResponseHeaders().put(HttpHeader.CONTENT_TYPE.getHeaderName(),
-				Collections.singletonList(contentType));
+		exchange.getResponseHeaders().put(HttpHeader.CONTENT_TYPE.get(), Collections.singletonList(contentType));
 //		resp.setContentType(contentType);
 
 		String filter;
@@ -93,7 +92,7 @@ public class PkgHttpHandler implements HttpHandler {
 		Collection<BundleCapability> packages = frameworkWiring.findProviders(requirement);
 		if (packages.isEmpty()) {
 //			resp.sendError(404);
-			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.getCode(), -1);
+			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.get(), -1);
 			return;
 		}
 
@@ -108,7 +107,7 @@ public class PkgHttpHandler implements HttpHandler {
 		URL internalURL = bundle.getResource(entryPath);
 		if (internalURL == null) {
 //			resp.sendError(404);
-			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.getCode(), -1);
+			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.get(), -1);
 			return;
 		}
 
@@ -147,12 +146,12 @@ public class PkgHttpHandler implements HttpHandler {
 
 		if (!publish) {
 //			resp.sendError(404);
-			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.getCode(), -1);
+			exchange.sendResponseHeaders(HttpStatus.NOT_FOUND.get(), -1);
 			return;
 		}
 
 		// TODO cache length?
-		exchange.sendResponseHeaders(HttpStatus.OK.getCode(), 0);
+		exchange.sendResponseHeaders(HttpStatus.OK.get(), 0);
 		try (InputStream in = internalURL.openStream(); //
 				OutputStream out = exchange.getResponseBody();) {
 //			StreamUtils.copy(in, resp.getOutputStream());
