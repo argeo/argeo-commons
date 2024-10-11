@@ -13,8 +13,8 @@ public abstract class AbstractJettyHttpContext extends AbstractCmsHttpContext {
 
 	protected abstract Handler getJettyHandler();
 
-	protected JettyHttpServer getJettyHttpServer() {
-		return (JettyHttpServer) getServer();
+	protected JettyServer getJettyHttpServer() {
+		return (JettyServer) getServer();
 	}
 
 }

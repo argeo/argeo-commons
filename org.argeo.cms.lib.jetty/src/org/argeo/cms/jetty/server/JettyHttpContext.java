@@ -43,7 +43,8 @@ public class JettyHttpContext extends AbstractJettyHttpContext {
 
 	@Override
 	protected Handler getJettyHandler() {
-		WebSocketUpgradeHandler webSocketUpgradeHandler = WebSocketUpgradeHandler.from(getJettyHttpServer().getServer(),
+		// TODO optimize
+		WebSocketUpgradeHandler webSocketUpgradeHandler = WebSocketUpgradeHandler.from(getJettyHttpServer().get(),
 				(container) -> {
 					container.addMapping(getPath(), new WebSocketCreator() {
 

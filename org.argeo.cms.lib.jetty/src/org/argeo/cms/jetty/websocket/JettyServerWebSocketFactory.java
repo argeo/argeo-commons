@@ -7,9 +7,8 @@ import java.util.Map;
 
 import org.argeo.api.cms.CmsConstants;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.jetty.JettyHttpServer;
+import org.argeo.cms.jetty.JettyServer;
 import org.eclipse.jetty.websocket.server.ServerWebSocketContainer;
-import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler;
 
 /** Adds WebSocket mapping to an existing Jetty server. */
 public class JettyServerWebSocketFactory {
@@ -17,12 +16,8 @@ public class JettyServerWebSocketFactory {
 
 	private ServerWebSocketContainer container;
 
-	public void setJettyHttpServer(JettyHttpServer jettyHttpServer) {
-		//ServletContextHandler contextHandler = (ServletContextHandler) jettyHttpServer.getRootHandler();
-		//container = ServerWebSocketContainer.ensure(jettyHttpServer.getServer(), contextHandler);
-		WebSocketUpgradeHandler webSocketUpgradeHandler = jettyHttpServer.getWebSocketUpgradeHandler();
-		container = webSocketUpgradeHandler.getServerWebSocketContainer();
-//		container = ServerWebSocketContainer.ensure(jettyHttpServer.getServer());
+	public void setJettyServer(JettyServer jettyServer) {
+		container = jettyServer.getServerWebSocketContainer();
 		log.debug("WebSocket support initalized");
 	}
 
@@ -53,9 +48,5 @@ public class JettyServerWebSocketFactory {
 			callback.succeeded();
 			return null;
 		});
-	}
-	
-	public static void main(String[] args) {
-		
 	}
 }

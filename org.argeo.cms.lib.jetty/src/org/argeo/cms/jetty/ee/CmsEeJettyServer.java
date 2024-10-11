@@ -76,7 +76,7 @@ public class CmsEeJettyServer extends CmsJettyServer {
 
 		getPathMappingsHandler().addMapping(PathSpec.from(contextPath + (!contextPath.endsWith("/") ? "/" : "") + "*"),
 				servletContextHandler);
-		if (getServer() != null && getServer().isStarted()) {
+		if (get() != null && get().isStarted()) {
 			// server is already started, handler has to be started explicitly
 			// but after mapping it otherwise implicit setServer fails.
 			try {
@@ -110,7 +110,7 @@ public class CmsEeJettyServer extends CmsJettyServer {
 
 		getPathMappingsHandler().addMapping(PathSpec.from(contextPath + (!contextPath.endsWith("/") ? "/" : "") + "*"),
 				servletContextHandler.get());
-		if (getServer() != null && getServer().isStarted()) {
+		if (get() != null && get().isStarted()) {
 			// server is already started, handler has to be started explicitly
 			// but after mapping it otherwise implicit setServer fails.
 			try {
