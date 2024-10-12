@@ -1,11 +1,13 @@
 package org.argeo.cms.util;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -32,8 +34,17 @@ public class ServiceChannel implements AsynchronousByteChannel {
 	@Override
 	public <A> void read(ByteBuffer dst, A attachment, CompletionHandler<Integer, ? super A> handler) {
 		try {
-			Future<Integer> res = read(dst);
-			handler.completed(res.get(), attachment);
+			CompletableFuture.supplyAsync(() -> {
+				try {
+					synchronized (dst) {
+						return in.read(dst);
+					}
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+			}, executor).thenAccept((i) -> handler.completed(i, attachment));
+//			Future<Integer> res = read(dst);
+//			handler.completed(res.get(), attachment);
 		} catch (Exception e) {
 			handler.failed(e, attachment);
 		}
@@ -47,8 +58,17 @@ public class ServiceChannel implements AsynchronousByteChannel {
 	@Override
 	public <A> void write(ByteBuffer src, A attachment, CompletionHandler<Integer, ? super A> handler) {
 		try {
-			Future<Integer> res = write(src);
-			handler.completed(res.get(), attachment);
+			CompletableFuture.supplyAsync(() -> {
+				try {
+					synchronized (src) {
+						return out.write(src);
+					}
+				} catch (IOException e) {
+					throw new UncheckedIOException(e);
+				}
+			}, executor).thenAccept((i) -> handler.completed(i, attachment));
+//			Future<Integer> res = write(src);
+//			handler.completed(res.get(), attachment);
 		} catch (Exception e) {
 			handler.failed(e, attachment);
 		}
