@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import sun.misc.Signal;
 
 /** A minimalistic Linux init process. */
-class SysInitMain {
+public class SysInitMain {
 	final static AtomicInteger runLevel = new AtomicInteger(-1);
 
 	private final static Logger logger = System.getLogger(SysInitMain.class.getName());
