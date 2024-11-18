@@ -8,7 +8,9 @@ import static java.lang.System.Logger.Level.WARNING;
 
 import java.io.Console;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -30,7 +32,7 @@ import sun.misc.Signal;
 public class SysInitMain {
 	final static AtomicInteger runLevel = new AtomicInteger(-1);
 
-	private final static Logger logger = System.getLogger(SysInitMain.class.getName());
+	private static Logger logger;
 
 	private final static List<String> initDServices = Collections.synchronizedList(new ArrayList<>());
 
@@ -92,21 +94,30 @@ public class SysInitMain {
 					}
 				}
 
-				logger.log(INFO, "FREEd Init daemon starting with pid " + pid + " after "
-						+ ManagementFactory.getRuntimeMXBean().getUptime() + " ms");
+//				logger.log(DEBUG, () -> "FREEd Init daemon starting with pid " + pid + " after "
+//						+ ManagementFactory.getRuntimeMXBean().getUptime() + " ms");
+
+				mountRootRw();
+				// Logging to file will not work until / has been remounted rw
+				// mount file systems
+				logger = System.getLogger(SysInitMain.class.getName());
+
+				// TODO mount all asynchronously in order to deal with network fs
+				mountAll();
+
 				// hostname
 				String hostname = Files.readString(Paths.get("/etc/hostname"));
-				new ProcessBuilder("/usr/bin/hostname", hostname).start();
-				logger.log(DEBUG, "Set hostname to " + hostname);
+				new ProcessBuilder("/bin/hostname", hostname).start();
+				logger.log(DEBUG, () -> "Set hostname to " + hostname);
+				
 				// networking
 				initSysctl();
 				startInitDService("networking", true);
-//				Thread.sleep(3000);// leave some time for network to start up
-				if (!waitForNetwork(10 * 1000))
+				if (!waitForNetwork(60 * 1000))
 					logger.log(ERROR, "No network available");
 
 				// OpenSSH
-				// TODO make it coherent with Java sshd
+				// TODO make it consistent with Java sshd
 				startInitDService("ssh", true);
 
 				// NSS services
@@ -128,18 +139,59 @@ public class SysInitMain {
 		}
 	}
 
+	static void mountRootRw() {
+		try {
+			// fsck if needed
+			// FIXME check why fsck -A makes the kernel crash
+//			Path forceFsck = Paths.get("/forcefsck");
+//			if (Files.exists(forceFsck)) {
+//				Process fsck = new ProcessBuilder("/sbin/fsck", "-A").start();
+//				logger.log(Level.INFO, "Start file system check...");
+//				int exitCode = fsck.waitFor();
+//				if (exitCode != 0)
+//					throw new IllegalStateException("fsck failed");
+//			}
+
+			{// mount root FS read-write
+				Process mountRootRw = new ProcessBuilder("/bin/mount", "-o", "rw,remount", "/").start();
+				int exitCode = mountRootRw.waitFor();
+				if (exitCode != 0)
+					throw new IllegalStateException("Cannot remount root filesystem read-write");
+			}
+			logger.log(Level.INFO, "File systems mounted");
+		} catch (IOException e) {
+			throw new UncheckedIOException("Cannot mount file systems", e);
+		} catch (InterruptedException e) {
+			logger.log(Level.ERROR, "Mounting file systems was interrupted");
+		}
+	}
+
+	static void mountAll() {
+		try {
+			Process mountAll = new ProcessBuilder("/bin/mount", "-a").start();
+			int exitCode = mountAll.waitFor();
+			if (exitCode != 0)
+				logger.log(Level.ERROR, "Cannot mount file systems");
+			logger.log(Level.INFO, "File systems mounted");
+		} catch (IOException e) {
+			throw new UncheckedIOException("Cannot mount file systems", e);
+		} catch (InterruptedException e) {
+			logger.log(Level.ERROR, "Mounting file systems was interrupted");
+		}
+	}
+
 	static void initSysctl() {
 		try {
 			Path sysctlD = Paths.get("/etc/sysctl.d/");
 			for (Path conf : Files.newDirectoryStream(sysctlD, "*.conf")) {
 				try {
-					new ProcessBuilder("/usr/sbin/sysctl", "-p", conf.toString()).start();
+					new ProcessBuilder("/sbin/sysctl", "-p", conf.toString()).start();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.log(Level.ERROR, "Cannot load sysctl " + conf);
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.log(Level.ERROR, "Cannot load sysctl");
 		}
 	}
 
@@ -151,7 +203,7 @@ public class SysInitMain {
 				if (exitCode != 0)
 					logger.log(ERROR, "Service " + serviceName + " dit not stop properly");
 				else
-					logger.log(DEBUG, "Service " + serviceName + " started");
+					logger.log(INFO, "Service " + serviceName + " started");
 				if (stopOnShutdown)
 					initDServices.add(serviceName);
 //					Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -290,7 +342,10 @@ public class SysInitMain {
 						pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
 						process = pb.start();
 					}
-					Runtime.getRuntime().addShutdownHook(new Thread(() -> process.destroy()));
+					Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+						if (process != null)
+							process.destroy();
+					}));
 					try {
 						process.waitFor();
 					} catch (InterruptedException e) {
