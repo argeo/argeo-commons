@@ -63,12 +63,7 @@ public class SysInitMain {
 				}
 				System.out.println("Single user mode");
 				System.out.flush();
-				ProcessBuilder pb = new ProcessBuilder("/bin/bash");
-				pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-				pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-				pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
-				Process singleUserShell = pb.start();
-				singleUserShell.waitFor();
+				singleUserShell();
 			} else {
 				if (args.length == 0)
 					runLevel.set(5);
@@ -76,6 +71,7 @@ public class SysInitMain {
 					runLevel.set(Integer.parseInt(args[0]));
 
 				if (runLevel.get() == 0) {// shutting down the whole system
+					initLogger();
 					if (!isSystemInit) {
 						logger.log(INFO, "Shutting down system...");
 						shutdown(false);
@@ -85,6 +81,7 @@ public class SysInitMain {
 						System.exit(1);
 					}
 				} else if (runLevel.get() == 6) {// reboot the whole system
+					initLogger();
 					if (!isSystemInit) {
 						logger.log(INFO, "Rebooting the system...");
 						shutdown(true);
@@ -100,7 +97,7 @@ public class SysInitMain {
 				mountRootRw();
 				// Logging to file will not work until / has been remounted rw
 				// mount file systems
-				logger = System.getLogger(SysInitMain.class.getName());
+				initLogger();
 
 				// TODO mount all asynchronously in order to deal with network fs
 				mountAll();
@@ -109,7 +106,7 @@ public class SysInitMain {
 				String hostname = Files.readString(Paths.get("/etc/hostname"));
 				new ProcessBuilder("/bin/hostname", hostname).start();
 				logger.log(DEBUG, () -> "Set hostname to " + hostname);
-				
+
 				// networking
 				initSysctl();
 				startInitDService("networking", true);
@@ -129,13 +126,26 @@ public class SysInitMain {
 				// init Argeo CMS
 				logger.log(INFO, "FREEd Init daemon starting Argeo Init after "
 						+ ManagementFactory.getRuntimeMXBean().getUptime() + " ms");
-				ServiceMain.main(args);
+				RuntimeManagerMain.main(args);
 			}
 		} catch (Throwable e) {
-			logger.log(ERROR, "Unexpected exception in free-pid1 init, shutting down... ", e);
+			if (logger != null)
+				logger.log(ERROR, "Unexpected exception in free-pid1 init, shutting down... ", e);
+			else
+				e.printStackTrace();
+			singleUserShell();
 			System.exit(1);
 		} finally {
 			stopInitDServices();
+		}
+
+		// TODO improve shutdown integration with Java
+		// shutdown gracefully as we have reached this stage via Java/OSGi closing down
+		shutdown(false);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// silent
 		}
 	}
 
@@ -158,11 +168,28 @@ public class SysInitMain {
 				if (exitCode != 0)
 					throw new IllegalStateException("Cannot remount root filesystem read-write");
 			}
-			logger.log(Level.INFO, "File systems mounted");
 		} catch (IOException e) {
 			throw new UncheckedIOException("Cannot mount file systems", e);
 		} catch (InterruptedException e) {
-			logger.log(Level.ERROR, "Mounting file systems was interrupted");
+			System.err.println("Mounting root file system read-write was interrupted");
+		}
+	}
+
+	static void initLogger() {
+		logger = System.getLogger(SysInitMain.class.getName());
+	}
+
+	static void singleUserShell() {
+		ProcessBuilder pb = new ProcessBuilder("/bin/bash");
+		pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+		pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+		pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+		try {
+			Process singleUserShell = pb.start();
+			singleUserShell.waitFor();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
@@ -276,6 +303,9 @@ public class SysInitMain {
 		try {
 			stopInitDServices();
 			Path sysrqP = Paths.get("/proc/sys/kernel/sysrq");
+			String current = Files.readString(sysrqP);
+			if ("1".equals(current))
+				return;// already shutting down
 			Files.writeString(sysrqP, "1");
 			Path sysrqTriggerP = Paths.get("/proc/sysrq-trigger");
 			Files.writeString(sysrqTriggerP, "e");// send SIGTERM to all processes
