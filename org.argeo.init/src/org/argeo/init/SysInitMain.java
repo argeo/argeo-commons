@@ -121,7 +121,8 @@ public class SysInitMain {
 				startInitDService("nslcd", false);// Note: nslcd fails to stop
 
 				// login prompt
-				ServiceMain.addPostStart(() -> new LoginThread().start());
+				//ServiceMain.addPostStart(() -> new LoginThread().start());
+				new LoginThread().start();
 
 				// init Argeo CMS
 				logger.log(INFO, "FREEd Init daemon starting Argeo Init after "
