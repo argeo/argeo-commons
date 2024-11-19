@@ -311,7 +311,7 @@ public class SysInitMain {
 			Path sysrqTriggerP = Paths.get("/proc/sysrq-trigger");
 			Files.writeString(sysrqTriggerP, "e");// send SIGTERM to all processes
 			// Files.writeString(sysrqTriggerP, "i");// send SIGKILL to all processes
-			Files.writeString(sysrqTriggerP, "e");// flush data to disk
+			Files.writeString(sysrqTriggerP, "s");// flush data to disk
 			Files.writeString(sysrqTriggerP, "u");// unmount
 			if (reboot)
 				Files.writeString(sysrqTriggerP, "b");
