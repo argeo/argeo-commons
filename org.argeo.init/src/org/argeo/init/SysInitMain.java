@@ -36,20 +36,30 @@ public class SysInitMain {
 
 	private final static List<String> initDServices = Collections.synchronizedList(new ArrayList<>());
 
+	private static Process xServer;
+
 	public static void main(String... args) {
 		try {
 			final long pid = ProcessHandle.current().pid();
+			// TODO find reference for PID 1 signal handling
 			Signal.handle(new Signal("TERM"), (signal) -> {
-				System.out.println("SIGTERM caught");
-				System.exit(0);
+				System.out.println("SIGTERM caught, doing nothing");
+				// TODO reload?
+				//System.exit(0);
 			});
 			Signal.handle(new Signal("INT"), (signal) -> {
-				System.out.println("SIGINT caught");
+				System.out.println("SIGINT caught, rebooting");
+				shutdown(true);
+				System.exit(0);
+			});
+			Signal.handle(new Signal("PWR"), (signal) -> {
+				System.out.println("SIGPWR caught, shutting down");
+				shutdown(false);
 				System.exit(0);
 			});
 			Signal.handle(new Signal("HUP"), (signal) -> {
-				System.out.println("SIGHUP caught");
-				System.exit(0);
+				System.out.println("SIGHUP caught, doing nothing");
+				//System.exit(0);
 			});
 
 			boolean isSystemInit = pid == 1 || pid == 2;
@@ -99,30 +109,54 @@ public class SysInitMain {
 				// mount file systems
 				initLogger();
 
+				// hostname
+				Path hostnameF = Paths.get("/etc/hostname");
+				if (Files.exists(hostnameF)) {
+					String hostname = Files.readString(hostnameF);
+					int exitCode = new ProcessBuilder("/bin/hostname", hostname).start().waitFor();
+					if (exitCode == 0)
+						logger.log(DEBUG, () -> "Set hostname to " + hostname);
+				}
+
+				initSysctl();
+
+				// hardware
+				startInitDService("udev");
 				// TODO mount all asynchronously in order to deal with network fs
 				mountAll();
 
-				// hostname
-				String hostname = Files.readString(Paths.get("/etc/hostname"));
-				new ProcessBuilder("/bin/hostname", hostname).start();
-				logger.log(DEBUG, () -> "Set hostname to " + hostname);
+				startInitDService("qemu-agent");
+				startInitDService("dbus",false);// TODO dbus fails to stop
 
-				// networking
-				initSysctl();
-				startInitDService("networking", true);
+				// networking (asychronous)
+//				new Thread(() -> {
+				startInitDService("networking");
 				if (!waitForNetwork(60 * 1000))
 					logger.log(ERROR, "No network available");
 
 				// OpenSSH
 				// TODO make it consistent with Java sshd
-				startInitDService("ssh", true);
+				startInitDService("ssh");
 
 				// NSS services
-				startInitDService("nslcd", false);// Note: nslcd fails to stop
+				startInitDService("nslcd", false);// TODO nslcd fails to stop
+//				}, "Start network services").start();
+
+				// user interface
+				startInitDService("console-setup.sh");
+				startInitDService("keyboard-setup.sh");
+				startInitDService("x11-common");
 
 				// login prompt
-				//ServiceMain.addPostStart(() -> new LoginThread().start());
+				// ServiceMain.addPostStart(() -> new LoginThread().start());
 				new LoginThread().start();
+
+				// GUI
+				Path startxF = Paths.get("/usr/bin/startx");
+				if (Files.exists(startxF) && runLevel.get() == 5) {
+					xServer = new ProcessBuilder(startxF.toString()).start();
+					logger.log(INFO, "X server started");
+				}
 
 				// init Argeo CMS
 				logger.log(INFO, "FREEd Init daemon starting Argeo Init after "
@@ -223,8 +257,14 @@ public class SysInitMain {
 		}
 	}
 
+	static void startInitDService(String serviceName) {
+		startInitDService(serviceName, true);
+	}
+
 	static void startInitDService(String serviceName, boolean stopOnShutdown) {
-		Path serviceInit = Paths.get("/etc/init.d/", serviceName);
+		Path serviceInit = Paths.get("/usr/local/etc/init.d/", serviceName);
+		if (!Files.exists(serviceInit))
+			serviceInit = Paths.get("/etc/init.d/", serviceName);
 		if (Files.exists(serviceInit))
 			try {
 				int exitCode = new ProcessBuilder(serviceInit.toString(), "start").start().waitFor();
@@ -234,13 +274,6 @@ public class SysInitMain {
 					logger.log(INFO, "Service " + serviceName + " started");
 				if (stopOnShutdown)
 					initDServices.add(serviceName);
-//					Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-//						try {
-//							new ProcessBuilder(serviceInit.toString(), "stop").start().waitFor();
-//						} catch (IOException | InterruptedException e) {
-//							e.printStackTrace();
-//						}
-//					}, "FREEd stop service " + serviceName));
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -310,13 +343,25 @@ public class SysInitMain {
 			Files.writeString(sysrqP, "1");
 			Path sysrqTriggerP = Paths.get("/proc/sysrq-trigger");
 			Files.writeString(sysrqTriggerP, "e");// send SIGTERM to all processes
+			// TODO check processes effectively with ProcessHandle.of(1)
+			try {
+				Thread.sleep(5 * 1000);
+			} catch (InterruptedException e) {
+				// silent
+			}
 			// Files.writeString(sysrqTriggerP, "i");// send SIGKILL to all processes
 			Files.writeString(sysrqTriggerP, "s");// flush data to disk
 			Files.writeString(sysrqTriggerP, "u");// unmount
 			if (reboot)
 				Files.writeString(sysrqTriggerP, "b");
-			else
+			else {
 				Files.writeString(sysrqTriggerP, "o");
+				try {
+					Thread.sleep(10 * 1000);
+				} catch (InterruptedException e) {
+					// silent
+				}
+			}
 		} catch (IOException e) {
 			logger.log(ERROR, "Cannot shut down system", e);
 		}
@@ -325,11 +370,13 @@ public class SysInitMain {
 	static void stopInitDServices() {
 		for (int i = initDServices.size() - 1; i >= 0; i--) {
 			String serviceName = initDServices.get(i);
-			Path serviceInit = Paths.get("/etc/init.d/", serviceName);
+			Path serviceInit = Paths.get("/usr/local/etc/init.d/", serviceName);
+			if (!Files.exists(serviceInit))
+				serviceInit = Paths.get("/etc/init.d/", serviceName);
 			try {
 				int exitCode = new ProcessBuilder(serviceInit.toString(), "stop").start().waitFor();
 				if (exitCode != 0)
-					logger.log(ERROR, "Service " + serviceName + " dit not stop properly");
+					logger.log(ERROR, "Service " + serviceName + " did not stop properly");
 			} catch (InterruptedException | IOException e) {
 				logger.log(ERROR, "Cannot stop service " + serviceName, e);
 			}
