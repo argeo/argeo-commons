@@ -138,6 +138,9 @@ public class SysInitMain {
 				// TODO make it consistent with Java sshd
 				startInitDService("ssh");
 
+				// Chrony (time service)
+				startInitDService("chrony");
+
 				// NSS services
 				startInitDService("nslcd", false);// TODO nslcd fails to stop
 //				}, "Start network services").start();
