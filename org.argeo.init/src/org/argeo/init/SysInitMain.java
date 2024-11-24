@@ -76,7 +76,7 @@ public class SysInitMain {
 				singleUserShell();
 			} else {
 				if (args.length == 0)
-					runLevel.set(5);
+					runLevel.set(3);
 				else
 					runLevel.set(Integer.parseInt(args[0]));
 
