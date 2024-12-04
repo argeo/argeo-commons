@@ -14,7 +14,7 @@ org.argeo.tp.httpd \
 osgi/equinox/org.argeo.tp.eclipse \
 osgi/api/org.argeo.tp.osgi \
 swt/rcp/org.argeo.tp.swt \
-lib/linux/x86_64/swt/rcp/org.argeo.tp.swt \
+lib/x86_64-linux-gnu/swt/rcp/org.argeo.tp.swt \
 
 VPATH = .:swt/rcp
 

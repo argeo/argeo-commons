@@ -2,13 +2,14 @@ package org.argeo.eclipse.ui.specific;
 
 import java.util.Locale;
 
+import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.service.UISession;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSessionBindingListener;
-
-import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.service.UISession;
-import org.eclipse.swt.widgets.Display;
 
 /** Singleton class providing single sources infos about the UI context. */
 public class UiContext {
@@ -60,6 +61,11 @@ public class UiContext {
 
 	private static Display getDisplay() {
 		return Display.getCurrent();
+	}
+
+	/** The zoom level in percent of the monitor where this control is located. */
+	public static int getZoom(Control control) {
+		return 100;
 	}
 
 	private UiContext() {
