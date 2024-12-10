@@ -3,10 +3,10 @@ package org.argeo.cms.dbus;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.util.OS;
 import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
 import org.freedesktop.dbus.connections.BusAddress;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
@@ -15,6 +15,8 @@ import org.freedesktop.dbus.exceptions.DBusException;
 
 public class CmsDBusImpl implements CmsDBus {
 	private final static CmsLog log = CmsLog.getLog(CmsDBusImpl.class);
+	final static Path EMBEDDED_SESSION_BUS_ADDRESS = OS.getRunDir().resolve("bus");
+	final static String DBUS_SESSION_BUS_ADDRESS = "DBUS_SESSION_BUS_ADDRESS";
 
 	private BusAddress sessionBusAddress;
 
@@ -37,7 +39,7 @@ public class CmsDBusImpl implements CmsDBus {
 				}
 				log.debug(() -> "Found session DBus with address " + sessionBusAddress);
 			} else {
-				Path socketLocation = Paths.get(System.getProperty("user.home"), ".cache", "argeo", "bus");
+				Path socketLocation = EMBEDDED_SESSION_BUS_ADDRESS;
 				if (Files.exists(socketLocation))
 					Files.delete(socketLocation);
 				else
@@ -93,5 +95,4 @@ public class CmsDBusImpl implements CmsDBus {
 	public void setCmsEventBus(CmsEventBus cmsEventBus) {
 		this.cmsEventBus = cmsEventBus;
 	}
-
 }

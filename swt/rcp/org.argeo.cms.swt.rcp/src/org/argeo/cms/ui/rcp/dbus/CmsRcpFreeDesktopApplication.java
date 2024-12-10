@@ -59,14 +59,13 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 
 	@Override
 	public void open(List<String> uris, Map<String, Variant<?>> platformData) {
-		// TODO Auto-generated method stub
+//		System.out.println("Open");
 
 	}
 
 	@Override
 	public void activateAction(String actionName, List<Variant<?>> parameter, Map<String, Variant<?>> platformData) {
-		// TODO Auto-generated method stub
-
+//		System.out.println("Activate action " + actionName);
 	}
 
 }
