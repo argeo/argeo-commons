@@ -67,7 +67,7 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 				}
 
 		if (function == null)
-			throw new IllegalArgumentException("Uknown command " + cmd);
+			throw new IllegalArgumentException("Unknown command " + cmd);
 		try {
 			Object value = function.apply(newArgs);
 			return value != null ? value.toString() : null;

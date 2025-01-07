@@ -35,7 +35,7 @@ public interface DescribedCommand<T> extends Function<List<String>, T> {
 		}
 	}
 
-	/** In order to implement quickly a main method. */
+	/** In order to quickly implement a main method. */
 	public static void mainImpl(DescribedCommand<?> command, String[] args) {
 		try {
 			Object output = command.apply(Arrays.asList(args));
