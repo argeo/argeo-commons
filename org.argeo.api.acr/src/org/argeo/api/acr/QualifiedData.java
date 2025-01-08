@@ -14,17 +14,6 @@ public interface QualifiedData<CHILD extends QualifiedData<CHILD>> extends Struc
 
 	CHILD getParent();
 
-	/*
-	 * ATTRIBUTES OPERATIONS
-	 */
-
-	<A> Optional<A> get(QName key, Class<A> clss);
-
-	Class<?> getType(QName key);
-
-	boolean isMultiple(QName key);
-
-	<A> List<A> getMultiple(QName key, Class<A> clss);
 
 	/*
 	 * PATH
