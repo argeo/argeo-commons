@@ -1,6 +1,7 @@
 package org.argeo.api.cli;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,19 +13,19 @@ import org.argeo.api.acr.StructuredData;
 public class CLine<K extends Enum<K>> extends EnumMap<K, Object> implements StructuredData<K, Object, String> {
 	private static final long serialVersionUID = -4017309115985186722L;
 
-	private List<String> args = new ArrayList<>();
+	private List<String> plainArgs = new ArrayList<>();
 
-	public CLine(Class<K> keyType) {
+	CLine(Class<K> keyType) {
 		super(keyType);
 	}
 
 	@Override
 	public Iterator<String> iterator() {
-		return args.iterator();
+		return plainArgs.iterator();
 	}
 
-	void addArg(String arg) {
-		args.add(arg);
+	void addPlainArg(String arg) {
+		plainArgs.add(arg);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -45,6 +46,10 @@ public class CLine<K extends Enum<K>> extends EnumMap<K, Object> implements Stru
 	@Override
 	public Class<? extends Object> getType(K key) {
 		return String.class;
+	}
+
+	public List<String> getPlainArgs() {
+		return Collections.unmodifiableList(plainArgs);
 	}
 
 }

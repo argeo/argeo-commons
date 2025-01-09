@@ -35,6 +35,11 @@ public interface DescribedCommand<T> extends Function<List<String>, T> {
 		}
 	}
 
+	default <P extends Enum<P>> CLine<P> toCLine(Class<P> clss, List<String> args) {
+		ParamsParser<P> parser = new ParamsParser<>(clss);
+		return parser.parse(args);
+	}
+
 	/** In order to quickly implement a main method. */
 	public static void mainImpl(DescribedCommand<?> command, String[] args) {
 		try {
