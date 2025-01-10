@@ -2,7 +2,10 @@ package org.argeo.api.cli;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.function.Function;
 
 import org.apache.commons.cli.HelpFormatter;
@@ -106,6 +109,25 @@ public class HelpCommand implements DescribedCommand<String> {
 				return rootCommand;
 			return commandsCli.getCommandName();
 		}
+	}
+
+	public static <T extends Enum<T>> void printHelp(Class<T> clss, StringWriter out) {
+		ResourceBundle rb = loadResourceBundle(clss, Locale.getDefault());
+		EnumSet<T> names = EnumSet.allOf(clss);
+		for (T e : names) {
+			String optName = CLineParser.toOptName(e);
+			if (rb.containsKey(optName)) {
+				String desc = rb.getString(optName);
+				out.append(optName + "\t" + desc + "\n");
+			}
+		}
+	}
+
+	public static ResourceBundle loadResourceBundle(Class<?> clss, Locale locale) {
+		ClassLoader classLoader = clss.getClassLoader();
+		String resource = clss.getName();
+		ResourceBundle rb = ResourceBundle.getBundle(resource, locale, classLoader);
+		return rb;
 	}
 
 	public static void printHelp(DescribedCommand<?> command, StringWriter out) {
