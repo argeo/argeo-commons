@@ -44,7 +44,7 @@ public class CLine {
 		map.put((T) opt, value);
 	}
 
-	public <A> Optional<A> get(Enum<?> key, Class<A> clss) {
+	public <A> Optional<A> get(Enum<?> key, Class<A> clss) throws IllegalArgumentException {
 		EnumMap<? extends Enum<?>, Object> opts = null;
 		optionEnums: for (Class<? extends Enum<?>> c : options.keySet()) {
 			if (c.isAssignableFrom(key.getClass())) {
@@ -53,7 +53,7 @@ public class CLine {
 			}
 		}
 		if (opts == null)
-			throw new IllegalArgumentException(key.getClass() + " options not supported by this commend line");
+			throw new IllegalArgumentException(key.getClass() + " options are not supported by this command line");
 		if (!opts.containsKey(key))
 			return Optional.empty();
 		Object value = opts.get(key);
@@ -67,7 +67,8 @@ public class CLine {
 //				"Cannot convert attribute " + key + " with value " + value.getClass() + " to " + clss);
 	}
 
-	public boolean has(Enum<?> opt) {
+	/** Whether this option is a boolean switch AND is true. */
+	public boolean enable(Enum<?> opt) {
 		return get(opt, Boolean.class).orElse(false);
 	}
 

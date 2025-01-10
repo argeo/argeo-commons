@@ -58,22 +58,6 @@ public enum CrAttributeType {
 		return formatter;
 	}
 
-//	@Override
-//	public String getDefaultPrefix() {
-//		if (equals(UUID))
-//			return CrName.CR_DEFAULT_PREFIX;
-//		else
-//			return "xs";
-//	}
-//
-//	@Override
-//	public String getNamespaceURI() {
-//		if (equals(UUID))
-//			return CrName.CR_NAMESPACE_URI;
-//		else
-//			return XMLConstants.W3C_XML_SCHEMA_NS_URI;
-//	}
-
 	/** Default parsing procedure from a String to an object. */
 	public static Object parse(String str) {
 		return parse(RuntimeNamespaceContext.getNamespaceContext(), str);
@@ -177,6 +161,12 @@ public enum CrAttributeType {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Optional<T> cast(NamespaceContext namespaceContext, Class<T> clss, Object value) {
+		// if a Boolean null means false
+		if (Boolean.class.isAssignableFrom(clss)) {
+			return Optional
+					.of((T) CrAttributeType.BOOLEAN.getFormatter().parse(value == null ? null : value.toString()));
+		}
+
 		// if value is null, optional is empty
 		if (value == null)
 			return Optional.empty();
@@ -267,12 +257,24 @@ public enum CrAttributeType {
 
 	static class BooleanFormatter implements AttributeFormatter<Boolean> {
 
+		@Override
+		public Boolean parse(String str) throws IllegalArgumentException {
+			if (str == null)
+				return Boolean.FALSE;
+			return AttributeFormatter.super.parse(str);
+		}
+
 		/**
-		 * @param str must be exactly equals to either 'true' or 'false' (different
-		 *            contract than {@link Boolean#parseBoolean(String)}.
+		 * @param str must be exactly equals to either 'true' or 'false' (which is a
+		 *            different contract than {@link Boolean#parseBoolean(String)}), or
+		 *            be <code>null</code> in which case {@link Boolean#FALSE} is
+		 *            returned.
 		 */
 		@Override
 		public Boolean parse(NamespaceContext namespaceContext, String str) throws IllegalArgumentException {
+			if (str == null)
+				return Boolean.FALSE;
+			// case sensitive, so that toString() produces the same as input
 			if ("true".equals(str))
 				return Boolean.TRUE;
 			if ("false".equals(str))

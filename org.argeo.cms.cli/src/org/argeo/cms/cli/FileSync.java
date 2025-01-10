@@ -45,8 +45,8 @@ public class FileSync implements DescribedCommand<SyncResult<Path>> {
 			}
 //			boolean delete = line.hasOption(deleteOption.getLongOpt());
 //			boolean recursive = line.hasOption(recursiveOption.getLongOpt());
-			boolean delete = line.has(Opt.delete);
-			boolean recursive = line.has(Opt.recursive);
+			boolean delete = line.enable(Opt.delete);
+			boolean recursive = line.enable(Opt.recursive);
 			PathSync pathSync = new PathSync(sourceUri, targetUri, delete, recursive);
 			return pathSync.call();
 		} catch (URISyntaxException e) {

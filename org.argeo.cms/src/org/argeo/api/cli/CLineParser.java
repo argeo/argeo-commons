@@ -13,20 +13,24 @@ public class CLineParser {
 
 	private final List<Class<? extends Enum<?>>> optEnums = new ArrayList<>();
 
+	private final static String DOUBLE_DASH = "--";
+	private final static String SINGLE_DASH = "--";
+	private final static char EQU = '=';
+
 	@SafeVarargs
-	public CLineParser(Class<? extends Enum<?>>... optEnums) {
+	public CLineParser(Class<? extends Enum<?>>... optEnums) throws IllegalArgumentException {
 		for (Class<? extends Enum<?>> clss : optEnums) {
 			if (this.optEnums.contains(clss))
-				throw new IllegalStateException("Options enum " + clss + " already added");
+				throw new IllegalArgumentException("Options enum " + clss + " added multiple times");
 			this.optEnums.add(clss);
 		}
 	}
 
-	public CLine parse(String... args) {
+	public CLine parse(String... args) throws CommandArgsException {
 		return parse(Arrays.asList(args));
 	}
 
-	public CLine parse(List<String> args) {
+	public CLine parse(List<String> args) throws CommandArgsException {
 		CLine cLine = new CLine(optEnums);
 
 		Optional<Enum<?>> currOpt = null;
@@ -35,11 +39,14 @@ public class CLineParser {
 			String arg = it.next();
 
 			Optional<Enum<?>> opt = null;
+			// value if of the form --opt=value
+			StringBuilder equValue = null;
 			// we force unchecked conversion
 			for (@SuppressWarnings("rawtypes")
 			Class optClass : optEnums) {
+				equValue = new StringBuilder();
 				@SuppressWarnings("unchecked")
-				Optional<Enum<?>> o = findOpt(optClass, arg);
+				Optional<Enum<?>> o = findOpt(optClass, arg, equValue);
 				if (o != null) {
 					if (opt != null)
 						throw new IllegalStateException("More than one option enum found for arg " + arg + ": "
@@ -51,25 +58,34 @@ public class CLineParser {
 
 			if (opt != null && opt.isEmpty())
 				throw new CommandArgsException("Unsupported option " + arg);
+
 			if (currOpt == null && opt == null) {// plain argument
 				cLine.addPlainArg(arg);
 			} else if (currOpt == null && opt != null) {// next option
-				currOpt = opt;
+				assert equValue != null;
+				String v = equValue.toString();
+				if ("".equals(v))
+					currOpt = opt;
+				else
+					cLine.put(opt.get(), CrAttributeType.parse(v));
 			} else if (currOpt != null && opt == null) {
-				if (currOpt.get() instanceof ValuedOpt valuedOpt && valuedOpt.hasValue()) {// option value
+				if (currOpt.get() instanceof ValuedOpt valuedOpt //
+						&& !ValuedOpt.isFlag(valuedOpt)) {// option value
 					// TODO use namespace context
-					Object value = CrAttributeType.parse(arg);
-					cLine.put(currOpt.get(), value);
+					cLine.put(currOpt.get(), CrAttributeType.parse(arg));
 				} else {// plain argument
 					cLine.put(currOpt.get(), Boolean.TRUE);
 					cLine.addPlainArg(arg);
 				}
 				currOpt = null;
 			} else if (currOpt != null && opt != null) {
-				if (currOpt.get() instanceof ValuedOpt valuedOpt && valuedOpt.hasValue()) {// option with default
-																							// value
-					cLine.put(currOpt.get(), valuedOpt.defaultValue());
-				} else {// option without value
+				if (currOpt.get() instanceof ValuedOpt valuedOpt //
+						&& !ValuedOpt.isFlag(valuedOpt)) {// option with default value
+					Object defaultValue = valuedOpt.defaultValue();
+					if (defaultValue == null)
+						throw new CommandArgsException(currOpt.get() + " must have an explicit value");
+					cLine.put(currOpt.get(), defaultValue);
+				} else {// flag
 					cLine.put(currOpt.get(), Boolean.TRUE);
 				}
 				currOpt = opt;
@@ -78,14 +94,25 @@ public class CLineParser {
 		return cLine;
 	}
 
-	private <T extends Enum<T>> Optional<T> findOpt(Class<T> optClass, String arg) {
+	private <T extends Enum<T>> Optional<T> findOpt(Class<T> optClass, String arg, StringBuilder value)
+			throws CommandArgsException {
 		Optional<T> opt = null;
-		if (arg.startsWith("--")) {// long option
-			// TODO deal with special value '--' ? e.g. for additional arguments
-			String pName = arg.substring(2);
-			opt = EnumSet.allOf(optClass).stream().filter((p) -> p.name().replace('_', '-').equals(pName)).findAny();
-		} else if (arg.startsWith("-")) {// short option
-			// TODO deal with special value '-' ? e.g. for stdin
+		// TODO ? deal with -D Java system properties
+		// TODO use prefix / namespaces
+		if (arg.startsWith(DOUBLE_DASH)) {// long option
+			// TODO ? deal with special value '--', e.g. for additional arguments
+			String raw = arg.substring(2);
+			int equIndex = raw.indexOf(EQU);
+			String pName;
+			if (equIndex > -1) {
+				pName = raw.substring(0, equIndex);
+				value.append(raw.substring(equIndex + 1));
+			} else {
+				pName = raw;
+			}
+			opt = EnumSet.allOf(optClass).stream().filter((p) -> toOptName(p).equals(pName)).findAny();
+		} else if (arg.startsWith(SINGLE_DASH)) {// short option
+			// TODO ? deal with special value '-', e.g. for stdin
 			if (!ShortOpt.class.isAssignableFrom(optClass))
 				throw new CommandArgsException(optClass + " does not support short options");
 			if (arg.length() != 2)
@@ -98,37 +125,11 @@ public class CLineParser {
 		return opt;
 	}
 
-	public static void main(String[] args) {
-		CLineParser parserTest = new CLineParser(Test.class);
-		CLine cLine = parserTest.parse("--test1", "--test2", "value2", "plainArg1", "plainArg2");
-		System.out.println(cLine);
-
-		CLineParser parserTestValued = new CLineParser(TestValued.class);
-		CLine cLineValued = parserTestValued.parse("--test1", "--test2", "value2", "plainArg1", "plainArg2");
-		System.out.println(cLineValued);
-
+	static String toOptName(Enum<?> p) {
+		return p.name().replace('_', '-');
 	}
 
-	static enum Test {
-		test1, test2;
-	}
-
-	static enum TestValued implements ValuedOpt {
-		test1, test2(true);
-
-		private final boolean hasValue;
-
-		private TestValued() {
-			this(false);
-		}
-
-		private TestValued(boolean hasValue) {
-			this.hasValue = hasValue;
-		}
-
-		@Override
-		public boolean hasValue() {
-			return hasValue;
-		}
+	static String toEnumName(String optName) {
+		return optName.replace('-', '_');
 	}
 }
