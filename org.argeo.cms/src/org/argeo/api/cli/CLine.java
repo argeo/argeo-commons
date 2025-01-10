@@ -1,6 +1,7 @@
 package org.argeo.api.cli;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -45,6 +46,40 @@ public class CLine {
 	}
 
 	public <A> Optional<A> get(Enum<?> key, Class<A> clss) throws IllegalArgumentException {
+		EnumMap<? extends Enum<?>, Object> opts = findOpts(key);
+		if (!opts.containsKey(key)) {
+			if (key instanceof ValuedOpt valuedOpt && valuedOpt.defaultValue() != null) {
+				return CrAttributeType.cast(clss, valuedOpt.defaultValue());
+			}
+			return Optional.empty();
+		}
+		Object value = opts.get(key);
+		Objects.requireNonNull(value);
+		return CrAttributeType.cast(clss, value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <A> List<A> getMultiple(Enum<?> key, Class<A> clss) {
+		EnumMap<? extends Enum<?>, Object> opts = findOpts(key);
+		if (!opts.containsKey(key)) {
+			if (key instanceof ValuedOpt valuedOpt && valuedOpt.defaultValue() != null) {
+				if (valuedOpt.defaultValue() instanceof Collection coll)
+					return (List<A>) new ArrayList<>(coll);
+				else
+					return (List<A>) Collections.singletonList(valuedOpt.defaultValue());
+			} else {
+				return new ArrayList<A>();// empty
+			}
+		}
+		Object value = opts.get(key);
+		Objects.requireNonNull(value);
+		if (value instanceof Collection coll)
+			return (List<A>) new ArrayList<>(coll);
+		else
+			return (List<A>) Collections.singletonList(value);
+	}
+
+	private EnumMap<? extends Enum<?>, Object> findOpts(Enum<?> key) {
 		EnumMap<? extends Enum<?>, Object> opts = null;
 		optionEnums: for (Class<? extends Enum<?>> c : options.keySet()) {
 			if (c.isAssignableFrom(key.getClass())) {
@@ -54,17 +89,8 @@ public class CLine {
 		}
 		if (opts == null)
 			throw new IllegalArgumentException(key.getClass() + " options are not supported by this command line");
-		if (!opts.containsKey(key))
-			return Optional.empty();
-		Object value = opts.get(key);
-		Objects.requireNonNull(value);
-		return CrAttributeType.cast(clss, value);
-//		if (clss.isAssignableFrom(value.getClass()))
-//			return Optional.of((A) value);
-//		if (clss.isAssignableFrom(String.class))
-//			return Optional.of((A) value.toString());
-//		throw new IllegalArgumentException(
-//				"Cannot convert attribute " + key + " with value " + value.getClass() + " to " + clss);
+		return opts;
+
 	}
 
 	/** Whether this option is a boolean switch AND is true. */

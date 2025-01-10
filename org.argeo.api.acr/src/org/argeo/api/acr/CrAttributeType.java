@@ -258,7 +258,7 @@ public enum CrAttributeType {
 	static class BooleanFormatter implements AttributeFormatter<Boolean> {
 
 		@Override
-		public Boolean parse(String str) throws IllegalArgumentException {
+		public Boolean parse(Object str) throws IllegalArgumentException {
 			if (str == null)
 				return Boolean.FALSE;
 			return AttributeFormatter.super.parse(str);

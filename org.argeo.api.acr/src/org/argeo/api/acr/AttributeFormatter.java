@@ -15,15 +15,15 @@ public interface AttributeFormatter<T> {
 	/**
 	 * Parses a {@link String} to a Java object.
 	 * 
-	 * @param str the {@link String} to parse or <code>null</code>
+	 * @param obj the string to parse or <code>null</code>
 	 * @return the Java object or <code>null</code> if the argument was
 	 *         <code>null</code> (except if of type {@link Boolean} in which case
 	 *         {@link Boolean#FALSE} is returned, see {@link BooleanFormatter}).
 	 */
-	default T parse(String str) throws IllegalArgumentException {
-		if (str == null)
+	default T parse(Object obj) throws IllegalArgumentException {
+		if (obj == null)
 			return null;
-		return parse(RuntimeNamespaceContext.getNamespaceContext(), str);
+		return parse(RuntimeNamespaceContext.getNamespaceContext(), obj.toString());
 	}
 
 	/**
