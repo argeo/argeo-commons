@@ -42,7 +42,16 @@ public class CLine {
 	<T extends Enum<T>> void put(Enum<T> opt, Object value) {
 		Class<? extends Enum<?>> clss = (Class<? extends Enum<?>>) opt.getClass();
 		EnumMap<T, Object> map = (EnumMap<T, Object>) getEnumMap(clss);
-		map.put((T) opt, value);
+		if (opt instanceof ValuedOpt valuedOpt && ValuedOpt.isMultiple(valuedOpt)) {
+			if (!map.containsKey(opt))
+				map.put((T) opt, new ArrayList<>());
+			List<Object> lst = (List<Object>) map.get((T) opt);
+			lst.add(value);
+		} else {
+			if (map.containsKey(opt))
+				throw new CommandArgsException(CLineParser.toOptName(opt) + " is already set");
+			map.put((T) opt, value);
+		}
 	}
 
 	public <A> Optional<A> get(Enum<?> key, Class<A> clss) throws IllegalArgumentException {
@@ -94,7 +103,11 @@ public class CLine {
 	}
 
 	/** Whether this option is a boolean switch AND is true. */
-	public boolean enable(Enum<?> opt) {
+	public boolean flag(Enum<?> opt) {
+		if (opt instanceof ValuedOpt valuedOpt) {
+			if (!ValuedOpt.isFlag(valuedOpt))
+				throw new IllegalArgumentException(CLineParser.toOptName(opt) + " is not a flag");
+		}
 		return get(opt, Boolean.class).orElse(false);
 	}
 
