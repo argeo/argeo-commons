@@ -16,6 +16,17 @@ public interface DescribedCommand<T> extends Function<List<String>, T> {
 		return new Options();
 	}
 
+	@SuppressWarnings({ "rawtypes" })
+	default Class[] getOptClasses() {
+		if (getOptClass() != null)
+			return new Class[] { getOptClass() };
+		return new Class[0];
+	}
+
+	default Class<? extends Enum<?>> getOptClass() {
+		return null;
+	}
+
 	String getDescription();
 
 	default String getUsage() {
@@ -35,8 +46,9 @@ public interface DescribedCommand<T> extends Function<List<String>, T> {
 		}
 	}
 
-	default CLine toCLine(List<String> args, Class<? extends Enum<?>> optionEnums) {
-		CLineParser parser = new CLineParser(optionEnums);
+	default CLine toCLine(List<String> args) {
+		@SuppressWarnings("unchecked")
+		CLineParser parser = new CLineParser(getOptClasses());
 		return parser.parse(args);
 	}
 

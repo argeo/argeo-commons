@@ -27,10 +27,15 @@ public class FileSync implements DescribedCommand<SyncResult<Path>> {
 //			.build();
 
 	@Override
+	public Class<? extends Enum<?>> getOptClass() {
+		return Opt.class;
+	}
+
+	@Override
 	public SyncResult<Path> apply(List<String> t) {
 		try {
 			// CommandLine line = toCommandLine(t);
-			CLine line = toCLine(t, Opt.class);
+			CLine line = toCLine(t);
 //			List<String> remaining = line.getArgList();
 			List<String> remaining = line.getPlainArgs();
 			if (remaining.size() == 0) {
