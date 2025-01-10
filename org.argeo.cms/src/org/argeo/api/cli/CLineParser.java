@@ -31,7 +31,7 @@ public class CLineParser {
 	}
 
 	public CLine parse(List<String> args) throws CommandArgsException {
-		CLine cLine = new CLine(optEnums);
+		CLineImpl cLine = new CLineImpl(optEnums);
 
 		Optional<Enum<?>> currOpt = null;
 		Iterator<String> it = args.iterator();
