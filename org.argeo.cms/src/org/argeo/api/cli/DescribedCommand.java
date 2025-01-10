@@ -35,8 +35,8 @@ public interface DescribedCommand<T> extends Function<List<String>, T> {
 		}
 	}
 
-	default <P extends Enum<P>> CLine<P> toCLine(Class<P> clss, List<String> args) {
-		ParamsParser<P> parser = new ParamsParser<>(clss);
+	default CLine toCLine(List<String> args, Class<? extends Enum<?>> optionEnums) {
+		CLineParser parser = new CLineParser(optionEnums);
 		return parser.parse(args);
 	}
 

@@ -14,7 +14,7 @@ import org.argeo.cms.file.SyncResult;
 
 /** Synchronizes files between two directories. */
 public class FileSync implements DescribedCommand<SyncResult<Path>> {
-	private enum Param {
+	private enum Opt {
 		delete, //
 		recursive, //
 		progress, //
@@ -30,7 +30,7 @@ public class FileSync implements DescribedCommand<SyncResult<Path>> {
 	public SyncResult<Path> apply(List<String> t) {
 		try {
 			// CommandLine line = toCommandLine(t);
-			CLine<Param> line = toCLine(Param.class, t);
+			CLine line = toCLine(t, Opt.class);
 //			List<String> remaining = line.getArgList();
 			List<String> remaining = line.getPlainArgs();
 			if (remaining.size() == 0) {
@@ -45,8 +45,8 @@ public class FileSync implements DescribedCommand<SyncResult<Path>> {
 			}
 //			boolean delete = line.hasOption(deleteOption.getLongOpt());
 //			boolean recursive = line.hasOption(recursiveOption.getLongOpt());
-			boolean delete = line.containsKey(Param.delete);
-			boolean recursive = line.containsKey(Param.recursive);
+			boolean delete = line.has(Opt.delete);
+			boolean recursive = line.has(Opt.recursive);
 			PathSync pathSync = new PathSync(sourceUri, targetUri, delete, recursive);
 			return pathSync.call();
 		} catch (URISyntaxException e) {
