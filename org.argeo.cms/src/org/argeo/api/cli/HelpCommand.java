@@ -1,11 +1,17 @@
 package org.argeo.api.cli;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.function.Function;
 
 import org.apache.commons.cli.HelpFormatter;
@@ -22,6 +28,10 @@ public class HelpCommand implements DescribedCommand<String> {
 
 	final static String HELP = "help";
 	final static Option HELP_OPTION = Option.builder().longOpt(HELP).desc("print this help").build();
+
+	final static String _DESCRIPTION = "_description";
+	final static String _USAGE = "_usage";
+	final static String _EXAMPLE = "_example";
 
 	private CommandsCli commandsCli;
 	private CommandsCli parentCommandsCli;
@@ -123,6 +133,23 @@ public class HelpCommand implements DescribedCommand<String> {
 		}
 	}
 
+	private static <T extends Enum<T>> void addOptions(Locale locale, SortedMap<String, String> allOptions,
+			ResourceBundle commandRb, Class<T> optionEnumClass) {
+		ResourceBundle rb = loadResourceBundle(optionEnumClass, locale);
+		EnumSet<T> names = EnumSet.allOf(optionEnumClass);
+		for (T e : names) {
+			String optName = CLineParser.toOptName(e);
+			String desc;
+			if (commandRb.containsKey(optName))
+				desc = rb.getString(optName);
+			else if (rb.containsKey(optName))
+				desc = rb.getString(optName);
+			else
+				desc = optName.replace('-', ' ');
+			allOptions.put(optName, desc);
+		}
+	}
+
 	public static ResourceBundle loadResourceBundle(Class<?> clss, Locale locale) {
 		ClassLoader classLoader = clss.getClassLoader();
 		String resource = clss.getName();
@@ -139,6 +166,64 @@ public class HelpCommand implements DescribedCommand<String> {
 		formatter.printHelp(new PrintWriter(out), helpWidth, usage, command.getDescription(), options, helpLeftPad,
 				helpDescPad, command.getExamples(), false);
 
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static void printHelp(Writer out, Locale locale, Class commandClass, List<Class> commandOptions) {
+		if (locale == null)
+			locale = Locale.getDefault();
+
+		ResourceBundle commandRb = ResourceBundle.getBundle(commandClass.getName(), locale,
+				commandClass.getClassLoader());
+
+		SortedMap<String, String> allOptions = new TreeMap<>();
+		for (Class optionClass : commandOptions) {
+			if (optionClass.isEnum()) {
+				addOptions(locale, allOptions, commandRb, optionClass);
+			}
+		}
+
+		String description = commandRb.containsKey(_DESCRIPTION) ? commandRb.getString(_DESCRIPTION) : "";
+		List<String> usages = new ArrayList<>();
+		for (int i = 0; i < 32; i++) {
+			String key = i == 0 ? _USAGE : _USAGE + "." + i;
+			if (commandRb.containsKey(key))
+				usages.add(commandRb.getString(key));
+		}
+		List<String> examples = new ArrayList<>();
+		for (int i = 0; i < 32; i++) {
+			String key = i == 0 ? _EXAMPLE : _EXAMPLE + "." + i;
+			if (commandRb.containsKey(key))
+				examples.add(commandRb.getString(key));
+		}
+
+		// write it
+		try {
+			// TODO wrap?
+			String prefix = "java " + commandClass.getName() + " ";
+			for (String usage : usages)
+				out.write(prefix + usage + "\n");
+			out.write('\n');
+			out.write(description);
+			out.write('\n');
+			out.write('\n');
+			// options
+			String leftPad = spaces(helpLeftPad);
+			for (String opt : allOptions.keySet()) {
+				out.write(leftPad);
+				String optStr = "--" + opt;
+				out.write(optStr);
+				out.append(spaces(helpDescPad - optStr.length()));
+				out.write(allOptions.get(opt));
+				// TODO append valued option info
+				out.write('\n');
+			}
+			out.write('\n');
+			for (String example : examples)
+				out.write(example + "\n");
+		} catch (IOException e) {
+			throw new UncheckedIOException("Cannot write help for " + commandClass, e);
+		}
 	}
 
 	public static void printHelp(CommandsCli commandsCli, String commandName, StringWriter out) {
