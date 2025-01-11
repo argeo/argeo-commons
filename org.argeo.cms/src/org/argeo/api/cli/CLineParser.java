@@ -14,7 +14,7 @@ public class CLineParser {
 	private final List<Class<? extends Enum<?>>> optEnums = new ArrayList<>();
 
 	private final static String DOUBLE_DASH = "--";
-	private final static String SINGLE_DASH = "--";
+	private final static String SINGLE_DASH = "-";
 	private final static char EQU = '=';
 
 	@SafeVarargs

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -133,8 +134,8 @@ public class HelpCommand implements DescribedCommand<String> {
 		}
 	}
 
-	private static <T extends Enum<T>> void addOptions(Locale locale, SortedMap<String, String> allOptions,
-			ResourceBundle commandRb, Class<T> optionEnumClass) {
+	private static <T extends Enum<T>> void addOptions(Locale locale, Map<String, String> allOptions,
+			Map<String, String> shortOptions, ResourceBundle commandRb, Class<T> optionEnumClass) {
 		ResourceBundle rb = loadResourceBundle(optionEnumClass, locale);
 		EnumSet<T> names = EnumSet.allOf(optionEnumClass);
 		for (T e : names) {
@@ -146,7 +147,14 @@ public class HelpCommand implements DescribedCommand<String> {
 				desc = rb.getString(optName);
 			else
 				desc = optName.replace('-', ' ');
+			if (allOptions.containsKey(optName))
+				throw new IllegalStateException("Option " + optName + " already registered");
 			allOptions.put(optName, desc);
+			if (ShortOpt.class.isAssignableFrom(optionEnumClass)) {
+				char c = ((ShortOpt) e).shortOpt();
+				if (c != 0)
+					shortOptions.put(optName, Character.toString(c));
+			}
 		}
 	}
 
@@ -177,9 +185,10 @@ public class HelpCommand implements DescribedCommand<String> {
 				commandClass.getClassLoader());
 
 		SortedMap<String, String> allOptions = new TreeMap<>();
+		SortedMap<String, String> shortOptions = new TreeMap<>();
 		for (Class optionClass : commandOptions) {
 			if (optionClass.isEnum()) {
-				addOptions(locale, allOptions, commandRb, optionClass);
+				addOptions(locale, allOptions, shortOptions, commandRb, optionClass);
 			}
 		}
 
@@ -209,12 +218,14 @@ public class HelpCommand implements DescribedCommand<String> {
 			out.write('\n');
 			// options
 			String leftPad = spaces(helpLeftPad);
-			for (String opt : allOptions.keySet()) {
+			for (String optName : allOptions.keySet()) {
 				out.write(leftPad);
-				String optStr = "--" + opt;
+				String optStr = "--" + optName;
+				if (shortOptions.containsKey(optName))
+					optStr = optStr + ", -" + shortOptions.get(optName);
 				out.write(optStr);
 				out.append(spaces(helpDescPad - optStr.length()));
-				out.write(allOptions.get(opt));
+				out.write(allOptions.get(optName));
 				// TODO append valued option info
 				out.write('\n');
 			}
