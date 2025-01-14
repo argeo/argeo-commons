@@ -13,7 +13,7 @@ import org.argeo.cms.file.PathSync;
 import org.argeo.cms.file.SyncResult;
 
 /** Synchronizes files between two directories. */
-public class FileSync implements DescribedCommand<SyncResult<Path>> {
+public class FileSync extends DescribedCommand<SyncResult<Path>> {
 	private enum Opt {
 		delete, //
 		recursive, //
@@ -32,12 +32,12 @@ public class FileSync implements DescribedCommand<SyncResult<Path>> {
 	}
 
 	@Override
-	public SyncResult<Path> apply(List<String> t) {
+	public SyncResult<Path> execute(CLine cLine) {
 		try {
 			// CommandLine line = toCommandLine(t);
-			CLine line = toCLine(t);
+//			CLine cLine = toCLine(t);
 //			List<String> remaining = line.getArgList();
-			List<String> remaining = line.getPlainArgs();
+			List<String> remaining = cLine.getPlainArgs();
 			if (remaining.size() == 0) {
 				throw new CommandArgsException("There must be at least one argument");
 			}
@@ -50,8 +50,8 @@ public class FileSync implements DescribedCommand<SyncResult<Path>> {
 			}
 //			boolean delete = line.hasOption(deleteOption.getLongOpt());
 //			boolean recursive = line.hasOption(recursiveOption.getLongOpt());
-			boolean delete = line.flag(Opt.delete);
-			boolean recursive = line.flag(Opt.recursive);
+			boolean delete = cLine.flag(Opt.delete);
+			boolean recursive = cLine.flag(Opt.recursive);
 			PathSync pathSync = new PathSync(sourceUri, targetUri, delete, recursive);
 			return pathSync.call();
 		} catch (URISyntaxException e) {
@@ -68,18 +68,18 @@ public class FileSync implements DescribedCommand<SyncResult<Path>> {
 //		return options;
 //	}
 
-	@Override
-	public String getUsage() {
-		return "[source URI] [target URI]";
-	}
-
 	public static void main(String[] args) {
 		DescribedCommand.mainImpl(new FileSync(), args);
 	}
 
-	@Override
-	public String getDescription() {
-		return "Synchronises files";
-	}
+//	@Override
+//	public String getUsage() {
+//		return "[source URI] [target URI]";
+//	}
+//
+//	@Override
+//	public String getDescription() {
+//		return "Synchronises files";
+//	}
 
 }

@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Function;
 
 import org.argeo.api.acr.CrAttributeType;
 
@@ -17,13 +19,10 @@ class CLineImpl implements CLine {
 	private Map<Class<? extends Enum<?>>, EnumMap<? extends Enum<?>, Object>> options = new HashMap<>();
 	private List<String> plainArgs = new ArrayList<>();
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Function<List<String>, ?> command;
+
 	CLineImpl(List<Class<? extends Enum<?>>> optEnums) {
-		for (Class<? extends Enum<?>> clss : optEnums) {
-			// just an assert as runtime check is performed by parser
-			assert !options.containsKey(clss);
-			options.put(clss, new EnumMap(clss));
-		}
+		registerOptEnums(optEnums);
 	}
 
 	@Override
@@ -117,6 +116,35 @@ class CLineImpl implements CLine {
 			throw new IllegalArgumentException(key.getClass() + " options are not supported by this command line");
 		return opts;
 
+	}
+
+	void setCommand(Function<List<String>, ?> command) {
+		this.command = command;
+	}
+
+	Function<List<String>, ?> getCommand() {
+		return command;
+	}
+
+	boolean hasAnyOptionSet() {
+		for (Class<?> clss : options.keySet()) {
+			if (!options.get(clss).isEmpty())
+				return true;
+		}
+		return false;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	void registerOptEnums(List<Class<? extends Enum<?>>> optEnums) {
+		for (Class<? extends Enum<?>> clss : optEnums) {
+			if (this.options.containsKey(clss))
+				throw new IllegalArgumentException("Options enum " + clss + " added multiple times");
+			options.put(clss, new EnumMap(clss));
+		}
+	}
+
+	Set<Class<? extends Enum<?>>> getOptEnums() {
+		return options.keySet();
 	}
 
 	@Override
