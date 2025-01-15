@@ -9,10 +9,10 @@ public class SshCli extends CommandsCli {
 		addCommand("shell", new SshShell());
 	}
 
-	@Override
-	public String getDescription() {
-		return "SSH utilities.";
-	}
+//	@Override
+//	public String getDescription() {
+//		return "SSH utilities.";
+//	}
 
 	public static void main(String[] args) {
 		mainImpl(new SshCli("ssh"), args);

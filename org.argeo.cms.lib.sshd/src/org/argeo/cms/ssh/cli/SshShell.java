@@ -5,45 +5,37 @@ import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.util.List;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.sshd.agent.SshAgent;
 import org.apache.sshd.agent.SshAgentFactory;
 import org.apache.sshd.agent.local.LocalAgentFactory;
 import org.apache.sshd.agent.unix.UnixAgentFactory;
 import org.apache.sshd.common.NamedResource;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
+import org.argeo.api.cli.CLine;
 import org.argeo.api.cli.CommandArgsException;
 import org.argeo.api.cli.DescribedCommand;
 import org.argeo.cms.ssh.AbstractSsh;
 import org.argeo.cms.ssh.Ssh;
 
-public class SshShell implements DescribedCommand<String> {
-	private Option portOption;
+public class SshShell extends DescribedCommand<String> {
+//	@Override
+//	public Options getOptions() {
+//		Options options = new Options();
+//		portOption = Option.builder().option("p").longOpt("port").hasArg().desc("port to connect to").build();
+//		options.addOption(portOption);
+//		return options;
+//	}
 
 	@Override
-	public Options getOptions() {
-		Options options = new Options();
-		portOption = Option.builder().option("p").longOpt("port").hasArg().desc("port to connect to").build();
-		options.addOption(portOption);
-		return options;
-	}
+	public String execute(CLine cLine) {
+		Integer port = cLine.get(SshOpt.port, Integer.class).orElseThrow();
 
-	@Override
-	public String apply(List<String> args) {
-		CommandLine cl = toCommandLine(args);
-		String portStr = cl.getOptionValue(portOption);
-		if (portStr == null)
-			portStr = "22";
-
-		if (cl.getArgList().size() == 0)
+		if (cLine.getPlainArgs().size() == 0)
 			throw new CommandArgsException("Host must be provided");
-		String host = cl.getArgList().get(0);
+		String host = cLine.getPlainArgs().get(0);
 
-		String uriStr = "ssh://" + host + ":" + portStr + "/";
+		String uriStr = "ssh://" + host + ":" + port + "/";
 		// System.out.println(uriStr);
 		URI uri = URI.create(uriStr);
 
@@ -110,13 +102,18 @@ public class SshShell implements DescribedCommand<String> {
 	}
 
 	@Override
-	public String getUsage() {
-		return "<hostname>";
+	protected Class<? extends Enum<?>> getOptClass() {
+		return SshOpt.class;
 	}
 
-	@Override
-	public String getDescription() {
-		return "Opens a remote shell";
-	}
+//	@Override
+//	public String getUsage() {
+//		return "<hostname>";
+//	}
+//
+//	@Override
+//	public String getDescription() {
+//		return "Opens a remote shell";
+//	}
 
 }

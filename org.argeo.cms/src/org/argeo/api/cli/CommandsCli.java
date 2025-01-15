@@ -30,6 +30,8 @@ public abstract class CommandsCli extends DescribedCommand<Object> {
 	public Object apply(List<String> args) {
 		CLineImpl cLine = CLineParser.parseImpl(getOptClasses(), args, this);
 		Function<List<String>, ?> command = cLine.getCommand();
+		if (command == null)
+			throw new IllegalArgumentException("No command has been specified");
 		if (command instanceof DescribedCommand describedCommand) {
 			return describedCommand.execute(cLine);
 		} else {
@@ -143,15 +145,18 @@ public abstract class CommandsCli extends DescribedCommand<Object> {
 			StringWriter out = new StringWriter();
 			HelpCommand.printHelp(e.getCommandsCli(), e.getCommandName(), out);
 			System.out.println(out.toString());
-		} catch (CommandArgsException e) {
+		} catch (IllegalArgumentException e) {
 			System.err.println("Wrong arguments " + Arrays.toString(args) + ": " + e.getMessage());
 //			Throwable cause = e.getCause();
 //			if (!(cause instanceof MissingOptionException))
 //				e.printStackTrace();
-			if (e.getCommandName() != null) {
-				StringWriter out = new StringWriter();
-				HelpCommand.printHelp(e.getCommandsCli(), e.getCommandName(), out);
-				System.err.println(out.toString());
+			// FIXME do it properly
+			if (e instanceof CommandArgsException cE) {
+				if (cE.getCommandName() != null) {
+					StringWriter out = new StringWriter();
+					HelpCommand.printHelp(cE.getCommandsCli(), cE.getCommandName(), out);
+					System.err.println(out.toString());
+				}
 			} else {
 				e.printStackTrace();
 			}
