@@ -199,7 +199,7 @@ public class NativeExec implements Runnable {
 //		executorToUse.setWatchdog(createWatchdog());
 
 		// Command line to use
-		final CommandLine commandLine = createCommandLine();
+		final NativeCommandLine commandLine = createCommandLine();
 		if (logCommand)
 			logger.log(INFO, "Execute command:\n" + commandLine + "\n in working directory: \n" + dir + "\n");
 
@@ -341,7 +341,7 @@ public class NativeExec implements Runnable {
 	 * Build a command line based on the properties. Can be overridden by specific
 	 * command wrappers.
 	 */
-	protected CommandLine createCommandLine() throws IOException {
+	protected NativeCommandLine createCommandLine() throws IOException {
 		// Check if an OS specific command overrides
 		String osName = System.getProperty("os.name");
 		List<Object> commandToUse = null;
@@ -355,7 +355,7 @@ public class NativeExec implements Runnable {
 		else
 			cmdToUse = cmd;
 
-		CommandLine commandLine = null;
+		NativeCommandLine commandLine = null;
 
 		// Which command definition to use
 		if (commandToUse == null && cmdToUse == null)
@@ -374,7 +374,7 @@ public class NativeExec implements Runnable {
 			}
 
 			// GENERATE COMMAND LINE
-			commandLine = CommandLine.parse(cmdToUse);
+			commandLine = NativeCommandLine.parse(cmdToUse);
 		} else if (commandToUse != null) {
 			if (commandToUse.size() == 0)
 				throw new IllegalArgumentException("Command line is empty.");
@@ -396,7 +396,7 @@ public class NativeExec implements Runnable {
 			}
 
 			// GENERATE COMMAND LINE
-			commandLine = CommandLine.parse(commandToUse.get(0).toString());
+			commandLine = NativeCommandLine.parse(commandToUse.get(0).toString());
 
 			for (int i = 1; i < commandToUse.size(); i++) {
 				if (logger.isLoggable(TRACE))
@@ -412,10 +412,10 @@ public class NativeExec implements Runnable {
 			Path scriptPath = Paths.get(getExecDirToUse(), generateScript);
 			Files.writeString(scriptPath, (osShell != null ? osShell + " " : "") + commandLine.toString());
 			File scriptFile = new File(getExecDirToUse() + File.separator + generateScript);
-			commandLine = CommandLine.parse(scriptFile.toPath().toAbsolutePath().toString());
+			commandLine = NativeCommandLine.parse(scriptFile.toPath().toAbsolutePath().toString());
 		} else {
 			if (osShell != null)
-				commandLine = CommandLine.parse(osShell + " " + commandLine.toString());
+				commandLine = NativeCommandLine.parse(osShell + " " + commandLine.toString());
 		}
 
 		return commandLine;

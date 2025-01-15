@@ -3,12 +3,12 @@ package org.argeo.api.cli;
 import java.util.ArrayList;
 import java.util.List;
 
-/** For transition from Apache Exec. */
-class CommandLine {
+/** Arguments to a native call. */
+public class NativeCommandLine {
 	/** The actual OS arguments, that it index 0 is the executable itself. */
 	private final List<String> osArgs;
 
-	CommandLine(List<String> osArgs) {
+	NativeCommandLine(List<String> osArgs) {
 		// copy
 		this.osArgs = new ArrayList<>(osArgs);
 	}
@@ -16,12 +16,12 @@ class CommandLine {
 	void addArgument(String arg) {
 		osArgs.add(arg);
 	}
-	
-	ProcessBuilder toProcessBuilder() {
+
+	public ProcessBuilder toProcessBuilder() {
 		return new ProcessBuilder(osArgs);
 	}
 
-	static CommandLine parse(CharSequence cmd) {
+	public static NativeCommandLine parse(CharSequence cmd) {
 		List<String> osArgs = new ArrayList<>();
 		// FIXME deal with " and '
 		StringBuilder currentArg = new StringBuilder();
@@ -36,6 +36,6 @@ class CommandLine {
 			}
 			currentArg.append(c);
 		}
-		return new CommandLine(osArgs);
+		return new NativeCommandLine(osArgs);
 	}
 }
