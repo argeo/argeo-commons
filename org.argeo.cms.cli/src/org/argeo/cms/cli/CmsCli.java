@@ -9,10 +9,10 @@ public class CmsCli extends CommandsCli {
 		addCommand("launch", new StaticCmsLaunch());
 	}
 
-	@Override
-	public String getDescription() {
-		return "Static CMS utilities.";
-	}
+//	@Override
+//	public String getDescription() {
+//		return "Static CMS utilities.";
+//	}
 
 	public static void main(String[] args) {
 		mainImpl(new CmsCli("cms"), args);

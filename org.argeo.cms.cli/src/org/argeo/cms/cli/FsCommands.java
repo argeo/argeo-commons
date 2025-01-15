@@ -10,9 +10,9 @@ public class FsCommands extends CommandsCli {
 		addCommand("sync", new FileSync());
 	}
 
-	@Override
-	public String getDescription() {
-		return "Utilities around files and file systems";
-	}
+//	@Override
+//	public String getDescription() {
+//		return "Utilities around files and file systems";
+//	}
 
 }
