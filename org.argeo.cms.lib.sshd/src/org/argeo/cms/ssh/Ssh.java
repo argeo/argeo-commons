@@ -2,14 +2,8 @@ package org.argeo.cms.ssh;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 
 /** Create an SSH shell. */
 public class Ssh extends AbstractSsh {
@@ -25,14 +19,15 @@ public class Ssh extends AbstractSsh {
 	}
 
 	public static void main(String[] args) {
-		Options options = getOptions();
-		CommandLineParser parser = new DefaultParser();
+		// FIXME duplicate with SSH CLI ?
+//		Options options = getOptions();
+//		CommandLineParser parser = new DefaultParser();
 		try {
-			CommandLine line = parser.parse(options, args);
-			List<String> remaining = line.getArgList();
+//			CommandLine line = parser.parse(options, args);
+			List<String> remaining = Arrays.asList(args);
 			if (remaining.size() == 0) {
 				System.err.println("There must be at least one argument");
-				printHelp(options);
+//				printHelp(options);
 				System.exit(1);
 			}
 			URI uri = new URI("ssh://" + remaining.get(0));
@@ -55,7 +50,7 @@ public class Ssh extends AbstractSsh {
 			ssh.closeSession();
 		} catch (Exception exp) {
 			exp.printStackTrace();
-			printHelp(options);
+//			printHelp(options);
 			System.exit(1);
 		} finally {
 
@@ -66,16 +61,16 @@ public class Ssh extends AbstractSsh {
 		return uri;
 	}
 
-	public static Options getOptions() {
-		Options options = new Options();
-//		options.addOption("p", true, "port");
-		options.addOption(Option.builder("p").hasArg().argName("port").desc("port of the SSH server").build());
-
-		return options;
-	}
-
-	public static void printHelp(Options options) {
-		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("ssh [username@]hostname", options, true);
-	}
+//	public static Options getOptions() {
+//		Options options = new Options();
+////		options.addOption("p", true, "port");
+//		options.addOption(Option.builder("p").hasArg().argName("port").desc("port of the SSH server").build());
+//
+//		return options;
+//	}
+//
+//	public static void printHelp(Options options) {
+//		HelpFormatter formatter = new HelpFormatter();
+//		formatter.printHelp("ssh [username@]hostname", options, true);
+//	}
 }

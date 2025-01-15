@@ -3,7 +3,7 @@ package org.argeo.cms.cli;
 import java.net.URI;
 import java.util.List;
 
-import org.apache.commons.cli.Option;
+//import org.apache.commons.cli.Option;
 import org.argeo.api.cli.CLine;
 import org.argeo.api.cli.CommandsCli;
 import org.argeo.api.cli.DescribedCommand;
@@ -12,8 +12,8 @@ import org.argeo.cms.client.WebSocketPing;
 
 /** Commands dealing with CMS. */
 public class CmsCommands extends CommandsCli {
-	final static Option connectOption = Option.builder().option("c").longOpt("connect").desc("server to connect to")
-			.hasArg(true).build();
+//	final static Option connectOption = Option.builder().option("c").longOpt("connect").desc("server to connect to")
+//			.hasArg(true).build();
 
 	public CmsCommands(String commandName) {
 		super(commandName);
