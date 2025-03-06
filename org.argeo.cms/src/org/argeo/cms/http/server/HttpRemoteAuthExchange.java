@@ -1,6 +1,5 @@
 package org.argeo.cms.http.server;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -28,7 +27,7 @@ public class HttpRemoteAuthExchange implements RemoteAuthExchange {
 			this.remoteAuthSession = abstractHttpExchange.getRemoteAuthSession();
 		else
 			this.remoteAuthSession = (RemoteAuthSession) httpExchange.getAttribute(RemoteAuthSession.class.getName());
-		//Objects.requireNonNull(this.remoteAuthSession);
+		// Objects.requireNonNull(this.remoteAuthSession);
 	}
 
 	@Override
@@ -38,8 +37,7 @@ public class HttpRemoteAuthExchange implements RemoteAuthExchange {
 
 	@Override
 	public void addHeader(String headerName, String value) {
-		List<String> values = httpExchange.getResponseHeaders().getOrDefault(headerName, new ArrayList<>());
-		values.add(value);
+		httpExchange.getResponseHeaders().add(headerName, value);
 	}
 
 	@Override
