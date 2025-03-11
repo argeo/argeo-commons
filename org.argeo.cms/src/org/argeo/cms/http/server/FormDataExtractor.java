@@ -105,9 +105,9 @@ class FormDataExtractor {
 //						p.value = new String(body);
 //					} else {
 //						// must be a file upload
-//					p.bytes = Arrays.copyOfRange(part, headerEnd + 4, part.length);
+					p.bytes = Arrays.copyOfRange(part, headerEnd + 4, part.length);
 					// if (p.submittedFileName == null) {
-					System.out.print("BODY|\n" + new String(p.bytes, UTF_8) + "\n|\n");
+//					System.out.print("BODY|\n" + new String(p.bytes != null ? p.bytes : new byte[0], UTF_8) + "\n|\n");
 					// }
 //					}
 					list.add(p);
