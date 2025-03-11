@@ -5,7 +5,7 @@ org.eclipse.core.commands.common,\
 javax.servlet.*;version="[3,5)",\
 *
 
-Bundle-ActivationPolicy: lazy
+#Bundle-ActivationPolicy: lazy
 			
 Service-Component: \
 OSGI-INF/cmsUserApp.xml
