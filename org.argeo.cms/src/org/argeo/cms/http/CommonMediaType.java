@@ -17,6 +17,7 @@ public enum CommonMediaType implements Supplier<String> {
 	// text
 	TEXT_PLAIN("text/plain", true, "txt"), //
 	TEXT_CSV("text/csv", true, "csv"), //
+	TEXT_XML("text/xml", true, "xml"), //
 	// application
 	APPLICATION_XML("application/xml", true, "xml"), //
 	APPLICATION_JSON("application/json", true, "json"), //
