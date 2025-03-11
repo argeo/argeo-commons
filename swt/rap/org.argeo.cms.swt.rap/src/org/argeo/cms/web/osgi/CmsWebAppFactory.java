@@ -53,8 +53,8 @@ public class CmsWebAppFactory {
 		cmsWebApp.setCmsEventBus(cmsEventBus);
 		cmsWebApp.setCmsApp(cmsApp);
 		Hashtable<String, String> serviceProperties = new Hashtable<>();
-		if (!contextName.equals(""))
-			serviceProperties.put(CONTEXT_NAME, contextName);
+		// if (!contextName.equals(""))
+		serviceProperties.put(CONTEXT_NAME, contextName);
 		cmsWebApp.init(bundleContext, serviceProperties);
 		registrations.put(contextName, cmsWebApp);
 	}

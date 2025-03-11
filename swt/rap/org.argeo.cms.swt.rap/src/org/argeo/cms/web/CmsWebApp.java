@@ -108,7 +108,8 @@ public class CmsWebApp implements ApplicationConfiguration, ExceptionHandler, Cm
 				CmsWebEntryPoint entryPoint = new CmsWebEntryPoint(this, uiName);
 				return entryPoint;
 			}, properties);
-			log.debug(() -> "Added web entry point " + (contextName != null ? "/" + contextName : "") + entryPointName);
+			log.debug(() -> "Added web entry point " + (!"".equals(contextName) ? "/" + contextName : "")
+					+ entryPointName);
 		}
 	}
 
