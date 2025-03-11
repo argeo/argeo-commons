@@ -57,12 +57,12 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 		long begin = System.currentTimeMillis();
 		// types
 		typesManager = new TypesManager();
-		typesManager.init();
-		Set<QName> types = typesManager.listTypes();
-		if (log.isTraceEnabled())
-			for (QName type : types) {
-				log.trace(type + " - " + typesManager.getAttributeTypes(type));
-			}
+//		typesManager.init();
+//		Set<QName> types = typesManager.listTypes();
+//		if (log.isTraceEnabled())
+//			for (QName type : types) {
+//				log.trace(type + " - " + typesManager.getAttributeTypes(type));
+//			}
 		long duration = System.currentTimeMillis() - begin;
 		log.debug(() -> "CMS content types available (initialisation took " + duration + " ms)");
 	}
@@ -70,6 +70,7 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	protected abstract CmsContentSession newSystemSession();
 
 	public void start() {
+		registerTypes(CmsContentNamespace.values());
 		systemSession = newSystemSession();
 		// mounts
 		mountManager = new MountManager(systemSession);
@@ -97,7 +98,14 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 
 	@Override
 	public void registerTypes(ContentNamespace... namespaces) {
-		typesManager.registerTypes(namespaces);
+		for (ContentNamespace contentNamespace : namespaces) {
+			RuntimeNamespaceContext.register(contentNamespace.getNamespaceURI(), contentNamespace.getDefaultPrefix());
+			log.debug(() -> "Registered namespace " + contentNamespace.getNamespaceURI() + " with default prefix "
+					+ contentNamespace.getDefaultPrefix() + ":");
+		}
+
+		if (typesManager != null)
+			typesManager.registerTypes(namespaces);
 	}
 
 	/*
@@ -223,6 +231,5 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	CmsContentSession getSystemSession() {
 		return systemSession;
 	}
-	
-	
+
 }
