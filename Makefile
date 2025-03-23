@@ -3,7 +3,6 @@ include sdk.mk
 A2_CATEGORY = org.argeo.cms
 
 BUNDLES = \
-org.argeo.init \
 org.argeo.api.uuid \
 org.argeo.api.register \
 org.argeo.api.acr \
@@ -41,15 +40,19 @@ org.argeo.api.acr \
 org.argeo.api.cms
 
 all: osgi-all
+	$(MAKE) -f Makefile-init.mk all
 	$(MAKE) -f Makefile-rcp.mk all
 	
 clean: osgi-clean
+	$(MAKE) -f Makefile-init.mk clean
 	$(MAKE) -f Makefile-rcp.mk clean
 
 install: osgi-install
+	$(MAKE) -f Makefile-init.mk install
 	$(MAKE) -f Makefile-rcp.mk install
 
 uninstall: osgi-uninstall
+	$(MAKE) -f Makefile-init.mk uninstall
 	$(MAKE) -f Makefile-rcp.mk uninstall
 
 include  $(SDK_SRC_BASE)/sdk/argeo-build/osgi.mk
