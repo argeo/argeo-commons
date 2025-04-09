@@ -1,3 +1,5 @@
+Main-Class: org.argeo.minidesktop.MiniDesktopManager
+
 Import-Package: org.eclipse.swt,\
 *
 
