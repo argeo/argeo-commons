@@ -2,25 +2,24 @@ package org.argeo.eclipse.ui.specific;
 
 import java.util.Locale;
 
+import org.argeo.cms.auth.RemoteAuthRequest;
+import org.argeo.cms.auth.RemoteAuthResponse;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 /** Singleton class providing single sources infos about the UI context. */
 public class UiContext {
 
 	@Deprecated
-	public static HttpServletRequest getHttpRequest() {
+	public static RemoteAuthRequest getRemoteAuthRequest() {
 		return null;
 	}
 
 	@Deprecated
-	public static HttpServletResponse getHttpResponse() {
+	public static RemoteAuthResponse getRemoteAuthResponse() {
 		return null;
 	}
 
