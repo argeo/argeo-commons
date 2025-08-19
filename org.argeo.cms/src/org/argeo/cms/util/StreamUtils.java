@@ -14,6 +14,9 @@ import java.util.StringJoiner;
 
 /** Stream utilities to be used when Apache Commons IO is not available. */
 public class StreamUtils {
+	/** An {@link OutputStream} that does nothing. */
+	public final static OutputStream NULL_OUTPUT_STREAM = new NullOutputStream();
+
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 	/** @return the number of bytes */
@@ -109,5 +112,24 @@ public class StreamUtils {
 		while ((line = reader.readLine()) != null)
 			sn.add(line);
 		return sn.toString();
+	}
+
+	private static class NullOutputStream extends OutputStream {
+
+		@Override
+		public void write(int b) throws IOException {
+			// no-op
+		}
+
+		@Override
+		public void write(byte[] b) throws IOException {
+			// no-op
+		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			// no-op
+		}
+
 	}
 }

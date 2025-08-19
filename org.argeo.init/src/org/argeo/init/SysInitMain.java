@@ -8,7 +8,9 @@ import static java.lang.System.Logger.Level.WARNING;
 
 import java.io.Console;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -27,27 +29,37 @@ import java.util.concurrent.atomic.AtomicInteger;
 import sun.misc.Signal;
 
 /** A minimalistic Linux init process. */
-class SysInitMain {
+public class SysInitMain {
 	final static AtomicInteger runLevel = new AtomicInteger(-1);
 
-	private final static Logger logger = System.getLogger(SysInitMain.class.getName());
+	private static Logger logger;
 
 	private final static List<String> initDServices = Collections.synchronizedList(new ArrayList<>());
+
+	private static Process xServer;
 
 	public static void main(String... args) {
 		try {
 			final long pid = ProcessHandle.current().pid();
+			// TODO find reference for PID 1 signal handling
 			Signal.handle(new Signal("TERM"), (signal) -> {
-				System.out.println("SIGTERM caught");
-				System.exit(0);
+				System.out.println("SIGTERM caught, doing nothing");
+				// TODO reload?
+				//System.exit(0);
 			});
 			Signal.handle(new Signal("INT"), (signal) -> {
-				System.out.println("SIGINT caught");
+				System.out.println("SIGINT caught, rebooting");
+				shutdown(true);
+				System.exit(0);
+			});
+			Signal.handle(new Signal("PWR"), (signal) -> {
+				System.out.println("SIGPWR caught, shutting down");
+				shutdown(false);
 				System.exit(0);
 			});
 			Signal.handle(new Signal("HUP"), (signal) -> {
-				System.out.println("SIGHUP caught");
-				System.exit(0);
+				System.out.println("SIGHUP caught, doing nothing");
+				//System.exit(0);
 			});
 
 			boolean isSystemInit = pid == 1 || pid == 2;
@@ -61,19 +73,15 @@ class SysInitMain {
 				}
 				System.out.println("Single user mode");
 				System.out.flush();
-				ProcessBuilder pb = new ProcessBuilder("/bin/bash");
-				pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-				pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-				pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
-				Process singleUserShell = pb.start();
-				singleUserShell.waitFor();
+				singleUserShell();
 			} else {
 				if (args.length == 0)
-					runLevel.set(5);
+					runLevel.set(3);
 				else
 					runLevel.set(Integer.parseInt(args[0]));
 
 				if (runLevel.get() == 0) {// shutting down the whole system
+					initLogger();
 					if (!isSystemInit) {
 						logger.log(INFO, "Shutting down system...");
 						shutdown(false);
@@ -83,6 +91,7 @@ class SysInitMain {
 						System.exit(1);
 					}
 				} else if (runLevel.get() == 6) {// reboot the whole system
+					initLogger();
 					if (!isSystemInit) {
 						logger.log(INFO, "Rebooting the system...");
 						shutdown(true);
@@ -92,39 +101,147 @@ class SysInitMain {
 					}
 				}
 
-				logger.log(INFO, "FREEd Init daemon starting with pid " + pid + " after "
-						+ ManagementFactory.getRuntimeMXBean().getUptime() + " ms");
+//				logger.log(DEBUG, () -> "FREEd Init daemon starting with pid " + pid + " after "
+//						+ ManagementFactory.getRuntimeMXBean().getUptime() + " ms");
+
+				mountRootRw();
+				// Logging to file will not work until / has been remounted rw
+				// mount file systems
+				initLogger();
+
 				// hostname
-				String hostname = Files.readString(Paths.get("/etc/hostname"));
-				new ProcessBuilder("/usr/bin/hostname", hostname).start();
-				logger.log(DEBUG, "Set hostname to " + hostname);
-				// networking
+				Path hostnameF = Paths.get("/etc/hostname");
+				if (Files.exists(hostnameF)) {
+					String hostname = Files.readString(hostnameF);
+					int exitCode = new ProcessBuilder("/bin/hostname", hostname).start().waitFor();
+					if (exitCode == 0)
+						logger.log(DEBUG, () -> "Set hostname to " + hostname);
+				}
+
 				initSysctl();
-				startInitDService("networking", true);
-//				Thread.sleep(3000);// leave some time for network to start up
-				if (!waitForNetwork(10 * 1000))
+
+				// hardware
+				startInitDService("udev");
+				// TODO mount all asynchronously in order to deal with network fs
+				mountAll();
+
+				startInitDService("qemu-agent");
+				startInitDService("dbus",false);// TODO dbus fails to stop
+
+				// networking (asychronous)
+//				new Thread(() -> {
+				startInitDService("networking");
+				if (!waitForNetwork(60 * 1000))
 					logger.log(ERROR, "No network available");
 
 				// OpenSSH
-				// TODO make it coherent with Java sshd
-				startInitDService("ssh", true);
+				// TODO make it consistent with Java sshd
+				startInitDService("ssh");
+
+				// Chrony (time service)
+				startInitDService("chrony");
 
 				// NSS services
-				startInitDService("nslcd", false);// Note: nslcd fails to stop
+				startInitDService("nslcd", false);// TODO nslcd fails to stop
+//				}, "Start network services").start();
+
+				// user interface
+				startInitDService("console-setup.sh");
+				startInitDService("keyboard-setup.sh");
+				startInitDService("x11-common");
 
 				// login prompt
-				ServiceMain.addPostStart(() -> new LoginThread().start());
+				// ServiceMain.addPostStart(() -> new LoginThread().start());
+				new LoginThread().start();
+
+				// GUI
+				Path startxF = Paths.get("/usr/bin/startx");
+				if (Files.exists(startxF) && runLevel.get() == 5) {
+					xServer = new ProcessBuilder(startxF.toString()).start();
+					logger.log(INFO, "X server started");
+				}
 
 				// init Argeo CMS
 				logger.log(INFO, "FREEd Init daemon starting Argeo Init after "
 						+ ManagementFactory.getRuntimeMXBean().getUptime() + " ms");
-				ServiceMain.main(args);
+				RuntimeManagerMain.main(args);
 			}
 		} catch (Throwable e) {
-			logger.log(ERROR, "Unexpected exception in free-pid1 init, shutting down... ", e);
+			if (logger != null)
+				logger.log(ERROR, "Unexpected exception in free-pid1 init, shutting down... ", e);
+			else
+				e.printStackTrace();
+			singleUserShell();
 			System.exit(1);
 		} finally {
 			stopInitDServices();
+		}
+
+		// TODO improve shutdown integration with Java
+		// shutdown gracefully as we have reached this stage via Java/OSGi closing down
+		shutdown(false);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// silent
+		}
+	}
+
+	static void mountRootRw() {
+		try {
+			// fsck if needed
+			// FIXME check why fsck -A makes the kernel crash
+//			Path forceFsck = Paths.get("/forcefsck");
+//			if (Files.exists(forceFsck)) {
+//				Process fsck = new ProcessBuilder("/sbin/fsck", "-A").start();
+//				logger.log(Level.INFO, "Start file system check...");
+//				int exitCode = fsck.waitFor();
+//				if (exitCode != 0)
+//					throw new IllegalStateException("fsck failed");
+//			}
+
+			{// mount root FS read-write
+				Process mountRootRw = new ProcessBuilder("/bin/mount", "-o", "rw,remount", "/").start();
+				int exitCode = mountRootRw.waitFor();
+				if (exitCode != 0)
+					throw new IllegalStateException("Cannot remount root filesystem read-write");
+			}
+		} catch (IOException e) {
+			throw new UncheckedIOException("Cannot mount file systems", e);
+		} catch (InterruptedException e) {
+			System.err.println("Mounting root file system read-write was interrupted");
+		}
+	}
+
+	static void initLogger() {
+		logger = System.getLogger(SysInitMain.class.getName());
+	}
+
+	static void singleUserShell() {
+		ProcessBuilder pb = new ProcessBuilder("/bin/bash");
+		pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+		pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+		pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
+		try {
+			Process singleUserShell = pb.start();
+			singleUserShell.waitFor();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+
+	static void mountAll() {
+		try {
+			Process mountAll = new ProcessBuilder("/bin/mount", "-a").start();
+			int exitCode = mountAll.waitFor();
+			if (exitCode != 0)
+				logger.log(Level.ERROR, "Cannot mount file systems");
+			logger.log(Level.INFO, "File systems mounted");
+		} catch (IOException e) {
+			throw new UncheckedIOException("Cannot mount file systems", e);
+		} catch (InterruptedException e) {
+			logger.log(Level.ERROR, "Mounting file systems was interrupted");
 		}
 	}
 
@@ -133,34 +250,33 @@ class SysInitMain {
 			Path sysctlD = Paths.get("/etc/sysctl.d/");
 			for (Path conf : Files.newDirectoryStream(sysctlD, "*.conf")) {
 				try {
-					new ProcessBuilder("/usr/sbin/sysctl", "-p", conf.toString()).start();
+					new ProcessBuilder("/sbin/sysctl", "-p", conf.toString()).start();
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.log(Level.ERROR, "Cannot load sysctl " + conf);
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.log(Level.ERROR, "Cannot load sysctl");
 		}
 	}
 
+	static void startInitDService(String serviceName) {
+		startInitDService(serviceName, true);
+	}
+
 	static void startInitDService(String serviceName, boolean stopOnShutdown) {
-		Path serviceInit = Paths.get("/etc/init.d/", serviceName);
+		Path serviceInit = Paths.get("/usr/local/etc/init.d/", serviceName);
+		if (!Files.exists(serviceInit))
+			serviceInit = Paths.get("/etc/init.d/", serviceName);
 		if (Files.exists(serviceInit))
 			try {
 				int exitCode = new ProcessBuilder(serviceInit.toString(), "start").start().waitFor();
 				if (exitCode != 0)
 					logger.log(ERROR, "Service " + serviceName + " dit not stop properly");
 				else
-					logger.log(DEBUG, "Service " + serviceName + " started");
+					logger.log(INFO, "Service " + serviceName + " started");
 				if (stopOnShutdown)
 					initDServices.add(serviceName);
-//					Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-//						try {
-//							new ProcessBuilder(serviceInit.toString(), "stop").start().waitFor();
-//						} catch (IOException | InterruptedException e) {
-//							e.printStackTrace();
-//						}
-//					}, "FREEd stop service " + serviceName));
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -224,16 +340,31 @@ class SysInitMain {
 		try {
 			stopInitDServices();
 			Path sysrqP = Paths.get("/proc/sys/kernel/sysrq");
+			String current = Files.readString(sysrqP);
+			if ("1".equals(current))
+				return;// already shutting down
 			Files.writeString(sysrqP, "1");
 			Path sysrqTriggerP = Paths.get("/proc/sysrq-trigger");
 			Files.writeString(sysrqTriggerP, "e");// send SIGTERM to all processes
+			// TODO check processes effectively with ProcessHandle.of(1)
+			try {
+				Thread.sleep(5 * 1000);
+			} catch (InterruptedException e) {
+				// silent
+			}
 			// Files.writeString(sysrqTriggerP, "i");// send SIGKILL to all processes
-			Files.writeString(sysrqTriggerP, "e");// flush data to disk
+			Files.writeString(sysrqTriggerP, "s");// flush data to disk
 			Files.writeString(sysrqTriggerP, "u");// unmount
 			if (reboot)
 				Files.writeString(sysrqTriggerP, "b");
-			else
+			else {
 				Files.writeString(sysrqTriggerP, "o");
+				try {
+					Thread.sleep(10 * 1000);
+				} catch (InterruptedException e) {
+					// silent
+				}
+			}
 		} catch (IOException e) {
 			logger.log(ERROR, "Cannot shut down system", e);
 		}
@@ -242,11 +373,13 @@ class SysInitMain {
 	static void stopInitDServices() {
 		for (int i = initDServices.size() - 1; i >= 0; i--) {
 			String serviceName = initDServices.get(i);
-			Path serviceInit = Paths.get("/etc/init.d/", serviceName);
+			Path serviceInit = Paths.get("/usr/local/etc/init.d/", serviceName);
+			if (!Files.exists(serviceInit))
+				serviceInit = Paths.get("/etc/init.d/", serviceName);
 			try {
 				int exitCode = new ProcessBuilder(serviceInit.toString(), "stop").start().waitFor();
 				if (exitCode != 0)
-					logger.log(ERROR, "Service " + serviceName + " dit not stop properly");
+					logger.log(ERROR, "Service " + serviceName + " did not stop properly");
 			} catch (InterruptedException | IOException e) {
 				logger.log(ERROR, "Cannot stop service " + serviceName, e);
 			}
@@ -290,7 +423,10 @@ class SysInitMain {
 						pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
 						process = pb.start();
 					}
-					Runtime.getRuntime().addShutdownHook(new Thread(() -> process.destroy()));
+					Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+						if (process != null)
+							process.destroy();
+					}));
 					try {
 						process.waitFor();
 					} catch (InterruptedException e) {

@@ -52,7 +52,6 @@ import org.xml.sax.SAXParseException;
 /** Register content types. */
 class TypesManager {
 	private final static CmsLog log = CmsLog.getLog(TypesManager.class);
-//	private Map<String, String> prefixes = new TreeMap<>();
 
 	// immutable factories
 	private SchemaFactory schemaFactory;
@@ -80,20 +79,14 @@ class TypesManager {
 	}
 
 	public void init() {
-		registerTypes(CmsContentNamespace.values());
+//		registerTypes(CmsContentNamespace.values());
 	}
 
 	public void registerTypes(ContentNamespace... namespaces) {
-//		if (prefixes.containsKey(defaultPrefix))
-//			throw new IllegalStateException(
-//					"Prefix " + defaultPrefix + " is already mapped with " + prefixes.get(defaultPrefix));
-//		prefixes.put(defaultPrefix, namespace);
 		for (ContentNamespace contentNamespace : namespaces) {
-			RuntimeNamespaceContext.register(contentNamespace.getNamespaceURI(), contentNamespace.getDefaultPrefix());
-
 			if (contentNamespace.getSchemaResource() != null) {
 				sources.add(contentNamespace.getSchemaResource());
-				log.debug(() -> "Registered types " + contentNamespace.getNamespaceURI() + " from "
+				log.trace(() -> "Registered types " + contentNamespace.getNamespaceURI() + " from "
 						+ contentNamespace.getSchemaResource().toExternalForm());
 			}
 		}

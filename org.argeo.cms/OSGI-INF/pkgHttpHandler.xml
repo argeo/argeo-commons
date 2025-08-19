@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="org.argeo.cms.pkgServlet">
+   <implementation class="org.argeo.cms.internal.http.PkgHttpHandler"/>
+   <service>
+      <provide interface="com.sun.net.httpserver.HttpHandler"/>
+   </service>
+   <property name="context.path" type="String" value="/pkg/" />
+   <property name="context.public" type="String" value="true" />
+</scr:component>

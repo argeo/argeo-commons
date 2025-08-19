@@ -2,10 +2,11 @@ Import-Package: org.eclipse.swt,\
 org.eclipse.jface.window,\
 org.eclipse.jface.dialogs,\
 org.eclipse.core.commands.common,\
-javax.servlet.*;version="[3,5)",\
+jakarta.servlet.*;resolution:=optional,\
+org.argeo.cms.jakarta.servlet.*;resolution:=optional,\
 *
 
-Bundle-ActivationPolicy: lazy
+#Bundle-ActivationPolicy: lazy
 			
 Service-Component: \
 OSGI-INF/cmsUserApp.xml

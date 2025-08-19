@@ -1,5 +1,7 @@
 package org.argeo.cms.internal.runtime;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.Reader;
@@ -100,7 +102,8 @@ public class CmsStateImpl implements CmsState, NodeIdSupplier {
 	public void start() {
 		Charset defaultCharset = Charset.defaultCharset();
 		if (!StandardCharsets.UTF_8.equals(defaultCharset))
-			log.error("Default JVM charset is " + defaultCharset + " and not " + StandardCharsets.UTF_8);
+			log.error("Default JVM charset is " + defaultCharset + " and not " + UTF_8
+					+ ", JVM must be launched with system property -Dfile.encoding=" + UTF_8);
 		try {
 			// First init check
 			Path privateBase = getDataPath(KernelConstants.DIR_PRIVATE);

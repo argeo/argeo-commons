@@ -1,5 +1,7 @@
 package org.argeo.init;
 
+import static java.lang.System.Logger.Level.DEBUG;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
@@ -75,7 +77,7 @@ public class ServiceMain {
 					String currentValue = System.getProperty(key.toString());
 					String value = properties.getProperty(key.toString());
 					if (currentValue != null) {
-						if (!Objects.equals(value, currentValue))
+						if (!Objects.equals(value, currentValue) && logger.isLoggable(DEBUG))
 							logger.log(Logger.Level.WARNING, "System property " + key + " already set with value "
 									+ currentValue + " instead of " + value + ". Ignoring new value.");
 					} else {

@@ -1,5 +1,12 @@
 package org.argeo.cms.auth;
 
+import static org.argeo.cms.http.HttpHeader.AUTHORIZATION;
+import static org.argeo.cms.http.HttpHeader.NEGOTIATE;
+import static org.argeo.cms.http.HttpHeader.REALM;
+import static org.argeo.cms.http.HttpHeader.WWW_AUTHENTICATE;
+import static org.argeo.cms.http.HttpStatus.FORBIDDEN;
+import static org.argeo.cms.http.HttpStatus.UNAUTHORIZED;
+
 import java.security.PrivilegedAction;
 import java.util.Base64;
 import java.util.function.Supplier;
@@ -13,7 +20,6 @@ import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.cms.http.HttpHeader;
-import org.argeo.cms.http.HttpStatus;
 import org.argeo.cms.internal.runtime.CmsContextImpl;
 import org.argeo.cms.util.CurrentSubject;
 import org.ietf.jgss.GSSContext;
@@ -118,26 +124,23 @@ public class RemoteAuthUtils {
 	public static int askForWwwAuth(RemoteAuthRequest remoteAuthRequest, RemoteAuthResponse remoteAuthResponse,
 			String realm, boolean forceBasic) {
 		boolean negotiateFailed = false;
-		if (remoteAuthRequest.getHeader(HttpHeader.AUTHORIZATION.getHeaderName()) != null) {
+		if (remoteAuthRequest.getHeader(AUTHORIZATION) != null) {
 			// we already tried, so we give up in order not too loop endlessly
-			if (remoteAuthRequest.getHeader(HttpHeader.AUTHORIZATION.getHeaderName())
-					.startsWith(HttpHeader.NEGOTIATE)) {
+			if (remoteAuthRequest.getHeader(AUTHORIZATION).startsWith(NEGOTIATE)) {
 				negotiateFailed = true;
 			} else {
-				return HttpStatus.FORBIDDEN.getCode();
+				return FORBIDDEN.get();
 			}
 		}
 
 		// response.setHeader(HttpUtils.HEADER_WWW_AUTHENTICATE, "basic
 		// realm=\"" + httpAuthRealm + "\"");
 		if (hasAcceptorCredentials() && !forceBasic && !negotiateFailed) {// SPNEGO
-			remoteAuthResponse.addHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(), HttpHeader.NEGOTIATE);
+			remoteAuthResponse.addHeader(WWW_AUTHENTICATE, NEGOTIATE);
 			// TODO make it configurable ?
-			remoteAuthResponse.addHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(),
-					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + realm + "\"");
+			remoteAuthResponse.addHeader(WWW_AUTHENTICATE, HttpHeader.BASIC + " " + REALM + "=\"" + realm + "\"");
 		} else {
-			remoteAuthResponse.setHeader(HttpHeader.WWW_AUTHENTICATE.getHeaderName(),
-					HttpHeader.BASIC + " " + HttpHeader.REALM + "=\"" + realm + "\"");
+			remoteAuthResponse.setHeader(WWW_AUTHENTICATE, HttpHeader.BASIC + " " + REALM + "=\"" + realm + "\"");
 		}
 
 		// response.setDateHeader("Date", System.currentTimeMillis());
@@ -148,7 +151,7 @@ public class RemoteAuthUtils {
 		// response.setHeader("Keep-Alive", "timeout=5, max=97");
 		// response.setContentType("text/html; charset=UTF-8");
 
-		return HttpStatus.UNAUTHORIZED.getCode();
+		return UNAUTHORIZED.get();
 	}
 
 	private static boolean hasAcceptorCredentials() {

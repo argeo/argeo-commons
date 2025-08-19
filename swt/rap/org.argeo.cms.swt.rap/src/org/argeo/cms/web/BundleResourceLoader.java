@@ -8,6 +8,7 @@ import org.eclipse.rap.rwt.service.ResourceLoader;
 import org.osgi.framework.Bundle;
 
 /** {@link ResourceLoader} implementation wrapping an {@link Bundle}. */
+@Deprecated
 public class BundleResourceLoader implements ResourceLoader {
 	private final Bundle bundle;
 

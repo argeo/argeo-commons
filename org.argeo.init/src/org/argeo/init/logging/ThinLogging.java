@@ -92,16 +92,41 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 			publisher.subscribe(subscriber);
 			String logFileStr = System.getProperty(PROP_ARGEO_LOGGING_FILE);
 			if (logFileStr != null) {
-				Path logFilePath = Paths.get(logFileStr);
+				final Path logFilePath = Paths.get(logFileStr);
 				if (!Files.exists(logFilePath.getParent())) {
 					System.err.println("Parent directory of " + logFilePath + " does not exist");
 				} else {
-					try {
-						fileOut = new PrintStream(Files.newOutputStream(logFilePath), true, StandardCharsets.UTF_8);
+					// if the log file is not writable (typically during system initalization),
+					// we wait until it is
+					Runnable useLogFile = () -> {
+						try {
+							fileOut = new PrintStream(Files.newOutputStream(logFilePath), true, StandardCharsets.UTF_8);
+						} catch (IOException e) {
+							System.err.println("Cannot write log to " + logFilePath + ": " + e.getMessage());
+							// e.printStackTrace();
+						}
 						publisher.subscribe(new PrintStreamSubscriber(fileOut, fileOut));
-					} catch (IOException e) {
-						System.err.println("Cannot write log to " + logFilePath);
-						e.printStackTrace();
+					};
+					if (Files.isWritable(logFilePath)) {
+						useLogFile.run();
+					} else {
+						Thread useLogFileThread = new Thread(() -> {
+							final long TIMEOUT = 10 * 1000;
+							long begin = System.currentTimeMillis();
+							while (!Files.isWritable(logFilePath) && (System.currentTimeMillis() - begin < TIMEOUT)) {
+								try {
+									Thread.sleep(100);
+								} catch (InterruptedException e) {
+									break;
+								}
+							}
+							if (!Files.isWritable(logFilePath))
+								System.err.println("Log file " + logFilePath + " is not writable");
+							else
+								useLogFile.run();
+						}, "register log file " + logFilePath);
+						useLogFileThread.setDaemon(true);
+						useLogFileThread.start();
 					}
 				}
 			}
@@ -398,6 +423,8 @@ class ThinLogging implements Consumer<Map<String, Object>> {
 					case "org.eclipse.jetty.util.log.Slf4jLog":
 					case "sun.util.logging.internal.LoggingProviderImpl$JULWrapper":
 					case "org.slf4j.impl.ArgeoLogger":
+					case "org.argeo.api.syslogger.SystemLoggingAdapter":
+					case "org.argeo.tp.internal.syslogger.slf4j.ArgeoLogger":
 					case "org.argeo.cms.internal.osgi.CmsOsgiLogger":
 					case "org.argeo.init.osgi.OsgiBootUtils":
 						lowestLoggerInterface = i;

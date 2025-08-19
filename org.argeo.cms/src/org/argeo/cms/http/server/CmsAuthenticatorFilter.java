@@ -1,0 +1,60 @@
+package org.argeo.cms.http.server;
+
+import java.io.IOException;
+
+import com.sun.net.httpserver.Authenticator;
+import com.sun.net.httpserver.Filter;
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpPrincipal;
+
+/** A {@link Filter} based on an {@link Authenticator}. */
+public class CmsAuthenticatorFilter extends Filter {
+
+	@Override
+	public String description() {
+		return "Argeo CMS Authenticator";
+	}
+
+	@Override
+	public void doFilter(HttpExchange exchange, Chain chain) throws IOException {
+		if (!(exchange instanceof AbstractCmsHttpExchange))
+			throw new IllegalArgumentException("Only implementations of " + HttpExchange.class.getSimpleName()
+					+ " based on " + AbstractCmsHttpExchange.class.getName() + " are supported");
+		AbstractCmsHttpExchange httpExchange = (AbstractCmsHttpExchange) exchange;
+
+		HttpContext httpContext = httpExchange.getHttpContext();
+		Authenticator authenticator = httpContext.getAuthenticator();
+		if (authenticator == null) {
+			// TODO or force anonymous access in such case?
+			throw new IllegalStateException("Only HTTP context with an " + Authenticator.class.getSimpleName()
+					+ " are supported. Use a public authenticator if anonymous access is needed.");
+		}
+
+		try {
+//			RemoteAuthSession httpSession = new ServletHttpSession(req.getSession());
+			// httpExchange.setAttribute(RemoteAuthSession.class.getName(), httpSession);
+			Authenticator.Result authenticationResult = authenticator.authenticate(httpExchange);
+			if (authenticationResult instanceof Authenticator.Success) {
+				HttpPrincipal httpPrincipal = ((Authenticator.Success) authenticationResult).getPrincipal();
+				httpExchange.setPrincipal(httpPrincipal);
+			} else if (authenticationResult instanceof Authenticator.Retry) {
+				httpExchange.sendResponseHeaders((((Authenticator.Retry) authenticationResult).getResponseCode()), -1);
+//					resp.flushBuffer();
+				return;
+			} else if (authenticationResult instanceof Authenticator.Failure) {
+				httpExchange.sendResponseHeaders(((Authenticator.Failure) authenticationResult).getResponseCode(), -1);
+//					resp.flushBuffer();
+				return;
+			} else {
+				throw new UnsupportedOperationException(
+						"Authentication result " + authenticationResult.getClass().getName() + " is not supported");
+			}
+
+			chain.doFilter(httpExchange);
+		} finally {
+// TODO deal with unexpected failure, in order not to let the authentication in an undefined state
+		}
+	}
+
+}

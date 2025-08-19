@@ -1,37 +1,56 @@
 package org.argeo.cms.http.server;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.argeo.cms.http.HttpHeader.CONTENT_TYPE;
+import static org.argeo.cms.http.HttpHeader.DATE;
+import static org.argeo.cms.http.HttpHeader.HTTP_HEADER_DATE_FORMATTER;
+import static org.argeo.cms.http.HttpHeader.VIA;
+import static org.argeo.cms.http.HttpHeader.X_FORWARDED_HOST;
+import static org.argeo.cms.http.HttpStatus.OK;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.argeo.api.acr.ContentRepository;
 import org.argeo.api.acr.ContentSession;
 import org.argeo.cms.auth.RemoteAuthUtils;
+import org.argeo.cms.http.CommonMediaType;
+import org.argeo.cms.http.HttpHeader;
 import org.argeo.cms.http.HttpMethod;
-import org.argeo.cms.http.RemoteAuthHttpExchange;
+import org.argeo.cms.http.HttpStatus;
 
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpsExchange;
 
 /** HTTP utilities on the server-side. */
 public class HttpServerUtils {
 	private final static String SLASH = "/";
 
+	/*
+	 * PATHS
+	 */
 	private static String extractPathWithingContext(HttpContext httpContext, String fullPath, boolean startWithSlash) {
 		Objects.requireNonNull(fullPath);
 		String contextPath = httpContext.getPath();
 		if (!fullPath.startsWith(contextPath))
-			throw new IllegalArgumentException(fullPath + " does not belong to context" + contextPath);
+			throw new IllegalArgumentException(fullPath + " does not belong to context " + contextPath);
 		String path = fullPath.substring(contextPath.length());
 		// TODO optimise?
 		if (!startWithSlash && path.startsWith(SLASH)) {
@@ -39,6 +58,11 @@ public class HttpServerUtils {
 		} else if (startWithSlash && !path.startsWith(SLASH)) {
 			path = SLASH + path;
 		}
+
+		// make sure it does not start with "//"
+		if (path.startsWith(SLASH + SLASH))
+			path = path.substring(1);
+
 		return path;
 	}
 
@@ -57,15 +81,25 @@ public class HttpServerUtils {
 	}
 
 	/** Returns content session consistent with this HTTP context. */
+	// TODO move this method to another, ACR-specific, class
 	public static ContentSession getContentSession(ContentRepository contentRepository, HttpExchange exchange) {
 		ContentSession session = RemoteAuthUtils.doAs(() -> contentRepository.get(),
-				new RemoteAuthHttpExchange(exchange));
+				new HttpRemoteAuthExchange(exchange));
 		return session;
 	}
 
 	/*
 	 * QUERY PARAMETERS
 	 */
+	public static Optional<String> getParameter(Map<String, List<String>> parameters, String key) {
+		if (!parameters.containsKey(key))
+			return Optional.empty();
+		List<String> values = parameters.get(key);
+		if (values == null || values.size() != 1)
+			throw new IllegalArgumentException("Parameter " + key + " is present but either, empty, or multiple");
+		return Optional.of(values.get(0));
+	}
+
 	/** Returns the HTTP parameters form an {@link HttpExchange}. */
 	public static Map<String, List<String>> parseParameters(HttpExchange exchange) {
 		// TODO check encoding?
@@ -112,6 +146,148 @@ public class HttpServerUtils {
 				parameters.put(key, new ArrayList<>());
 			parameters.get(key).add(value);
 		}
+	}
+
+	/*
+	 * HEADERS
+	 */
+	/**
+	 * Set content type. For text-based format (text/* and application/json) set
+	 * UTF-8 charset.
+	 */
+	public static void setContentType(HttpExchange exchange, CommonMediaType mediaType) {
+		setContentType(exchange, mediaType.get(), mediaType.isTextBased() ? UTF_8 : null);
+	}
+
+	public static void setContentType(HttpExchange exchange, CommonMediaType mediaType, Charset charset) {
+		setContentType(exchange, mediaType.get(), charset);
+	}
+
+	public static void setContentType(HttpExchange exchange, String mediaType, Charset charset) {
+		exchange.getResponseHeaders().set(CONTENT_TYPE.get(),
+				HttpHeader.formatContentType(mediaType, charset != null ? charset.name() : null, null));
+	}
+
+	/** Set date header to the current time. */
+	public static void setDateHeader(HttpExchange exchange) {
+		setDateHeader(exchange, Instant.now());
+	}
+
+	public static void setDateHeader(HttpExchange exchange, Instant instant) {
+		exchange.getResponseHeaders().set(DATE.get(), HTTP_HEADER_DATE_FORMATTER.format(instant));
+	}
+
+	/*
+	 * STATUS
+	 */
+	/**
+	 * Send a status code (typically an error) without a respons body. It calls
+	 * {@link HttpExchange#sendResponseHeaders(int, long)}, so nothing else can be
+	 * set or written after calling this method.
+	 */
+	public static void sendStatusOnly(HttpExchange exchange, HttpStatus status) throws IOException {
+		exchange.sendResponseHeaders(status.get(), -1);
+	}
+
+	/*
+	 * STREAMS
+	 */
+	/**
+	 * Convenience method to send the response headers (via
+	 * {@link HttpExchange#sendResponseHeaders(int, long)}) with status code
+	 * {@link HttpStatus#OK} and write a chunked response body as an
+	 * {@link OutputStream}. Typically to used in at the start of a <code>try</code>
+	 * clause. All response headers must have bee set before calling this method.
+	 */
+	public static OutputStream sendResponse(HttpExchange exchange) throws IOException {
+		exchange.sendResponseHeaders(OK.get(), 0);
+		return exchange.getResponseBody();
+	}
+
+	/**
+	 * Convenience method to send the response headers (via
+	 * {@link HttpExchange#sendResponseHeaders(int, long)}) with status code
+	 * {@link HttpStatus#OK} and write a chunked response body as an UTF-8 encoded
+	 * {@link Writer}. Typically to used in at the start of a <code>try</code>
+	 * clause. All response headers must have bee set before calling this method.
+	 */
+	public static Writer sendResponseAsWriter(HttpExchange exchange) throws IOException {
+		exchange.sendResponseHeaders(OK.get(), 0);
+		return getResponseWriter(exchange, UTF_8);
+	}
+
+	/** The response body as an UTF-8 {@link Writer}. */
+	public static Writer getResponseWriter(HttpExchange exchange) {
+		return getResponseWriter(exchange, UTF_8);
+	}
+
+	/** The response body as a {@link Writer}. */
+	public static Writer getResponseWriter(HttpExchange exchange, Charset charset) {
+		return new OutputStreamWriter(exchange.getResponseBody(), charset);
+	}
+
+	/*
+	 * REVERSE PROXY
+	 */
+	/**
+	 * The base URL for this query (without any path component (not even an ending
+	 * '/'), taking into account reverse proxies.
+	 */
+	public static StringBuilder getRequestUrlBase(HttpExchange exchange) {
+		return getRequestUrlBase(exchange, false);
+	}
+
+	/**
+	 * The base URL for this query (without any path component (not even an ending
+	 * '/'), taking into account reverse proxies.
+	 * 
+	 * @param forceReverseProxyHttps if a reverse proxy is detected and this is set
+	 *                               to true, the https scheme will be used. This is
+	 *                               to work around issued when the an https reverse
+	 *                               proxy is talking to an http application.
+	 */
+	public static StringBuilder getRequestUrlBase(HttpExchange exchange, boolean forceReverseProxyHttps) {
+		List<String> viaHosts = new ArrayList<>();
+		if (exchange.getRequestHeaders().containsKey(VIA.get()))
+			for (String value : exchange.getRequestHeaders().get(VIA.get())) {
+				String[] arr = value.split(" ");
+				// FIXME make it more robust
+				// see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Via
+				viaHosts.add(arr[1]);
+			}
+
+		String outerHost = viaHosts.isEmpty() ? null : viaHosts.get(0);
+		if (outerHost == null) {
+			// Try non-standard header
+			String forwardedHost = exchange.getRequestHeaders().getFirst(X_FORWARDED_HOST.get());
+			if (forwardedHost != null) {
+				String[] arr = forwardedHost.split(",");
+				outerHost = arr[0];
+			}
+		}
+
+		// URI requestUrl = URI.create(req.getRequestURL().toString());
+		URI requestUrl = exchange.getRequestURI();
+
+		boolean isReverseProxy = outerHost != null && !outerHost.equals(requestUrl.getHost());
+		if (isReverseProxy) {
+			String protocol;
+			if (forceReverseProxyHttps)
+				protocol = "https";
+			else
+				protocol = exchange instanceof HttpsExchange ? "https" : "http";
+			return new StringBuilder(protocol + "://" + outerHost);
+		} else {
+			return new StringBuilder(requestUrl.getScheme() + "://" + requestUrl.getHost()
+					+ (requestUrl.getPort() > 0 ? ":" + requestUrl.getPort() : ""));
+		}
+	}
+
+	/*
+	 * MULTIPART
+	 */
+	public static Iterable<MimePart> extractFormData(HttpExchange exchange) throws IOException {
+		return FormDataExtractor.extractParts(exchange);
 	}
 
 	/** singleton */

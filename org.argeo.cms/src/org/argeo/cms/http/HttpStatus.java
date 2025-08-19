@@ -1,21 +1,34 @@
 package org.argeo.cms.http;
 
+import java.util.function.Supplier;
+
 /**
  * Standard HTTP response status codes (including WebDav ones).
  * 
- * @see "https://developer.mozilla.org/en-US/docs/Web/HTTP/Status"
+ * @see <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status">MDN
+ *      Web Docs</a>
  */
-public enum HttpStatus {
+public enum HttpStatus implements Supplier<Integer> {
 	// Successful responses (200–299)
+	/** 200 */
 	OK(200, "OK"), //
+	/** 201 */
+	CREATED(201, "Created"), //
+	/** 204 */
 	NO_CONTENT(204, "No Content"), //
+	/** 207 */
 	MULTI_STATUS(207, "Multi-Status"), // WebDav
 	// Client error responses (400–499)
+	/** 401 */
 	UNAUTHORIZED(401, "Unauthorized"), //
+	/** 403 */
 	FORBIDDEN(403, "Forbidden"), //
+	/** 404 */
 	NOT_FOUND(404, "Not Found"), //
 	// Server error responses (500-599)
+	/** 500 */
 	INTERNAL_SERVER_ERROR(500, "Internal Server Error"), //
+	/** 501 */
 	NOT_IMPLEMENTED(501, "Not Implemented"), //
 	;
 
@@ -27,7 +40,14 @@ public enum HttpStatus {
 		this.reasonPhrase = reasonPhrase;
 	}
 
+	/** @deprecated Use {@link #get()} instead. */
+	@Deprecated
 	public int getCode() {
+		return code;
+	}
+
+	@Override
+	public Integer get() {
 		return code;
 	}
 
@@ -49,7 +69,7 @@ public enum HttpStatus {
 			String[] arr = statusLine.split(" ");
 			int code = Integer.parseInt(arr[1]);
 			for (HttpStatus status : values()) {
-				if (status.getCode() == code)
+				if (status.get() == code)
 					return status;
 			}
 		} catch (Exception e) {
@@ -60,7 +80,7 @@ public enum HttpStatus {
 
 	@Override
 	public String toString() {
-		return code + " " + reasonPhrase;
+		return get() + " " + getReasonPhrase();
 	}
 
 }

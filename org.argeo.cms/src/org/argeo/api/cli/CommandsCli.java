@@ -1,7 +1,6 @@
 package org.argeo.api.cli;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -9,19 +8,19 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+//import org.apache.commons.cli.CommandLine;
+//import org.apache.commons.cli.CommandLineParser;
+//import org.apache.commons.cli.DefaultParser;
+//import org.apache.commons.cli.MissingOptionException;
+//import org.apache.commons.cli.Options;
+//import org.apache.commons.cli.ParseException;
 
 /** Base class for a CLI managing sub commands. */
-public abstract class CommandsCli implements DescribedCommand<Object> {
+public abstract class CommandsCli extends DescribedCommand<Object> {
 	private final String commandName;
 	private Map<String, Function<List<String>, ?>> commands = new TreeMap<>();
 
-	protected final Options options = new Options();
+//	protected final Options options = new Options();
 
 	public CommandsCli(String commandName) {
 		this.commandName = commandName;
@@ -29,75 +28,85 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 
 	@Override
 	public Object apply(List<String> args) {
-		String cmd = null;
-		List<String> newArgs = new ArrayList<>();
-		boolean isHelpOption = false;
-		try {
-			CommandLineParser clParser = new DefaultParser();
-			CommandLine commonCl = clParser.parse(getOptions(), args.toArray(new String[args.size()]), true);
-			List<String> leftOvers = commonCl.getArgList();
-			for (String arg : leftOvers) {
-				if (arg.equals("--" + HelpCommand.HELP_OPTION.getLongOpt())) {
-					isHelpOption = true;
-					// TODO break?
-				}
-
-				if (!arg.startsWith("-") && cmd == null) {
-					cmd = arg;
-				} else {
-					newArgs.add(arg);
-				}
-			}
-		} catch (ParseException e) {
-			CommandArgsException cae = new CommandArgsException(e);
-			throw cae;
-		}
-
-		Function<List<String>, ?> function = cmd != null ? getCommand(cmd) : getDefaultCommand();
-
-		// --help option
-		if (!(function instanceof CommandsCli))
-			if (function instanceof DescribedCommand<?> command)
-				if (isHelpOption) {
-					throw new PrintHelpRequestException(cmd, this);
-//					StringWriter out = new StringWriter();
-//					HelpCommand.printHelp(command, out);
-//					System.out.println(out.toString());
-//					return null;
-				}
-
-		if (function == null)
-			throw new IllegalArgumentException("Uknown command " + cmd);
-		try {
-			Object value = function.apply(newArgs);
-			return value != null ? value.toString() : null;
-		} catch (CommandArgsException e) {
-			if (e.getCommandName() == null) {
-				e.setCommandName(cmd);
-				e.setCommandsCli(this);
-			}
-			throw e;
-		} catch (IllegalArgumentException e) {
-			CommandArgsException cae = new CommandArgsException(e);
-			cae.setCommandName(cmd);
-			throw cae;
+		CLineImpl cLine = CLineParser.parseImpl(getOptClasses(), args, this);
+		Function<List<String>, ?> command = cLine.getCommand();
+		if (command == null)
+			throw new IllegalArgumentException("No command has been specified");
+		if (command instanceof DescribedCommand describedCommand) {
+			return describedCommand.execute(cLine);
+		} else {
+			assert !cLine.hasAnyOptionSet();
+			// it has no options defined, so we pass only the plain args
+			return command.apply(cLine.getPlainArgs());
 		}
 	}
 
-	@Override
-	public Options getOptions() {
-		return options;
-	}
+//	@Override
+//	public Object apply(List<String> args) {
+//		String cmd = null;
+//		List<String> newArgs = new ArrayList<>();
+//		boolean isHelpOption = false;
+//		try {
+//			CommandLineParser clParser = new DefaultParser();
+//			CommandLine commonCl = clParser.parse(getOptions(), args.toArray(new String[args.size()]), true);
+//			List<String> leftOvers = commonCl.getArgList();
+//			for (String arg : leftOvers) {
+//				if (arg.equals("--" + HelpCommand.HELP_OPTION.getLongOpt())) {
+//					isHelpOption = true;
+//					// TODO break?
+//				}
+//
+//				if (!arg.startsWith("-") && cmd == null) {
+//					cmd = arg;
+//				} else {
+//					newArgs.add(arg);
+//				}
+//			}
+//		} catch (ParseException e) {
+//			CommandArgsException cae = new CommandArgsException(e);
+//			throw cae;
+//		}
+//
+//		Function<List<String>, ?> function = cmd != null ? getCommand(cmd) : getDefaultCommand();
+//
+//		// --help option
+//		if (!(function instanceof CommandsCli))
+//			if (function instanceof DescribedCommand<?> command)
+//				if (isHelpOption) {
+//					throw new PrintHelpRequestException(cmd, this);
+//				}
+//
+//		if (function == null)
+//			throw new IllegalArgumentException("Unknown command " + cmd);
+//		try {
+//			Object value = function.apply(newArgs);
+//			return value != null ? value.toString() : null;
+//		} catch (CommandArgsException e) {
+//			if (e.getCommandName() == null) {
+//				e.setCommandName(cmd);
+//				e.setCommandsCli(this);
+//			}
+//			throw e;
+//		} catch (IllegalArgumentException e) {
+//			CommandArgsException cae = new CommandArgsException(e);
+//			cae.setCommandName(cmd);
+//			throw cae;
+//		}
+//	}
+
+//	@Override
+//	public Options getOptions() {
+//		return options;
+//	}
 
 	protected void addCommand(String cmd, Function<List<String>, ?> function) {
 		commands.put(cmd, function);
-
 	}
 
-	@Override
-	public String getUsage() {
-		return "[command]";
-	}
+//	@Override
+//	public String getUsage() {
+//		return "[command]";
+//	}
 
 	protected void addCommandsCli(CommandsCli commandsCli) {
 		addCommand(commandsCli.getCommandName(), commandsCli);
@@ -136,15 +145,18 @@ public abstract class CommandsCli implements DescribedCommand<Object> {
 			StringWriter out = new StringWriter();
 			HelpCommand.printHelp(e.getCommandsCli(), e.getCommandName(), out);
 			System.out.println(out.toString());
-		} catch (CommandArgsException e) {
+		} catch (IllegalArgumentException e) {
 			System.err.println("Wrong arguments " + Arrays.toString(args) + ": " + e.getMessage());
-			Throwable cause = e.getCause();
-			if (!(cause instanceof MissingOptionException))
-				e.printStackTrace();
-			if (e.getCommandName() != null) {
-				StringWriter out = new StringWriter();
-				HelpCommand.printHelp(e.getCommandsCli(), e.getCommandName(), out);
-				System.err.println(out.toString());
+//			Throwable cause = e.getCause();
+//			if (!(cause instanceof MissingOptionException))
+//				e.printStackTrace();
+			// FIXME do it properly
+			if (e instanceof CommandArgsException cE) {
+				if (cE.getCommandName() != null) {
+					StringWriter out = new StringWriter();
+					HelpCommand.printHelp(cE.getCommandsCli(), cE.getCommandName(), out);
+					System.err.println(out.toString());
+				}
 			} else {
 				e.printStackTrace();
 			}

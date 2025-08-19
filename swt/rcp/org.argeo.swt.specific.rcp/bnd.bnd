@@ -3,8 +3,8 @@ org.eclipse.core.commands;resolution:=optional,\
 !org.eclipse.core.runtime,\
 !org.eclipse.ui.plugin,\
 org.eclipse.swt,\
-javax.servlet.http;resolution:=optional,\
-javax.servlet;resolution:=optional,\
+jakarta.servlet.http;resolution:=optional,\
+jakarta.servlet;resolution:=optional,\
 java.awt.*;resolution:=optional,\
 javax.swing.*;resolution:=optional,\
 org.eclipse.swt.awt.*;resolution:=optional,\

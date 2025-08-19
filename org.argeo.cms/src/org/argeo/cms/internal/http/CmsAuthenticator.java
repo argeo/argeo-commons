@@ -10,13 +10,17 @@ import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.auth.RemoteAuthRequest;
 import org.argeo.cms.auth.RemoteAuthResponse;
 import org.argeo.cms.auth.RemoteAuthUtils;
-import org.argeo.cms.http.RemoteAuthHttpExchange;
+import org.argeo.cms.http.server.HttpRemoteAuthExchange;
 
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpPrincipal;
 
-/** An {@link Authenticator} implementation based on CMS authentication. */
+/**
+ * An {@link Authenticator} implementation based on CMS authentication.
+ * Non-anonymous authentication is required. IN order to allow anonymous access
+ * use {@link PublicCmsAuthenticator} instead.
+ */
 public class CmsAuthenticator extends Authenticator {
 	// TODO make it configurable
 	private final String httpAuthRealm = "Argeo";
@@ -24,7 +28,7 @@ public class CmsAuthenticator extends Authenticator {
 
 	@Override
 	public Result authenticate(HttpExchange exch) {
-		RemoteAuthHttpExchange remoteAuthExchange = new RemoteAuthHttpExchange(exch);
+		HttpRemoteAuthExchange remoteAuthExchange = new HttpRemoteAuthExchange(exch);
 		ClassLoader currentThreadContextClassLoader = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(CmsAuthenticator.class.getClassLoader());
 		LoginContext lc;

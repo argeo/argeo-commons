@@ -1,8 +1,13 @@
 package org.argeo.cms.client;
 
+import java.io.IOException;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
 import java.text.DecimalFormat;
@@ -52,7 +57,18 @@ public class WebSocketPing implements Runnable {
 
 			};
 
-			HttpClient client = HttpClient.newHttpClient();
+			//HttpClient client = HttpClient.newHttpClient();
+			HttpClient client = HttpClient.newBuilder().version(Version.HTTP_2).build();
+			try {
+				HttpRequest request = HttpRequest.newBuilder().uri(URI.create("http://localhost:7070/status/ping/")).build();
+
+				HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+
+				System.out.println(response.body());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			CompletableFuture<WebSocket> ws = client.newWebSocketBuilder().buildAsync(uri, listener);
 			webSocket = ws.get();
 			webSocket.request(Long.MAX_VALUE);
@@ -77,14 +93,14 @@ public class WebSocketPing implements Runnable {
 		}
 	}
 
-//	public static void main(String[] args) throws Exception {
-//		if (args.length == 0) {
-//			System.err.println("usage: java " + WsPing.class.getName() + " <url>");
-//			System.exit(1);
-//			return;
-//		}
-//		URI uri = URI.create(args[0]);
-//		new WsPing(uri).run();
-//	}
+	public static void main(String[] args) throws Exception {
+		if (args.length == 0) {
+			System.err.println("usage: java " + WebSocketPing.class.getName() + " <url>");
+			System.exit(1);
+			return;
+		}
+		URI uri = URI.create(args[0]);
+		new WebSocketPing(uri).run();
+	}
 
 }

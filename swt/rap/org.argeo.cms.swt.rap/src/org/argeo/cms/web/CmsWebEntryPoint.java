@@ -22,8 +22,6 @@ import org.argeo.api.cms.ux.CmsView;
 import org.argeo.cms.CurrentUser;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
-import org.argeo.cms.servlet.ServletHttpRequest;
-import org.argeo.cms.servlet.ServletHttpResponse;
 import org.argeo.cms.swt.AbstractSwtCmsView;
 import org.argeo.cms.swt.CmsSwtUtils;
 import org.argeo.cms.swt.SimpleSwtUxContext;
@@ -45,7 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 
 /** The {@link CmsView} for a {@link CmsWebApp}. */
 @SuppressWarnings("restriction")
-public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView, BrowserNavigationListener {
+class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView, BrowserNavigationListener {
 	private static final long serialVersionUID = 7733510691684570402L;
 	private final static CmsLog log = CmsLog.getLog(CmsWebEntryPoint.class);
 
@@ -70,15 +68,13 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 		// Initial login
 		LoginContext lc;
 		try {
-			lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_USER,
-					new RemoteAuthCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
-							new ServletHttpResponse(UiContext.getHttpResponse())));
+			lc = CmsAuth.USER.newLoginContext(
+					new RemoteAuthCallbackHandler(UiContext.getRemoteAuthRequest(), UiContext.getRemoteAuthResponse()));
 			lc.login();
 		} catch (LoginException e) {
 			try {
-				lc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS,
-						new RemoteAuthCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
-								new ServletHttpResponse(UiContext.getHttpResponse())));
+				lc = CmsAuth.ANONYMOUS.newLoginContext(new RemoteAuthCallbackHandler(UiContext.getRemoteAuthRequest(),
+						UiContext.getRemoteAuthResponse()));
 				lc.login();
 			} catch (LoginException e1) {
 				throw new IllegalStateException("Cannot log in as anonymous", e1);
@@ -136,9 +132,8 @@ public class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, 
 		try {
 			CurrentUser.logoutCmsSession(loginContext.getSubject());
 			loginContext.logout();
-			LoginContext anonymousLc = new LoginContext(CmsAuth.LOGIN_CONTEXT_ANONYMOUS,
-					new RemoteAuthCallbackHandler(new ServletHttpRequest(UiContext.getHttpRequest()),
-							new ServletHttpResponse(UiContext.getHttpResponse())));
+			LoginContext anonymousLc = CmsAuth.ANONYMOUS.newLoginContext(
+					new RemoteAuthCallbackHandler(UiContext.getRemoteAuthRequest(), UiContext.getRemoteAuthResponse()));
 			anonymousLc.login();
 			authChange(anonymousLc);
 		} catch (LoginException e) {

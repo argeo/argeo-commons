@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="CMS Web App Factory">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="true" activate="init" deactivate="destroy" name="CMS Web App Factory">
    <implementation class="org.argeo.cms.web.osgi.CmsWebAppFactory"/>
    <reference bind="addCmsApp" cardinality="0..n" interface="org.argeo.api.cms.CmsApp" name="CmsApp" policy="dynamic" unbind="removeCmsApp"/>
    <reference bind="setCmsEventBus" cardinality="1..1" interface="org.argeo.api.cms.CmsEventBus" name="CmsEventBus" policy="static"/>
+   <reference bind="addRwtApplication" cardinality="0..n" interface="org.eclipse.rap.rwt.application.ApplicationConfiguration" name="ApplicationConfiguration" policy="dynamic" target="(argeo.cms.app.contextName=*)" unbind="removeRwtApplication"/>
 </scr:component>
