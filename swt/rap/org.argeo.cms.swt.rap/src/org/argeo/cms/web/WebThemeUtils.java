@@ -21,7 +21,7 @@ public class WebThemeUtils {
 		for (String path : theme.getRapCssPaths()) {
 			application.addStyleSheet(theme.getThemeId(), path, resourceLoader);
 			if (log.isDebugEnabled())
-				log.debug("Theme " + theme.getThemeId() + ": added RAP CSS " + path);
+				log.trace("Theme " + theme.getThemeId() + ": added RAP CSS " + path);
 		}
 	}
 
