@@ -27,12 +27,8 @@ org.argeo.tp \
 org.argeo.tp.httpd \
 org.argeo.tp.sshd \
 osgi/equinox/org.argeo.tp.osgi.framework \
-osgi/equinox/org.argeo.tp.osgi \
-osgi/equinox/org.argeo.tp.eclipse \
+osgi/org.argeo.tp.osgi \
 swt/rap/org.argeo.tp.swt \
-$(A2_CATEGORY) \
-swt/$(A2_CATEGORY) \
-swt/rap/$(A2_CATEGORY) \
 
 JAVADOC_PACKAGES =  \
 org.argeo.api.uuid \

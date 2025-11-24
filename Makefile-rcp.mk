@@ -11,8 +11,8 @@ org.argeo.cms \
 swt/org.argeo.cms \
 org.argeo.tp \
 org.argeo.tp.httpd \
-osgi/equinox/org.argeo.tp.eclipse \
-osgi/api/org.argeo.tp.osgi \
+osgi/equinox/org.argeo.tp.osgi.framework \
+osgi/org.argeo.tp.osgi \
 swt/rcp/org.argeo.tp.swt \
 lib/x86_64-linux-gnu/swt/rcp/org.argeo.tp.swt \
 
