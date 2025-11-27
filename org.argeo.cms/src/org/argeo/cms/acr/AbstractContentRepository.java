@@ -100,7 +100,7 @@ public abstract class AbstractContentRepository implements ProvidedRepository {
 	public void registerTypes(ContentNamespace... namespaces) {
 		for (ContentNamespace contentNamespace : namespaces) {
 			RuntimeNamespaceContext.register(contentNamespace.getNamespaceURI(), contentNamespace.getDefaultPrefix());
-			log.debug(() -> "Registered namespace " + contentNamespace.getNamespaceURI() + " with default prefix "
+			log.trace(() -> "Registered namespace " + contentNamespace.getNamespaceURI() + " with default prefix "
 					+ contentNamespace.getDefaultPrefix() + ":");
 		}
 

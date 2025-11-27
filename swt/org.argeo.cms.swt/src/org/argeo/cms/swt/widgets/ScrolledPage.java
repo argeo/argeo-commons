@@ -49,10 +49,14 @@ public class ScrolledPage extends Composite {
 	}
 
 	public void scrollDown() {
-		scrolledComposite.setOrigin(0, scrolledComposite.getMinHeight());
+		//updateScroll();
+		// scrolledComposite.setOrigin(0, scrolledComposite.getMinHeight());
+		scrolledComposite.setOrigin(0, Integer.MAX_VALUE);
 	}
 
 	protected void updateScroll() {
+		if (scrolledComposite.isDisposed())
+			return;
 		Rectangle r = scrolledComposite.getClientArea();
 		Point preferredSize = computeSize(r.width, SWT.DEFAULT);
 		scrolledComposite.setMinHeight(preferredSize.y);

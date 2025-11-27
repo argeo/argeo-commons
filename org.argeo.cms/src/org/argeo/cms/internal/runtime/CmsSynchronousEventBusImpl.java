@@ -46,7 +46,7 @@ public class CmsSynchronousEventBusImpl implements CmsEventBus {
 			subscribers.put(topic, new ArrayList<>());
 		}
 		subscribers.get(topic).add(eventSubscriber);
-		log.debug(() -> "Added subscriber " + eventSubscriber + " to topic " + topic);
+		log.trace(() -> "Added subscriber " + eventSubscriber + " to topic " + topic);
 	}
 
 	@Override
