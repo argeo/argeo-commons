@@ -27,6 +27,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 /** A minimalistic Linux init process. */
 public class SysInitMain {
@@ -38,28 +39,31 @@ public class SysInitMain {
 
 	private static Process xServer;
 
+	private final static Path mountExec = Paths.get("/bin/mount");
+	private final static Path bashExec = Paths.get("/bin/bash");
+
 	public static void main(String... args) {
 		try {
 			final long pid = ProcessHandle.current().pid();
 			// TODO find reference for PID 1 signal handling
-			Signal.handle(new Signal("TERM"), (signal) -> {
+			addSignalHandler("TERM", (signal) -> {
 				System.out.println("SIGTERM caught, doing nothing");
 				// TODO reload?
-				//System.exit(0);
+				// System.exit(0);
 			});
-			Signal.handle(new Signal("INT"), (signal) -> {
+			addSignalHandler("INT", (signal) -> {
 				System.out.println("SIGINT caught, rebooting");
 				shutdown(true);
 				System.exit(0);
 			});
-			Signal.handle(new Signal("PWR"), (signal) -> {
+			addSignalHandler("PWR", (signal) -> {
 				System.out.println("SIGPWR caught, shutting down");
 				shutdown(false);
 				System.exit(0);
 			});
-			Signal.handle(new Signal("HUP"), (signal) -> {
+			addSignalHandler("HUP", (signal) -> {
 				System.out.println("SIGHUP caught, doing nothing");
-				//System.exit(0);
+				// System.exit(0);
 			});
 
 			boolean isSystemInit = pid == 1 || pid == 2;
@@ -126,7 +130,7 @@ public class SysInitMain {
 				mountAll();
 
 				startInitDService("qemu-agent");
-				startInitDService("dbus",false);// TODO dbus fails to stop
+				startInitDService("dbus", false);// TODO dbus fails to stop
 
 				// networking (asychronous)
 //				new Thread(() -> {
@@ -187,6 +191,18 @@ public class SysInitMain {
 		}
 	}
 
+	private static void addSignalHandler(String code, SignalHandler handler) {
+		Signal signal;
+		try {
+			signal = new Signal(code);
+		} catch (IllegalArgumentException e) {
+			// logger may not yet be initialized
+			System.err.println("Signal SIG" + code + " not supported.");
+			return;
+		}
+		Signal.handle(signal, handler);
+	}
+
 	static void mountRootRw() {
 		try {
 			// fsck if needed
@@ -201,10 +217,12 @@ public class SysInitMain {
 //			}
 
 			{// mount root FS read-write
-				Process mountRootRw = new ProcessBuilder("/bin/mount", "-o", "rw,remount", "/").start();
-				int exitCode = mountRootRw.waitFor();
-				if (exitCode != 0)
-					throw new IllegalStateException("Cannot remount root filesystem read-write");
+				if (Files.exists(mountExec)) {
+					Process mountRootRw = new ProcessBuilder(mountExec.toString(), "-o", "rw,remount", "/").start();
+					int exitCode = mountRootRw.waitFor();
+					if (exitCode != 0)
+						throw new IllegalStateException("Cannot remount root filesystem read-write");
+				}
 			}
 		} catch (IOException e) {
 			throw new UncheckedIOException("Cannot mount file systems", e);
@@ -218,7 +236,7 @@ public class SysInitMain {
 	}
 
 	static void singleUserShell() {
-		ProcessBuilder pb = new ProcessBuilder("/bin/bash");
+		ProcessBuilder pb = new ProcessBuilder(bashExec.toString());
 		pb.redirectError(ProcessBuilder.Redirect.INHERIT);
 		pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 		pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
@@ -233,11 +251,15 @@ public class SysInitMain {
 
 	static void mountAll() {
 		try {
-			Process mountAll = new ProcessBuilder("/bin/mount", "-a").start();
-			int exitCode = mountAll.waitFor();
-			if (exitCode != 0)
-				logger.log(Level.ERROR, "Cannot mount file systems");
-			logger.log(Level.INFO, "File systems mounted");
+			if (Files.exists(mountExec)) {
+				Process mountAll = new ProcessBuilder(mountExec.toString(), "-a").start();
+				int exitCode = mountAll.waitFor();
+				if (exitCode != 0)
+					logger.log(Level.ERROR, "Cannot mount file systems");
+				logger.log(Level.INFO, "File systems mounted");
+			} else {
+				logger.log(Level.DEBUG, () -> "No " + mountExec + " found, skipping...");
+			}
 		} catch (IOException e) {
 			throw new UncheckedIOException("Cannot mount file systems", e);
 		} catch (InterruptedException e) {
@@ -340,29 +362,33 @@ public class SysInitMain {
 		try {
 			stopInitDServices();
 			Path sysrqP = Paths.get("/proc/sys/kernel/sysrq");
+			if (!Files.exists(sysrqP))
+				return;
 			String current = Files.readString(sysrqP);
 			if ("1".equals(current))
 				return;// already shutting down
-			Files.writeString(sysrqP, "1");
-			Path sysrqTriggerP = Paths.get("/proc/sysrq-trigger");
-			Files.writeString(sysrqTriggerP, "e");// send SIGTERM to all processes
-			// TODO check processes effectively with ProcessHandle.of(1)
-			try {
-				Thread.sleep(5 * 1000);
-			} catch (InterruptedException e) {
-				// silent
-			}
-			// Files.writeString(sysrqTriggerP, "i");// send SIGKILL to all processes
-			Files.writeString(sysrqTriggerP, "s");// flush data to disk
-			Files.writeString(sysrqTriggerP, "u");// unmount
-			if (reboot)
-				Files.writeString(sysrqTriggerP, "b");
-			else {
-				Files.writeString(sysrqTriggerP, "o");
+			if (Files.isWritable(sysrqP)) {
+				Files.writeString(sysrqP, "1");
+				Path sysrqTriggerP = Paths.get("/proc/sysrq-trigger");
+				Files.writeString(sysrqTriggerP, "e");// send SIGTERM to all processes
+				// TODO check processes effectively with ProcessHandle.of(1)
 				try {
-					Thread.sleep(10 * 1000);
+					Thread.sleep(5 * 1000);
 				} catch (InterruptedException e) {
 					// silent
+				}
+				// Files.writeString(sysrqTriggerP, "i");// send SIGKILL to all processes
+				Files.writeString(sysrqTriggerP, "s");// flush data to disk
+				Files.writeString(sysrqTriggerP, "u");// unmount
+				if (reboot)
+					Files.writeString(sysrqTriggerP, "b");
+				else {
+					Files.writeString(sysrqTriggerP, "o");
+					try {
+						Thread.sleep(10 * 1000);
+					} catch (InterruptedException e) {
+						// silent
+					}
 				}
 			}
 		} catch (IOException e) {
@@ -403,21 +429,34 @@ public class SysInitMain {
 
 		@Override
 		public void run() {
-			boolean getty = true;
+			Path gettyExec = Paths.get("/usr/sbin/getty");
+			boolean getty = Files.exists(gettyExec);
+			boolean singleSession = false;
 			prompt: while (!systemShuttingDown) {
 				try {
 					if (getty) {
-						ProcessBuilder pb = new ProcessBuilder("/usr/sbin/getty", "38400", "tty2");
+						ProcessBuilder pb = new ProcessBuilder(gettyExec.toString(), "38400", "tty2");
 						process = pb.start();
 					} else {
-						Console console = System.console();
-						console.readLine(); // type return once to activate login prompt
-						console.printf("login: ");
-						String username = console.readLine();
-						username = username.trim();
-						if ("".equals(username))
-							continue prompt;
-						ProcessBuilder pb = new ProcessBuilder("su", "--login", username);
+						ProcessBuilder pb;
+						Path suExec = Paths.get("/bin/su");
+						if (Files.exists(suExec)) {
+							Console console = System.console();
+							console.readLine(); // type return once to activate login prompt
+							console.printf("login: ");
+							String username = console.readLine();
+							username = username.trim();
+							if ("".equals(username))
+								continue prompt;
+							pb = new ProcessBuilder(suExec.toString(), "--login", username);
+						} else {
+//							JShell jshell = JShell.builder().executionEngine(new DirectExecutionControlProvider(), null)
+//									.err(System.err).out(System.out).in(System.in).build();
+							// TODO Process /etc/shadow, see
+							// https://www.cyberciti.biz/faq/understanding-etcshadow-file/
+							pb = new ProcessBuilder(bashExec.toString().toString());
+							singleSession = true;
+						}
 						pb.redirectError(ProcessBuilder.Redirect.INHERIT);
 						pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
 						pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
@@ -432,8 +471,15 @@ public class SysInitMain {
 					} catch (InterruptedException e) {
 						process.destroy();
 					}
+					if (singleSession)
+						break prompt;
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.err.println(e.getMessage());
+					try {
+						Thread.sleep(5 * 1000);
+					} catch (InterruptedException e1) {
+						// silent
+					}
 				} finally {
 					process = null;
 				}

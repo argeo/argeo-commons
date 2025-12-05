@@ -9,7 +9,7 @@ org.argeo.init \
 DEP_CATEGORIES = \
 osgi/equinox/org.argeo.tp.osgi.framework \
 
-all: osgi-all
+all: osgi-all jmod-argeo-init
 
 clean: osgi-clean
 	
