@@ -1,2 +1,2 @@
 #!/bin/sh
-java -Dorg.argeo.api.cli.rootCommand=$0 -jar /usr/share/a2/org.argeo.cms/org.argeo.cms.cli.2.3.jar "$@"
+java -Dorg.argeo.api.cli.rootCommand=$0 -jar /usr/share/a2/org.argeo.cms/org.argeo.cms.cli.2.1.jar "$@"

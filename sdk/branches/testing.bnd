@@ -1,0 +1,13 @@
+major=2
+minor=1
+micro=119
+qualifier=.next
+
+Bundle-Copyright= \
+Copyright 2007-2025 Mathieu Baudier, \
+Copyright 2012-2025 Argeo GmbH
+
+SPDX-License-Identifier= \
+LGPL-2.1-or-later \
+OR EPL-2.0 \
+OR LicenseRef-argeo2-GPL-2.0-or-later-with-EPL-and-Apache-and-JCR-permissions
