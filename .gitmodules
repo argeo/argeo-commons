@@ -1,4 +1,3 @@
 [submodule "sdk/argeo-build"]
 	path = sdk/argeo-build
 	url = ../argeo-build
-	branch = testing
