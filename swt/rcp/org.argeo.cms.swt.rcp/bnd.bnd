@@ -7,7 +7,6 @@ org.eclipse.swt,\
 org.eclipse.swt.widgets,\
 org.eclipse.swt.graphics,\
 org.w3c.css.sac,\
-org.freedesktop.dbus.connections,\
 *
 
 Service-Component:\

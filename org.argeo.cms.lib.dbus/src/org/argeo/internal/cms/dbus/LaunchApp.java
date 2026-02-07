@@ -1,15 +1,10 @@
 package org.argeo.internal.cms.dbus;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
-import org.freedesktop.dbus.connections.BusAddress;
-import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
+import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.types.Variant;
 
 /** Launch a FreeDesktop application. */
 public class LaunchApp {
@@ -17,7 +12,7 @@ public class LaunchApp {
 	static {
 		try {
 			// make sure the method is properly referenced
-			activateMethod = FreeDesktopApplicationInterface.class.getMethod("activate", Map.class);
+			activateMethod = FreeDesktopApplicationInterface.class.getMethod("activate");
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new IllegalStateException("Method not found for " + FreeDesktopApplication.class);
 		}
@@ -42,7 +37,7 @@ public class LaunchApp {
 		} catch (DBusException e) {
 			throw new IllegalArgumentException("App " + path + " cannot be found", e);
 		}
-		dBusConnection.callMethodAsync(app, activateMethod.getName(), new HashMap<String, Variant<?>>());
+		dBusConnection.callMethodAsync(app, activateMethod.getName());
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -52,10 +47,19 @@ public class LaunchApp {
 		String path = args[0];
 		if (!path.startsWith("/"))
 			path = "/org/argeo/cms/" + path;
-		BusAddress busAddress = CmsDBusImpl.getSessionBusAddress();
-		try (DBusConnection dBusConnection = DBusConnectionBuilder.forAddress(busAddress).withShared(false).build()) {
+//		BusAddress busAddress = CmsDBusImpl.getSessionBusAddress();
+//		try (DBusConnection dBusConnection = DBusConnectionBuilder.forAddress(busAddress).withShared(false).build()) {
+//			LaunchApp launchApp = new LaunchApp(dBusConnection, path);
+//			launchApp.launch();
+//		}
+		DBusConnection dBusConnection = DBusConnection.getConnection(DBusConnection.SESSION);
+		try {
 			LaunchApp launchApp = new LaunchApp(dBusConnection, path);
 			launchApp.launch();
+		} finally {
+			// FIXME use a proper callback
+			Thread.sleep(5000);
+			dBusConnection.disconnect();
 		}
 	}
 

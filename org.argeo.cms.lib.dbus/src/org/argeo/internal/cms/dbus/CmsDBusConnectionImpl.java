@@ -1,15 +1,13 @@
 package org.argeo.internal.cms.dbus;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
 
 import org.argeo.api.cms.dbus.CmsDBusConnection;
 import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
-import org.freedesktop.dbus.connections.impl.DBusConnection;
+import org.freedesktop.dbus.DBusConnection;
+import org.freedesktop.dbus.DBusInterface;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.interfaces.DBusInterface;
-import org.freedesktop.dbus.types.Variant;
 
 public class CmsDBusConnectionImpl implements CmsDBusConnection {
 	private final DBusConnection dBusConnection;
@@ -36,31 +34,36 @@ public class CmsDBusConnectionImpl implements CmsDBusConnection {
 	public void exportObject(String _objectPath, Object _object) {
 		try {
 			if (_object instanceof DBusInterface dBusInterface) {
-				dBusConnection.exportObject(dBusInterface);
+				dBusConnection.exportObject(_objectPath, dBusInterface);
 			} else if (_object instanceof FreeDesktopApplication freeDesktopApplication) {
-				dBusConnection.exportObject(new FreeDesktopApplicationInterface() {
+				dBusConnection.exportObject(freeDesktopApplication.getObjectPath(),
+						new FreeDesktopApplicationInterface() {
 
-					@Override
-					public String getObjectPath() {
-						return freeDesktopApplication.getObjectPath();
-					}
+							@Override
+							public String getObjectPath() {
+								return freeDesktopApplication.getObjectPath();
+							}
 
-					@Override
-					public void open(List<String> uris, Map<String, Variant<?>> platformData) {
-						freeDesktopApplication.open(uris);
-					}
+							@Override
+							public void open(String[] uris) {
+								freeDesktopApplication.open(Arrays.asList(uris));
+							}
 
-					@Override
-					public void activateAction(String actionName, List<Variant<?>> parameter,
-							Map<String, Variant<?>> platformData) {
-						freeDesktopApplication.activateAction(actionName);
-					}
+							@Override
+							public void activateAction(String actionName, String[] parameter) {
+								freeDesktopApplication.activateAction(actionName);
+							}
 
-					@Override
-					public void activate(Map<String, Variant<?>> platformData) {
-						freeDesktopApplication.activate();
-					}
-				});
+							@Override
+							public void activate() {
+								freeDesktopApplication.activate();
+							}
+
+							@Override
+							public boolean isRemote() {
+								return false;
+							}
+						});
 			} else {
 				throw new IllegalArgumentException("Unrecognized DBus interface " + _object.getClass());
 			}

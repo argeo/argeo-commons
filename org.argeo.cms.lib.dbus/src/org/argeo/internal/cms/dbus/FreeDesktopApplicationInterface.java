@@ -1,12 +1,8 @@
 package org.argeo.internal.cms.dbus;
 
-import java.util.List;
-import java.util.Map;
-
-import org.freedesktop.dbus.annotations.DBusInterfaceName;
-import org.freedesktop.dbus.annotations.DBusMemberName;
-import org.freedesktop.dbus.interfaces.DBusInterface;
-import org.freedesktop.dbus.types.Variant;
+import org.freedesktop.dbus.DBusInterface;
+import org.freedesktop.dbus.DBusInterfaceName;
+import org.freedesktop.dbus.DBusMemberName;
 
 /**
  * The org.freedesktop.Application interface.
@@ -15,12 +11,12 @@ import org.freedesktop.dbus.types.Variant;
 public interface FreeDesktopApplicationInterface extends DBusInterface {
 
 	@DBusMemberName(value = "Activate")
-	void activate(Map<String, Variant<?>> platformData);
+	void activate();
 
 	@DBusMemberName(value = "Open")
-	void open(List<String> uris, Map<String, Variant<?>> platformData);
+	void open(String[] uri);
 
 	@DBusMemberName(value = "ActivateAction")
-	void activateAction(String actionName, List<Variant<?>> parameter, Map<String, Variant<?>> platformData);
+	void activateAction(String actionName, String[] parameter);
 
 }
