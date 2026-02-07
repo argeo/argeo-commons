@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.cms.dbus.CmsDBus;
-import org.argeo.cms.dbus.CmsDBusConnection;
+import org.argeo.api.cms.dbus.CmsDBus;
+import org.argeo.api.cms.dbus.CmsDBusConnection;
 import org.argeo.cms.util.OS;
 import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
 import org.freedesktop.dbus.connections.BusAddress;
@@ -24,8 +23,6 @@ public class CmsDBusImpl implements CmsDBus {
 
 	private EmbeddedDBusDaemon dBusDaemon;
 	private Path dBusDaemonSocket;
-
-	private CmsEventBus cmsEventBus;
 
 	public void start() {
 		try {
@@ -92,10 +89,6 @@ public class CmsDBusImpl implements CmsDBus {
 			e.printStackTrace();
 			throw new IllegalStateException("Cannot open connection to session DBus", e);
 		}
-	}
-
-	public void setCmsEventBus(CmsEventBus cmsEventBus) {
-		this.cmsEventBus = cmsEventBus;
 	}
 
 	/*

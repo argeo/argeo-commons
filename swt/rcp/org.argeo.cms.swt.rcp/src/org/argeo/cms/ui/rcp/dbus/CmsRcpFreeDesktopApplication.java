@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.List;
 
 import org.argeo.api.cms.CmsApp;
-import org.argeo.cms.dbus.CmsDBus;
-import org.argeo.cms.dbus.CmsDBusConnection;
-import org.argeo.cms.freedesktop.FreeDesktopApplication;
+import org.argeo.api.cms.dbus.CmsDBus;
+import org.argeo.api.cms.dbus.CmsDBusConnection;
+import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
 import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
 
 public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Closeable {

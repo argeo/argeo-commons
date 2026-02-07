@@ -1,4 +1,4 @@
-package org.argeo.cms.freedesktop;
+package org.argeo.api.cms.freedesktop;
 
 import java.util.List;
 

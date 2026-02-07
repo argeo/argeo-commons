@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.argeo.cms.dbus.CmsDBusConnection;
-import org.argeo.cms.freedesktop.FreeDesktopApplication;
+import org.argeo.api.cms.dbus.CmsDBusConnection;
+import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
 import org.freedesktop.dbus.exceptions.DBusException;
 import org.freedesktop.dbus.interfaces.DBusInterface;
 import org.freedesktop.dbus.types.Variant;
@@ -71,7 +70,7 @@ public class CmsDBusConnectionImpl implements CmsDBusConnection {
 
 	}
 
-	@Override
+//	@Override
 	public void callMethodAsync(Object _object, String _method, Object... _parameters) {
 		dBusConnection.callMethodAsync((DBusInterface) _object, _method, _parameters);
 
@@ -80,17 +79,17 @@ public class CmsDBusConnectionImpl implements CmsDBusConnection {
 	/*
 	 * STATIC METHODS
 	 */
-	static CmsDBusConnectionImpl sessionBus() {
-		try {
-			/* Get a connection to the session bus so we can request a bus name */
-			DBusConnection dBusConnection = DBusConnectionBuilder.forSessionBus().build();
-//		m_conn = DBusConnectionBuilder.forAddress("unix:path=/tmp/dbus-80908265778467677465").build();
-//		m_conn = DBusConnectionBuilder.forAddress("tcp:host=localhost,port=55556").build();
-			return new CmsDBusConnectionImpl(dBusConnection);
-		} catch (DBusException e) {
-			throw new IllegalStateException("Cannot get session bus", e);
-		}
-
-	}
+//	static CmsDBusConnectionImpl sessionBus() {
+//		try {
+//			/* Get a connection to the session bus so we can request a bus name */
+//			DBusConnection dBusConnection = DBusConnectionBuilder.forSessionBus().build();
+////		m_conn = DBusConnectionBuilder.forAddress("unix:path=/tmp/dbus-80908265778467677465").build();
+////		m_conn = DBusConnectionBuilder.forAddress("tcp:host=localhost,port=55556").build();
+//			return new CmsDBusConnectionImpl(dBusConnection);
+//		} catch (DBusException e) {
+//			throw new IllegalStateException("Cannot get session bus", e);
+//		}
+//
+//	}
 
 }

@@ -1,5 +1,6 @@
 Import-Package: \
-org.freedesktop.dbus.connections.transports,\
+org.freedesktop.dbus.*;version="[5,6)",\
+org.freedesktop.dbus.connections.transports;version="[5,6)",\
 *
 
 Service-Component: OSGI-INF/cmsDBus.xml

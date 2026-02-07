@@ -1,11 +1,10 @@
-package org.argeo.cms.freedesktop;
+package org.argeo.internal.cms.dbus;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.argeo.internal.cms.dbus.CmsDBusImpl;
-import org.argeo.internal.cms.dbus.FreeDesktopApplicationInterface;
+import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
 import org.freedesktop.dbus.connections.BusAddress;
 import org.freedesktop.dbus.connections.impl.DBusConnection;
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
