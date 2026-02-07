@@ -1,4 +1,4 @@
-package org.argeo.cms.dbus;
+package org.argeo.internal.cms.dbus;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -6,6 +6,8 @@ import java.nio.file.Path;
 
 import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.cms.dbus.CmsDBus;
+import org.argeo.cms.dbus.CmsDBusConnection;
 import org.argeo.cms.util.OS;
 import org.freedesktop.dbus.bin.EmbeddedDBusDaemon;
 import org.freedesktop.dbus.connections.BusAddress;
@@ -80,12 +82,12 @@ public class CmsDBusImpl implements CmsDBus {
 	}
 
 	@Override
-	public DBusConnection openSessionConnection() {
+	public CmsDBusConnection openSessionConnection() {
 		try {
 			DBusConnection dBusConnection = DBusConnectionBuilder.forAddress(sessionBusAddress).withShared(false)
 					.build();
 			// TODO track all connections?
-			return dBusConnection;
+			return new CmsDBusConnectionImpl(dBusConnection);
 		} catch (DBusException e) {
 			e.printStackTrace();
 			throw new IllegalStateException("Cannot open connection to session DBus", e);
@@ -95,4 +97,15 @@ public class CmsDBusImpl implements CmsDBus {
 	public void setCmsEventBus(CmsEventBus cmsEventBus) {
 		this.cmsEventBus = cmsEventBus;
 	}
+
+	/*
+	 * STATIC METHODS
+	 */
+	public static BusAddress getSessionBusAddress() {
+		String address = System.getenv(CmsDBusImpl.DBUS_SESSION_BUS_ADDRESS);
+		if (address == null)
+			address = "unix:path=" + CmsDBusImpl.EMBEDDED_SESSION_BUS_ADDRESS.toString();
+		return BusAddress.of(address);
+	}
+
 }

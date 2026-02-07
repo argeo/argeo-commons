@@ -3,22 +3,19 @@ package org.argeo.cms.ui.rcp.dbus;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.cms.dbus.CmsDBus;
+import org.argeo.cms.dbus.CmsDBusConnection;
 import org.argeo.cms.freedesktop.FreeDesktopApplication;
 import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
-import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.types.Variant;
 
 public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Closeable {
 	private String path;
 
 	private CmsApp cmsApp;
 
-	private DBusConnection dBusConnection;
+	private CmsDBusConnection dBusConnection;
 
 	private CmsRcpDisplayFactory cmsRcpDisplayFactory;
 
@@ -33,7 +30,7 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 			dBusConnection = cmsDBus.openSessionConnection();
 			dBusConnection.requestBusName(appName);
 			dBusConnection.exportObject(getObjectPath(), this);
-		} catch (DBusException e) {
+		} catch (RuntimeException e) {
 			throw new IllegalStateException("Cannot add CMS app " + path, e);
 		}
 	}
@@ -50,7 +47,7 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 	}
 
 	@Override
-	public void activate(Map<String, Variant<?>> platformData) {
+	public void activate() {
 		// String uiName = path != null ? path.substring(path.lastIndexOf('/') + 1) :
 		// "";
 		String uiName = "app";
@@ -58,13 +55,13 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 	}
 
 	@Override
-	public void open(List<String> uris, Map<String, Variant<?>> platformData) {
+	public void open(List<String> uris) {
 //		System.out.println("Open");
 
 	}
 
 	@Override
-	public void activateAction(String actionName, List<Variant<?>> parameter, Map<String, Variant<?>> platformData) {
+	public void activateAction(String actionName) {
 //		System.out.println("Activate action " + actionName);
 	}
 

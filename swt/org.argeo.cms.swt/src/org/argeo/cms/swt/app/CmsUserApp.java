@@ -46,7 +46,7 @@ public class CmsUserApp extends AbstractCmsApp {
 			AcrContentTreeView view = new AcrContentTreeView(cmsUi, 0, rootContent);
 			view.setLayoutData(CmsSwtUtils.fillAll());
 
-		} else if ("app".equals(uiName)) {
+		} else if ("app".equals(uiName) && cmsFileSystemProvider!=null) {
 			Path rootPath = cmsFileSystemProvider.getPath(URI.create("cms:///"));
 			SimpleFsBrowser view = new SimpleFsBrowser(cmsUi, 0);
 			view.setInput(rootPath);
