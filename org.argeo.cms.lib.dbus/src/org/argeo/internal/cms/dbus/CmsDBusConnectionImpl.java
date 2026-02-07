@@ -18,7 +18,7 @@ public class CmsDBusConnectionImpl implements CmsDBusConnection {
 
 	@Override
 	public void close() throws IOException {
-		dBusConnection.close();
+		dBusConnection.disconnect();
 	}
 
 	@Override
@@ -39,7 +39,6 @@ public class CmsDBusConnectionImpl implements CmsDBusConnection {
 				dBusConnection.exportObject(freeDesktopApplication.getObjectPath(),
 						new FreeDesktopApplicationInterface() {
 
-							@Override
 							public String getObjectPath() {
 								return freeDesktopApplication.getObjectPath();
 							}
