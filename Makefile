@@ -10,10 +10,11 @@ org.argeo.api.cms \
 org.argeo.cms \
 org.argeo.cms.ux \
 org.argeo.cms.jshell \
-org.argeo.cms.lib.json \
 org.argeo.cms.lib.jetty \
-org.argeo.cms.lib.dbus \
 org.argeo.cms.lib.sshd \
+org.argeo.cms.lib.dbus \
+org.argeo.cms.lib.mail \
+org.argeo.cms.lib.json \
 org.argeo.cms.ee \
 org.argeo.cms.cli \
 swt/org.argeo.swt.minidesktop \
