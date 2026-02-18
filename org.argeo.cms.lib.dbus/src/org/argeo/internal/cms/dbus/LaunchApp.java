@@ -1,24 +1,18 @@
-package org.argeo.cms.ui.rcp.dbus;
+package org.argeo.internal.cms.dbus;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.argeo.cms.dbus.CmsDBus;
-import org.argeo.cms.freedesktop.FreeDesktopApplication;
-import org.freedesktop.dbus.connections.BusAddress;
-import org.freedesktop.dbus.connections.impl.DBusConnection;
-import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder;
+import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
+import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
-import org.freedesktop.dbus.types.Variant;
 
-/** Launch a FreeDesktop appllication. */
+/** Launch a FreeDesktop application. */
 public class LaunchApp {
 	private final static Method activateMethod;
 	static {
 		try {
 			// make sure the method is properly referenced
-			activateMethod = FreeDesktopApplication.class.getMethod("activate", Map.class);
+			activateMethod = FreeDesktopApplicationInterface.class.getMethod("activate");
 		} catch (NoSuchMethodException | SecurityException e) {
 			throw new IllegalStateException("Method not found for " + FreeDesktopApplication.class);
 		}
@@ -28,22 +22,22 @@ public class LaunchApp {
 	private final String path;
 	private final String busName;
 
-	public LaunchApp(DBusConnection dBusConnection, String path) {
+	private LaunchApp(DBusConnection dBusConnection, String path) {
 		this.dBusConnection = dBusConnection;
 		this.path = path;
 		// TODO understand the difference between bus name and path
 		this.busName = path.replace('/', '.').substring(1);
 	}
 
-	public void launch() {
+	private void launch() {
 		// we retrieve the app each time as it could be dynamic
-		FreeDesktopApplication app;
+		FreeDesktopApplicationInterface app;
 		try {
-			app = dBusConnection.getRemoteObject(busName, path, FreeDesktopApplication.class);
+			app = dBusConnection.getRemoteObject(busName, path, FreeDesktopApplicationInterface.class);
 		} catch (DBusException e) {
 			throw new IllegalArgumentException("App " + path + " cannot be found", e);
 		}
-		dBusConnection.callMethodAsync(app, activateMethod.getName(), new HashMap<String, Variant<?>>());
+		dBusConnection.callMethodAsync(app, activateMethod.getName());
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -53,10 +47,19 @@ public class LaunchApp {
 		String path = args[0];
 		if (!path.startsWith("/"))
 			path = "/org/argeo/cms/" + path;
-		BusAddress busAddress = CmsDBus.getSessionBusAddress();
-		try (DBusConnection dBusConnection = DBusConnectionBuilder.forAddress(busAddress).withShared(false).build()) {
+//		BusAddress busAddress = CmsDBusImpl.getSessionBusAddress();
+//		try (DBusConnection dBusConnection = DBusConnectionBuilder.forAddress(busAddress).withShared(false).build()) {
+//			LaunchApp launchApp = new LaunchApp(dBusConnection, path);
+//			launchApp.launch();
+//		}
+		DBusConnection dBusConnection = DBusConnection.getConnection(DBusConnection.SESSION);
+		try {
 			LaunchApp launchApp = new LaunchApp(dBusConnection, path);
 			launchApp.launch();
+		} finally {
+			// FIXME use a proper callback
+			Thread.sleep(5000);
+			dBusConnection.disconnect();
 		}
 	}
 

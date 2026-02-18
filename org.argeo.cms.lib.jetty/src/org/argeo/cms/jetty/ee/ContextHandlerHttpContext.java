@@ -3,21 +3,14 @@ package org.argeo.cms.jetty.ee;
 import java.util.Map;
 
 import org.argeo.cms.jakarta.servlet.httpserver.HttpContextServlet;
-import org.argeo.cms.jakarta.websocket.server.WebsocketEndpoints;
 import org.argeo.cms.jetty.AbstractJettyHttpContext;
 import org.argeo.cms.jetty.ContextHandlerAttributes;
 import org.argeo.cms.jetty.JettyHttpServer;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.ee10.servlet.SessionHandler;
-import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
-import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer.Configurator;
 
 import com.sun.net.httpserver.HttpHandler;
-
-import jakarta.servlet.ServletContext;
-import jakarta.websocket.DeploymentException;
-import jakarta.websocket.server.ServerContainer;
 
 /**
  * An @{HttpContext} implementation based on a Jetty
@@ -49,18 +42,18 @@ public class ContextHandlerHttpContext extends AbstractJettyHttpContext {
 		super.setHandler(handler);
 
 		// web socket
-		if (handler instanceof WebsocketEndpoints) {
-			JakartaWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
-
-				@Override
-				public void accept(ServletContext servletContext, ServerContainer serverContainer)
-						throws DeploymentException {
-					for (Class<?> clss : ((WebsocketEndpoints) handler).getEndPoints()) {
-						serverContainer.addEndpoint(clss);
-					}
-				}
-			});
-		}
+//		if (handler instanceof WebsocketEndpoints) {
+//			JakartaWebSocketServletContainerInitializer.configure(servletContextHandler, new Configurator() {
+//
+//				@Override
+//				public void accept(ServletContext servletContext, ServerContainer serverContainer)
+//						throws DeploymentException {
+//					for (Class<?> clss : ((WebsocketEndpoints) handler).getEndPoints()) {
+//						serverContainer.addEndpoint(clss);
+//					}
+//				}
+//			});
+//		}
 
 		if (getJettyHttpServer().isStarted())
 			try {

@@ -3,8 +3,8 @@ include sdk.mk
 A2_CATEGORY = org.argeo.cms
 
 BUNDLES = \
-swt/rcp/org.argeo.swt.specific.rcp \
-swt/rcp/org.argeo.cms.swt.rcp \
+swt/rap/org.argeo.swt.specific.rap \
+swt/rap/org.argeo.cms.swt.rap \
 
 DEP_CATEGORIES = \
 org.argeo.cms \
@@ -13,10 +13,7 @@ org.argeo.tp \
 org.argeo.tp.httpd \
 osgi/equinox/org.argeo.tp.osgi.framework \
 osgi/org.argeo.tp.osgi \
-swt/rcp/org.argeo.tp.swt \
-lib/x86_64-linux-gnu/swt/rcp/org.argeo.tp.swt \
-
-VPATH = .:swt/rcp
+swt/rap/org.argeo.tp.swt \
 
 all: osgi-all
 

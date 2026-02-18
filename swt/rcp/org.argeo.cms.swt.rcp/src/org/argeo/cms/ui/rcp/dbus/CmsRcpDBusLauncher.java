@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.argeo.api.cms.CmsApp;
-import org.argeo.cms.dbus.CmsDBus;
+import org.argeo.api.cms.dbus.CmsDBus;
 import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
 
 public class CmsRcpDBusLauncher {

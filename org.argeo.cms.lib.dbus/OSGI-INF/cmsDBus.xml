@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="cmsDBus">
-   <implementation class="org.argeo.cms.dbus.CmsDBusImpl"/>
+   <implementation class="org.argeo.internal.cms.dbus.CmsDBusImpl"/>
    <service>
-      <provide interface="org.argeo.cms.dbus.CmsDBus"/>
+      <provide interface="org.argeo.api.cms.dbus.CmsDBus"/>
    </service>
-   <reference bind="setCmsEventBus" cardinality="1..1" interface="org.argeo.api.cms.CmsEventBus" name="CmsEventBus" policy="static"/>
 </scr:component>

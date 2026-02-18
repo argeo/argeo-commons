@@ -93,40 +93,40 @@ public class CmsEeJettyServer extends CmsJettyServer {
 		// TODO unregister servlet context
 	}
 
-	@Deprecated
-	public void addJavaxServletContextHandler(org.eclipse.jetty.ee8.servlet.ServletContextHandler servletContextHandler,
-			Map<String, String> properties) {
-		// servletContextHandler.setClassLoader(this.getClass().getClassLoader());
-
-		org.eclipse.jetty.ee8.nested.SessionHandler sessionHandler = new org.eclipse.jetty.ee8.nested.SessionHandler();
-		// Make sure servlet sessions are integrated with plain Jetty sessions
-		sessionHandler.setSessionPath("/");
-		sessionHandler.setSessionIdManager(getSessionIdManager());
-		// TODO make it configurable
-		sessionHandler.setMaxInactiveInterval(DEFAULT_MAX_INACTIVE_INTERVAL);
-		servletContextHandler.setSessionHandler(sessionHandler);
-
-		String contextPath = servletContextHandler.getContextPath();
-
-		getPathMappingsHandler().addMapping(PathSpec.from(contextPath + (!contextPath.endsWith("/") ? "/" : "") + "*"),
-				servletContextHandler.get());
-		if (get() != null && get().isStarted()) {
-			// server is already started, handler has to be started explicitly
-			// but after mapping it otherwise implicit setServer fails.
-			try {
-				servletContextHandler.start();
-			} catch (Exception e) {
-				throw new IllegalStateException("Could not start dynamically added Jetty handler", e);
-			}
-		}
-//		getPathMappingsHandler().manage(servletContextHandler);// so that it is stopped when removed
-	}
-
-	@Deprecated
-	public void removeJavaxServletContextHandler(
-			org.eclipse.jetty.ee8.servlet.ServletContextHandler servletContextHandler, Map<String, String> properties) {
-		// TODO unregister servlet context
-	}
+//	@Deprecated
+//	public void addJavaxServletContextHandler(org.eclipse.jetty.ee8.servlet.ServletContextHandler servletContextHandler,
+//			Map<String, String> properties) {
+//		// servletContextHandler.setClassLoader(this.getClass().getClassLoader());
+//
+//		org.eclipse.jetty.ee8.nested.SessionHandler sessionHandler = new org.eclipse.jetty.ee8.nested.SessionHandler();
+//		// Make sure servlet sessions are integrated with plain Jetty sessions
+//		sessionHandler.setSessionPath("/");
+//		sessionHandler.setSessionIdManager(getSessionIdManager());
+//		// TODO make it configurable
+//		sessionHandler.setMaxInactiveInterval(DEFAULT_MAX_INACTIVE_INTERVAL);
+//		servletContextHandler.setSessionHandler(sessionHandler);
+//
+//		String contextPath = servletContextHandler.getContextPath();
+//
+//		getPathMappingsHandler().addMapping(PathSpec.from(contextPath + (!contextPath.endsWith("/") ? "/" : "") + "*"),
+//				servletContextHandler.get());
+//		if (get() != null && get().isStarted()) {
+//			// server is already started, handler has to be started explicitly
+//			// but after mapping it otherwise implicit setServer fails.
+//			try {
+//				servletContextHandler.start();
+//			} catch (Exception e) {
+//				throw new IllegalStateException("Could not start dynamically added Jetty handler", e);
+//			}
+//		}
+////		getPathMappingsHandler().manage(servletContextHandler);// so that it is stopped when removed
+//	}
+//
+//	@Deprecated
+//	public void removeJavaxServletContextHandler(
+//			org.eclipse.jetty.ee8.servlet.ServletContextHandler servletContextHandler, Map<String, String> properties) {
+//		// TODO unregister servlet context
+//	}
 
 //	@Override
 //	public ServerContainer getRootServerContainer() {
