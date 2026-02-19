@@ -43,26 +43,30 @@ public class JettyHttpContext extends AbstractJettyHttpContext {
 
 	@Override
 	protected Handler getJettyHandler() {
-		// TODO optimize
-		WebSocketUpgradeHandler webSocketUpgradeHandler = WebSocketUpgradeHandler.from(getJettyHttpServer().get(),
-				(container) -> {
-					container.addMapping(getPath(), new WebSocketCreator() {
+		if (getPath().startsWith("/ws")) {
+			// TODO make sure it is still working
+			// TODO make it configurable
+			WebSocketUpgradeHandler webSocketUpgradeHandler = WebSocketUpgradeHandler.from(getJettyHttpServer().get(),
+					(container) -> {
+						container.addMapping(getPath(), new WebSocketCreator() {
 
-						@Override
-						public Object createWebSocket(ServerUpgradeRequest upgradeRequest,
-								ServerUpgradeResponse upgradeResponse, Callback callback) throws Exception {
-							if (getHandler() instanceof WebSocket.Listener webSocketListener) {
-								return new JettyLocalWebSocket(webSocketListener);
-							} else {
-								callback.succeeded();
-								return null;
+							@Override
+							public Object createWebSocket(ServerUpgradeRequest upgradeRequest,
+									ServerUpgradeResponse upgradeResponse, Callback callback) throws Exception {
+								if (getHandler() instanceof WebSocket.Listener webSocketListener) {
+									return new JettyLocalWebSocket(webSocketListener);
+								} else {
+									callback.succeeded();
+									return null;
+								}
 							}
-						}
+						});
 					});
-				});
-		webSocketUpgradeHandler.setHandler(jettyHandler);
-		return webSocketUpgradeHandler;
-//		return jettyHandler;
+			webSocketUpgradeHandler.setHandler(jettyHandler);
+			return webSocketUpgradeHandler;
+		} else {
+			return jettyHandler;
+		}
 	}
 
 	/*
