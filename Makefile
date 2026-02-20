@@ -10,6 +10,7 @@ org.argeo.api.cms \
 org.argeo.cms \
 org.argeo.cms.ux \
 org.argeo.cms.jshell \
+org.argeo.cms.geo \
 org.argeo.cms.lib.jetty \
 org.argeo.cms.lib.sshd \
 org.argeo.cms.lib.dbus \
