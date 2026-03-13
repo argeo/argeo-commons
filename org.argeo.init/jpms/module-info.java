@@ -23,5 +23,5 @@ module org.argeo.init {
 	// Preferences (experimental)
 	requires static java.prefs;
 
-	provides java.util.prefs.PreferencesFactory with org.argeo.init.prefs.ThinPreferencesFactory;
+	//provides java.util.prefs.PreferencesFactory with org.argeo.init.prefs.ThinPreferencesFactory;
 }
