@@ -15,6 +15,8 @@ import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
 public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Closeable {
 	private final static CmsLog log = CmsLog.getLog(CmsRcpFreeDesktopApplication.class);
 
+	private final static String BASE_PATH = "/org/argeo/cms/";
+
 	private String path;
 
 	private CmsApp cmsApp;
@@ -27,7 +29,7 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 			CmsApp cmsApp) {
 		this.cmsRcpDisplayFactory = cmsRcpDisplayFactory;
 		// TODO find a better prefix and/or make it customisable
-		this.path = "/org/argeo/cms/" + contextName;
+		this.path = BASE_PATH + contextName;
 		this.cmsApp = cmsApp;
 		try {
 			String appName = path.replace('/', '.').substring(1);

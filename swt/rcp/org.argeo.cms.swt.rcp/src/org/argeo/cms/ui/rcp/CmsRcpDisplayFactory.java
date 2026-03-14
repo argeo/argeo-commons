@@ -1,23 +1,22 @@
 package org.argeo.cms.ui.rcp;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.net.InetSocketAddress;
-import java.nio.file.Path;
+
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsDeployment;
-import org.argeo.cms.util.OS;
+import org.argeo.api.cms.CmsLog;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
+
 import com.sun.net.httpserver.HttpsServer;
 
 /** Creates the SWT {@link Display} in a dedicated thread. */
 public class CmsRcpDisplayFactory {
-	private final static Logger logger = System.getLogger(CmsRcpDisplayFactory.class.getName());
-
-	/** File name in a run directory */
-	private final static String ARGEO_RCP_URL = "argeo.rcp.url";
+	private final static CmsLog log = CmsLog.getLog(CmsRcpDisplayFactory.class);
 
 	/** There is only one display in RCP mode */
 	private Display display;
@@ -28,7 +27,10 @@ public class CmsRcpDisplayFactory {
 
 	private CmsDeployment cmsDeployment;
 
+	private LoginContext singleUserLoginContext;
+
 	public void init() {
+		// full control over UI thread
 		uiThread = new CmsUiThread();
 		uiThread.start();
 		while (display == null)
@@ -40,8 +42,11 @@ public class CmsRcpDisplayFactory {
 	}
 
 	public void destroy() {
+		// close UI
 		shutdown = true;
-		display.wake();
+
+		if (display != null)
+			display.wake();
 		try {
 			uiThread.join();
 		} catch (InterruptedException e) {
@@ -49,16 +54,25 @@ public class CmsRcpDisplayFactory {
 		} finally {
 			uiThread = null;
 		}
+
+		// log out
+		try {
+			singleUserLoginContext.logout();
+		} catch (LoginException e) {
+			log.error("Cannot log out RCP single user", e);
+		}
 	}
 
 	class CmsUiThread extends Thread {
 
 		public CmsUiThread() {
-			super("CMS UI");
+			super("CMS RCP UI");
 		}
 
 		@Override
 		public void run() {
+
+			// create display loop
 			try {
 				display = Display.getDefault();
 				boolean displayOwner = display.getThread() == this;
@@ -73,8 +87,9 @@ public class CmsRcpDisplayFactory {
 					display.dispose();
 					display = null;
 				}
+
 			} catch (UnsatisfiedLinkError e) {
-				logger.log(Level.ERROR,
+				log.error(
 						"Cannot load SWT, either because the SWT DLLs are no in the java.library.path,"
 								+ " or because the OSGi framework has been refreshed." + " Restart the application.",
 						e);
@@ -82,16 +97,24 @@ public class CmsRcpDisplayFactory {
 		}
 	}
 
-	@Deprecated
-	public Display getDisplay() {
+	protected Display getDisplay() {
 		return display;
 	}
 
 	public void openCmsApp(CmsApp cmsApp, String uiName, DisposeListener disposeListener) {
 		cmsDeployment.getHttpServer().thenAccept((httpServer) -> {
 			getDisplay().syncExec(() -> {
-				CmsRcpApp cmsRcpApp = new CmsRcpApp(uiName);
-				cmsRcpApp.setCmsApp(cmsApp, null);
+
+				// login
+				if (singleUserLoginContext == null)
+					try {
+						singleUserLoginContext = new LoginContext(CmsAuth.SINGLE_USER.getLoginContextName());
+						singleUserLoginContext.login();
+					} catch (LoginException e) {
+						throw new IllegalStateException("Could not log in.", e);
+					}
+
+				RcpCmsView rcpCmsView = new RcpCmsView(cmsApp, uiName);
 				if (httpServer != null) {
 					InetSocketAddress addr = httpServer.getAddress();
 					String scheme = "http";
@@ -100,17 +123,14 @@ public class CmsRcpDisplayFactory {
 							scheme = "https";
 					}
 					String httpServerBase = scheme + "://" + addr.getHostString() + ":" + addr.getPort();
-					cmsRcpApp.setHttpServerBase(httpServerBase);
+					rcpCmsView.setHttpServerBase(httpServerBase);
 				}
-				cmsRcpApp.initRcpApp();
+				// FIXME find window title definition
+				rcpCmsView.initView(singleUserLoginContext, "Argeo CMS");
 				if (disposeListener != null)
-					cmsRcpApp.getShell().addDisposeListener(disposeListener);
+					rcpCmsView.getShell().addDisposeListener(disposeListener);
 			});
 		});
-	}
-
-	public static Path getUrlRunFile() {
-		return OS.getRunDir().resolve(CmsRcpDisplayFactory.ARGEO_RCP_URL);
 	}
 
 	public void setCmsDeployment(CmsDeployment cmsDeployment) {

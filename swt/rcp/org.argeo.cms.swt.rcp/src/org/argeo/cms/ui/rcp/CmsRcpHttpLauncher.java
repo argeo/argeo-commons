@@ -15,24 +15,28 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.argeo.api.cms.CmsApp;
+import org.argeo.cms.util.OS;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 /** Publishes one {@link CmsRcpServlet} per {@link CmsApp}. */
+@Deprecated
 public class CmsRcpHttpLauncher {
 	private final static Logger logger = System.getLogger(CmsRcpHttpLauncher.class.getName());
 	private CompletableFuture<HttpServer> httpServer = new CompletableFuture<>();
 
 	private CmsRcpDisplayFactory cmsRcpDisplayFactory;
+	/** File name in a run directory */
+	private final static String ARGEO_RCP_URL = "argeo.rcp.url";
 	
 	public void init() {
 
 	}
 
 	public void destroy() {
-		Path runFile = CmsRcpDisplayFactory.getUrlRunFile();
+		Path runFile = CmsRcpHttpLauncher.getUrlRunFile();
 		try {
 			if (Files.exists(runFile)) {
 				Files.delete(runFile);
@@ -58,7 +62,7 @@ public class CmsRcpHttpLauncher {
 					}
 				});
 			}).exceptionally(e -> {
-				logger.log(Level.ERROR, "Cannot register RCO app " + contextName, e);
+				logger.log(Level.ERROR, "Cannot register RCP app " + contextName, e);
 				return null;
 			});
 			logger.log(Level.DEBUG, "Registered RCP CMS APP /" + contextName);
@@ -77,7 +81,7 @@ public class CmsRcpHttpLauncher {
 	public void setHttpServer(HttpServer httpServer) {
 		Integer httpPort = httpServer.getAddress().getPort();
 		String baseUrl = "http://localhost:" + httpPort + "/";
-		Path runFile = CmsRcpDisplayFactory.getUrlRunFile();
+		Path runFile = CmsRcpHttpLauncher.getUrlRunFile();
 		try {
 			if (!Files.exists(runFile)) {
 				Files.createDirectories(runFile.getParent());
@@ -126,5 +130,9 @@ public class CmsRcpHttpLauncher {
 		}
 
 		return false;
+	}
+
+	private static Path getUrlRunFile() {
+		return OS.getRunDir().resolve(CmsRcpHttpLauncher.ARGEO_RCP_URL);
 	}
 }

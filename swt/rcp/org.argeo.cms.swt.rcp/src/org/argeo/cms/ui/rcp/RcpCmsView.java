@@ -4,19 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.PrivilegedAction;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsApp;
-import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
-import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsTheme;
 import org.argeo.api.cms.ux.CmsView;
@@ -32,8 +27,8 @@ import org.eclipse.swt.widgets.Shell;
 
 /** Runs a {@link CmsApp} as an SWT desktop application. */
 @SuppressWarnings("restriction")
-public class CmsRcpApp extends AbstractSwtCmsView implements CmsView {
-	private final static CmsLog log = CmsLog.getLog(CmsRcpApp.class);
+public class RcpCmsView extends AbstractSwtCmsView implements CmsView {
+	private final static CmsLog log = CmsLog.getLog(RcpCmsView.class);
 
 	private Shell shell;
 	private CmsApp cmsApp;
@@ -42,47 +37,30 @@ public class CmsRcpApp extends AbstractSwtCmsView implements CmsView {
 
 	private String httpServerBase;
 
-	public CmsRcpApp(String uiName) {
-		super(uiName);
-		uid = UUID.randomUUID().toString();
+	/** MUST be called from UI thread */
+	public RcpCmsView(CmsApp cmsApp, String uiName) {
+		super(uiName, UUID.randomUUID().toString(), (CmsImageManager<?, ?>) new AcrSwtImageManager());
+		this.cmsApp = cmsApp;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public void initRcpApp() {
-		imageManager = (CmsImageManager) new AcrSwtImageManager();
-
-		display = Display.getCurrent();
-		shell = new Shell(display);
-		shell.setText("Argeo CMS");
+	public void initView(LoginContext loginContext, String windowTitle) {
+		shell = new Shell(Display.getCurrent());
+		shell.setText(windowTitle);
 		Composite parent = shell;
 		parent.setLayout(CmsSwtUtils.noSpaceGridLayout());
-		CmsSwtUtils.registerCmsView(shell, CmsRcpApp.this);
+		CmsSwtUtils.registerCmsView(shell, RcpCmsView.this);
 
-		try {
-			loginContext = new LoginContext(CmsAuth.SINGLE_USER.getLoginContextName());
-			loginContext.login();
-		} catch (LoginException e) {
-			throw new IllegalStateException("Could not log in.", e);
-		}
 		if (log.isDebugEnabled())
 			log.debug("Logged in to desktop: " + loginContext.getSubject());
 
-		Subject.doAs(loginContext.getSubject(), (PrivilegedAction<Void>) () -> {
-
-			// TODO factorise with web app
-			parent.setData(CmsApp.UI_NAME_PROPERTY, uiName);
-			ui = cmsApp.initUi(parent);
-			if (ui instanceof Composite)
-				((Composite) ui).setLayoutData(CmsSwtUtils.fillAll());
-			// we need ui to be set before refresh so that CmsView can store UI context data
-			// in it.
-			cmsApp.refreshUi(ui, null);
+		Subject.callAs(loginContext.getSubject(), () -> {
+			initUi(parent);
 
 			// Styling
 			CmsTheme theme = CmsSwtUtils.getCmsTheme(parent);
 			if (theme != null) {
 				try {
-					cssEngine = new CSSSWTEngineImpl(display);
+					cssEngine = new CSSSWTEngineImpl(getDisplay());
 					for (String path : theme.getSwtCssPaths()) {
 						try (InputStream in = theme.loadPath(path)) {
 							cssEngine.parseStyleSheet(in);
@@ -117,34 +95,20 @@ public class CmsRcpApp extends AbstractSwtCmsView implements CmsView {
 	}
 
 	@Override
-	public void authChange(LoginContext loginContext) {
-	}
-
-	@Override
-	public void logout() {
-		if (loginContext != null)
-			try {
-				loginContext.logout();
-			} catch (LoginException e) {
-				log.error("Cannot log out", e);
-			}
-	}
-
-	@Override
 	public void exception(Throwable e) {
 		log.error("Unexpected exception in CMS RCP", e);
 	}
 
-	@Override
-	public CmsSession getCmsSession() {
-		CmsSession cmsSession = cmsApp.getCmsContext().getCmsSession(getSubject());
-		return cmsSession;
-	}
+//	@Override
+//	public CmsSession getCmsSession() {
+//		CmsSession cmsSession = getCmsApp().getCmsContext().getCmsSession(getSubject());
+//		return cmsSession;
+//	}
 
-	@Override
-	public boolean isAnonymous() {
-		return false;
-	}
+//	@Override
+//	public boolean isAnonymous() {
+//		return false;
+//	}
 
 	@Override
 	public void applyStyles(Object node) {
@@ -187,12 +151,12 @@ public class CmsRcpApp extends AbstractSwtCmsView implements CmsView {
 	/*
 	 * DEPENDENCY INJECTION
 	 */
-	public void setCmsApp(CmsApp cmsApp, Map<String, String> properties) {
-		this.cmsApp = cmsApp;
-	}
-
-	public void unsetCmsApp(CmsApp cmsApp, Map<String, String> properties) {
-		this.cmsApp = null;
-	}
+//	public void setCmsApp(CmsApp cmsApp, Map<String, String> properties) {
+//		this.cmsApp = cmsApp;
+//	}
+//
+//	public void unsetCmsApp(CmsApp cmsApp, Map<String, String> properties) {
+//		this.cmsApp = null;
+//	}
 
 }

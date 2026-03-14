@@ -9,8 +9,8 @@ public class SimpleSwtUxContext implements UxContext {
 	private Point size;
 	private Point small = new Point(400, 400);
 
-	public SimpleSwtUxContext() {
-		this(Display.getCurrent().getBounds());
+	public SimpleSwtUxContext(Display display) {
+		this(display.getBounds());
 	}
 
 	public SimpleSwtUxContext(Rectangle rect) {

@@ -11,16 +11,22 @@ import java.util.concurrent.ExecutionException;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsAuth;
 import org.argeo.api.cms.CmsEventBus;
 import org.argeo.api.cms.CmsLog;
+import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsUi;
 import org.argeo.api.cms.ux.CmsView;
 import org.argeo.api.cms.ux.UxContext;
 import org.argeo.cms.CurrentUser;
+import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.util.CurrentSubject;
+import org.argeo.eclipse.ui.specific.UiContext;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 public abstract class AbstractSwtCmsView implements CmsView {
@@ -40,21 +46,23 @@ public abstract class AbstractSwtCmsView implements CmsView {
 		}, 0, 24 * 60 * 60 * 1000);
 	}
 
-	protected final String uiName;
+	private final String uiName;
 
-	protected LoginContext loginContext;
-	protected String state;
+	private LoginContext loginContext;
+	private String state;
 //	protected Throwable exception;
-	protected UxContext uxContext;
-	protected CmsImageManager imageManager;
+	private UxContext uxContext;
+	private CmsImageManager<?, ?> imageManager;
 
-	protected Display display;
-	protected CmsUi ui;
+	private Display display;
+	private CmsUi ui;
 
-	protected String uid;
+	private String uid;
 
-	public AbstractSwtCmsView(String uiName) {
+	public AbstractSwtCmsView(String uiName, String uid, CmsImageManager<?, ?> imageManager) {
 		this.uiName = uiName;
+		this.uid = uid;
+		this.imageManager = imageManager;
 	}
 
 	public abstract CmsEventBus getCmsEventBus();
@@ -122,10 +130,34 @@ public abstract class AbstractSwtCmsView implements CmsView {
 		return uid;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public CmsImageManager<?, ?> getImageManager() {
 		return imageManager;
 	}
+
+	public CmsSession getCmsSession() {
+		CmsSession cmsSession = getCmsApp().getCmsContext().getCmsSession(getSubject());
+		if (cmsSession == null)
+			throw new IllegalStateException("No CMS session available for " + getSubject());
+		return cmsSession;
+	}
+
+	protected void initUi(Composite parent) {
+		parent.setData(CmsApp.UI_NAME_PROPERTY, uiName);
+		this.display = parent.getDisplay();
+		this.uxContext = new SimpleSwtUxContext(display);
+		this.ui = getCmsApp().initUi(parent);
+		if (ui instanceof Composite)
+			((Composite) ui).setLayoutData(CmsSwtUtils.fillAll());
+		// we need ui to be set before refresh so that CmsView can store UI context data
+		// in it.
+		getCmsApp().refreshUi(ui, null);
+	}
+
+//	protected void setDisplay(Display display) {
+//		this.display = display;
+//	}
 
 	@Override
 	public boolean isAnonymous() {
@@ -133,8 +165,68 @@ public abstract class AbstractSwtCmsView implements CmsView {
 	}
 
 	protected Subject getSubject() {
+		if (loginContext == null)
+			throw new IllegalStateException("Login context is not set");
 		return loginContext.getSubject();
 	}
+
+	@Override
+	public synchronized void authChange(LoginContext lc) {
+		if (lc == null)
+			throw new IllegalArgumentException("Login context cannot be null");
+		// logout previous login context
+		if (this.loginContext != null)
+			try {
+				this.loginContext.logout();
+			} catch (LoginException e1) {
+				log.warn("Could not log out: " + e1);
+			}
+		this.loginContext = lc;
+		doRefresh();
+	}
+
+	@Override
+	public synchronized void logout() {
+		if (loginContext == null)
+			throw new IllegalArgumentException("Login context should not be null");
+		try {
+			CurrentUser.logoutCmsSession(loginContext.getSubject());
+			loginContext.logout();
+			LoginContext anonymousLc = CmsAuth.ANONYMOUS.newLoginContext(
+					new RemoteAuthCallbackHandler(UiContext.getRemoteAuthRequest(), UiContext.getRemoteAuthResponse()));
+			anonymousLc.login();
+			authChange(anonymousLc);
+		} catch (LoginException e) {
+			log.error("Cannot logout", e);
+		}
+	}
+
+	protected synchronized void doRefresh() {
+		if (ui != null)
+			Subject.callAs(getSubject(), () -> {
+				getCmsApp().refreshUi(ui, state);
+				return null;
+			});
+	}
+
+	/** Sets the state of the entry point and retrieve the related content. */
+	protected String setState(String newState) {
+		getCmsApp().setState(ui, newState);
+		state = newState;
+		return null;
+	}
+
+	protected Display getDisplay() {
+		return display;
+	}
+
+//	protected void setLoginContext(LoginContext loginContext) {
+//		this.loginContext = loginContext;
+//	}
+
+//	protected void setUi(CmsUi ui) {
+//		this.ui = ui;
+//	}
 
 	@Override
 	public Object getData(String key) {

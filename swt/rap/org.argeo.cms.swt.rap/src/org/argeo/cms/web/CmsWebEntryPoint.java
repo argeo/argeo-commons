@@ -4,7 +4,6 @@ import static org.eclipse.rap.rwt.internal.service.ContextProvider.getApplicatio
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.PrivilegedAction;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -19,12 +18,10 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.CmsSession;
 import org.argeo.api.cms.ux.CmsImageManager;
 import org.argeo.api.cms.ux.CmsView;
-import org.argeo.cms.CurrentUser;
 import org.argeo.cms.LocaleUtils;
 import org.argeo.cms.auth.RemoteAuthCallbackHandler;
 import org.argeo.cms.swt.AbstractSwtCmsView;
 import org.argeo.cms.swt.CmsSwtUtils;
-import org.argeo.cms.swt.SimpleSwtUxContext;
 import org.argeo.cms.swt.acr.AcrSwtImageManager;
 import org.argeo.cms.swt.dialogs.CmsFeedback;
 import org.argeo.eclipse.ui.specific.UiContext;
@@ -59,11 +56,10 @@ class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView
 	private ServerPushSession serverPushSession;
 
 	public CmsWebEntryPoint(CmsWebApp cmsWebApp, String uiName) {
-		super(uiName);
+		super(uiName, UUID.randomUUID().toString(), (CmsImageManager<?, ?>) new AcrSwtImageManager());
 		assert cmsWebApp != null;
 		assert uiName != null;
 		this.cmsWebApp = cmsWebApp;
-		uid = UUID.randomUUID().toString();
 
 		// Initial login
 		LoginContext lc;
@@ -90,70 +86,26 @@ class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView
 	}
 
 	protected void createContents(Composite parent) {
-		Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
-			@Override
-			public Void run() {
-				try {
-					uxContext = new SimpleSwtUxContext();
-					imageManager = (CmsImageManager) new AcrSwtImageManager();
-					CmsSession cmsSession = getCmsSession();
-					if (cmsSession != null) {
-						UiContext.setLocale(cmsSession.getLocale());
-						LocaleUtils.setThreadLocale(cmsSession.getLocale());
-					} else {
-						Locale rwtLocale = RWT.getUISession().getLocale();
-						LocaleUtils.setThreadLocale(rwtLocale);
-					}
-					parent.setData(CmsApp.UI_NAME_PROPERTY, uiName);
-					display = parent.getDisplay();
-					ui = cmsWebApp.getCmsApp().initUi(parent);
-					if (ui instanceof Composite)
-						((Composite) ui).setLayoutData(CmsSwtUtils.fillAll());
-					serverPushSession = new ServerPushSession();
-
-					// required in order to doAs to work
-					// TODO check whether it would be worth optimising
-					serverPushSession.start();
-					// we need ui to be set before refresh so that CmsView can store UI context data
-					// in it.
-					cmsWebApp.getCmsApp().refreshUi(ui, null);
-				} catch (Exception e) {
-					throw new IllegalStateException("Cannot create entrypoint contents", e);
-				}
-				return null;
-			}
-		});
-	}
-
-	@Override
-	public synchronized void logout() {
-		if (loginContext == null)
-			throw new IllegalArgumentException("Login context should not be null");
-		try {
-			CurrentUser.logoutCmsSession(loginContext.getSubject());
-			loginContext.logout();
-			LoginContext anonymousLc = CmsAuth.ANONYMOUS.newLoginContext(
-					new RemoteAuthCallbackHandler(UiContext.getRemoteAuthRequest(), UiContext.getRemoteAuthResponse()));
-			anonymousLc.login();
-			authChange(anonymousLc);
-		} catch (LoginException e) {
-			log.error("Cannot logout", e);
-		}
-	}
-
-	@Override
-	public synchronized void authChange(LoginContext lc) {
-		if (lc == null)
-			throw new IllegalArgumentException("Login context cannot be null");
-		// logout previous login context
-		if (this.loginContext != null)
+		Subject.callAs(getSubject(), () -> {
 			try {
-				this.loginContext.logout();
-			} catch (LoginException e1) {
-				log.warn("Could not log out: " + e1);
+				CmsSession cmsSession = getCmsSession();
+				if (cmsSession != null) {
+					UiContext.setLocale(cmsSession.getLocale());
+					LocaleUtils.setThreadLocale(cmsSession.getLocale());
+				} else {
+					Locale rwtLocale = RWT.getUISession().getLocale();
+					LocaleUtils.setThreadLocale(rwtLocale);
+				}
+				serverPushSession = new ServerPushSession();
+				// required in order for doAs() to work
+				// TODO check whether it would be worth optimising
+				serverPushSession.start();
+				initUi(parent);
+			} catch (Exception e) {
+				throw new IllegalStateException("Cannot create entrypoint contents", e);
 			}
-		this.loginContext = lc;
-		doRefresh();
+			return null;
+		});
 	}
 
 	@Override
@@ -163,36 +115,12 @@ class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView
 			if (swtError.code == SWT.ERROR_FUNCTION_DISPOSED)
 				return;
 		}
-		display.syncExec(() -> {
+		getDisplay().syncExec(() -> {
 			// TODO internationalise
 			CmsFeedback.error("Unexpected exception", e);
 			// TODO report
 //			doRefresh();
 		});
-	}
-
-	protected synchronized void doRefresh() {
-		if (ui != null)
-			Subject.doAs(getSubject(), new PrivilegedAction<Void>() {
-				@Override
-				public Void run() {
-//					if (exception != null) {
-//						// TODO internationalise
-//						CmsFeedback.error("Unexpected exception", exception);
-//						exception = null;
-//						// TODO report
-//					}
-					cmsWebApp.getCmsApp().refreshUi(ui, state);
-					return null;
-				}
-			});
-	}
-
-	/** Sets the state of the entry point and retrieve the related content. */
-	protected String setState(String newState) {
-		cmsWebApp.getCmsApp().setState(ui, newState);
-		state = newState;
-		return null;
 	}
 
 	@Override
@@ -205,9 +133,9 @@ class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView
 			browserNavigation.pushState(state, title);
 	}
 
-	public CmsImageManager getImageManager() {
-		return imageManager;
-	}
+//	public CmsImageManager getImageManager() {
+//		return imageManager;
+//	}
 
 	@Override
 	public void navigated(BrowserNavigationEvent event) {
@@ -230,13 +158,13 @@ class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView
 		browserNavigation.pushState(state, title);
 	}
 
-	@Override
-	public CmsSession getCmsSession() {
-		CmsSession cmsSession = cmsWebApp.getCmsApp().getCmsContext().getCmsSession(getSubject());
-		if (cmsSession == null)
-			throw new IllegalStateException("No CMS session available for " + getSubject());
-		return cmsSession;
-	}
+//	@Override
+//	public CmsSession getCmsSession() {
+//		CmsSession cmsSession = getCmsApp().getCmsContext().getCmsSession(getSubject());
+//		if (cmsSession == null)
+//			throw new IllegalStateException("No CMS session available for " + getSubject());
+//		return cmsSession;
+//	}
 
 	@Override
 	public URI toBackendUri(String url) {
@@ -251,6 +179,7 @@ class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView
 	 * EntryPoint IMPLEMENTATION
 	 */
 
+	@SuppressWarnings("removal")
 	@Override
 	public int createUI() {
 		Display display = new Display();
@@ -268,16 +197,13 @@ class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView
 		if (getApplicationContext().getLifeCycleFactory().getLifeCycle() instanceof RWTLifeCycle) {
 			eventLoop: while (!shell.isDisposed()) {
 				try {
-					Subject.doAs(loginContext.getSubject(), new PrivilegedAction<Void>() {
-						@Override
-						public Void run() {
-							// TODO rather loop here, until there is an auth change
-							if (!display.readAndDispatch()) {
-								// TODO update UI last access here
-								display.sleep();
-							}
-							return null;
+					Subject.callAs(getSubject(), () -> {
+						// TODO rather loop here, until there is an auth change
+						if (!display.readAndDispatch()) {
+							// TODO update UI last access here
+							display.sleep();
 						}
+						return null;
 					});
 				} catch (SWTError e) {
 					SWTError swtError = (SWTError) e;
@@ -290,7 +216,9 @@ class CmsWebEntryPoint extends AbstractSwtCmsView implements EntryPoint, CmsView
 						break eventLoop;
 					}
 				} catch (ThreadDeath e) {
-					// ThreadDeath is expected when the UI thread terminates
+					// ThreadDeath is expected when the RWT UI thread terminates
+					// since org.eclipse.rap.rwt.internal.lifecycle.UIThread$UIThreadTerminatedError
+					// extends it (but is package protected)
 					throw (ThreadDeath) e;
 				} catch (Error e) {
 					log.error("Unexpected error in event loop, shutting down...", e);
