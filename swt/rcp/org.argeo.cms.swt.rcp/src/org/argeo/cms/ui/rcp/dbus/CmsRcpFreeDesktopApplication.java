@@ -5,12 +5,16 @@ import java.io.IOException;
 import java.util.List;
 
 import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.dbus.CmsDBus;
 import org.argeo.api.cms.dbus.CmsDBusConnection;
 import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
 import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
 
+/** Wrap a CMS app as a XDG FreeDesktop application, via DBus. */
 public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Closeable {
+	private final static CmsLog log = CmsLog.getLog(CmsRcpFreeDesktopApplication.class);
+
 	private String path;
 
 	private CmsApp cmsApp;
@@ -56,13 +60,12 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 
 	@Override
 	public void open(List<String> uris) {
-//		System.out.println("Open");
-
+		log.debug(() -> "Open " + uris);
 	}
 
 	@Override
 	public void activateAction(String actionName) {
-//		System.out.println("Activate action " + actionName);
+		log.debug(() -> "Activate action '" + actionName + "'");
 	}
 
 }

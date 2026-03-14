@@ -10,6 +10,7 @@ import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.dbus.CmsDBus;
 import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
 
+/** Launches RCP app windows via DBus. */
 public class CmsRcpDBusLauncher {
 	private final static CmsLog log = CmsLog.getLog(CmsRcpDBusLauncher.class);
 
