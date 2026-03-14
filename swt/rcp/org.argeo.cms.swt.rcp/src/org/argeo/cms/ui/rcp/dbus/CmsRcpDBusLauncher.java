@@ -6,10 +6,13 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.argeo.api.cms.CmsApp;
+import org.argeo.api.cms.CmsLog;
 import org.argeo.api.cms.dbus.CmsDBus;
 import org.argeo.cms.ui.rcp.CmsRcpDisplayFactory;
 
 public class CmsRcpDBusLauncher {
+	private final static CmsLog log = CmsLog.getLog(CmsRcpDBusLauncher.class);
+
 	private CompletableFuture<CmsDBus> cmsDBus = new CompletableFuture<>();
 
 	private Map<String, CmsRcpFreeDesktopApplication> apps = new HashMap<>();
@@ -31,6 +34,8 @@ public class CmsRcpDBusLauncher {
 					contextName, cmsApp);
 			apps.put(contextName, application);
 		});
+		log.debug(() -> "Added dbus RCP app org.argeo.cms." + contextName.replace('/', '.'));
+
 	}
 
 	public void removeCmsApp(CmsApp cmsApp, Map<String, String> properties) {
