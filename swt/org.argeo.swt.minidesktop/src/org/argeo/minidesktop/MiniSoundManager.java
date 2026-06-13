@@ -18,7 +18,7 @@ public class MiniSoundManager {
 				Line.Info[] sourceInfos = m.getSourceLineInfo();
 				Line.Info[] targetInfos = m.getTargetLineInfo();
 				if (sourceInfos.length != 0 || targetInfos.length != 0)
-					System.out.println("## MIXER " + m + " ## ");
+					System.out.println("\n\n## MIXER\n" + m.getMixerInfo().getName() + "\n## ");
 
 				if (sourceInfos.length > 0)
 					System.out.println("# Sources ");
