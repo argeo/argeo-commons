@@ -115,6 +115,7 @@ public class CmsRcpDisplayFactory {
 					}
 
 				RcpCmsView rcpCmsView = new RcpCmsView(cmsApp, uiName);
+				rcpCmsView.authChange(singleUserLoginContext);
 				if (httpServer != null) {
 					InetSocketAddress addr = httpServer.getAddress();
 					String scheme = "http";

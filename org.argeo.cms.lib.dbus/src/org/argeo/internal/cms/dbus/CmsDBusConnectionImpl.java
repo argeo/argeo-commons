@@ -1,7 +1,6 @@
 package org.argeo.internal.cms.dbus;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.argeo.api.cms.dbus.CmsDBusConnection;
 import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
@@ -45,12 +44,12 @@ public class CmsDBusConnectionImpl implements CmsDBusConnection {
 
 							@Override
 							public void open(String[] uris) {
-								freeDesktopApplication.open(Arrays.asList(uris));
+								freeDesktopApplication.open(uris);
 							}
 
 							@Override
-							public void activateAction(String actionName, String[] parameter) {
-								freeDesktopApplication.activateAction(actionName);
+							public void activateAction(String actionName, String[] parameters) {
+								freeDesktopApplication.activateAction(actionName, parameters);
 							}
 
 							@Override

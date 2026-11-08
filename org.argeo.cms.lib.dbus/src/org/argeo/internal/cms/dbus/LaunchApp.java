@@ -1,22 +1,20 @@
 package org.argeo.internal.cms.dbus;
 
-import java.lang.reflect.Method;
-
-import org.argeo.api.cms.freedesktop.FreeDesktopApplication;
+import org.freedesktop.dbus.BusAddress;
 import org.freedesktop.dbus.DBusConnection;
 import org.freedesktop.dbus.exceptions.DBusException;
 
 /** Launch a FreeDesktop application. */
 public class LaunchApp {
-	private final static Method activateMethod;
-	static {
-		try {
-			// make sure the method is properly referenced
-			activateMethod = FreeDesktopApplicationInterface.class.getMethod("activate");
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new IllegalStateException("Method not found for " + FreeDesktopApplication.class);
-		}
-	}
+//	private final static Method activateMethod;
+//	static {
+//		try {
+//			// make sure the method is properly referenced
+//			activateMethod = FreeDesktopApplicationInterface.class.getMethod("activate");
+//		} catch (NoSuchMethodException | SecurityException e) {
+//			throw new IllegalStateException("Method not found for " + FreeDesktopApplication.class);
+//		}
+//	}
 
 	private final DBusConnection dBusConnection;
 	private final String path;
@@ -37,7 +35,10 @@ public class LaunchApp {
 		} catch (DBusException e) {
 			throw new IllegalArgumentException("App " + path + " cannot be found", e);
 		}
-		dBusConnection.callMethodAsync(app, activateMethod.getName());
+
+		app.activate();
+
+		// dBusConnection.callMethodAsync(app, activateMethod.getName());
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -47,12 +48,7 @@ public class LaunchApp {
 		String path = args[0];
 		if (!path.startsWith("/"))
 			path = "/org/argeo/cms/" + path;
-//		BusAddress busAddress = CmsDBusImpl.getSessionBusAddress();
-//		try (DBusConnection dBusConnection = DBusConnectionBuilder.forAddress(busAddress).withShared(false).build()) {
-//			LaunchApp launchApp = new LaunchApp(dBusConnection, path);
-//			launchApp.launch();
-//		}
-		DBusConnection dBusConnection = DBusConnection.getConnection(DBusConnection.SESSION);
+		DBusConnection dBusConnection = DBusConnection.getConnection(CmsDBusImpl.getSessionBusAddrStr());
 		try {
 			LaunchApp launchApp = new LaunchApp(dBusConnection, path);
 			launchApp.launch();

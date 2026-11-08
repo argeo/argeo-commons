@@ -1,7 +1,5 @@
 package org.argeo.api.cms.freedesktop;
 
-import java.util.List;
-
 /**
  * The org.freedesktop.Application interface.
  */
@@ -10,9 +8,8 @@ public interface FreeDesktopApplication {
 
 	void activate();
 
-	void open(List<String> uris);
+	void open(String[] uris);
 
-	void activateAction(String actionName);
-	// void activateAction(String actionName, List<Variant<?>> parameter);
+	void activateAction(String actionName, String[] parameters);
 
 }

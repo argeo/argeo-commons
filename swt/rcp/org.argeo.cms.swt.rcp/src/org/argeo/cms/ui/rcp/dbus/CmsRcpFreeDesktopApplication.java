@@ -2,7 +2,6 @@ package org.argeo.cms.ui.rcp.dbus;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.List;
 
 import org.argeo.api.cms.CmsApp;
 import org.argeo.api.cms.CmsLog;
@@ -61,12 +60,12 @@ public class CmsRcpFreeDesktopApplication implements FreeDesktopApplication, Clo
 	}
 
 	@Override
-	public void open(List<String> uris) {
+	public void open(String[] uris) {
 		log.debug(() -> "Open " + uris);
 	}
 
 	@Override
-	public void activateAction(String actionName) {
+	public void activateAction(String actionName, String[] parameters) {
 		log.debug(() -> "Activate action '" + actionName + "'");
 	}
 
